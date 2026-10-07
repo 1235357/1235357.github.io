@@ -184,6 +184,7 @@ class NavigationTest(unittest.TestCase):
         names = [
             'two-lifecycles.archify.json', 'two-lifecycles.archify.html',
             'browser-native.archify.json', 'browser-native.archify.html',
+            'browser-operation.archify.json', 'browser-operation.archify.html',
             'ARCHIFY-LICENSE.txt', 'ARCHIFY-THIRD-PARTY-NOTICES.txt',
             'JetBrainsMono-OFL.txt',
         ]
@@ -193,10 +194,14 @@ class NavigationTest(unittest.TestCase):
                 target = build.ROOT / 'dist' / 'figures' / name
                 self.assertTrue(target.is_file(), name)
                 self.assertEqual(source.read_bytes(), target.read_bytes())
-        for stem in ('two-lifecycles', 'browser-native'):
+        for stem in ('two-lifecycles', 'browser-native', 'browser-operation'):
             with self.subTest(private_receipt=stem):
                 self.assertFalse((build.ROOT / 'dist' / 'figures' /
                                   f'{stem}.archify.delivery.json').exists())
+        article = (build.ROOT / 'dist' / '02-contracts-before-services.html').read_text(encoding='utf-8')
+        self.assertIn('src="figures/browser-operation.archify.html?theme=dark"', article)
+        self.assertIn('href="figures/browser-operation.archify.json"', article)
+        self.assertIn('not repository-provenance validation or PDF/model execution', article)
 
     def test_evidence_diagram_keeps_implemented_and_proposed_edges_separate(self):
         # Structural acceptance only; this does not invoke a graphical renderer.

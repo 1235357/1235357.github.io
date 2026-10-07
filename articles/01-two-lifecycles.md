@@ -282,6 +282,11 @@ The Python API remains independent and must not secretly answer browser-native
 requests. A diagram iframe below is only the architecture viewer, not the
 future embedded RAG demo.
 
+As of October 7, the pure operation controller is implemented and tested,
+including stale-message rejection, cancellation and worker-incarnation identity.
+It is not wired to real workers yet. The [commit-boundary lesson](02-contracts-before-services.html#browser-work-has-a-commit-boundary-too)
+explains this narrower completed increment; the full figure remains planned.
+
 <figure class="architecture-figure" id="browser-architecture" aria-label="Approved browser-native design, not implemented">
 <div class="figure-heading"><span class="figure-status planned">02 / APPROVED DESIGN · NOT IMPLEMENTED</span><h3>The reader's device owns the computation.</h3><p>Main thread: interaction. PDF worker: text and page identity. Computation worker: embedding, ranking, context and actual generation. External hosts supply reviewed assets, not answers.</p></div>
 <iframe src="figures/browser-native.archify.html?theme=dark" title="Planned browser-native RAG — not an implemented runtime" loading="lazy"></iframe>

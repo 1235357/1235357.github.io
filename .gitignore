@@ -1,6 +1,7 @@
 dist/
 .dist-stage-*/
 .build-recovery/
+.archify/
 __pycache__/
 .venv/
 .env

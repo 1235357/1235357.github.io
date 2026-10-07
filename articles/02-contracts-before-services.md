@@ -203,6 +203,108 @@ microservices, and an API adapter alone does not make integration seamless.
 
 ## Personal reproduction checklist
 
+### Browser work has a commit boundary too
+
+Imagine selecting report A and starting ingestion, then replacing it with report
+B before A finishes. A's parser or embedding work may still finish physically.
+If its completion writes straight into the screen's current index, the screen
+can display B's filename while searching A's passages. A fast system can still
+be wrong: cancellation and the right-to-commit are separate responsibilities.
+
+The browser controller increment addresses only that right-to-commit. Its
+identity is the tuple `(protocolVersion, runtimeId, operationId, documentEpoch,
+operation)`. A message also has an increasing sequence number. Before accepting
+progress or completion, the controller compares the tuple with its active
+operation and validates the message. Only an accepted event permits a future
+adapter to change the index or UI. Rejected messages leave the whole state
+unchanged, including the last accepted sequence number.
+
+<figure class="architecture-figure" id="browser-operation-contract" aria-label="Pure operation lifecycle contract, not an executed browser RAG pipeline">
+<div class="figure-heading"><span class="figure-status">03 / TESTED CONTROLLER · CONTRACT ILLUSTRATION</span><h3>Finishing work is not permission to commit.</h3><p>One active operation. Validate before writing. Reject stale messages without changing state. Cancellation closes the commit boundary before replacement.</p></div>
+<iframe src="figures/browser-operation.archify.html?theme=dark" title="Operation lifecycle contract — controller only" loading="lazy"></iframe>
+<figcaption>Figure 3 · Archify contract illustration, not repository-provenance validation or PDF/model execution. The validation gate and rejection boxes explain control flow; they are not additional stored states. A recorded terminal may be result, error or cancellation. <a href="figures/browser-operation.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/browser-operation.archify.json">Editable JSON</a>.</figcaption>
+</figure>
+
+Work through this ordering on paper before reading code:
+
+```text
+begin ingest A at document epoch 0
+replaceDocument() → cancel A synchronously; advance epoch to 1
+begin ingest B at epoch 1
+late result from A / epoch 0 → reject; B remains active
+result from B / epoch 1 → accept once; B becomes terminal
+duplicate B result → reject; terminal receipt stays unchanged
+```
+
+The controller cannot stop a GPU kernel. It invalidates an operation immediately;
+the worker adapter must separately cancel or terminate actual work and release
+resources. Nor does acceptance prove that a result is factual. A lifecycle result
+is not a financial-answer schema, a PDF extraction receipt or genuine generation.
+Those contracts remain separate acceptance gates. The browser RAG pipeline is
+still not implemented by this controller exercise.
+
+Worker replacement has a second trap. Reusing `runtime-a` after briefly switching
+to `runtime-b` could recreate an old `runtime-a/op-1/epoch-0` identity. Therefore
+each incarnation ID must be new, and invalid replacement is rejected before
+cancelling current work. Keeping a seen-ID set is small but consequential state;
+resetting every field because it looks tidy can reintroduce a stale-write bug.
+
+For the CS381 connection, identify the policy owner: the controller validates
+lifecycle messages, the worker adapter performs computation, and the view renders
+accepted state. For CS310, identify the boundary: worker messages are asynchronous
+serialized communication, not a second HTTP server or a deployed microservice.
+This is an independent application of the inspected course concepts above, not
+a claim that either course assigned this controller.
+
+Your reproduction task is deliberately small: predict the state after every
+line of the trace, run the controller tests, then deliberately remove the epoch
+comparison in a disposable copy and observe which test fails. Restore it and
+explain in English why “the operation finished” does not imply “this operation
+is allowed to update the current document.” No model knowledge is needed to
+understand that failure, and passing the tests is not personal mastery unless
+you can reproduce and explain it yourself.
+
+### Read the validation gate, not just the green test count
+
+Read `browser-rag/protocol.mjs` in this order: `begin` allocates identity;
+`accept` checks the envelope, identity, sequence and stage; `copyPayload` validates
+and detaches metadata; only then does a state assignment occur. This ordering is
+the design. If sequence were advanced before payload validation, a malformed
+message could prevent the valid message with the same sequence from committing.
+The regression tests explicitly reject malformed sequence 7, then accept valid
+sequence 7. Rejection is not an invisible partial success.
+
+For progress, `3 pages / unknown total` means exactly that. It is not 30% or 100%.
+Progress units are declared, and stage vocabulary does not impose an execution
+order; adapters must implement that order. A higher sequence orders messages,
+not the numeric work completed across different stages. For result metadata,
+depth, value-count and UTF-8 JSON-size limits bound what may enter controller
+state. PDF buffers and model tensors belong elsewhere. These are explicit local
+design choices, not measured browser memory limits or performance results.
+
+**October 7 execution receipt:** the three controller increments were implemented
+with independent specification and quality reviews. The first increment retained
+6 tests; replacement/cancellation expanded it to 15. Before the final validation
+implementation, the expanded suite reported 18 passing and 9 failing tests;
+afterwards, all 27 passed. The site's separate Python build suite passed 14 tests.
+Those counts describe deterministic controller/build tests, not 27 PDFs or
+financial questions, actual worker cancellation, model accuracy, or your mastery.
+
+Run from the staged site repository:
+
+```text
+node --test browser-rag/tests/protocol.test.mjs
+python -m unittest discover -q
+```
+
+Then find the tests named `malformed progress is rejected without consuming a
+higher sequence`, `document replacement advances epoch before B starts`, and
+`worker replacement rejects old incarnation`. Predict their snapshots before
+running them. Your English explanation can start: “Cancellation revokes the old
+operation's right to commit. It does not prove that its computation stopped.”
+Explain the five identity fields without reading the code. Only your own
+prediction, reproduction and explanation turn this scaffold into interview evidence.
+
 1. Explain what changes when swapping a retriever, and what should stay unchanged.
 2. Predict the response for valid evidence-only input, generated refusal and an
    unavailable dependency. Distinguish HTTP status from application outcome.

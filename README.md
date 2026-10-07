@@ -620,10 +620,12 @@ inference, sample corpus, persistence or public deployment belongs to this step.
 This separation makes failure ordering testable without substituting a fake
 model for the later mandatory real generation acceptance.
 
-Proposed files: `browser-rag/protocol.mjs` and
-`browser-rag/tests/protocol.test.mjs`. Neither exists yet. Use built-in
-`node:test` / `node:assert/strict`; no npm dependency is needed for this increment.
-Installed Node was observed as 24.16.0. The commands below are planned, not run.
+Implemented files: `browser-rag/protocol.mjs` and
+`browser-rag/tests/protocol.test.mjs`. The pure controller uses built-in
+`node:test` / `node:assert/strict`; no npm dependency was installed for this increment.
+Node 24.16.0 was used for the protocol suite; Python 3.13.5 ran the build suite.
+The commands below were run on October 7. This completes the controller
+increment, not the browser-native PDF/model pipeline.
 
 **Contract.** `createController(runtimeId)` returns `begin(operation)`,
 `accept(event)`, `cancel()`, `replaceDocument()`, `replaceRuntime(runtimeId)`
@@ -653,7 +655,7 @@ and `clear: clear`. Stages identify the operation's legal vocabulary, not an
 enforced order: adapters, not this controller, own their actual execution order.
 
 ```js
-// Proposed event schema; not an actual worker execution receipt.
+// Implemented controller schema; not an actual worker execution receipt.
 {
   protocolVersion: 1,
   runtimeId: 'runtime-a',
@@ -686,7 +688,9 @@ Terminal payloads are `result: {data: JSON-like value}`,
 not a financial-answer schema or a generation receipt. Copy it before committing;
 reject cyclic values, nonfinite numbers, functions, typed arrays, non-plain
 objects, nesting deeper than 32 and more than 4096 visited values. No file/model
-buffers belong in controller state. Additional/missing keys in event/payload
+buffers belong in controller state. Result data's JSON representation must be at
+most 256 KiB in UTF-8; individual strings/keys over 256 Ki UTF-16 code units are rejected
+before serialization. Additional/missing keys in event/payload
 objects are rejected, and input is not mutated. Structured-clone worker messages
 are the intended boundary; adversarial JavaScript Proxy/getter objects are not.
 
@@ -708,44 +712,74 @@ after cancellation, but cannot publish that completion into the newer session.
 
 #### Task 1 — fail the simplest lifecycle test
 
-- [ ] Write `protocol.test.mjs` importing `createController` from `../protocol.mjs`.
+- [x] Write `protocol.test.mjs` importing `createController` from `../protocol.mjs`.
    Begin `ingest`; send valid progress; send result; assert the terminal state
    and assert a second terminal result leaves the entire snapshot unchanged.
-- [ ] Run `node --test browser-rag/tests/protocol.test.mjs`. Before the module
+- [x] Run `node --test browser-rag/tests/protocol.test.mjs`. Before the module
    exists, record the missing-module failure as setup evidence; then write the
    minimal controller shell and rerun to get a behavior assertion failure.
    Do not present import failure as the final behavioral RED receipt.
-- [ ] Implement only that behavior and watch the test pass. Commit these two
+- [x] Implement only that behavior and watch the test pass. Commit these two
    paths only, not unrelated staging files. No runtime or generation claim.
 
 #### Task 2 — prove cancellation/replacement isolation
 
-- [ ] Add failing tests: cancel operation A, begin B, deliver A's late progress,
+- [x] Add failing tests: cancel operation A, begin B, deliver A's late progress,
    result and error; compare B's **entire** snapshot before/after.
-- [ ] Add a document replacement test requiring the epoch to increment before
+- [x] Add a document replacement test requiring the epoch to increment before
    B starts. Deliver a correctly formed A event with the old epoch and ensure
    it cannot commit. Replacing the worker must also reject old runtime IDs.
-- [ ] Reject `begin` during active work rather than silently overlap GPU operations.
+- [x] Reject `begin` during active work rather than silently overlap GPU operations.
    Implement these transitions only after recording each behavioral failure.
-- [ ] Run the full protocol suite. Cancellation here is a synchronous state
+- [x] Run the full protocol suite. Cancellation here is a synchronous state
    invalidation test, **not** proof of a cancelled PDF task or GPU kernel.
 
 #### Task 3 — close the message validation boundary
 
-- [ ] Table-drive invalid version, missing/unknown operation, unsafe/negative seq,
+- [x] Table-drive invalid version, missing/unknown operation, unsafe/negative seq,
    repeated/out-of-order seq, wrong stage, negative/nonfinite progress, and
    completed-greater-than-total; every rejected event preserves state exactly.
-- [ ] Add valid unknown-total progress (`completed: 3, total: null`) and assert
+- [x] Add valid unknown-total progress (`completed: 3, total: null`) and assert
    the state contains no fabricated percentage. Strict-mode mutation of a deeply
    frozen snapshot must throw `TypeError`. Mutating an original accepted input
    payload afterwards must not change state. Reject malformed higher-sequence
    progress, then accept valid progress with that same sequence: rejection did
    not consume it. Rejected `null`/non-object input must also preserve state.
-- [ ] Run `node --test browser-rag/tests/protocol.test.mjs` and
+- [x] Run `node --test browser-rag/tests/protocol.test.mjs` and
    `python -m unittest test_build -q`. Write actual results and limitations into
    this section and the existing learning article; do not open another daily page.
-- [ ] An independent review checks exactly-one terminal, stale-commit rejection,
+- [x] An independent review checks exactly-one terminal, stale-commit rejection,
    and adapter obligations. Only then wire this contract into real workers.
+
+**October 7 scoped receipt:** Task 1 has 6 retained Node tests and Task 2 expanded
+them to 15. Task 2's nine newly failing behavior tests passed after implementation.
+For Task 3, the expanded suite first reported 18 passing / 9 failing tests, then
+27 passing / 0 failing after validation was implemented. Each increment passed
+separate specification and code-quality reviews. Independent Task 3 probes also
+checked exact 256 KiB UTF-8 JSON boundaries, escaped strings, accepted depth 32,
+null-prototype metadata and each identity-field mismatch. The Python static-build
+suite passed 14 tests. No PDF parser/model dependency was installed, no model was
+downloaded, and no real worker/generation/cancellation was exercised. The actual
+work ordering and document/index/UI commit obligations remain adapter work.
+
+**Controller teaching figure:** the existing second article now embeds
+`figures/browser-operation.archify.html` with its editable Archify JSON. Archify
+3.0.1's finalize receipt passed validate, deliver, strict check and browser-check;
+the final source and built copies have identical SHA-256 hashes. This is a
+contract illustration, **not repository-provenance validation**: the staging
+repository has no remote and the repository evidence gate rejected a local
+`file:` URL. That failed candidate is preserved in the ignored `.archify/`
+audit directory; no invented GitHub identity was supplied. The explanatory
+validation/rejection boxes are not stored controller states, and a recorded
+terminal can be result, error or cancellation.
+
+At 2026-10-07 23:47 UTC the loopback listener on 127.0.0.1:8765 belonged to local
+Python PID 5700. In the Codex in-app browser, the embedded and full-size figure
+were visually inspected in default dark mode; headings, six nodes and directed
+routes were visible. This is a desktop observation, not mobile acceptance,
+ongoing uptime, PDF/model execution or public deployment. A separate read-only
+delivery reviewer passed document/controller agreement, figure byte equality
+and all 27 Node / 14 Python tests. No site was published.
 
 **Next acceptance boundary, not hidden inside this increment:** a source-owned
 selectable PDF, actual PDF.js API/worker pairing and genuine text-item extraction.
