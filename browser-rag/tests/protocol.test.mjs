@@ -174,3 +174,128 @@ test('accepted result data is detached from its input payload and deeply frozen'
   assert.throws(() => { snapshot.terminal.payload.data.indexedPages = 99; }, TypeError);
   assert.deepEqual(controller.snapshot().terminal.payload, { data: { indexedPages: 2 } });
 });
+
+// Breaks caught below: allowing overlap, stale identity commits, reused worker
+// incarnations, and document replacement that fails to advance the epoch.
+function message(identity, kind = 'progress', seq = 1) {
+  return {
+    ...identity, kind, stage: kind === 'progress' ? 'parse' : 'index', seq,
+    payload: kind === 'progress'
+      ? { completed: 1, total: 2, unit: 'pages', estimated: false }
+      : kind === 'error' ? { code: 'parse-failed', message: 'Cannot parse page' }
+        : { data: { indexedPages: 2 } },
+  };
+}
+
+test('begin rejects overlapping work without changing any state', () => {
+  const controller = createController('runtime-a');
+  controller.begin('ingest');
+  const before = controller.snapshot();
+  assert.throws(() => controller.begin('query'), /active/i);
+  assert.deepEqual(controller.snapshot(), before);
+  controller.cancel();
+  assert.equal(controller.begin('ingest').operationId, 'op-2');
+});
+
+test('cancel records one synchronous terminal before late work arrives', () => {
+  const controller = createController('runtime-a');
+  const a = controller.begin('ingest');
+  controller.accept(message(a));
+  controller.accept({ ...message(a, 'progress', 2), stage: 'index' });
+  controller.cancel();
+  assert.deepEqual(controller.snapshot(), {
+    runtimeId: 'runtime-a', documentEpoch: 0, active: null,
+    terminal: { ...a, kind: 'cancelled', stage: 'index', seq: null,
+      payload: { reason: 'user' } },
+  });
+  const after = controller.snapshot();
+  controller.cancel();
+  assert.deepEqual(controller.snapshot(), after);
+  for (const kind of ['progress', 'result', 'error']) {
+    assert.equal(controller.accept(message(a, kind, 2)).accepted, false);
+    assert.deepEqual(controller.snapshot(), after);
+  }
+});
+
+test('cancelling idle work is a no-op and cancellation before progress has a null stage', () => {
+  const controller = createController('runtime-a');
+  const idle = controller.snapshot();
+  controller.cancel();
+  assert.deepEqual(controller.snapshot(), idle);
+  controller.begin('ingest');
+  controller.cancel();
+  assert.notEqual(controller.snapshot().terminal, null);
+  assert.equal(controller.snapshot().terminal.stage, null);
+});
+
+test('late progress, result and error from A cannot mutate active B', () => {
+  const controller = createController('runtime-a');
+  const a = controller.begin('ingest');
+  controller.cancel();
+  const b = controller.begin('ingest');
+  assert.equal(b.operationId, 'op-2');
+  const before = controller.snapshot();
+  for (const kind of ['progress', 'result', 'error']) {
+    assert.equal(controller.accept(message(a, kind, 2)).accepted, false);
+    assert.deepEqual(controller.snapshot(), before);
+  }
+});
+
+test('document replacement advances epoch before B starts and rejects the old epoch', () => {
+  const controller = createController('runtime-a');
+  const a = controller.begin('ingest');
+  controller.replaceDocument();
+  assert.equal(controller.snapshot().documentEpoch, 1);
+  assert.equal(controller.snapshot().terminal.payload.reason, 'document-replaced');
+  const b = controller.begin('ingest');
+  assert.equal(b.documentEpoch, 1);
+  const before = controller.snapshot();
+  assert.equal(controller.accept(message({ ...b, documentEpoch: a.documentEpoch }, 'result')).accepted, false);
+  assert.deepEqual(controller.snapshot(), before);
+  assert.equal(controller.accept(message(b, 'result')).accepted, true);
+});
+
+test('begin clear does not advance the document epoch a second time', () => {
+  const controller = createController('runtime-a');
+  controller.replaceDocument();
+  controller.replaceDocument();
+  assert.equal(controller.begin('clear').documentEpoch, 2);
+  assert.equal(controller.snapshot().documentEpoch, 2);
+});
+
+test('worker replacement rejects old incarnation while preserving document epoch', () => {
+  const controller = createController('runtime-a');
+  controller.replaceDocument();
+  const a = controller.begin('ingest');
+  controller.replaceRuntime('runtime-b');
+  assert.notEqual(controller.snapshot().terminal, null);
+  assert.equal(controller.snapshot().terminal.payload.reason, 'runtime-replaced');
+  const b = controller.begin('ingest');
+  assert.equal(b.runtimeId, 'runtime-b');
+  assert.equal(b.operationId, 'op-1');
+  assert.equal(b.documentEpoch, 1);
+  const before = controller.snapshot();
+  assert.equal(controller.accept(message({ ...b, runtimeId: a.runtimeId }, 'result')).accepted, false);
+  assert.deepEqual(controller.snapshot(), before);
+});
+
+test('invalid or reused worker IDs are rejected before cancelling current work', () => {
+  const controller = createController('runtime-a');
+  controller.replaceRuntime('runtime-b');
+  controller.begin('ingest');
+  const before = controller.snapshot();
+  for (const id of ['runtime-a', 'runtime-b', '', ' ', null, 2]) {
+    assert.throws(() => controller.replaceRuntime(id));
+    assert.deepEqual(controller.snapshot(), before);
+  }
+});
+
+test('messages with mismatched operation or protocol identity preserve state', () => {
+  const controller = createController('runtime-a');
+  const a = controller.begin('ingest');
+  const before = controller.snapshot();
+  for (const changed of [{ operation: 'query' }, { protocolVersion: 2 }]) {
+    assert.equal(controller.accept(message({ ...a, ...changed })).accepted, false);
+    assert.deepEqual(controller.snapshot(), before);
+  }
+});
