@@ -82,7 +82,7 @@
       "id": "parsed-document",
       "from": "pdf-worker",
       "to": "computation-worker",
-      "label": "Text + spans"
+      "label": "Spans via main"
     },
     {
       "id": "ask-or-cancel",
@@ -119,7 +119,8 @@
       "items": [
         "Approved local README design, October 7. No browser model, quality score or deployment is asserted by this diagram.",
         "The Python consumer API remains an independent deliverable. It must not answer requests behind this browser-native claim.",
-        "Document bytes and questions are not uploaded. External runtime/model downloads still require a cold/warm network audit."
+        "Document bytes and questions are not uploaded. External runtime/model downloads still require a cold/warm network audit.",
+        "The parser-to-compute arrow is logical data lineage: PDF.js returns page/spans to its main-thread proxy, which forwards records to the computation worker. It is not a direct worker-to-worker channel."
       ]
     },
     {

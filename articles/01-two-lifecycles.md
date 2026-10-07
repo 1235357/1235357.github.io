@@ -285,7 +285,7 @@ future embedded RAG demo.
 <figure class="architecture-figure" id="browser-architecture" aria-label="Approved browser-native design, not implemented">
 <div class="figure-heading"><span class="figure-status planned">02 / APPROVED DESIGN · NOT IMPLEMENTED</span><h3>The reader's device owns the computation.</h3><p>Main thread: interaction. PDF worker: text and page identity. Computation worker: embedding, ranking, context and actual generation. External hosts supply reviewed assets, not answers.</p></div>
 <iframe src="figures/browser-native.archify.html?theme=dark" title="Planned browser-native RAG — not an implemented runtime" loading="lazy"></iframe>
-<figcaption>Figure 2 · Approved design only. <a href="figures/browser-native.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/browser-native.archify.json">Editable JSON</a>. Local PDF selection and permission-reviewed samples are separate entrances; sample availability still requires permission acceptance.</figcaption>
+<figcaption>Figure 2 · Approved design only. <a href="figures/browser-native.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/browser-native.archify.json">Editable JSON</a>. Local PDF selection and permission-reviewed samples are separate entrances; sample availability still requires permission acceptance. The parser-to-compute arrow is logical data lineage: page/spans return through PDF.js's main-thread proxy before being forwarded to the computation worker, not a direct worker channel.</figcaption>
 </figure>
 
 In CS381 terms, the parser, retriever and generator are replaceable interfaces

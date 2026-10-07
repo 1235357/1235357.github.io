@@ -459,7 +459,8 @@ workflow. Static checks and manual IAB checks are separate evidence.
 - `figures/browser-native.archify.json` → standalone interactive HTML: PLANNED,
   user-approved browser-native design, explicitly NOT IMPLEMENTED. The three
   execution responsibilities, asset-only download and opt-in persistence boundary
-  are distinct. These arrows express the intended data flow; concrete PDF.js
+  are distinct. The parser-to-compute arrow is explicitly logical data lineage
+  via PDF.js's main-thread proxy, not a direct worker-to-worker channel. Concrete
   proxy/worker-message plumbing still belongs to runtime implementation.
 - Article 01 embeds both viewers as full main-grid stages rather than squeezing
   them into the text column. Each has a full-size link and canonical JSON link.
@@ -501,6 +502,17 @@ Viewport overrides are reset after review. A desktop sticky-sidebar overlap
 found during visual review was fixed by making that sidebar non-sticky on pages
 with wide architecture stages.
 
+The later proxy-wording revision delivered a new browser-design artifact:
+specification SHA-256 `fe11f58ec415464237e739c712955bdb8864f4983cbdc9dc3af5c115d80765f1`,
+HTML SHA-256 `c1896f5bc114d3501721cdeead726b85dc7d7e66a46b4099c131fb154dde8913`.
+`deliver` and strict provenance `check` again passed 9/9, with zero errors/warnings.
+Independent read-only review confirmed the source, receipt, article caption and
+copied `dist` bytes agree. Manual IAB review of these new bytes at 908×851 opened
+the compute-node passport and showed the `Spans via main` relationship; document
+scroll width was 893px. The overview labels remain small at this normal narrow
+desktop size; focus/zoom is needed for details. The earlier 390px review predates
+this wording revision and is not a fresh mobile acceptance of the new bytes.
+
 No `finalize`, automated external-browser receipt, draw.io import or PlantUML
 renderer was accepted. No GitHub push, model download, RAG backend source change,
 public tunnel or answer-quality claim was made by this figure milestone.
@@ -514,6 +526,14 @@ The accepted architecture is unchanged. Build one inspectable vertical slice,
 then qualify it. Planned paths below are not files that already exist, and the
 commands are proposed checks rather than reported results. Keep this plan here
 instead of creating another stand-alone planning document.
+This is still a roadmap, not an execution-ready implementation plan. Independent
+review identified six concrete contracts to finish before runtime coding: exact
+worker message/state schemas; PDF span/chunk schema plus a source-owned PDF fixture;
+paired runtime/model asset pins and budgets; representation/retrieval/context
+interfaces; generator-versus-release semantics; and a fresh-output static build
+with complete module/worker/WASM asset-closure tests. Existing eight site tests do
+not cover those runtime contracts. These details can be proposed by the implementer;
+the already approved architecture and two data entrances need not be re-approved.
 
 1. **Define contracts before inference.** Add `browser-rag/protocol.mjs` and
    `browser-rag/tests/protocol.test.mjs`. Freeze versioned request/document IDs,

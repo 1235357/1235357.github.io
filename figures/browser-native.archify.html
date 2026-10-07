@@ -5027,7 +5027,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </g>
         <g data-graph-role="automatic-crossover" style="--step:2">
           <path data-graph-role="automatic-crossover-underlay" d="M 520 288 L 520 420" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="pdf-worker" data-edge-to="computation-worker" data-edge-label="Text + spans" data-edge-key="2" data-edge-id="parsed-document" data-composition-points="520,288;520,420" data-composition-crossover="halo" data-composition-independent="true" d="M 520 288 L 520 420" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-edge-from="pdf-worker" data-edge-to="computation-worker" data-edge-label="Spans via main" data-edge-key="2" data-edge-id="parsed-document" data-composition-points="520,288;520,420" data-composition-crossover="halo" data-composition-independent="true" d="M 520 288 L 520 420" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:3">
           <path data-graph-role="automatic-crossover-underlay" d="M 180 288 L 180 524 Q 180 532 188 532 L 498 532 Q 506 532 506 524 L 506 508" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
@@ -5134,9 +5134,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <rect x="311.4" y="210" width="77.2" height="14" rx="3" class="c-mask"/>
           <text x="350" y="220" class="t-edge-default" font-size="8" text-anchor="middle">Selected bytes</text>
         </g>
-        <g data-detail="context" data-edge-from="pdf-worker" data-edge-to="computation-worker" data-edge-label="Text + spans" data-edge-key="2" data-edge-id="parsed-document">
-          <rect x="446.4" y="347" width="67.6" height="14" rx="3" class="c-mask"/>
-          <text x="480.2" y="357" class="t-edge-default" font-size="8" text-anchor="middle">Text + spans</text>
+        <g data-detail="context" data-edge-from="pdf-worker" data-edge-to="computation-worker" data-edge-label="Spans via main" data-edge-key="2" data-edge-id="parsed-document">
+          <rect x="436.79999999999995" y="347" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="475.4" y="357" class="t-edge-default" font-size="8" text-anchor="middle">Spans via main</text>
         </g>
         <g data-detail="context" data-edge-from="main-thread" data-edge-to="computation-worker" data-edge-label="Question / cancel" data-edge-key="3" data-edge-id="ask-or-cancel">
           <rect x="297.2" y="512" width="91.6" height="14" rx="3" class="c-mask"/>
@@ -5363,6 +5363,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <li>Approved local README design, October 7. No browser model, quality score or deployment is asserted by this diagram.</li>
           <li>The Python consumer API remains an independent deliverable. It must not answer requests behind this browser-native claim.</li>
           <li>Document bytes and questions are not uploaded. External runtime/model downloads still require a cold/warm network audit.</li>
+          <li>The parser-to-compute arrow is logical data lineage: PDF.js returns page/spans to its main-thread proxy, which forwards records to the computation worker. It is not a direct worker-to-worker channel.</li>
         </ul>
       </div>
 
