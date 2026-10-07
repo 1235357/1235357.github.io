@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "PLANNED · Browser-native RAG",
+    "subtitle": "Approved design · NOT IMPLEMENTED. No Python API in this path.",
+    "output": "figures/browser-native.archify.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "animation": "none"
+  },
+  "components": [
+    {
+      "id": "reader-input",
+      "type": "external",
+      "label": "Local PDF / reviewed sample",
+      "sublabel": "Samples gated by permission review",
+      "tag": "TWO ENTRANCES · GATED SAMPLE",
+      "pos": [60, 40],
+      "size": [240, 88]
+    },
+    {
+      "id": "main-thread",
+      "type": "frontend",
+      "label": "Main thread · interaction",
+      "sublabel": "Controls + outcome + source inspection",
+      "tag": "PLANNED · CONTROLS + VIEW",
+      "pos": [60, 200],
+      "size": [240, 88]
+    },
+    {
+      "id": "pdf-worker",
+      "type": "backend",
+      "label": "PDF.js · parsing worker",
+      "sublabel": "Text + positions + page identity",
+      "tag": "PLANNED · NO OCR / TABLE CLAIM",
+      "pos": [400, 200],
+      "size": [240, 88]
+    },
+    {
+      "id": "computation-worker",
+      "type": "backend",
+      "label": "Transformers.js · compute",
+      "sublabel": "Embed → rank → context → generate",
+      "tag": "PLANNED · LOCAL INFERENCE",
+      "pos": [400, 420],
+      "size": [240, 88]
+    },
+    {
+      "id": "model-assets",
+      "type": "external",
+      "label": "Pinned runtime + model assets",
+      "sublabel": "Reader-initiated external download",
+      "tag": "ASSETS ONLY · NO PDF / QUERY",
+      "pos": [720, 420],
+      "size": [240, 88]
+    },
+    {
+      "id": "model-cache",
+      "type": "database",
+      "label": "Owned model cache",
+      "sublabel": "Document / index: RAM by default",
+      "tag": "DOCUMENT PERSISTENCE · OPT-IN",
+      "pos": [400, 640],
+      "size": [240, 88]
+    }
+  ],
+  "connections": [
+    {
+      "id": "select-source",
+      "from": "reader-input",
+      "to": "main-thread",
+      "label": "Explicit selection"
+    },
+    {
+      "id": "parse-selected-bytes",
+      "from": "main-thread",
+      "to": "pdf-worker",
+      "label": "Selected bytes"
+    },
+    {
+      "id": "parsed-document",
+      "from": "pdf-worker",
+      "to": "computation-worker",
+      "label": "Text + spans"
+    },
+    {
+      "id": "ask-or-cancel",
+      "from": "main-thread",
+      "to": "computation-worker",
+      "label": "Question / cancel",
+      "variant": "dashed"
+    },
+    {
+      "id": "computed-outcome",
+      "from": "computation-worker",
+      "to": "main-thread",
+      "label": "Typed outcome",
+      "variant": "emphasis"
+    },
+    {
+      "id": "download-model-assets",
+      "from": "model-assets",
+      "to": "computation-worker",
+      "label": "Assets",
+      "variant": "dashed"
+    },
+    {
+      "id": "owned-model-cache",
+      "from": "computation-worker",
+      "to": "model-cache",
+      "label": "Read / cache models"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "Design, not a runtime receipt",
+      "items": [
+        "Approved local README design, October 7. No browser model, quality score or deployment is asserted by this diagram.",
+        "The Python consumer API remains an independent deliverable. It must not answer requests behind this browser-native claim.",
+        "Document bytes and questions are not uploaded. External runtime/model downloads still require a cold/warm network audit."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "One request, inspectable evidence",
+      "items": [
+        "Show the answer or refusal first; expand actual chunk IDs, page references, scores, context budget and generator identity afterward.",
+        "Generation is real computation, not a template. Citation syntax is necessary but does not prove the financial fact.",
+        "A financial claim still needs the original PDF period, metric, column, amount and unit; failed evidence/citation checks withhold it."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Lifecycle and refusal boundaries",
+      "items": [
+        "Versioned messages carry request ID, stage, progress and typed outcome. Cancelled or stale operations cannot overwrite a new source or question.",
+        "Scanned/empty text, ambiguous table relationships, missing WebGPU, device loss, memory limits and initialization failures get explicit outcomes; no silent cloud fallback.",
+        "Model caching is not document persistence or guaranteed capacity. Clear only owned namespaces; document/index persistence requires explicit opt-in."
+      ]
+    }
+  ]
+}

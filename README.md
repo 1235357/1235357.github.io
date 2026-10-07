@@ -4,14 +4,18 @@ Status: local construction only; no remote, publication or license grant.
 
 ## Classroom handoff — 2026-10-07
 
-Final availability check: the old preview processes had stopped. The existing
-blog and CUDA evidence inspector were restored without source changes, model
-downloads or public tunneling. Both now listen on loopback (8765 and 7861).
-This recovery is availability evidence, not a new answer-quality result.
+Earlier classroom availability check: the stopped blog and CUDA evidence
+inspector were restored without model downloads or public tunneling. That was
+a dated observation, not a perpetual uptime claim. During the subsequent
+Archify work on October 7, both ports were again found without listeners.
+Only the static blog was restored on loopback 8765 (owned PID 68076);
+the original inspector on 7861 was not restarted by the figure work.
+Availability is not a new answer-quality result.
 
 Local blog: http://127.0.0.1:8765/index.html. Separate original classroom
 inspector: http://127.0.0.1:7861/ (not embedded, not public).
-Both were opened in the Codex in-app browser during this rehearsal.
+Both were opened in the earlier rehearsal; current figure review uses only
+the static blog in Codex IAB. Recheck the inspector before scheduling a live demo.
 
 User clarification: keep both the enterprise Python API and a future truly
 browser-native variant, with both reader-selected PDFs and NVIDIA examples
@@ -183,9 +187,10 @@ drawn boxes are already independently deployed services.
 1. Repair and accept the enterprise consumer contract: pristine API-only install,
    explicit outcome semantics, dependency-aware readiness and owned-process cleanup.
    Article 02 now records the current gaps; existing historical receipts remain.
-2. Confirm the browser-native design before coding: PDF.js parsing and a modular
-   worker-based Transformers.js embedding/generation path are the recommended
-   first experiment. Python API remains independent. A WebLLM adapter is a later
+2. Review the stepwise implementation plan under the already approved design
+   before coding: PDF.js parsing and a modular worker-based Transformers.js
+   embedding/generation path are the chosen first experiment. Python API remains
+   independent. A WebLLM adapter is a later
    evidence-driven option, not a prerequisite for calling a page browser-native.
 3. Release no end-to-end or quality claim until a real generated answer, original
    PDF checks, frozen independent cases and an actual calibrated stronger-model
@@ -198,7 +203,7 @@ validated browser operating point. No new runtime, cloud inference or sample-PDF
 redistribution was implemented by this documentation update.
 
 <details>
-<summary>Browser-native RAG: written design for review, October 7</summary>
+<summary>Browser-native RAG: approved written design, October 7</summary>
 
 ### Goal and scope
 
@@ -209,9 +214,10 @@ service while claiming local inference. Both reader-selected PDF files and
 permission-reviewed NVIDIA examples remain in scope. No GitHub publication is
 authorized by this design.
 
-The user approved this architecture in the current conversation. This written
-specification still needs the user's review before its implementation plan.
-It is a specification, not an implemented runtime or benchmark.
+The user reviewed and accepted this written design on October 7, requesting
+further visual polish and mandatory Archify figures. This is an approved
+specification, not an implemented runtime or benchmark. The implementation plan
+below remains a plan for review, not completion evidence.
 
 ### Alternatives and chosen first architecture
 
@@ -355,6 +361,128 @@ our device remain unmeasured. No market-adoption claim is made.
 - [PDF.js](https://mozilla.github.io/pdf.js/) and [generated API](https://mozilla.github.io/pdf.js/api/): selected getDocument/TextItem/getTextContent/pageNumber/getPageLabels contracts; not a full parser-source or every API review. Code and documentation licenses differ from input-PDF permission.
 - [MDN WebGPU](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API): secure context, adapter/device boundaries and GPU failures; selected capability/error sections, last modified September 2, 2026.
 - [MDN storage quotas](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria): full article, quota estimates, best-effort storage/eviction; last modified January 5, 2026.
+
+</details>
+
+<details>
+<summary>Archify figures: local delivery and verification, October 7</summary>
+
+### What changed
+
+Archify 3.0.1 was installed from the user-requested
+[upstream repository](https://github.com/tt-a1i/archify), fixed source commit
+`73aaa0696e8f72c232ea710e6fa94fd953f3e773`. Its required authoring/delivery
+references and JSON schemas were read before generation. No upstream browser
+checker was used: it launches external Chromium, contrary to the user's IAB-only
+workflow. Static checks and manual IAB checks are separate evidence.
+
+- `figures/two-lifecycles.archify.json` → standalone interactive HTML: CURRENT
+  Python-hosted retrieval, default generation OFF. Query encoding → ranking →
+  context is now visually left-to-right, consistent with the authored edges.
+- `figures/browser-native.archify.json` → standalone interactive HTML: PLANNED,
+  user-approved browser-native design, explicitly NOT IMPLEMENTED. The three
+  execution responsibilities, asset-only download and opt-in persistence boundary
+  are distinct. These arrows express the intended data flow; concrete PDF.js
+  proxy/worker-message plumbing still belongs to runtime implementation.
+- Article 01 embeds both viewers as full main-grid stages rather than squeezing
+  them into the text column. Each has a full-size link and canonical JSON link.
+  The diagram iframe is an architecture viewer, never claimed to be the RAG demo.
+- The build copies only named `*.archify.html` / `*.archify.json` figure assets
+  and the MIT/third-party/font notices. Local delivery receipts are not copied
+  into `dist`. Original draw.io/PlantUML sources are retained.
+- Git attributes preserve generated viewer/spec/receipt and bundled-notice
+  bytes across Windows checkouts. The upstream HTML contains trailing whitespace;
+  it is not manually reformatted because that would invalidate its delivery hash.
+  Source-only whitespace checks therefore exclude the two generated viewers.
+
+### Actual acceptance versus remaining gates
+
+Both final artifacts passed `validate --quality showcase`, `deliver`, and
+`check --require-provenance`: 9/9 static checks, zero composition errors/warnings,
+current artifact provenance. The browser-design composition estimate's minimum
+projected text was 7.44px at the tool's legacy 930px budget; it did **not** meet
+the requested 7.5px projection target despite passing the hard-floor gate. This
+is why static PASS is not advertised as complete visual acceptance.
+
+The site suite now has 8 passing tests. New behavior tests first failed because
+interactive assets were omitted and because figures stayed inside the reading
+column; minimal build fixes made them pass. A test scratch copy is separate from
+the blog; final tests/build also ran against this local repository.
+
+Codex IAB at its normal 908px viewport displayed both embedded diagrams. Article
+scroll width was 893px, figure width 833px and frame width 831px, without whole-
+page horizontal overflow. Clicking the ranking node showed two incoming and one
+outgoing authored relationships. The browser-design iframe loaded its planned
+heading and rendered all six nodes; it is not a browser inference run.
+
+A temporary 390×844 viewport measured document width 375px and figure width
+331px. The compute-node passport and refusal/design card were inspected, with
+readable inspector text; the entire overview is small at this width. Use zoom,
+node inspection or the full-size viewer for detailed graph reading. This does
+not claim every mobile interaction, export format or keyboard path is accepted.
+Viewport overrides are reset after review. A desktop sticky-sidebar overlap
+found during visual review was fixed by making that sidebar non-sticky on pages
+with wide architecture stages.
+
+No `finalize`, automated external-browser receipt, draw.io import or PlantUML
+renderer was accepted. No GitHub push, model download, RAG backend source change,
+public tunnel or answer-quality claim was made by this figure milestone.
+
+</details>
+
+<details>
+<summary>Browser-native implementation plan — proposed sequence for review</summary>
+
+The accepted architecture is unchanged. Build one inspectable vertical slice,
+then qualify it. Planned paths below are not files that already exist, and the
+commands are proposed checks rather than reported results. Keep this plan here
+instead of creating another stand-alone planning document.
+
+1. **Define contracts before inference.** Add `browser-rag/protocol.mjs` and
+   `browser-rag/tests/protocol.test.mjs`. Freeze versioned request/document IDs,
+   message kinds, budgets, cancellation, stale-result rejection and typed refusal/
+   error states. Start with failing `node --test browser-rag/tests/*.test.mjs`
+   cases for a replaced document and cancelled request. Injected-model tests
+   establish only protocol behavior, never real model quality.
+2. **Make one source inspectable.** Add `browser-rag/pdf-source.mjs`,
+   `browser-rag/chunking.mjs` and their tests. Pin the PDF.js package/worker pair;
+   use its main-thread proxy to collect text/page identity, then explicitly
+   hand reviewed records to the compute worker. Diagram data-flow arrows do not
+   promise a direct PDF.js-worker-to-compute-worker MessagePort. Preserve source
+   hash, physical page/page label and text-position spans; reject scanned/empty
+   text and ambiguous table assertions. Initially use a synthetic selectable PDF,
+   not silently redistributed private or NVIDIA PDFs.
+3. **Run actual local representations.** Add `browser-rag/compute.worker.mjs`,
+   `browser-rag/model-registry.mjs` and `browser-rag/retrieval.mjs`. Review model
+   license, revision, pooling/normalization, dtype, artifact sizes and backend
+   compatibility before download. Test known-vector cosine, representation
+   mismatch and context budgets; then separately run an actual pinned embedding
+   model in IAB. Do not reuse the Python NumPy index or threshold 0.78.
+4. **Generate and check a real answer.** Add `browser-rag/generator.mjs` and
+   `browser-rag/release-policy.mjs`. First test missing/nonexistent citations and
+   unanswerable cases with deterministic fixtures; then execute actual local
+   generation. A model invocation and citation syntax alone are not accepted
+   financial answering. Show answer/refusal first, then actual intermediates.
+5. **Embed the tested slice.** Add `browser-rag/demo.html`, `browser-rag/app.mjs`
+   and `browser-rag/demo.css`, and an explicit asset allowlist in `build.py`.
+   Integrate into the existing article with clear download consent/progress,
+   source inspection, model/index lifecycle and cancel/clear controls. Wire up
+   local PDFs and a separately reviewed sample registry; keep sample mode visibly
+   disabled until the permission gate passes. Use existing Archify figures and
+   update their canonical JSON only when real boundaries change.
+6. **Qualify, do not decorate failures away.** Add bounded
+   `browser-rag/acceptance/` fixtures and a frozen source-checked registry.
+   Actual IAB tests must show cold/warm asset requests, no PDF/query upload,
+   independent parsing/embedding/generation with no Python inference service,
+   supported-device failure states and measured stage timings. Test offline warm
+   reload separately. Record actual predictions and source verdicts; independent
+   acceptance cases must not be tuned on. Preserve failures and do not label the
+   result enterprise-ready or personal mastery without the corresponding proof.
+
+Every step updates the existing article/README and relevant tests, rather than
+creating daily duplicate pages. Heavy runtime/model operations are serialized;
+the unrelated career/Forge/course threads and their browser sessions are not
+touched. Public GitHub release remains a separate user decision.
 
 </details>
 

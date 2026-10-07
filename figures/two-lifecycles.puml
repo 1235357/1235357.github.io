@@ -1,0 +1,31 @@
+@startuml
+title Financial retrieval: representation lifecycle versus request lifecycle
+skinparam backgroundColor #F6F2E8
+skinparam shadowing false
+skinparam defaultFontName Georgia
+skinparam ArrowColor #17332D
+skinparam rectangleBorderColor #17332D
+skinparam packageBorderColor #17332D
+top to bottom direction
+
+package "OFFLINE — rebuild on representation changes" {
+  rectangle "PDF → extracted text → chunks\nPreserve source and page identity" as chunks #E6ECDF
+  rectangle "Passage encoding\nPinned model + encoding convention" as encoding #E6ECDF
+  rectangle "Versioned index\nVectors + ordered chunk records" as index #E6ECDF
+  chunks --> encoding
+  encoding --> index
+}
+package "ONLINE — one incoming request" {
+  rectangle "Validate question + query encoding\nNo PDF re-ingestion" as query #F0E1D5
+  rectangle "Exact cosine ranking\nTop-k candidates" as ranking #F0E1D5
+  rectangle "Evidence policy + context\nSimilarity threshold is not truth" as context #F0E1D5
+  query --> ranking
+  ranking --> context
+}
+index --> ranking : reusable passage vectors
+note bottom of context
+  Default generation OFF.
+  Verify period, metric, column, amount and unit in the primary PDF.
+  Boxes represent responsibilities, not deployed microservices.
+end note
+@enduml

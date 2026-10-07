@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "CURRENT · Python-hosted evidence retrieval",
+    "subtitle": "Browser is the client. Default generation is OFF.",
+    "locale": "en",
+    "output": "figures/two-lifecycles.archify.html",
+    "quality_profile": "showcase",
+    "animation": "none"
+  },
+  "components": [
+    {"id":"chunks","type":"backend","label":"PDF text + chunks","sublabel":"doc / page / chunk identity","tag":"OFFLINE","pos":[60,80],"size":[240,88]},
+    {"id":"encoding","type":"backend","label":"Passage encoder","sublabel":"pinned BGE · normalized vectors","tag":"OFFLINE","pos":[390,80],"size":[240,88]},
+    {"id":"index","type":"database","label":"Versioned index","sublabel":"vectors + ordered records","tag":"STARTUP LOAD","pos":[390,260],"size":[240,88]},
+    {"id":"query","type":"backend","label":"Validate + encode","sublabel":"query instruction ≠ LLM rewrite","tag":"EACH REQUEST","pos":[60,470],"size":[240,88]},
+    {"id":"ranking","type":"backend","label":"Cosine ranking","sublabel":"scoped top-k candidates","tag":"EACH REQUEST","pos":[390,470],"size":[240,88]},
+    {"id":"context","type":"security","label":"Evidence + context","sublabel":"threshold ≠ financial truth","tag":"CANDIDATES ONLY","pos":[720,470],"size":[240,88]}
+  ],
+  "connections": [
+    {"id":"chunks-to-encoding","from":"chunks","to":"encoding"},
+    {"id":"encoding-to-index","from":"encoding","to":"index"},
+    {"id":"index-to-ranking","from":"index","to":"ranking","label":"load / reuse"},
+    {"id":"query-to-ranking","from":"query","to":"ranking","variant":"emphasis"},
+    {"id":"ranking-to-context","from":"ranking","to":"context","variant":"emphasis"}
+  ],
+  "cards": [
+    {"dot":"cyan","title":"One question · left to right","items":["Validate and encode → rank → select evidence/context.","No PDF parsing or corpus rebuilding on the request path."]},
+    {"dot":"emerald","title":"Inspected implementation","items":["runtime.py: build_bge_service composes the retriever.","service.py: EvidenceService stops at grounded context.","Local source review; no immutable repository-link receipt."]},
+    {"dot":"amber","title":"Acceptance boundary","items":["Generation is OFF in the default classroom demo.","Verify period, metric, column, amount and unit in the PDF.","Boxes are responsibilities, not deployed microservices."]}
+  ]
+}

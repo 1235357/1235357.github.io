@@ -1,0 +1,7 @@
+# Preserve generated artifacts and their byte-level delivery provenance on Windows.
+figures/*.archify.html -text
+figures/*.archify.json -text
+figures/*.archify.delivery.json -text
+figures/ARCHIFY-LICENSE.txt -text
+figures/ARCHIFY-THIRD-PARTY-NOTICES.txt -text
+figures/JetBrainsMono-OFL.txt -text

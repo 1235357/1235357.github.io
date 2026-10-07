@@ -1,0 +1,24 @@
+<mxfile host="app.diagrams.net" version="24.7.17">
+  <diagram id="two-lifecycles" name="Two lifecycles">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1200" pageHeight="800">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="title" value="FINANCIAL RETRIEVAL · TWO LIFECYCLES" style="text;html=1;fontSize=26;fontStyle=1;fontColor=#17332D;align=left;" vertex="1" parent="1"><mxGeometry x="60" y="30" width="1080" height="50" as="geometry"/></mxCell>
+        <mxCell id="offline" value="OFFLINE · rebuild when representation changes" style="swimlane;html=1;startSize=40;fillColor=#F6F2E8;strokeColor=#17332D;fontSize=17;" vertex="1" parent="1"><mxGeometry x="60" y="110" width="1080" height="200" as="geometry"/></mxCell>
+        <mxCell id="chunks" value="PDF → text → chunks&lt;br&gt;Preserve source + page identity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6ECDF;strokeColor=#17332D;fontSize=17;" vertex="1" parent="offline"><mxGeometry x="30" y="75" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="encoding" value="Passage encoding&lt;br&gt;Pinned model + convention" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6ECDF;strokeColor=#17332D;fontSize=17;" vertex="1" parent="offline"><mxGeometry x="390" y="75" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="index" value="Versioned index&lt;br&gt;Vectors + ordered chunk records" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6ECDF;strokeColor=#17332D;fontSize=17;" vertex="1" parent="offline"><mxGeometry x="750" y="75" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="online" value="ONLINE · one incoming request" style="swimlane;html=1;startSize=40;fillColor=#F6F2E8;strokeColor=#17332D;fontSize=17;" vertex="1" parent="1"><mxGeometry x="60" y="420" width="1080" height="200" as="geometry"/></mxCell>
+        <mxCell id="query" value="Validate + encode question&lt;br&gt;No PDF re-ingestion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0E1D5;strokeColor=#17332D;fontSize=17;" vertex="1" parent="online"><mxGeometry x="30" y="75" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="ranking" value="Exact cosine ranking&lt;br&gt;Top-k candidates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0E1D5;strokeColor=#17332D;fontSize=17;" vertex="1" parent="online"><mxGeometry x="390" y="75" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="context" value="Evidence policy + context&lt;br&gt;Similarity ≠ truth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0E1D5;strokeColor=#17332D;fontSize=17;" vertex="1" parent="online"><mxGeometry x="750" y="75" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#17332D;" edge="1" parent="offline" source="chunks" target="encoding"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#17332D;" edge="1" parent="offline" source="encoding" target="index"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#17332D;" edge="1" parent="online" source="query" target="ranking"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#17332D;" edge="1" parent="online" source="ranking" target="context"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="reuse passage vectors" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;strokeColor=#A14C31;fontColor=#A14C31;fontSize=15;" edge="1" parent="1" source="index" target="ranking"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="boundary" value="Default generation OFF. Primary-PDF verification: period → metric → column → amount → unit.&lt;br&gt;These boxes are responsibilities, not a claim of deployed microservices." style="text;html=1;whiteSpace=wrap;fontSize=16;fontColor=#17332D;align=left;" vertex="1" parent="1"><mxGeometry x="60" y="670" width="1080" height="70" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

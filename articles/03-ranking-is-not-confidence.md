@@ -1,0 +1,247 @@
+---
+title: Ranking is not confidence
+tags: [rag, retrieval, engineering]
+category: technical-blog
+status: local-draft
+created: 2026-10-04
+updated: 2026-10-07
+source_type: implementation-and-course-review
+---
+
+# Ranking is not confidence
+
+The retrieval stage answers a narrow question: which stored passages are most
+similar to this query under a particular representation and candidate scope?
+It does not answer whether a financial claim is true. This chapter follows the
+actual local implementation in `src/nvidia_rag/retrieval.py`, rather than a
+proposed vector-database architecture. No benchmark improvement is claimed.
+
+## First understand the exact calculation
+
+For a query vector q and passage vector d, cosine similarity is:
+
+```text
+cos(q, d) = sum(q[i] * d[i]) / (norm(q) * norm(d))
+```
+
+`DenseRetriever._normalize` divides each vector by its L2 norm. After that,
+`candidate_matrix @ query_matrix[0]` is the vectorized dot product for every
+eligible passage. This is exact dense search over an in-memory NumPy matrix;
+it is not approximate nearest-neighbor search. Document vectors can be supplied
+from a previously built artifact; the query encoder still runs for the request.
+
+A hand-calculation makes the operation concrete. For q=(3,4), A=(6,8), and
+B=(4,-3), normalized q=(0.6,0.8), A=(0.6,0.8), B=(0.8,-0.6). Their scores are
+1 and 0. A wins the ranking, but that says nothing about A containing the right
+fiscal year or revenue column. These are synthetic vectors, not model outputs.
+
+The implementation rejects nonfinite vectors, zero vectors, overflowing norms,
+and mismatched query/document dimensions. Those checks prevent invalid arithmetic.
+They do not establish model compatibility: two models can both produce 384
+dimensions and nevertheless represent text in incompatible spaces. Artifact
+provenance and encoder revision belong to the loading contract as well.
+
+### Course connection: a normalized score is not calibrated truth
+
+The CS461 *Word Vectors* original posted in Canvas, physical PDF pages 5, 6
+and 11, discusses distance/inner-product/cosine comparisons, softmax and the
+limits of intrinsic embedding quality for predicting downstream performance.
+The deck is labeled Fall 2026, David Demeter. Its examples concern word vectors;
+our retriever uses query/passage representations. The following connection is
+our project-specific inference, not a claim that the lecture implements this RAG.
+
+Normalizing vectors makes the dot product equal to cosine similarity. Applying
+softmax to candidate scores would instead normalize over a particular candidate
+set. Adding an unrelated candidate changes its denominator without changing the
+financial facts in an existing passage. Neither operation calibrates a
+probability that the requested fiscal period, metric, amount and unit are correct.
+Those fields require downstream source-based evaluation, not a higher cosine score.
+
+## Candidate scope comes before ranking
+
+`inspect` can restrict candidates by trusted document IDs and a predicate.
+It retains original indices so each ranked vector maps back to the correct chunk.
+If the selected scope has no chunks, the inspection returns no candidates, zero
+considered chunks and no top-passage vector. That is not a successful answer.
+
+The fiscal-year wrapper introduces another decision. A single explicit known
+year can select a report; unknown-year handling refuses unavailable scope.
+However, a report may contain comparative columns for several fiscal years.
+Selecting the FY2025 report alone does not prove a retrieved amount belongs to
+FY2025. The row, column, date and unit still require source verification.
+
+The task-source wrapper also scopes before ranking, using separately validated
+source declarations. It does not infer licenses, classify arbitrary questions or
+verify claims. This distinction matters when earnings-call or analyst materials
+are eventually added: more documents do not automatically mean better evidence.
+
+## Top-k is a ranking budget, not a quality guarantee
+
+The current code uses `np.argsort(scores)[::-1][:top_k]`: calculate all eligible
+scores, fully sort them, then keep k. For N candidates of dimension D, the dense
+arithmetic is approximately O(ND), while full sorting is O(N log N). An
+argpartition-based selection could reduce sorting work, but would need explicit
+tie behavior and regression checks before replacement. It is a possible change,
+not a implemented optimization.
+
+Notice another measurement trap: the constructor converts vectors with
+`np.asarray(raw_matrix, dtype=float)` and then normalizes them. On the usual
+NumPy configuration this means float64, even if the stored artifact uses
+float32. For 2,399 vectors of dimension 384, raw float32 storage is 3,684,864
+bytes; a float64 matrix alone is 7,369,728 bytes. Neither number is process RAM.
+Temporary matrices, model weights, Python objects and other allocations are
+additional. Measure dtype and peak memory before claiming a memory improvement.
+
+Similarly, a CUDA query encoder does not make the NumPy CPU matrix multiplication
+or argsort run on the GPU. Profile the stages separately before choosing a new
+backend. A larger corpus might justify ANN indexing or a service boundary, but
+neither is proved necessary by the present corpus size alone.
+
+## Lexical and semantic signals have different failure modes
+
+The lexical control uses `TfidfVectorizer(stop_words="english")` and cosine
+similarity over TF-IDF vectors. It can reward exact terms that matter in financial
+reports, but can miss paraphrases. Dense representations can find semantically
+related text, but can over-rank neighboring fiscal periods or similar metrics.
+There is no measured winner yet: compare both on the same labeled questions,
+corpus snapshot and source scope.
+
+### Course connection: weighted hybrid scoring is different from RRF
+
+The CS496 course-posted `class2` original, physical PDF page 42, shows a weighted
+combination of literal and semantic scores, `s = a*s1 + b*s2`, followed by Top-K.
+Its first page credits Hung-yi Lee's ML2026 slides. That diagram does not specify
+RRF and is not evidence that our isolated fusion helper implements the same policy.
+
+For a synthetic example, let dense scores for A/B/C be `.9/.8/.2` and lexical
+scores be `1/9/8`. Their equally weighted sum selects B. Divide all lexical scores
+by 100: their lexical order is unchanged, but the sum now selects A. RRF uses
+positions rather than these magnitudes, so this rescaling does not change its
+result. This demonstrates score-scale dependence, not a measured quality advantage.
+
+## Why reciprocal-rank fusion cannot use the dense threshold
+
+The optional `reciprocal_rank_fusion` combines rankings, not raw similarities:
+
+```text
+RRF(document) = sum(1 / (60 + rank_in_list))
+```
+
+Suppose dense ranks A first, B second; lexical ranks B first, C second.
+A receives 1/61, B receives 1/62 + 1/61, and C receives 1/62. B wins through
+agreement across the lists. These numbers are synthetic worked values, not
+observed retrieval quality. They are neither cosine similarities nor
+probabilities. Reusing the dense 0.78 threshold on them would be meaningless.
+
+The implementation rejects duplicate chunk IDs within one ranking and conflicting
+chunk contents across rankings. It breaks fused-score ties by chunk ID. These
+identity checks preserve the meaning of fusion; they do not verify financial
+facts. Hybrid retrieval remains an isolated experiment, not the default classroom
+acceptance path.
+
+## Connect the arithmetic to software design
+
+### Map official strategies to explicit experiment boundaries
+
+The [Anyscale retrieval-strategy guide](https://docs.anyscale.com/rag/quality-improvement/retrieval-strategies)
+was read in the in-app browser on October 4. It discusses query reformulation,
+multiple queries, hybrid search, reranking, RRF, and exact structured predicates.
+It distinguishes runtime hypothetical-document generation from indexing-time
+hypothetical questions, with different latency, storage and quality tradeoffs.
+Those options are not a checklist that every application must implement.
+
+For this project, the implementation reviewed here establishes a dense baseline,
+a TF-IDF control and an isolated RRF function. TF-IDF is not BM25. RRF is not a
+cross-encoder. The inspected fiscal-year wrapper is rule-based routing, not
+general query decomposition, SQL generation or an autonomous agent. Neither
+HyDE nor reverse HyDE is established by these implementations.
+
+Before any future variant is promoted, register its question set, candidate scope,
+encoder/index revisions, score semantics and latency boundary. Use the same
+source snapshot across variants. A proposed comparison should change one factor
+at a time: lexical control versus dense; then fusion versus those controls;
+then any reranker over a recorded common candidate pool. A reranker cannot
+recover a relevant passage absent from that pool, so record candidate recall
+before comparing final ranks. These are proposed measurements, not results.
+
+For rewriting experiments, retain original and rewritten query text and have a
+reviewer check whether the fiscal period and metric changed. A plausible
+synthetic answer used for retrieval must never become the factual evidence or
+the expected answer label. For structured lookups, exact period/metric fields
+must derive from verified source structure rather than a guessed extraction.
+
+This is a concrete application of the responsibility and dependency boundaries
+discussed in the CS381 layering materials: a retriever owns candidate scoring,
+not financial validation or UI wording. An injected encoder lets a consumer
+replace representation without making the UI own model loading. The interface
+still needs a score-semantic contract: the same `ScoredChunk` shape does not make
+cosine and RRF interchangeable for a downstream threshold.
+
+The CS310 client/server and multi-tier materials raise a separate question:
+where should this work execute? A clean Python boundary helps testing, but does
+not itself establish a network tier, scalability, latency isolation or production
+deployment. First measure the existing request path, then justify a boundary.
+The CS461/CS496 connections above cover the specified original pages, not entire
+courses. They establish concepts to explain, not proof of personal mastery.
+
+## One real CUDA trace, not a correctness score
+
+The independent installed package was exercised on October 4 with the pinned
+cached BGE encoder on `cuda:0` and the integrity-checked annual-report matrix.
+`acceptance/real_retrieval.py` accepts an external reviewed artifact directory;
+it neither copies nor modifies the classroom index and disables model downloads.
+
+For the exact question `What was NVIDIA annual revenue in FY2025?`, the five
+candidate PDF pages were 18, 170, 162, 144 and 149 of `nvidia-fy2025-annual`,
+scoring 0.807257, 0.797554, 0.788096, 0.784264 and 0.765803. The similarity gate
+passed, but the fifth candidate was below 0.78. Top-k retrieval and threshold
+selection are consequently visible as separate operations in a real trace.
+
+Preserve the exact question string with the trace. The October 7 classroom query
+`What was NVIDIA's annual revenue in FY2025?` is a different observation from the
+October 4 wording above. Its top score was 0.814609; that difference is not an
+optimization result and must not overwrite the earlier receipt.
+
+This is a single observed candidate ranking, not a held-out quality measurement.
+No answer was generated, no HTTP API was exercised, and this run did not inspect
+the original PDF's revenue row or fiscal-year column. Your next step is to check
+the top candidate against the source and explain whether it answers the question,
+not to treat `gate=True` as a correctness label. CUDA encoded the question; it
+does not imply that the NumPy ranking arithmetic ran on the GPU.
+
+### Follow the top candidate back to the original page
+
+A subsequent source check identified the top chunk as
+`nvidia-fy2025-annual:p18:50cdb6ce95041a87`. The local source PDF's SHA-256
+matched its corpus-manifest record. Text extraction and a rendered-page review
+then checked physical PDF page 18, whose printed footer is page 4. Its FY2025
+results summary associates consolidated revenue with **$130.5 billion**; the
+top chunk contains the corresponding narrative as well as the flattened summary.
+This supports that one rounded reported figure, not a more precise amount or
+every passage in the returned context.
+
+The distinction is practical: on the same page, segment and market-platform
+revenue figures appear alongside the consolidated result. A generator could
+select a real number from the wrong scope. The displayed report's period,
+consolidated-versus-segment metric and dollar/billion unit must all agree with
+the question. Physical PDF page numbers and printed report page numbers also
+must not be silently interchanged in citations.
+
+Source: [NVIDIA FY2025 annual report](https://s201.q4cdn.com/141608511/files/doc_financials/2025/annual/NVIDIA-2025-Annual-Report.pdf).
+This is an assistant-reviewed, already-exposed example, not an independent
+held-out label or system accuracy result. The second candidate's page discusses
+segment reporting among other topics; its high score alone does not establish
+that the particular returned chunk answers the consolidated-revenue question.
+
+## Reproduce before describing this as interview evidence
+
+1. Hand-calculate the two-dimensional cosine example without an assistant.
+2. Find normalization, candidate selection and sorting in the source.
+3. Explain why the report year can differ from a financial column year.
+4. Calculate the RRF example and explain why 0.78 cannot be transferred.
+5. Trace a real candidate back to its PDF and verify the period, metric and unit.
+
+Only a personally reproduced explanation and source check supports a mastery
+claim. Passing a software test or watching the demo is not a substitute.
+
+Next: [evaluation labels before scores](06-evaluation-labels-before-scores.html).

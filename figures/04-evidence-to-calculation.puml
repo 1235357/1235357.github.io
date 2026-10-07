@@ -1,0 +1,27 @@
+@startuml
+title Evidence before calculation — implemented vs proposed
+skinparam backgroundColor #F1EEE5
+skinparam defaultFontName Georgia
+skinparam shadowing false
+skinparam rectangleBackgroundColor #FFFDF7
+skinparam rectangleBorderColor #245148
+skinparam ArrowColor #245148
+rectangle "Original report\nPage / row / column / unit" as report
+rectangle "Extract + chunk\nRelationships may be lost" as extraction
+rectangle "Retrieve candidates\nRanking is not verification" as retrieval
+rectangle "Review source\nPeriod / metric / value / unit" as review
+rectangle "Accept explicit rows\nReview status + source locator" as accepted
+rectangle "Lookup / calculate\nCheck units + denominator" as calculate
+rectangle "Unresolved\nDo not accept" as hold #FBEDE5
+report -right-> extraction
+extraction -right-> retrieval
+retrieval .down.> review : proposed
+review .left.> accepted : accepted
+accepted .left.> calculate : proposed
+review .down.> hold : ambiguous
+legend bottom
+Solid: implemented document path
+Dotted: proposed review-and-calculation path
+No implemented SQL agent or verified calculation service is claimed.
+endlegend
+@enduml
