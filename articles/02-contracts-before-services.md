@@ -11,9 +11,9 @@ An enterprise consumer does not integrate a screenshot. It integrates behavior:
 what input is accepted, what the response means, and what happens when a dependency
 fails. This chapter examines the current implementation, not a promised production
 deployment. Source authority: `src/nvidia_rag/service.py` and `api.py` inspected on
-2026-10-04, with a read-only installation/contract audit on 2026-10-07. The dated
-regressions below are historical receipts, not a new suite run, runtime benchmark
-or financial-answer evaluation.
+2026-10-04, with an installation/contract audit and pristine API-only dependency
+repair on 2026-10-07. The current repair is distinguished from dated historical
+receipts below. Neither is a runtime benchmark or financial-answer evaluation.
 
 ## The smallest reusable responsibility
 
@@ -125,9 +125,9 @@ Imports of the core API remain required; this is not a dependency-free launcher.
 
 The October 7 source audit found a packaging gap before model startup even begins:
 `api.py` imports `GeneratedResponse` from `generation.py`; that module imports
-HTTPX unconditionally. Yet `pyproject.toml` declares HTTPX under `dev` and
+HTTPX unconditionally. The historical candidate declared HTTPX under `dev` and
 `generation`, not under the core package or the `api` extra. FastAPI and Uvicorn's
-installed base dependency metadata do not supply it. An environment that already
+installed base dependency metadata did not supply it. An environment that already
 contains HTTPX can therefore hide an incomplete API-only installation recipe.
 
 ```text
@@ -137,14 +137,42 @@ consumer chooses package[api]
     → HTTPX must be declared or deliberately isolated from this import path
 ```
 
-This is a verified declaration/import mismatch, not a new pristine-environment
-failure receipt. The correction should be tested by building a wheel, installing
-only its documented extra into a fresh environment, and importing from outside
-the checkout in isolated mode. Test the exact advertised consumer path; a mixed
-development environment or `pip check` cannot detect an undeclared import that
-happens to be installed. Dependency self-sufficiency and real-answer quality are
-different acceptance gates. No package dependency or import was changed for this
-read-only audit.
+The next experiment tested the actual advertised consumer path. Two pristine
+virtual environments outside the checkout installed only each candidate's `[api]`
+extra. Neither installed the dev, model, generation or Gradio extras. Both ran
+`acceptance/api_install_contract.py` with Python `-I -B` from a non-checkout working
+directory. The script checks the imported API is in `site-packages` and rejects
+environments containing Gradio, Torch, Transformers or sentence-transformers.
+
+| Step | Observed result | What it establishes |
+|---|---|---|
+| RED: install historical wheel with only `[api]` | Installation succeeded; actual API import failed with `ModuleNotFoundError: No module named 'httpx'`. | A clean environment exposes the undeclared transitive import. |
+| Minimal repair | Add `httpx>=0.27,<1` to the existing `api` extra, then rebuild a separate wheel. | Dependency declaration changes; no model or runtime refactor is claimed. |
+| GREEN: install rebuilt wheel in the second fresh environment | Actual installed import and synthetic in-process HTTP acceptance passed; `pip check` passed. | This API-only Windows/Python installation and adapter contract are usable. |
+
+The green environment used Python 3.13.5, HTTPX 0.28.1, FastAPI 0.142.4 and Uvicorn
+0.54.0. The new wheel is 72,858 bytes, SHA-256
+`b5a554e7d0e9b8107c01fa4b1bdaa96d90ea3dd4c3a2dffdf4afdc75106534ba`.
+It remains a local candidate, not a released package. The same script verifies
+200/401/422 routes, synthetic evidence with an empty answer, refusal and request-ID
+mapping. It uses a generated ephemeral token, never printed or persisted.
+
+The checkout suite was rerun: 45 cases passed with one Starlette warning. The
+pristine acceptance also retained PyMuPDF and Starlette deprecation warnings.
+This is not model acquisition, live socket serving, financial quality, Linux or
+load acceptance. The broad ranges are not a dependency lock. The API still
+imports the generation response type; this repair does not claim lazy imports.
+
+The [Python Packaging guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies)
+explains how named extras declare additional dependencies. The lesson is stronger
+than “add one package”: test the exact promised consumer path. A mixed development
+environment or `pip check` cannot detect an undeclared import that happens to be
+installed. Installation closure and real-answer quality are different gates.
+
+Try it yourself: predict why all 45 checkout tests could pass while the RED import
+failed. Install only `[api]` in a fresh environment, run the acceptance in isolated
+mode, and explain which guarantees are still missing. An agent-run receipt is not
+your demonstrated mastery of these boundaries.
 
 Reproduce the lesson: draw the startup sequence; identify the cheapest decisive
 failure; explain which error should win when both token and corpus are invalid.
@@ -256,15 +284,16 @@ This article remains a draft and is not a publication or enterprise-readiness cl
 
 ## A real socket closes a different boundary than TestClient
 
-The independent package now declares an `api` extra containing FastAPI and
+The historical independent package declared an `api` extra containing FastAPI and
 Uvicorn, separate from the Gradio demonstration extra. The candidate wheel's
 metadata was inspected, installed with that extra in the acceptance environment,
 and imported outside the source tree. Gradio was absent in that environment.
 This proves this bounded installation path does not require the demonstration
 UI; it does not prove a pristine model-backed consumer installation. HTTPX had
 already been installed in that environment for earlier consumer tests. Therefore
-this historical receipt does not close the API-only dependency gap identified
-above. Preserve the receipt, but narrow the claim to its actual environment.
+this historical receipt did not close the API-only dependency gap identified
+above. The October 7 pristine RED/GREEN receipt now closes that missing-HTTPX
+defect, not a pristine model-backed installation. Preserve both scopes.
 
 From the independent RAG repository root, reproduce the transport check:
 

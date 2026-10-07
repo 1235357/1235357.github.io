@@ -69,13 +69,16 @@ diagram reading. The narrow screenshot output did not provide a clear full-size
 diagram review. Temporary viewport overrides were reset after each check.
 The original RAG demo was not changed or restarted by these checks.
 
-## Presentation direction — supersedes the long classroom deck
+## Presentation direction — one live walkthrough, two learning surfaces
 
-The revised user objective explicitly retires the long PPT and old Obsidian
-workflow as primary deliverables. Preserve historical files; do not delete them
-or recommend presenting the entire 49-slide deck. The technical blog holds deep
-explanations; a live walkthrough starts with one core architecture diagram and
-then the question, answer/outcome and only the relevant trace details.
+The earlier objective retired the long PPT and old Obsidian expansion as primary
+deliverables. The latest personalization instruction supersedes the Obsidian
+portion: retain the staged technical blog and reusable repository for the external
+portfolio, and restore the personal vault as a visual Excalidraw learning surface.
+That is a requested migration, not a completed one. Preserve historical files;
+do not delete them or recommend presenting the entire 49-slide deck. The technical
+blog holds deep explanations; a live walkthrough starts with one core architecture
+diagram and then the question, answer/outcome and only the relevant trace details.
 
 Mentor feedback reviewed from the local October 2 transcript: 00:55:57 asks for
 question/answer before detail; 00:57:38–00:59:59 asks for fewer slides and one core
@@ -184,9 +187,10 @@ drawn boxes are already independently deployed services.
 
 ## Next-work control — 2026-10-07
 
-1. Repair and accept the enterprise consumer contract: pristine API-only install,
-   explicit outcome semantics, dependency-aware readiness and owned-process cleanup.
-   Article 02 now records the current gaps; existing historical receipts remain.
+1. Continue the enterprise consumer contract: the pristine API-only missing-HTTPX
+   defect is now fixed and accepted through actual RED/GREEN environments (article
+   02). Explicit outcome semantics and dependency-aware readiness remain open;
+   owned-process cleanup exists but is not a production-recovery claim.
 2. Review the stepwise implementation plan under the already approved design
    before coding: PDF.js parsing and a modular worker-based Transformers.js
    embedding/generation path are the chosen first experiment. Python API remains
@@ -201,6 +205,79 @@ samples only after permission review. Browser PDF/index/model/cache artifacts ne
 their own identities and evaluations; no reuse of the Python 0.78 threshold as a
 validated browser operating point. No new runtime, cloud inference or sample-PDF
 redistribution was implemented by this documentation update.
+
+Latest user instruction restores Obsidian as a personal visual-learning delivery
+surface, with Excalidraw as its preferred interface. The blog and independent
+repository remain the external portfolio artifacts; they are not replaced by a
+private vault. The read-only RAG migration inventory is complete; its bounded
+findings and recommended structure are below. No bulk deletion, plugin change or
+completed vault migration is claimed by this update.
+
+<details>
+<summary>Personal Excalidraw learning surface: inventory and structure for review</summary>
+
+### Verified inventory, October 7
+
+The full vault contains 959 Markdown files, including six `.excalidraw.md`
+drawings. The NU subtree contains 200 Markdown files and no Excalidraw drawings.
+These are inventory counts, not a judgment that 959 files are useless. Other
+course/research/career threads own content outside this RAG slice.
+
+The RAG authority page has 2,714 lines and 766,274 bytes. Its source and vault
+mirror have equal SHA-256 `D140ECF12AC0E3E639B32390C939182BF7213202A694CF2EADEC6B6DFBBD6D62`.
+It has 32 unique same-page wikilinks and eight cross-page expressions pointing to
+seven notes; active incoming links are in 09, 00B and 00H. Two links in 09 target
+exact headings. Moving the page without migrating those links is not cleanup.
+The page was not read in its entirety during this inventory, so no content has
+been judged redundant or removed on the basis of file size alone.
+
+The enabled Excalidraw plugin is locally 2.27.3. The
+[official plugin README](https://github.com/zsviczian/obsidian-excalidraw-plugin#markdown)
+explains that modern drawings themselves are Markdown, can retain a Markdown
+body before Text Elements, and support links/transclusions. Thus deleting every
+`.md` file would also delete the requested drawing format. No plugin update was
+performed; this was a README review, not a full audit of its source or every feature.
+
+The handbook sync is one-way, source to vault mirror. A missing mirror file is
+copied back from the source; deleting the source preserves its old mirror.
+Therefore one-sided deletion cannot complete migration. The 16:57:56 -05:00
+status snapshot showed healthy sync, zero conflicts and ten mirror-only files
+preserved. This is a dated snapshot, not perpetual synchronization evidence.
+
+### Recommended structure, awaiting the user's structure choice
+
+Use one RAG `.excalidraw.md` as the visual entrance, not a new daily page or one
+file for every concept. Keep three clearly labelled frames in that same drawing:
+
+1. **Map:** current Python path versus approved/not-implemented browser path,
+   course concepts, and an explicit start-reading order.
+2. **Practice:** one question, the actual query/encoding/ranking/context stages,
+   source verification and the learner's reproduce/test/explain checkpoints.
+3. **Acceptance:** the API installation RED/GREEN lesson, retrieval versus answer
+   quality, failure outcomes and the remaining evidence gates.
+
+Detailed original explanations, exercises and source locators remain in the same
+drawing file's Markdown body. The canvas links to those sections instead of
+covering the screen with paragraphs. Preserve the two exact 09 target headings
+until their replacement links have been tested. A drawn runtime boundary is not
+proof of execution or personal mastery.
+
+If that structure is chosen, the written migration specification must name the
+source drawing, mirrored drawing, affected incoming links, external figure assets,
+metadata and exact recoverable archive destinations before any move. The default
+source location stays inside the existing handbook sync scope; the vault-root
+Excalidraw folder is outside that scope and must not silently become a second
+editable authority. Archive collisions and old-basename link ambiguity need
+explicit checks. No source/mirror move or incoming-link rewrite has happened yet.
+
+The acceptance sequence is: reconcile the source/mirror authority; validate all
+required Properties plus drawing data and click targets; verify backlinks and
+anchored reading; inspect the actual Obsidian drawing/reading views; only then
+archive the old active reading entrance recoverably. `vault_check.py` alone cannot
+validate the drawing UI. This proposal does not claim a completed migration or
+authorize deleting other threads' active pages.
+
+</details>
 
 <details>
 <summary>Browser-native RAG: approved written design, October 7</summary>
@@ -506,7 +583,8 @@ exercise and a clear statement of what remains unverified.
 Run `python build.py`, then serve only the generated directory with
 `python -m http.server 8765 --bind 127.0.0.1 --directory dist`.
 The build currently renders six articles and the series index; it does not publish.
-Build regression check: `python -m unittest test_build -q` passes six tests.
+Build regression command: `python -m unittest test_build -q`. The October 7
+Archify/stage-layout revision passed eight tests; rerun after further edits.
 The October 7 classroom preview uses a default dark theme, with a light canvas
 for existing diagrams so their labels retain contrast. It remains a static local
 blog: no browser-native RAG runtime is embedded, and nothing is published.
