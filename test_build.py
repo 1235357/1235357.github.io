@@ -1,9 +1,99 @@
 import unittest
+import tempfile
+from unittest.mock import patch
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote
 import build
+
+
+def file_snapshot(root):
+    return {str(path.relative_to(root)): path.read_bytes()
+            for path in root.rglob('*') if path.is_file()}
+
+
+class FreshBuildTest(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix='rag-site-build-test-')
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        (self.root / 'articles').mkdir()
+        (self.root / 'figures').mkdir()
+        (self.root / 'articles' / '01-test.md').write_text('# Test\n\nA source.\n', encoding='utf-8')
+        (self.root / 'style.css').write_text('body { color: white; }', encoding='utf-8')
+        self.root_patch = patch.object(build, 'ROOT', self.root)
+        self.root_patch.start()
+        self.addCleanup(self.root_patch.stop)
+
+    def test_stale_asset_cannot_rescue_missing_source(self):
+        # A reused dist would accept a link whose source has disappeared.
+        (self.root / 'dist' / 'figures').mkdir(parents=True)
+        (self.root / 'dist' / 'figures' / 'missing.svg').write_bytes(b'OLD SVG')
+        (self.root / 'dist' / 'index.html').write_bytes(b'LAST GOOD INDEX')
+        before = file_snapshot(self.root / 'dist')
+        (self.root / 'articles' / '01-test.md').write_text(
+            '# Test\n\n![Missing](figures/missing.svg)\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'missing.svg'):
+            build.build()
+        self.assertEqual(file_snapshot(self.root / 'dist'), before)
+
+    def test_successful_rebuild_contains_only_current_assets_and_retains_recovery(self):
+        # Old output must not ship arbitrary receipts or obsolete pages.
+        (self.root / 'dist' / 'figures').mkdir(parents=True)
+        (self.root / 'dist' / 'obsolete.html').write_bytes(b'OLD PAGE')
+        (self.root / 'dist' / 'figures' / 'old.archify.delivery.json').write_bytes(b'PRIVATE')
+        (self.root / 'dist' / 'figures' / 'old.svg').write_bytes(b'OLD FIGURE')
+        before = file_snapshot(self.root / 'dist')
+        source_before = file_snapshot(self.root / 'articles')
+        result = build.build()
+        self.assertEqual(set(file_snapshot(self.root / 'dist')),
+                         {'index.html', '01-test.html', 'style.css'})
+        self.assertEqual(file_snapshot(result['recovery_path']), before)
+        self.assertEqual(file_snapshot(self.root / 'articles'), source_before)
+
+    def test_failed_render_preserves_last_good_output(self):
+        # Reading a malformed article must not mutate the old public directory.
+        (self.root / 'articles' / '02-later.md').write_text('# Later\n\nOriginal.', encoding='utf-8')
+        build.build()
+        before = file_snapshot(self.root / 'dist')
+        (self.root / 'articles' / '01-test.md').write_text('# Test\n\nChanged.', encoding='utf-8')
+        (self.root / 'articles' / '02-later.md').write_text('No title heading', encoding='utf-8')
+        with self.assertRaises(Exception) as captured:
+            build.build()
+        self.assertIsInstance(captured.exception, ValueError)
+        self.assertEqual(file_snapshot(self.root / 'dist'), before)
+
+    def test_nested_html_reference_is_validated_before_promotion(self):
+        (self.root / 'figures' / 'test.archify.html').write_text(
+            '<img src="missing.svg">', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'missing.svg'):
+            build.build()
+        self.assertFalse((self.root / 'dist').exists())
+
+    def test_unchanged_build_does_not_accumulate_recovery_copies(self):
+        build.build()
+        result = build.build()
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result['status'], 'unchanged')
+        self.assertIsNone(result['recovery_path'])
+        self.assertFalse((self.root / '.build-recovery').exists())
+
+    def test_failed_promotion_restores_previous_output(self):
+        build.build()
+        before = file_snapshot(self.root / 'dist')
+        (self.root / 'articles' / '01-test.md').write_text('# Test\n\nChanged.', encoding='utf-8')
+        real_rename = Path.rename
+
+        def rename_with_blocked_promotion(path, target):
+            if path.name.startswith('.dist-stage-') and Path(target) == self.root / 'dist':
+                raise OSError('simulated Windows promotion lock')
+            return real_rename(path, target)
+
+        with patch.object(Path, 'rename', rename_with_blocked_promotion):
+            with self.assertRaisesRegex(OSError, 'promotion lock'):
+                build.build()
+        self.assertEqual(file_snapshot(self.root / 'dist'), before)
 
 
 class PageReferences(HTMLParser):

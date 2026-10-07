@@ -439,6 +439,36 @@ our device remain unmeasured. No market-adoption claim is made.
 - [MDN WebGPU](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API): secure context, adapter/device boundaries and GPU failures; selected capability/error sections, last modified September 2, 2026.
 - [MDN storage quotas](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria): full article, quota estimates, best-effort storage/eviction; last modified January 5, 2026.
 
+### Asset selection: verified evidence, not installed or benchmarked
+
+The following primary pages were opened in Codex IAB on October 7. These are
+**pilot candidates**, not an accepted runtime registry. No model was downloaded
+by this audit. The model file page/pointer establishes upstream metadata; it is
+not a checksum of bytes downloaded on this machine.
+
+| Candidate | Observed identity and boundary | Consequence for implementation |
+|---|---|---|
+| PDF.js | [Getting started](https://mozilla.github.io/pdf.js/getting_started/) currently displays stable 6.4.299. Its [official FAQ](https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions) requires the API and worker to be the **exact same version**. | Confirm the registry package, vendored worker and target-browser compatibility before installing/pinning. A current documentation label alone is not package acceptance. Reject a mismatched or stale worker rather than continue silently. |
+| Embedding | [Xenova/all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2) documents `pooling: 'mean', normalize: true` and 384 dimensions. Observed full repository head: `751bff37182d3f1213fa05d7196b954e230abad9`. | Bind query and passage representations to the same whole-repository revision, tokenizer, pooling, normalization, dtype and input policy. Do not reuse the Python BGE index merely because its vectors also have 384 dimensions. |
+| Embedding weights | The [fp32 ONNX file page](https://huggingface.co/Xenova/all-MiniLM-L6-v2/blob/main/onnx/model.onnx) reports **90.4 MB (rounded)** and content SHA-256 `759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e`. The raw pointer navigation was blocked by the browser; exact bytes are not recorded here. | This is one file, not the total tokenizer/runtime transfer or GPU-memory requirement. fp32 WebGPU is a proposed first trial; actual backend/operator compatibility still needs a real run. Do not fetch every precision variant. |
+| Generator | The [Transformers.js 3.8.1 dtype guide](https://huggingface.co/docs/transformers.js/v3.8.1/guides/dtypes) shows Qwen2.5-0.5B-Instruct with q4 and WebGPU. [Observed ONNX repository](https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/tree/main) head: `22942cb7d7ba4cc81bb4673549ca4d4614469b5e`. | Pin the **whole model revision**, not only a weight checksum. The tokenizer template changed in the observed head while the weight commit was older. A moving `main` can change behavior without changing weights. |
+| Generator weights | [q4 file page](https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/blob/main/onnx/model_q4.onnx) / raw LFS pointer: **786,156,820 bytes**, content SHA-256 `09235a3b1c135cd04ef570e5053b5c079e028078a2cc5f76ba6a251e91bf3296`. q4f16 is listed as 483 MB, rounded. | Parameter count is not download size. q4f16 has not been accepted on this device, so its smaller listing is not a promise of a working fallback. Cache keys must include revision, dtype and asset identity. |
+
+The [upstream MiniLM card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+describes a sentence/short-paragraph encoder and a default truncation boundary of
+256 word pieces. The pilot must inspect its selected tokenizer and count tokens;
+silently embedding only the start of a long financial chunk changes evidence
+coverage. English narrative retrieval is a pilot scope, not established Chinese
+retrieval, table understanding or financial-answer quality.
+
+The Xenova and upstream MiniLM cards show Apache-2.0. The
+[upstream Qwen card](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) also shows
+Apache-2.0. The selected ONNX generator page did not surface a separate license
+file/tag in the inspected view. Record conversion provenance and fulfill notice/
+attribution obligations before redistribution; this audit is not blanket license
+clearance for the ONNX package or any financial PDF. Download URLs are not rights
+decisions. Neither model is promoted by a general benchmark or a parameter label.
+
 </details>
 
 <details>
@@ -482,7 +512,7 @@ projected text was 7.44px at the tool's legacy 930px budget; it did **not** meet
 the requested 7.5px projection target despite passing the hard-floor gate. This
 is why static PASS is not advertised as complete visual acceptance.
 
-The site suite now has 8 passing tests. New behavior tests first failed because
+At the Archify/stage-layout milestone the site suite had 8 passing tests. New behavior tests first failed because
 interactive assets were omitted and because figures stayed inside the reading
 column; minimal build fixes made them pass. A test scratch copy is separate from
 the blog; final tests/build also ran against this local repository.
@@ -526,14 +556,14 @@ The accepted architecture is unchanged. Build one inspectable vertical slice,
 then qualify it. Planned paths below are not files that already exist, and the
 commands are proposed checks rather than reported results. Keep this plan here
 instead of creating another stand-alone planning document.
-This is still a roadmap, not an execution-ready implementation plan. Independent
-review identified six concrete contracts to finish before runtime coding: exact
-worker message/state schemas; PDF span/chunk schema plus a source-owned PDF fixture;
-paired runtime/model asset pins and budgets; representation/retrieval/context
-interfaces; generator-versus-release semantics; and a fresh-output static build
-with complete module/worker/WASM asset-closure tests. Existing eight site tests do
-not cover those runtime contracts. These details can be proposed by the implementer;
-the already approved architecture and two data entrances need not be re-approved.
+The end-to-end sequence below is still a roadmap, not completion evidence. The
+next bounded increment is specified after it. Independent review identified six
+contracts: exact worker/message state; source-span/chunk identity with an actual
+PDF fixture; paired runtime/model assets; representation/context interfaces;
+generation versus release; and build closure. The static HTML build defect is
+now repaired and its 14 tests pass, but this is **not** module/worker/WASM closure
+or browser-model acceptance. Architecture and the two entrances are already
+approved; they are not being sent back for another architecture vote.
 
 1. **Define contracts before inference.** Add `browser-rag/protocol.mjs` and
    `browser-rag/tests/protocol.test.mjs`. Freeze versioned request/document IDs,
@@ -581,6 +611,152 @@ creating daily duplicate pages. Heavy runtime/model operations are serialized;
 the unrelated career/Forge/course threads and their browser sessions are not
 touched. Public GitHub release remains a separate user decision.
 
+### Next increment: operation contract, before runtime dependencies
+
+**Goal:** prevent cancellation, a replaced document, or an old worker from
+committing into newer state. Implement a pure controller and deterministic
+tests first. No PDF.js/Transformers.js installation, model download, browser
+inference, sample corpus, persistence or public deployment belongs to this step.
+This separation makes failure ordering testable without substituting a fake
+model for the later mandatory real generation acceptance.
+
+Proposed files: `browser-rag/protocol.mjs` and
+`browser-rag/tests/protocol.test.mjs`. Neither exists yet. Use built-in
+`node:test` / `node:assert/strict`; no npm dependency is needed for this increment.
+Installed Node was observed as 24.16.0. The commands below are planned, not run.
+
+**Contract.** `createController(runtimeId)` returns `begin(operation)`,
+`accept(event)`, `cancel()`, `replaceDocument()`, `replaceRuntime(runtimeId)`
+and `snapshot()`. Snapshot is an immutable copy, never a live mutable state object.
+Initial `documentEpoch` is 0; replacing/clearing a document increments it before
+any asynchronous work through `replaceDocument()`; `begin('clear')` does not
+increment it a second time. Beginning an operation requires no active operation;
+the caller must explicitly cancel/complete it first. Each accepted `begin` has a
+new monotonically increasing operation ID within that worker incarnation.
+
+`begin` returns a detached, deeply frozen identity with exactly the first five
+fields of the event below. Unknown operation or overlapping work throws without
+changing state. `snapshot()` returns a deeply frozen, detached object:
+
+```js
+{
+  runtimeId: 'runtime-a', documentEpoch: 0,
+  active: null, // or { ...identity, lastSeq: 0, stage: null, progress: null }
+  terminal: null // or { ...identity, kind, stage, seq, payload }
+}
+```
+
+Starting a new operation resets the previous terminal receipt to `null`.
+Worker messages use the stages `model-load: download/initialize`,
+`ingest: parse/index`, `query: encode/rank/context/generate/release`,
+and `clear: clear`. Stages identify the operation's legal vocabulary, not an
+enforced order: adapters, not this controller, own their actual execution order.
+
+```js
+// Proposed event schema; not an actual worker execution receipt.
+{
+  protocolVersion: 1,
+  runtimeId: 'runtime-a',
+  operationId: 'op-1',
+  documentEpoch: 0,
+  operation: 'ingest', // model-load | ingest | query | clear
+  kind: 'progress',   // progress | result | cancelled | error
+  stage: 'parse',     // download | initialize | parse | index | encode | rank | context | generate | release | clear
+  seq: 1,            // positive safe integer, strictly increasing for this operation
+  payload: { completed: 1, total: 2, unit: 'pages', estimated: false }
+}
+```
+
+`accept` returns `{accepted: false, reason}` for an invalid version/schema,
+mismatched runtime/operation/epoch, duplicate/out-of-order sequence, or event after
+a terminal outcome; rejected events cannot alter *any* state. Progress must use
+finite nonnegative values with `completed <= total` when the total is known, and
+a declared unit (`bytes`, `pages`, `chunks`, or `tokens`); an
+unknown total is `null`, not an invented percentage. Allowed stages are restricted
+per operation. A result/error/cancelled event closes the active operation once.
+Malformed events do not advance `seq`. The protocol controls lifecycle, not
+financial truth or model/index validity; production adapters must commit their
+document/index/UI changes only after this acceptance verdict.
+
+Successful `accept` returns `{accepted: true}`. Progress payload has exactly
+`completed`, `total`, `unit`, and Boolean `estimated`; `total: null` is allowed.
+Terminal payloads are `result: {data: JSON-like value}`,
+`error: {code: nonempty string, message: nonempty string}`, and
+`cancelled: {reason: 'worker-cancelled'}`. Terminal `data` is lifecycle metadata,
+not a financial-answer schema or a generation receipt. Copy it before committing;
+reject cyclic values, nonfinite numbers, functions, typed arrays, non-plain
+objects, nesting deeper than 32 and more than 4096 visited values. No file/model
+buffers belong in controller state. Additional/missing keys in event/payload
+objects are rejected, and input is not mutated. Structured-clone worker messages
+are the intended boundary; adversarial JavaScript Proxy/getter objects are not.
+
+`cancel` closes and invalidates the operation synchronously, then the adapter may
+request cancellation/termination. A direct cancellation records the active
+identity with `kind: 'cancelled'`, `seq: null`, the last stage (possibly `null`),
+and a reason of `user`, `document-replaced` or `runtime-replaced`. Cancelling
+without active work is a no-op; repeating it cannot create another terminal.
+`replaceDocument` cancels first, increments
+epoch, and invalidates document/index state in the future adapter; compatible
+model assets may remain. `replaceRuntime` requires a nonempty, never-reused
+incarnation ID: validate it **before** cancellation and reject same/reused IDs
+without changing state. Then cancel, switch incarnation ID and reset that
+incarnation's operation counter; the epoch is not reset. Keep the seen-runtime-ID
+set inside the controller. Test A → B → A explicitly: reject the final A rather
+than recreate a historical `runtime-a/op-1` pair. Late work from the old
+incarnation remains ineligible. A worker may finish physically
+after cancellation, but cannot publish that completion into the newer session.
+
+#### Task 1 — fail the simplest lifecycle test
+
+- [ ] Write `protocol.test.mjs` importing `createController` from `../protocol.mjs`.
+   Begin `ingest`; send valid progress; send result; assert the terminal state
+   and assert a second terminal result leaves the entire snapshot unchanged.
+- [ ] Run `node --test browser-rag/tests/protocol.test.mjs`. Before the module
+   exists, record the missing-module failure as setup evidence; then write the
+   minimal controller shell and rerun to get a behavior assertion failure.
+   Do not present import failure as the final behavioral RED receipt.
+- [ ] Implement only that behavior and watch the test pass. Commit these two
+   paths only, not unrelated staging files. No runtime or generation claim.
+
+#### Task 2 — prove cancellation/replacement isolation
+
+- [ ] Add failing tests: cancel operation A, begin B, deliver A's late progress,
+   result and error; compare B's **entire** snapshot before/after.
+- [ ] Add a document replacement test requiring the epoch to increment before
+   B starts. Deliver a correctly formed A event with the old epoch and ensure
+   it cannot commit. Replacing the worker must also reject old runtime IDs.
+- [ ] Reject `begin` during active work rather than silently overlap GPU operations.
+   Implement these transitions only after recording each behavioral failure.
+- [ ] Run the full protocol suite. Cancellation here is a synchronous state
+   invalidation test, **not** proof of a cancelled PDF task or GPU kernel.
+
+#### Task 3 — close the message validation boundary
+
+- [ ] Table-drive invalid version, missing/unknown operation, unsafe/negative seq,
+   repeated/out-of-order seq, wrong stage, negative/nonfinite progress, and
+   completed-greater-than-total; every rejected event preserves state exactly.
+- [ ] Add valid unknown-total progress (`completed: 3, total: null`) and assert
+   the state contains no fabricated percentage. Strict-mode mutation of a deeply
+   frozen snapshot must throw `TypeError`. Mutating an original accepted input
+   payload afterwards must not change state. Reject malformed higher-sequence
+   progress, then accept valid progress with that same sequence: rejection did
+   not consume it. Rejected `null`/non-object input must also preserve state.
+- [ ] Run `node --test browser-rag/tests/protocol.test.mjs` and
+   `python -m unittest test_build -q`. Write actual results and limitations into
+   this section and the existing learning article; do not open another daily page.
+- [ ] An independent review checks exactly-one terminal, stale-commit rejection,
+   and adapter obligations. Only then wire this contract into real workers.
+
+**Next acceptance boundary, not hidden inside this increment:** a source-owned
+selectable PDF, actual PDF.js API/worker pairing and genuine text-item extraction.
+Each span must preserve source SHA-256, parser version, physical page, page label,
+text-item index, half-open UTF-16 offsets, quote and geometry. Search-normalized
+text is separate from original quoted text. A synthetic record is not a real PDF
+extraction test. The later index binds parser/chunker/model identity; generation
+receipts distinguish `real`, `test-double`, and `not-run`. Financial release
+requires independently checked metric/period/column/amount/unit and evidence
+spans, not merely citation syntax. These later modules remain planned.
+
 </details>
 
 ## Planned article sequence
@@ -604,7 +780,26 @@ Run `python build.py`, then serve only the generated directory with
 `python -m http.server 8765 --bind 127.0.0.1 --directory dist`.
 The build currently renders six articles and the series index; it does not publish.
 Build regression command: `python -m unittest test_build -q`. The October 7
-Archify/stage-layout revision passed eight tests; rerun after further edits.
+fresh-output repair passed **14 tests**, including six added fixture regressions
+that failed before the repair. An independent reviewer reran all six fresh-build
+cases and a separate promotion-plus-rollback failure fixture.
+
+Each build renders into a new owned staging directory, validates literal local
+HTML `href`/`src` targets and HTML fragments (including nested viewers), and only
+then promotes it. Missing source assets cannot be rescued by yesterday's `dist`.
+An unchanged path/byte manifest does not create another recovery copy. Changed
+output is moved into a unique `.build-recovery/` directory before promotion;
+never recursively delete the old `dist`. On promotion failure, rollback is tried;
+if rollback also fails, the error names the intact retained output. Only the
+current invocation's guarded disposable stage is removed.
+
+This is two directory renames, **not** continuously atomic Windows replacement;
+real open handles can prevent a rename. Lock failure was injected in tests, not
+reproduced with live locked handles. Root/child escapes and links/junctions are
+refused. Sources remain unchanged. Old HTML checks do **not** cover JS imports,
+CSS URLs, dynamic runtime downloads, WASM assets or real browser inference; the
+future browser build needs its own complete asset-graph/privacy acceptance.
+
 The October 7 classroom preview uses a default dark theme, with a light canvas
 for existing diagrams so their labels retain contrast. It remains a static local
 blog: no browser-native RAG runtime is embedded, and nothing is published.

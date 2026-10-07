@@ -235,6 +235,33 @@ that the particular returned chunk answers the consolidated-revenue question.
 
 ## Reproduce before describing this as interview evidence
 
+### Browser pilot: an encoder contract is more than a model name
+
+The browser-native path is approved but **not implemented**. Primary model cards
+were read in Codex IAB on October 7 to specify the next experiment, not to claim
+a new benchmark. The [Xenova MiniLM ONNX card](https://huggingface.co/Xenova/all-MiniLM-L6-v2)
+shows mean pooling, normalization and 384-dimensional vectors. Its
+[upstream card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+describes short English sentences/paragraphs and default truncation beyond 256
+word pieces. A 500-word financial chunk cannot simply be declared fully encoded.
+The selected tokenizer must measure the actual inputs; the chunker must preserve
+source spans when splitting, and report any truncation instead of hiding it.
+
+For the pilot, both passage and query encoding must bind to the same repository
+revision, tokenizer, pooling, normalization, dtype and token-length policy. The
+observed candidate revision is `751bff37182d3f1213fa05d7196b954e230abad9`;
+it is not installed or browser-tested here. The proposed fp32 weight page lists
+90.4 MB, rounded. Model size is not complete download size, process RAM or GPU
+memory. A WebGPU trial still needs actual initialization, operator and failure
+acceptance on the reader's browser.
+
+Ask yourself: why can two encoders both output 384 floats yet produce
+incompatible indexes? Why can mean pooling over silently truncated text make a
+retrieval candidate misleading? Answer those questions before swapping the
+Python BGE matrix into a browser demo. Matching dimensions is necessary but not
+sufficient. Retrieval similarity and financially checked release remain
+different responsibilities even when all computation moves into a browser.
+
 1. Hand-calculate the two-dimensional cosine example without an assistant.
 2. Find normalization, candidate selection and sorting in the source.
 3. Explain why the report year can differ from a financial column year.
