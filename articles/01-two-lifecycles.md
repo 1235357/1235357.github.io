@@ -33,8 +33,9 @@ implementation, not a production deployment or a claim of personal mastery.
 Python and its cached query encoder on the developer's Windows host; it is not
 an in-browser deployment on a reader's own computer. The browser-native variant
 is a separate design and acceptance requirement, not a completed capability.
-The source inspector embedded below is its first real parser increment; it is
-not the classroom retrieval demo and does not yet run an embedding or generator.
+The source inspector embedded below now parses selected bytes and explicitly
+builds source-linked chunks in a native computation worker. It is not the
+classroom retrieval demo and does not yet run an embedding or generator.
 
 ## Offline work creates a reusable representation
 
@@ -290,10 +291,13 @@ The Python API remains independent and must not secretly answer browser-native
 requests. A diagram iframe below is only the architecture viewer, not the
 future embedded RAG demo.
 
-As of October 7, the pure operation controller is implemented and tested,
+As of October 8, the operation controller is implemented and tested,
 including stale-message rejection, cancellation and worker-incarnation identity.
 The selected-PDF adapter now uses a native parsing worker and has passed the
-bounded original-fixture browser checks described below.
+bounded original-fixture browser checks described below. A separate native
+computation worker builds source-linked page windows on an explicit button click.
+Those two stages are implemented; the full figure's model, retrieval and
+generation path remains planned, not demonstrated by its drawing.
 The [commit-boundary lesson](02-contracts-before-services.html#browser-work-has-a-commit-boundary-too)
 explains result ownership; the full RAG figure remains planned.
 
@@ -321,9 +325,9 @@ device-specific performance evidence must precede any release claim.
 ## First browser increment: inspect before indexing
 
 <figure class="architecture-figure" id="browser-source-lab" aria-label="Interactive local PDF extraction lab, not a complete RAG runtime">
-<div class="figure-heading"><span class="figure-status">03 / SOURCE INSPECTOR · NO MODEL</span><h3>Choose bytes. Keep their identity.</h3><p>This is an actual application entry point, not a diagram. It parses only the file you choose. The right-hand pane exposes parser text and its source spans.</p></div>
-<iframe src="browser-rag/inspector.html" title="Local PDF extraction inspector — no retrieval or generation" loading="lazy"></iframe>
-<figcaption>Extracted; not indexed. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection is explicit; no PDF upload endpoint is implemented. NVIDIA sample mode, embeddings, indexing, retrieval and generation remain unavailable in this increment. Browser acceptance is recorded separately from unit tests.</figcaption>
+<div class="figure-heading"><span class="figure-status">03 / SOURCE AND CHUNK INSPECTOR · NO MODEL</span><h3>Choose bytes. Keep their identity.</h3><p>This is an actual application entry point, not a diagram. Parse the selected file, then click Build source-linked chunks. Inspect exact source fragments and separately labelled presentation newlines.</p></div>
+<iframe src="browser-rag/inspector.html" title="Local PDF source and chunk inspector — no retrieval or generation" loading="lazy"></iframe>
+<figcaption>“Extracted; not indexed” after parsing. “Chunked; not embedded” after explicitly choosing Build chunks. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection is explicit; no PDF upload endpoint is implemented. NVIDIA sample mode, embeddings, vector indexing, retrieval and generation remain unavailable in this increment. Browser acceptance is recorded separately from unit tests.</figcaption>
 </figure>
 
 <details><summary>What was actually checked in Codex IAB on October 7?</summary>
@@ -342,6 +346,25 @@ and one on its second. The real browser displayed 100/100/40 cards with complete
 navigation, prepared one item's JSON only when opened, and removed it when
 closed. Switching physical page reset the window. This checks behavior, not
 browser-memory or latency performance.</p>
+</details>
+
+<details><summary>What changed in the actual browser on October 8?</summary>
+<p>The standalone lab ran the same selected-file parser and a new native ES-module
+computation worker. The two-page selectable fixture produced 2 chunks, 96 output
+UTF-16 units and 2 mapping fragments. The pagination fixture produced 21 chunks,
+10,152 output UTF-16 units and 564 mapping fragments. Its first joined-page window
+was [0, 512); a source fragment for item 0 occupied [0, 36) and the next output
+unit was an inserted newline with no source span. The second physical page still
+displayed PDF label “1”. Clear removed the previous chunk selector; an empty PDF
+was refused with no Build action. These are synthetic fixture observations,
+not financial recall, GPU inference, offline privacy or performance results.</p>
+<p>The worker adapter validates the reply against the source's numeric item and
+separator positions. A matching quotation alone is insufficient: two items
+can contain identical strings. Session cancellation revokes commit rights before
+physical abort and preserves accepted source records for a later chunk retry.
+During synchronous abort dispatch, new mutating calls are refused or suppressed
+at that atomic boundary; ordinary calls after it returns can retry. Independent
+regressions cover this reentrancy separately from the real browser checks.</p>
 </details>
 
 Start with a small selectable-text PDF. Physical page 1 is the first stored page;
@@ -390,10 +413,11 @@ Before moving to embeddings, reproduce four checks yourself:
 Keep your own prediction, screenshot, source check and explanation. Agent-run
 tests and a working interface do not establish your personal mastery.
 The [source-linked chunking lesson](04-preserve-evidence-before-embedding.html#the-browser-variant-uses-a-different-explicit-chunking-contract)
-now explains the independently tested pure module, its exact source fragments,
-Unicode windows and output budgets. It is not yet wired into this inspector.
-The next implementation gate is the separately tested computation worker and
-its commit boundary; it must not borrow Python retrieval scores or an old threshold.
+explains the pure transform and its native-worker connection, exact source
+fragments, Unicode windows and output budgets. Click Build, compare one fragment
+with its original item, and explain why an inserted newline has no source span.
+The next implementation gate is actual tokenizer-checked representations, followed
+by retrieval and generation; none can borrow Python scores or an old threshold.
 
 ## Source and verification boundary
 

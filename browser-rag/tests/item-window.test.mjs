@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createPageRecord} from '../pdf-source.mjs';
 import {createPdfSession} from '../pdf-session.mjs';
+import {createComputeCommandHandler} from '../compute.worker.mjs';
 
 const windowModule = await import('../item-window.mjs').catch(error => {
   if (error.code !== 'ERR_MODULE_NOT_FOUND') throw error;
@@ -55,8 +56,9 @@ test('malformed totals and window requests are rejected', () => {
   }
 });
 
-// Only browser DOM primitives and the PDF extraction boundary are substituted.
-// The actual pdf-app body, real session controller and frozen source records run.
+// DOM/extraction/worker-channel boundaries are substituted. Actual app body,
+// session controller and source/chunk transforms run; this is not native-worker
+// or real-browser acceptance.
 class DomElement {
   constructor(tagName) {
     this.tagName = tagName.toUpperCase(); this.children = []; this.listeners = new Map();
@@ -98,32 +100,42 @@ function sourceRecord(name, counts) {
       dir: 'ltr', transform: [1, 0, 0, 1, 10, 10], width: 10, height: 10, fontName: 'F1', hasEOL: false,
     }))},
   }));
-  return Object.freeze({status: 'extracted-not-indexed',
-    source: Object.freeze({name, sha256, size: 8}), parser: Object.freeze({version: '6.4.299'}),
+  return Object.freeze({schemaVersion:1,status: 'extracted-not-indexed',
+    source: Object.freeze({name, sha256, size: 8}), parser: Object.freeze({name:'pdfjs',version: '6.4.299',policyVersion:'text-items-v1',disableNormalization:true}),
     workerMode: 'native', numPages: pages.length, pages: Object.freeze(pages)});
 }
 
-function appHarness(sources) {
+function appHarness(sources, computeOverride) {
   const ids = new Map();
   for (const id of ['pdf-file', 'page-select', 'items', 'receipt', 'page-meta', 'status-title',
-    'status-detail', 'cancel', 'clear', 'trace', 'items-first', 'items-previous', 'items-next', 'items-range']) {
-    ids.set(id, new DomElement(id === 'page-select' ? 'select' : 'div'));
+    'status-detail', 'cancel', 'clear', 'trace', 'items-first', 'items-previous', 'items-next', 'items-range',
+    'build-chunks','chunk-select','chunk-detail','chunk-meta','chunks-previous','chunks-next']) {
+    ids.set(id, new DomElement(['page-select','chunk-select'].includes(id) ? 'select' : 'div'));
   }
   const document = {getElementById: id => ids.get(id), createElement: tag => new DomElement(tag)};
   const allItems = new Set(sources.flatMap(source => source.pages.flatMap(page => page.textItems)));
-  const serializedItems = [];
+  const serializedItems = [],serializedChunks=[];
   const checkedJson = {...JSON, stringify(value, ...args) {
     if (allItems.has(value)) serializedItems.push(value);
+    if(value?.segments&&value?.id)serializedChunks.push(value);
     return JSON.stringify(value, ...args);
   }};
   let session;
   const executable = appText.replace(/^import .*;\r?\n/gm, '')
     .replaceAll('import.meta.url', JSON.stringify(new URL('../pdf-app.mjs', import.meta.url).href));
   const run = new Function('document', 'window', 'Worker', 'pdfjs', 'extractPdf',
-    'createPdfSession', 'getItemWindow', 'JSON', executable);
+    'createPdfSession', 'getItemWindow', 'JSON', 'chunkInWorker', executable);
+  const compute=computeOverride??(async(source,{identity,onProgress,chunkOptions})=>{
+    const packets=[];createComputeCommandHandler(packet=>packets.push(packet))({kind:'chunk-source',identity,source,options:chunkOptions??{}});
+    onProgress(packets[0].event);
+    const terminal=packets.at(-1);if(terminal.event.kind==='error')throw Object.assign(new Error('safe test error'),{code:terminal.event.payload.code});
+    return terminal;
+  });
+  let runtimeNumber=0;
   run(document, {addEventListener() {}}, class {}, {}, async file => sources.find(source => source.source.name === file.name),
-    options => { session = createPdfSession({...options, runtimeId: 'preview-test'}); return session; }, getItemWindow, checkedJson);
-  return {ids, serializedItems, select: name => session.select({name}), source: () => session.document(),
+    options => { session = createPdfSession({...options, runtimeId: 'preview-test',runtimeIdFactory:()=>`compute-test-${++runtimeNumber}`}); return session; }, getItemWindow, checkedJson,compute);
+  return {ids, serializedItems,serializedChunks, select: name => session.select({name}), source: () => session.document(),
+    chunk:options=>session.chunk(options),chunks:()=>session.chunks(),state:()=>session.snapshot(),
     rows: () => elementsOf(ids.get('items'), 'article')};
 }
 
@@ -205,4 +217,59 @@ test('the source inspector has visible accessible item navigation without inline
   assert.match(htmlText, /aria-label="Text item preview"/);
   assert.doesNotMatch(htmlText, /\son(?:click|change|toggle)=/i);
   assert.doesNotMatch(appText, /\.innerHTML\s*=/);
+});
+
+test('the actual app shows attributable chunks and authored separators without treating hostile text as HTML',async()=>{
+  const app=appHarness([sourceRecord('A',[3])]);await app.select('A');
+  assert.equal(app.ids.get('build-chunks').disabled,false);await app.chunk();
+  assert.equal(app.ids.get('status-title').textContent,'Chunked; not embedded');
+  assert.equal(app.ids.get('chunk-select').disabled,false);
+  assert.equal(app.ids.get('chunk-select').children.length,1);
+  assert.match(app.ids.get('chunk-meta').textContent,/physical page 1/);
+  assert.match(app.ids.get('chunk-detail').textContent,/<img src=x onerror=alert\(1\)>/);
+  assert.match(app.ids.get('chunk-detail').textContent,/inserted · no source span/);
+  assert.equal(elementsOf(app.ids.get('chunk-detail'),'img').length,0);
+  assert.equal(app.serializedChunks.length,0);
+  const detail=elementsOf(app.ids.get('chunk-detail'),'details')[0];
+  detail.open=true;detail.dispatch('toggle');assert.equal(app.serializedChunks.length,1);
+  detail.open=false;detail.dispatch('toggle');assert.equal(elementsOf(detail,'pre').length,0);
+});
+
+test('a computation-worker startup failure does not misidentify the parser or discard accepted source',async()=>{
+  const source=sourceRecord('A',[2]);
+  const app=appHarness([source],async()=>{throw Object.assign(new Error('private worker diagnostic'),{code:'WORKER_UNAVAILABLE'});});
+  await app.select('A');await app.chunk();
+  assert.equal(app.source(),source);assert.equal(app.chunks(),null);
+  assert.equal(app.ids.get('build-chunks').disabled,false);
+  assert.match(app.ids.get('status-detail').textContent,/native worker could not start/i);
+  assert.doesNotMatch(app.ids.get('status-detail').textContent,/parsing worker|private worker diagnostic/i);
+});
+
+test('chunk selector windows stay bounded and clear old artifacts on clear or identical-hash replacement',async()=>{
+  const app=appHarness([sourceRecord('A',[251]),sourceRecord('B',[2])]);await app.select('A');
+  await app.chunk({maxChunkUtf16:8,overlapUtf16:0});
+  assert.ok(app.chunks().chunks.length>100);
+  assert.equal(app.ids.get('chunk-select').children.length,100);
+  app.ids.get('chunks-next').dispatch('click');
+  assert.equal(app.ids.get('chunk-select').children.length,100);
+  assert.equal(app.ids.get('chunk-select').children[0].value,'100');
+  assert.match(app.ids.get('chunk-meta').textContent,/Chunk 101 /);
+  app.ids.get('chunks-previous').dispatch('click');assert.match(app.ids.get('chunk-meta').textContent,/Chunk 1 /);
+  await app.select('B');assert.equal(app.chunks(),null);assert.equal(app.ids.get('chunk-select').disabled,true);
+  assert.doesNotMatch(app.ids.get('chunk-detail').textContent,/A page/);
+  await app.chunk();app.ids.get('clear').dispatch('click');
+  assert.equal(app.chunks(),null);assert.equal(app.source(),null);assert.equal(app.ids.get('build-chunks').disabled,true);
+  assert.equal(app.ids.get('chunks-previous').disabled,true);assert.equal(app.ids.get('chunks-next').disabled,true);
+});
+
+test('chunk cancellation keeps the source and retry control while preventing a late UI result',async()=>{
+  let resolve;const pending=new Promise(done=>{resolve=done;});
+  const app=appHarness([sourceRecord('A',[2])],()=>pending);await app.select('A');
+  const operation=app.chunk();assert.equal(app.ids.get('cancel').disabled,false);
+  assert.equal(app.ids.get('build-chunks').disabled,true);app.ids.get('cancel').dispatch('click');
+  assert.equal(app.source().source.name,'A');assert.equal(app.chunks(),null);
+  assert.equal(app.ids.get('build-chunks').disabled,false);assert.equal(app.ids.get('cancel').disabled,true);
+  const before=app.ids.get('chunk-detail').textContent;resolve({});await operation;
+  assert.equal(app.ids.get('status-title').textContent,'Commit rights revoked');
+  assert.equal(app.ids.get('chunk-detail').textContent,before);
 });

@@ -166,7 +166,7 @@ def copy_browser_assets(root, output):
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, destination)
 
-    for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'pdf-assets.json'):
+    for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'pdf-assets.json'):
         copy(browser / name, target / name)
     for name, expected_hash in registry['moduleHashes'].items():
         source = guard_path(package / name, root)

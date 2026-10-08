@@ -2,6 +2,16 @@
 
 Status: local construction only; no remote, publication or license grant.
 
+## Current scope — October 8
+
+This milestone continues the locally staged technical blog and independent RAG
+runtime. It does not modify the Obsidian vault or expand the old PPT. Those
+historical learning-surface requests remain separate from this browser/API goal.
+Actual PDF parsing and native-worker chunking now run in the standalone browser
+lab; the representation/retrieval/generation chain is still unfinished.
+The full approved design and remaining acceptance gates below are not completion
+receipts. No push, public endpoint or GitHub publication has been performed.
+
 ## Classroom handoff — 2026-10-07
 
 Earlier classroom availability check: the stopped blog and CUDA evidence
@@ -1472,7 +1482,7 @@ export function chunkSource(source, options = {}) {
   arrays, UTF-16 boundaries, high overlap/progress, source immutability, output
   detachment and the two real PDF.js fixture mappings. Address concrete findings
   with a failing regression first, then rerun only the relevant and full suites.
-- [ ] Update this existing README with actual RED/GREEN/reviewer receipts and
+- [x] Update this existing README with actual RED/GREEN/reviewer receipts and
   exact limitations after acceptance. Commit only the two module/test paths and
   this receipt when the main agent has reviewed the result. Public release and
   model downloads remain outside this increment.
@@ -1500,8 +1510,9 @@ The [worked source-mapping lesson](articles/04-preserve-evidence-before-embeddin
 was added to the existing article rather than a new page. Its Alpha/leading-space
 Beta example was checked against the actual module and independently reviewed;
 the generated dark page was inspected in Codex IAB. Neither that reading check nor
-Node tests run chunking in the served inspector. The live inspector still reports
-extracted/not indexed. Compute-worker transfer, model token budgets, embeddings,
+Node tests alone run no browser stage. The later native-worker connection below
+supersedes this earlier not-wired checkpoint: the inspector can now explicitly
+build source-linked chunks. Model token budgets, embeddings,
 retrieval, generated answers, sample permissions, network/offline privacy and
 device-specific performance remain separate unfinished acceptance work.
 
@@ -1523,6 +1534,234 @@ explanation rather than copied teaching material. Independent-practice examples
 are supplemental exercises, not proof that the professor assigned or endorsed
 the RAG design. Each article needs source links, editable figures, a reproducible
 exercise and a clear statement of what remains unverified.
+
+<details>
+<summary>Native compute-worker chunking implementation plan — October 8</summary>
+
+# Native compute-worker chunking implementation plan
+
+> **For agentic workers:** Use subagent-driven-development for implementation,
+> independent specification review, then independent quality review. Maintain
+> these checkboxes here rather than opening another planning page.
+
+**Goal:** let the reader explicitly build and inspect source-linked chunks in a
+native computation worker, with cancellation and stale-result protection. This
+is an executable pre-embedding increment, not a complete RAG answer pipeline.
+
+**Architecture:** keep the accepted main/PDF-proxy/compute-worker boundaries.
+Extend the existing PDF session instead of introducing a second document
+controller. Extraction already closes its operation; chunking starts a new
+`ingest/index` operation with a fresh runtime incarnation. Here `index` is the
+protocol vocabulary, not a claim that vectors exist. Full source/chunk records
+stay outside controller metadata. Chunk construction runs only in the native
+worker; the main adapter does bounded ownership/receipt checks, not rechunking.
+
+**Tech stack:** existing PDF.js 6.4.299, native ES-module Worker,
+`chunking.mjs`, the existing protocol controller, built-in Node tests, Python
+build tests, and actual Codex in-app-browser acceptance. No model or new npm
+dependency is required.
+
+**Current review checkpoint (October 8):** the first independent worker review
+found that a valid quote could still be attributed to the wrong identical-text
+item, or claim a page window beyond the page's text length. Both must be rejected.
+The repair uses bounded numeric item-start/separator positions, not a second
+main-thread chunker; its independent specification and quality reviews passed
+with 127 adapter/worker tests. Session integration then found a synchronous-abort
+reentrancy gap, repaired with an atomic invalidation boundary and retained RED
+tests. Independent session specification review passed 29 cases and six additional
+parse/chunk × cancel/clear/select probes. Quality review subsequently identified
+progress sequence exhaustion that can prevent error settlement. The session now
+reserves the last safe sequence for a terminal: a progress event at
+`Number.MAX_SAFE_INTEGER` is not accepted, while ordinary progress and a valid
+terminal at that bound retain their original identities. Retained RED regressions,
+independent specification review and an independent quality re-review all passed.
+The final session suite contains 32 cases; the full Node suite passed 369/369 and
+the Python build/asset suite passed 23/23. These counts are bounded test evidence,
+not acceptance of models, retrieval or generation.
+
+**Actual browser receipt (October 8, 13:43 America/Chicago):** after detecting that
+the old preview listener had exited, the local site was restarted on loopback
+8765 and a fresh Codex IAB tab selected the real synthetic PDFs. The selectable
+fixture produced 2 chunks / 96 output UTF-16 units / 2 mapping fragments; the
+pagination fixture produced 21 / 10,152 / 564. Both parser and computation receipts
+showed native workers. Physical page 2 and PDF label `1` remained distinct; exact
+item offsets, source-less inserted newlines, 100-item navigation, lazy selected
+chunk JSON, clear/reselect and empty-text refusal were exercised live. Console
+error/warning logs were empty. All 11 delivered app/registry files matched their
+source SHA-256 and both PDF.js module hashes matched the pinned registry.
+Cancellation, timeout, sequence exhaustion and synchronous abort reentrancy were
+tested through controlled channels, not independently demonstrated in this browser
+run. No complete network/privacy capture, GPU inference, financial-answer quality
+or uptime guarantee is claimed.
+
+### Task 1 — one owned worker and exact message identity
+
+**Files:** create `browser-rag/compute.worker.mjs`,
+`browser-rag/compute-source.mjs`, `browser-rag/tests/compute-source.test.mjs`,
+and `browser-rag/tests/compute-worker.test.mjs`.
+
+- [x] Write failing tests with a controlled Worker-shaped channel and captured
+  callbacks. Include this minimal contract test, then add the cases below:
+
+```js
+test('nothing is posted before this owned channel is ready', async () => {
+  const worker = new ControlledWorker();
+  const pending = chunkInWorker(sourceFixture(), {
+    identity: identityFixture(), workerFactory: () => worker,
+  });
+  assert.equal(worker.sent.length, 0);
+  worker.emit('message', {data: {
+    kind: 'compute-ready', protocolVersion: 1, workerVersion: 'chunks-v1',
+  }});
+  assert.equal(worker.sent.length, 1);
+  worker.replyWithRealChunks();
+  const result = await pending;
+  assert.equal(result.artifact.status, 'chunked-not-embedded');
+  assert.equal(worker.terminated, true);
+});
+```
+
+  Helpers must be implemented in the test, using a real `chunkSource` fixture,
+  not a made-up success artifact. Test exact ready keys/version, constructor,
+  `error`/`messageerror`, postMessage failure, abort before/after readiness,
+  ready timeout (10 s default) and work timeout (30 s default). Inject shortened
+  timeout values only for deterministic tests; validate positive finite safe
+  timeout configuration. Abort revokes the session identity before termination.
+  Captured late handlers must not resolve a cancelled operation.
+- [x] Run the two targeted Node test modules first with a minimal exported shell
+  so the retained RED includes behavior assertion failures, not only a missing
+  import. Record actual RED/GREEN counts.
+- [x] Implement the worker command/reply contract below. Export a pure command
+  handler from the worker module for Node tests; guard native worker startup
+  separately, without pretending Node is a native browser worker.
+
+```js
+// Ready packet: exact three keys, from the owned concrete channel only.
+{kind: 'compute-ready', protocolVersion: 1, workerVersion: 'chunks-v1'}
+// Command: exact four keys; identity is the unmodified controller identity.
+{kind: 'chunk-source', identity, source, options}
+// Progress/error: exact outer key; standard nine-key lifecycle event inside.
+{event}
+// Result: exactly these outer keys, artifact outside the controller event.
+{event, artifact}
+// Each event retains the request's five identity fields. Never relabel a late
+// reply with the current session identity. Stage is 'index'. Progress is
+// {completed:0,total:null,unit:'chunks',estimated:false}, not fake percentages.
+// Result metadata is small:
+{sourceSha256, parserVersion, pageCount, status:'chunked-not-embedded',
+ chunkerVersion:'page-parser-order-v1', counts:{chunks,outputUtf16,fragments}}
+```
+
+  The synchronous worker handler validates the command/identity, emits one
+  initial progress event, calls real `chunkSource`, then emits one result or
+  a typed safe error. It accepts one command per owned worker and never emits
+  raw exception text, PDF text, or filename in error/lifecycle metadata. The
+  adapter checks current ownership, exact packet/event identity, strictly
+  increasing sequence, legal stage and payload shape. It validates result
+  headers/receipt against the submitted source and chunker/count limits before
+  resolution. Return `{event, artifact}`; full artifact is never passed to
+  `controller.accept`. Restore detached immutable ownership after structured
+  cloning with a bounded walk; do not call `chunkSource` on the main thread.
+  Failure returns safe `ComputeError` codes (`INVALID_COMPUTE_CONFIG`,
+  `WORKER_UNAVAILABLE`, `WORKER_PROTOCOL_ERROR`, `COMPUTE_TIMEOUT`, `ABORTED`,
+  the four existing chunking errors, or `COMPUTE_FAILED`).
+- [x] Cover wrong runtime/op/epoch/version/stage/sequence, malformed terminal,
+  mismatched artifact hash/parser/page/counts, duplicate ready/terminal and
+  a full artifact mistakenly placed in event metadata. Compare whole state or
+  outcome, not merely a worker-call count. Run all Node tests.
+
+### Task 2 — preserve one document lifecycle across parse and chunking
+
+**Files:** modify `browser-rag/pdf-session.mjs` and
+`browser-rag/tests/pdf-session.test.mjs`.
+
+- [x] Add failing session tests for the new methods/options:
+
+```js
+const session = createPdfSession({extract, compute: chunkInWorker,
+  computeOptions: {workerFactory}, runtimeId: 'parser-owner',
+  runtimeIdFactory: () => 'compute-owner', onState});
+await session.select(file);
+await session.chunk();
+assert.equal(session.snapshot().status, 'chunked-not-embedded');
+assert.equal(session.document().source.sha256, session.chunks().source.sha256);
+assert.equal(session.snapshot().lifecycle.terminal.stage, 'index');
+assert.equal(Object.hasOwn(session.snapshot().lifecycle.terminal.payload.data,
+  'chunks'), false);
+```
+
+  Existing `select/document/snapshot/cancel/clear` behavior remains supported.
+  Add `chunks()` (null until accepted) and asynchronous `chunk(options={})`.
+  Chunking requires an extracted source and no active work; reject an invalid
+  invocation without mutating state. Use a new runtime ID before `begin('ingest')`;
+  keep the same document epoch. Status is `chunking` while the adapter runs.
+  Forward actual worker progress events unchanged through `controller.accept`.
+  Accept the final event, then synchronously commit artifact/status without an
+  intervening `await`. `chunks` never enters a snapshot/controller payload.
+- [x] Record RED, then implement the above transitions. Rechunk clears the old
+  chunk artifact before beginning; chunk cancellation/error retains the accepted
+  source but leaves no chunks. Parse cancellation retains its existing no-source
+  behavior. Selecting a new file, clear and pagehide revoke first, abort/terminate
+  second, then remove source/chunks. A late A result/progress/error cannot affect
+  B, including an identical source hash with a different epoch/runtime.
+- [x] Test cancellation→retry, clear/replacement, non-reused runtime IDs,
+  malformed progress, safe errors, and full metadata/artifact separation. Run
+  targeted tests and the full Node suite; independent specification review must
+  pass before quality review. Fix findings with retained RED regressions.
+
+### Task 3 — explicitly inspect chunks, not an invented vector index
+
+**Files:** modify `browser-rag/pdf-app.mjs`, `browser-rag/inspector.html`,
+`browser-rag/inspector.css`, `build.py`, and `test_browser_assets.py`.
+
+- [x] First add failing markup/build tests for `build-chunks`, `chunk-select`,
+  `chunk-detail`, and the three newly delivered runtime modules. Assert a missing
+  compute worker prevents fresh promotion and preserves previous `dist` bytes.
+- [x] Wire the existing session to the native adapter:
+
+```js
+compute: chunkInWorker,
+computeOptions: {workerFactory: url => new Worker(url, {type: 'module'})}
+// Explicit button, not automatic compute on file selection:
+byId('build-chunks').addEventListener('click', () => { void session.chunk(); });
+```
+
+  Disable build while parsing/chunking or without source. Cancel works for both
+  active stages. Keep source-item navigation. Below it add a chunk selector and
+  one current chunk preview, built using `textContent`, never PDF-sourced HTML.
+  Show physical page, label, joined-page UTF-16 range, actual text, and a compact
+  segment table: type, item/source range, chunk range, exact escaped quote.
+  Presentation newlines explicitly have **no** source span. Lazy details show the
+  selected chunk only, not all 10,000 chunks. Changing/clearing a source clears the
+  selector/preview synchronously. Receipt shows compute-native separately from
+  `source.workerMode` (which describes extraction). Stage says **chunked; not
+  embedded**. There is still no query box, vector score or generated answer.
+- [x] Add `chunking.mjs`, `compute-source.mjs`, `compute.worker.mjs` to the named
+  build allowlist and synthetic fixture setup. Retain strict same-origin CSP;
+  do not copy tests, acceptance PDFs, npm trees, credentials or extra packages.
+  Run `node --test browser-rag/tests/*.test.mjs` and
+  `python -B -m unittest test_build test_browser_assets -q`.
+- [x] Independent specification review, then quality review, cover integration
+  paths as well as the worker/session modules. Root then uses real IAB file
+  selection with the existing synthetic selectable and pagination PDFs. Verify
+  source→chunk mapping, native status/requests, clear/reselect, and current UI.
+  Controlled-channel timeout/cancel tests are not real-worker browser proof;
+  record precisely which paths are exercised live. Capture readable split-pane
+  teaching output, not a staged success label.
+- [x] Update existing articles 01/04 and this README with actual results and
+  remaining model/retrieval/generation/privacy/performance/sample-license gates.
+  Commit only these scoped source/test/docs paths locally; no push/publication.
+
+**Plan self-review:** every task maps to the approved worker/source contract;
+the controller vocabulary is reused without claiming vectors. Runtime identity,
+source retention and cancellation order are explicit. The three tasks close
+their real build/UI dependencies. Actual model execution and full RAG acceptance
+remain later mandatory increments, not omitted goal requirements. The pure
+chunker baseline was locally committed as `213ee879`; it passed independent
+specification/quality review (137 targeted tests), 213 full Node tests and 20
+site build tests. Those are the pre-worker baseline, not worker acceptance.
+
+</details>
 
 ## Local build and figure maintenance
 

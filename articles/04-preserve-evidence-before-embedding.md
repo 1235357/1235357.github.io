@@ -52,10 +52,11 @@ calling every 400-token chunk fully represented.
 
 The independent browser variant must not silently reuse those Python token
 offsets. Its pure `browser-rag/chunking.mjs` module consumes the accepted
-PDF.js source artifact and returns **chunked; not embedded** records. The module
-is separate from the currently served [selected-file inspector](01-two-lifecycles.html#browser-source-lab).
-At this checkpoint it is not wired into that interface or a computation worker;
-running Node tests does not establish browser-native execution of this stage.
+PDF.js source artifact and returns **chunked; not embedded** records. On October 8
+it was connected to the [selected-file inspector](01-two-lifecycles.html#browser-source-lab)
+through an owned native ES-module computation worker. The explicit Build button
+starts this separate operation after parsing; it does not create vectors.
+Node tests and actual Codex-IAB fixture execution remain different evidence.
 
 The initial policy is deliberately mechanical: retain parser item order,
 join nonempty item strings with an authored newline, and form bounded windows
@@ -122,6 +123,26 @@ window. It does not make heavy overlapping configurations free: duplicated text
 and fragment output still consume their own budgets. An architectural reason
 to run this work in the approved computation worker is preserving interaction
 and cancellation boundaries, not turning a module into a network microservice.
+
+### A correct quote can still have a wrong location
+
+During independent review, an adapter accepted a first fragment attributed to
+the second item when both items contained `Alpha`. The string matched, but the
+location did not. Another mutated reply shifted a valid window beyond the
+joined page's length. The repair checks numeric item starts and the positions
+of authored separators against the submitted source before accepting a reply.
+It does not run a second chunker on the main thread. Predict why string equality
+alone cannot reject the identical-item error, then inspect the retained tests
+in `browser-rag/tests/compute-source.test.mjs`.
+
+The worker owns construction; the adapter owns validated transfer and cleanup;
+the session owns commit rights. Chunk work uses a fresh runtime incarnation
+but the same document epoch. Cancellation keeps the accepted source and no
+partial chunks. A stale worker's event retains its old identity rather than
+being relabelled with the current operation. The controller receives the small
+receipt, never the full source or chunk list. These CS381 responsibility and
+CS310 asynchronous-owner boundaries are concrete project practice, not a claim
+of deploying distributed services.
 
 <details><summary>Reproduce the mapping, then explain it without the table</summary>
 

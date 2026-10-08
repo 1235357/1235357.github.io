@@ -43,13 +43,22 @@ class InspectorMarkupTest(unittest.TestCase):
         self.assertIn('src="pdf-app.mjs"', markup)
         self.assertNotIn('https://', markup)
 
+    def test_chunk_inspection_is_explicit_bounded_and_not_an_embedding_claim(self):
+        markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
+        for identifier in ('build-chunks', 'chunk-select', 'chunk-detail', 'chunk-meta'):
+            self.assertIn(f'id="{identifier}"', markup)
+        self.assertIn('Chunked; not embedded', markup)
+        self.assertIn('one chunk at a time', markup)
+        self.assertIn('no source span', markup)
+        self.assertNotIn('type="search"', markup)
+
 
 class BrowserAssetsTest(unittest.TestCase):
     def setUp(self):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs'):
+        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs'):
             (self.browser / name).write_text('<!-- fixture -->' if name.endswith('.html') else 'fixture', encoding='utf-8')
         self.package = self.browser / 'node_modules' / 'pdfjs-dist'
         (self.package / 'build').mkdir(parents=True)
@@ -79,6 +88,23 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertFalse((output / 'secret.env').exists())
         self.assertFalse((output / 'vendor' / 'standard_fonts' / 'private.txt').exists())
         self.assertFalse((output / 'node_modules').exists())
+
+    def test_named_compute_modules_are_delivered_without_test_sources(self):
+        (self.browser / 'tests').mkdir()
+        (self.browser / 'tests' / 'compute-source.test.mjs').write_bytes(b'NOT RUNTIME')
+        build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        for name in ('chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs'):
+            self.assertEqual((output / name).read_bytes(), (self.browser / name).read_bytes())
+        self.assertFalse((output / 'tests').exists())
+
+    def test_missing_compute_worker_preserves_previous_build(self):
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        (self.browser / 'compute.worker.mjs').unlink()
+        with self.assertRaisesRegex((ValueError, FileNotFoundError), 'compute.worker'):
+            build.build()
+        self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
 
     def test_missing_core_asset_cannot_borrow_previous_build(self):
         build.build()
