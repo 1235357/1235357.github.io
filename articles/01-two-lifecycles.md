@@ -13,12 +13,24 @@ tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
 
 # One financial question, two software lifecycles
 
-Start with the wide interactive Archify figure below, then read the explanation.
-Its editable [JSON source](figures/two-lifecycles.archify.json) describes the
-inspected current path. Companion [draw.io](figures/two-lifecycles.drawio) and
-[PlantUML](figures/two-lifecycles.puml) sources remain available; their external
-renderers have not been accepted. A second figure separates the approved
-browser-native design from implemented capability.
+**Question.** What was NVIDIA's annual revenue in FY2025?
+
+**Current answer status — Python baseline.** Generation is **OFF**. This path
+returns candidate evidence, not a generated revenue answer. The retained passage
+still needs a primary-PDF check of fiscal period, metric, column, amount and unit.
+Displaying a retrieval score is not answering the question.
+
+**Diagnostic status — 2026-10-04.** A separate cached Qwen2.5-0.5B-Instruct CPU
+generation attempt omitted its document/page citation. Its citation-format gate
+returned **REFUSE**, with **no answer released**. This is a dated failure, not a
+current browser-model result; [inspect the failure and its limits](#a-real-failure-at-the-generation-boundary).
+
+With the question and output status visible, inspect how that outcome is built.
+The interactive Archify figure below describes the inspected current path, with
+editable [JSON](figures/two-lifecycles.archify.json), [draw.io](figures/two-lifecycles.drawio)
+and [PlantUML](figures/two-lifecycles.puml) sources. The companion external renderers
+have not been accepted. A second figure separates the approved browser-native
+design from implemented capability.
 
 ## The problem is not simply calling a language model
 

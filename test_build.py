@@ -132,6 +132,23 @@ class StageStructure(HTMLParser):
 
 
 class NavigationTest(unittest.TestCase):
+    def test_lifecycles_opens_with_question_and_answer_status_before_architecture(self):
+        build.build()
+        article = (build.ROOT / 'dist' / '01-two-lifecycles.html').read_text(encoding='utf-8')
+        architecture_at = article.index('id="current-architecture"')
+        opening = article[:architecture_at]
+        question = "What was NVIDIA's annual revenue in FY2025?"
+        status = 'Current answer status'
+        self.assertIn(question, opening)
+        self.assertIn(status, opening)
+        self.assertLess(opening.index(question), opening.index(status))
+        self.assertIn('Generation is <strong>OFF</strong>', opening)
+        self.assertIn('candidate evidence, not a generated revenue answer', opening)
+        self.assertIn('2026-10-04', opening)
+        self.assertIn('<strong>REFUSE</strong>', opening)
+        self.assertIn('<strong>no answer released</strong>', opening)
+        self.assertIn('href="#a-real-failure-at-the-generation-boundary"', opening)
+
     def test_architecture_stage_is_not_squeezed_inside_the_reading_column(self):
         content = ('<h1>Test</h1><p>Before</p>'
                    '<figure class="architecture-figure"><iframe title="Diagram"></iframe>'
