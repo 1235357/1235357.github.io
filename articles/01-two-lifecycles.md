@@ -1,8 +1,14 @@
 ---
 title: "One financial question, two software lifecycles"
+aliases: [RAG lifecycles and source inspection]
+category: technical-article
+domain: financial-rag
 status: draft
+created: 2026-10-07
 updated: 2026-10-07
-tags: [rag, architecture, learning]
+source_type: implementation-and-primary-documentation
+metadata_version: 1
+tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
 ---
 
 # One financial question, two software lifecycles
@@ -27,6 +33,8 @@ implementation, not a production deployment or a claim of personal mastery.
 Python and its cached query encoder on the developer's Windows host; it is not
 an in-browser deployment on a reader's own computer. The browser-native variant
 is a separate design and acceptance requirement, not a completed capability.
+The source inspector embedded below is its first real parser increment; it is
+not the classroom retrieval demo and does not yet run an embedding or generator.
 
 ## Offline work creates a reusable representation
 
@@ -284,8 +292,10 @@ future embedded RAG demo.
 
 As of October 7, the pure operation controller is implemented and tested,
 including stale-message rejection, cancellation and worker-incarnation identity.
-It is not wired to real workers yet. The [commit-boundary lesson](02-contracts-before-services.html#browser-work-has-a-commit-boundary-too)
-explains this narrower completed increment; the full figure remains planned.
+The selected-PDF adapter now uses a native parsing worker and has passed the
+bounded original-fixture browser checks described below.
+The [commit-boundary lesson](02-contracts-before-services.html#browser-work-has-a-commit-boundary-too)
+explains result ownership; the full RAG figure remains planned.
 
 <figure class="architecture-figure" id="browser-architecture" aria-label="Approved browser-native design, not implemented">
 <div class="figure-heading"><span class="figure-status planned">02 / APPROVED DESIGN · NOT IMPLEMENTED</span><h3>The reader's device owns the computation.</h3><p>Main thread: interaction. PDF worker: text and page identity. Computation worker: embedding, ranking, context and actual generation. External hosts supply reviewed assets, not answers.</p></div>
@@ -307,6 +317,80 @@ document/index persistence remains opt-in. A citation-format check does not
 establish the right fiscal period, metric, column, amount or unit. Actual
 browser execution, source-checked predictions, cold/warm network inspection and
 device-specific performance evidence must precede any release claim.
+
+## First browser increment: inspect before indexing
+
+<figure class="architecture-figure" id="browser-source-lab" aria-label="Interactive local PDF extraction lab, not a complete RAG runtime">
+<div class="figure-heading"><span class="figure-status">03 / SOURCE INSPECTOR · NO MODEL</span><h3>Choose bytes. Keep their identity.</h3><p>This is an actual application entry point, not a diagram. It parses only the file you choose. The right-hand pane exposes parser text and its source spans.</p></div>
+<iframe src="browser-rag/inspector.html" title="Local PDF extraction inspector — no retrieval or generation" loading="lazy"></iframe>
+<figcaption>Extracted; not indexed. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection is explicit; no PDF upload endpoint is implemented. NVIDIA sample mode, embeddings, indexing, retrieval and generation remain unavailable in this increment. Browser acceptance is recorded separately from unit tests.</figcaption>
+</figure>
+
+<details><summary>What was actually checked in Codex IAB on October 7?</summary>
+<p>An original two-page toy PDF, not a financial report, was selected through
+the real chooser in both the standalone lab and this article's iframe. The
+native parser reported physical pages 1/2, labels i/1, the expected strings and
+SHA-256 matching the 1002-byte local file. Item 0 on page 2 had the actual
+UTF-16 span [0, 51) and transform [12, 0, 0, 12, 40, 740]. Clear removed the
+source; immediate Cancel revoked commit rights; the owned empty PDF was refused
+as EMPTY_DOCUMENT. The browser error/warning log was empty. This proves only
+these bounded fixtures and controls. Node's separate legacy parsing test is
+not this native-browser receipt. Complete offline/network privacy, arbitrary
+PDFs and generated answers remain unaccepted.</p>
+<p>The separate original pagination PDF returned 240 items on its first page
+and one on its second. The real browser displayed 100/100/40 cards with complete
+navigation, prepared one item's JSON only when opened, and removed it when
+closed. Switching physical page reset the window. This checks behavior, not
+browser-memory or latency performance.</p>
+</details>
+
+Start with a small selectable-text PDF. Physical page 1 is the first stored page;
+its printed/PDF label can instead be `i`. Neither identifier should silently
+replace the other. Each displayed item preserves the parser's string, original
+item index and half-open UTF-16 span. For `A😀B`, the string contains four UTF-16
+code units but three Unicode code points. A span is an offset in that parser
+item, **not** an offset in raw PDF bytes or a promise of per-character boxes.
+
+The adapter hashes the selected bytes before PDF.js transfers ownership of its
+buffer. That hash binds later records to a specific file, but does not establish
+its publisher or financial truth. Preview spacing must not become invented quote
+content. Even with normalization disabled, PDF.js can replace whitespace; use
+the [official TextContent/TextItem contract](https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib.html)
+to distinguish parser fidelity from content-stream fidelity.
+
+There are two owners. The PDF adapter owns its loading task, PDFWorker wrapper
+and native Worker, so it must clean up those resources. The session owns whether
+a result may update the page. It revokes the old identity **before** requesting
+physical cancellation, and commits the full source only after the controller
+accepts matching terminal metadata, with no `await` between acceptance and commit.
+Source text stays outside the controller's bounded metadata state.
+
+This is the CS381 responsibility split and CS310 asynchronous boundary applied
+to a concrete failure: choose A, then B; A's late completion must not restore A.
+It is independent project practice, not a professor-assigned implementation.
+The file/page/item/text budgets limit accepted output; they are not a memory
+sandbox around the PDF parser. Scanned/empty PDFs are refused, not silently OCR'd.
+
+Extraction capacity and display capacity are different budgets. The inspector
+keeps the complete frozen record, but shows only 100 items per preview window.
+The range and total make that limit visible; first/previous/next still reach
+every item. Opening a detail formats its JSON, and closing it releases that
+generated text. Changing the source or physical page resets the view. This
+avoids turning a large allowed extraction into thousands of unnecessary DOM
+cards; it does not establish a browser memory bound or a measured latency SLA.
+
+Before moving to embeddings, reproduce four checks yourself:
+
+1. Predict the distinction between physical page and PDF label, then inspect it.
+2. Open one item and explain its string, UTF-16 span, transform and page geometry.
+3. Clear the source. Confirm the page, receipt and current source disappear.
+4. Explain in English: “Extraction gives source records, not a verified answer.
+   Hashing identifies bytes; it cannot verify the revenue metric or fiscal year.”
+
+Keep your own prediction, screenshot, source check and explanation. Agent-run
+tests and a working interface do not establish your personal mastery. The next
+implementation gate is source-linked chunking followed by a separately tested
+compute worker; it must not borrow Python retrieval scores or an old threshold.
 
 ## Source and verification boundary
 

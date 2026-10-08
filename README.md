@@ -791,6 +791,135 @@ receipts distinguish `real`, `test-double`, and `not-run`. Financial release
 requires independently checked metric/period/column/amount/unit and evidence
 spans, not merely citation syntax. These later modules remain planned.
 
+### Selected-PDF source inspector: bounded implementation and acceptance
+
+This follows approved step 2, without changing architecture. No embedding,
+index, generator, NVIDIA sample redistribution or deployment belongs to it.
+
+1. Pin `pdfjs-dist@6.4.299` in a private browser package and lock its actual
+   integrity. Copy an explicit same-origin API/worker and resource allowlist to
+   the fresh build; retain distribution licensing. Never load a moving CDN.
+2. Write failing span/budget/cancellation tests and generate a small original
+   selectable two-page PDF with page labels `i` and `1`, plus an empty-page
+   fixture. Keep the generator source. Actual parsing and fabricated TextItem
+   unit tests have separate receipts.
+3. Preserve the raw file SHA-256 **before** PDF.js takes ownership of transferred
+   bytes. Store exact parser-returned strings, original item indexes, half-open
+   UTF-16 offsets, page labels/geometry and parser/policy identity. Application
+   preview separators are not source quotes. PDF.js itself can replace whitespace;
+   “original parser-extracted” does not mean raw PDF byte fidelity.
+4. A small local inspector uses an explicit file chooser, reads only chosen bytes,
+   rejects file/page/text/item budget violations, and reports “extracted; not
+   indexed.” Source records stay outside controller metadata. Commit them only
+   synchronously after matching terminal acceptance. Cancel/replacement revoke
+   identity first and destroy only owned parser resources.
+5. Run the generated `dist` in Codex IAB using an actual native parsing worker;
+   record selected-fixture text/labels/hash, blank-file refusal, cancellation,
+   requests and source/build asset equality. No silent fake-worker fallback.
+   PDF reading order, table semantics, OCR, real model inference, financial
+   accuracy, arbitrary-PDF compatibility and complete offline use remain separate
+   gates. Read the exact installed source because online API pages are `draft`.
+
+Primary references reread October 7: [DocumentInitParameters and TextItem](https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib.html),
+[PDFPageProxy](https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib-PDFPageProxy.html),
+[PDFDocumentProxy](https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib-PDFDocumentProxy.html)
+and the [API/worker version FAQ](https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions).
+The installed registry-pinned package requires Node `>=22.13.0 || >=24`.
+`npm install --ignore-scripts --omit=optional --no-fund --no-audit` installed
+only the required package. The API and native-worker module hashes are checked
+against `browser-rag/pdf-assets.json` before the fresh build can be promoted.
+
+Implementation checkpoint, October 7 (local only):
+
+- [x] Paired same-origin parser/worker assets and licence notices.
+- [x] Source records, hard output budgets, owned native-worker startup/disposal.
+- [x] Session commit boundary, safe errors, clear/replacement/cancellation.
+- [x] Double-column source inspector embedded in existing article 01.
+- [x] Fixed-size item preview, complete record navigation and lazy item details;
+  changing page/source resets the preview without modifying extracted records.
+- [x] Codex IAB native parser fixture, physical page versus label, SHA-256,
+  actual text/geometry, empty-document refusal, clear and immediate cancellation.
+- [ ] Arbitrary-PDF compatibility, full cold/warm privacy/offline acceptance,
+  model execution, retrieval, generated-answer quality and device benchmarks.
+
+Reproduction commands (from this site's root):
+
+```powershell
+node --test browser-rag/tests/*.test.mjs
+python -m unittest test_build test_browser_assets -q
+python build.py
+python -m http.server 8765 --bind 127.0.0.1 --directory dist
+```
+
+Root rerun: **76 Node tests PASS, 0 skipped**, including 33 source-core,
+7 session, 27 controller and 9 bounded-preview cases; **19 Python tests PASS** (14 previous build
+tests plus 5 browser-asset/markup regressions). Native startup has a 10-second
+ready gate. Each owned cleanup layer has a 5-second bound; timeout refuses the
+result and still attempts later layers, not a claim of successful physical
+cleanup. Error and timeout tests use deterministic disposable adapters. Two
+of the source-core cases use PDF.js's official **legacy Node build** for actual parsing,
+explicitly `node-fake`, not browser-native execution. Optional canvas/DOMMatrix/
+Path2D rendering warnings remain; text extraction passes and canvas rendering
+was not tested. The browser uses the paired main build and a concrete Worker.
+
+An independent quality probe exposed the earlier UI's eager rendering of every
+item and eager JSON formatting for collapsed details. The correction retains
+the full frozen source but renders at most 100 cards per preview window, with
+first/previous/next controls and a visible range/total. JSON details are prepared
+only while opened and discarded on close. Tests execute the actual app body
+with substituted DOM primitives; they verify complete navigation, page/source
+reset and hostile strings staying text. Those tests are not browser latency or
+memory measurements, and the accepted extraction budgets remain unchanged.
+
+Codex IAB observation, October 7 around 20:15 CDT: selected the original
+`acceptance/selectable-test.pdf` through the actual chooser. It reported 1002
+bytes, SHA-256 `8abdd9acd09b7196f20a7b1095be3714d8529003aa5b2a8bc277825b1c0c20a7`
+(matching the local file), PDF.js 6.4.299, `native`, two physical pages with PDF
+labels `i` and `1`. Their strings were `TEST SOURCE PAGE ONE - original fixture
+only.` and `TEST SOURCE PAGE TWO - no financial fact or answer.` Item 0's
+second-page span was `[0, 51)` with transform `[12, 0, 0, 12, 40, 740]`.
+Clear removed the receipt and records; immediate Cancel produced one user
+cancellation terminal with no source; `empty-test.pdf` produced `EMPTY_DOCUMENT`
+and no source, not OCR. The same selected fixture ran in article 01's iframe
+after rebuilding final source. These are owned toy-fixture checks, not a
+financial-answer acceptance set.
+
+The selection's captured CDP network window showed a GET for the same-origin
+`vendor/build/pdf.worker.mjs`; console error/warning logs were empty. This
+limited observation and CSP/source inspection do **not** establish exhaustive
+child-worker traffic, complete offline compatibility or future model privacy.
+No personal PDF was selected. No model, inference API, server query or public
+deployment was used.
+
+After the preview correction, Codex IAB on October 7 around 20:40 CDT parsed
+the original `acceptance/pagination-test.pdf`: 17,155 bytes, SHA-256
+`d5ba9ff89decab3d40f9ca83c56cc7037e014a1399ba5b4894c1e5813694eab7`,
+`native`, physical page 1 label `i` with 240 items and page 2 label `1` with
+one item. Actual DOM checks found 100, 100 and 40 cards in the three preview
+windows, with the expected item 001/100, 101/200 and 201/240 boundaries. All
+collapsed item details had zero JSON `pre` nodes; opening one produced one and
+closing it removed it. Previous/first and physical-page reset were checked.
+Clear removed cards and receipt. An immediate cancel showed exactly one user
+cancellation terminal, `active: null`, and no source; the empty fixture was
+again refused as `EMPTY_DOCUMENT`. Browser warnings/errors were empty. These
+checks are behavior evidence on owned test PDFs, not a latency benchmark or
+proof of arbitrary large-document reliability.
+
+The existing two fixtures retained their exact bytes. The generator produces
+all three deterministically; fixture PDFs and generator are test material and
+are not copied into the delivered site. Source/build asset equality must be
+rechecked after every later change; the final comparison is recorded below.
+
+Scoped review outcome: separate specification and code-quality reviewers passed
+this selected-PDF milestone. Both reran 76 Node / 19 Python tests. The quality
+reviewer's additional all-three-cleanups-pending probe confirmed independent
+timeouts, later cleanup attempts and refusal rather than source commit. Root's
+final build comparison found all eight named application/runtime files equal
+to source and all 203 delivered PDF.js asset/notice files equal to installed
+bytes (211 files total). Registry checks still bind the two core modules; this
+byte comparison is not complete dependency-graph, offline or model acceptance.
+No runtime connection to the Python inference API or public release was added.
+
 </details>
 
 ## Planned article sequence
@@ -835,8 +964,9 @@ CSS URLs, dynamic runtime downloads, WASM assets or real browser inference; the
 future browser build needs its own complete asset-graph/privacy acceptance.
 
 The October 7 classroom preview uses a default dark theme, with a light canvas
-for existing diagrams so their labels retain contrast. It remains a static local
-blog: no browser-native RAG runtime is embedded, and nothing is published.
+for existing diagrams so their labels retain contrast. The local static-served
+blog now embeds the reader-owned PDF source inspector, **not** a complete
+browser-native RAG runtime. Nothing is published.
 Each article displays its filename chapter number and the index displays SERIES.
 This validates generated labels, not browser appearance or complete site acceptance.
 Figure distribution checks cover every supported source asset, not only Figure 1.

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Source inspector — local PDF lab</title>
+  <link rel="stylesheet" href="inspector.css">
+  <script type="module" src="pdf-app.mjs"></script>
+</head>
+<body>
+<header><a href="../index.html">ENGINEERING NOTES / SOURCE LAB</a><span>LOCAL DRAFT · NO MODEL</span></header>
+<main>
+  <section class="lead"><p class="eyebrow">01 / BEFORE RETRIEVAL</p><h1>Keep the source.<br>Inspect the extraction.</h1>
+  <p>A citation needs a location, not just a filename. Choose one PDF and examine what the parser actually returned.</p></section>
+  <div class="workspace">
+    <section class="controls panel" aria-labelledby="input-title">
+      <h2 id="input-title">Your document</h2>
+      <label class="file-label" for="pdf-file">Choose a local PDF <span>32 MiB maximum · selected bytes only</span></label>
+      <input id="pdf-file" type="file" accept="application/pdf,.pdf">
+      <p class="hint">Parsed on this device in a native worker. No document upload or remote answering. Runtime assets are served by this same local site.</p>
+      <div class="buttons"><button id="cancel" disabled>Cancel work</button><button id="clear">Clear source</button></div>
+      <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">COMMIT BOUNDARY</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p></div>
+      <dl id="receipt" class="receipt"></dl>
+      <details><summary>What this lab does — and does not do</summary>
+        <p><strong>Extracted; not indexed.</strong> This increment has no embeddings, retrieval or generation. It does not establish financial facts, table columns, reading order or OCR.</p>
+        <p>Text is the original parser-extracted string, not a raw PDF byte offset. PDF.js can replace whitespace. Geometry describes a text item, not every character.</p>
+        <p>Replacing a document first revokes the old operation's right to commit. Physical cleanup is a separate responsibility.</p>
+      </details>
+      <details><summary>Accepted lifecycle trace</summary><pre id="trace">No accepted events yet.</pre></details>
+      <p class="hint">NVIDIA sample mode remains unavailable until its source/permission review passes. This local-file inspector is not the complete RAG demo.</p>
+    </section>
+    <section class="source panel" aria-labelledby="source-title">
+      <div class="section-heading"><div><p class="eyebrow">EXACT PARSER RECORDS</p><h2 id="source-title">Source inspection</h2></div>
+      <label for="page-select">Physical page <select id="page-select" disabled><option>No document</option></select></label></div>
+      <p id="page-meta" class="hint">PDF page labels and physical page numbers will be shown separately.</p>
+      <nav class="item-navigation" aria-label="Text item preview">
+        <p id="items-range" class="hint" role="status" aria-live="polite">Showing 0 items of 0.</p>
+        <div class="item-navigation-buttons"><button id="items-first" type="button" disabled>First 100</button><button id="items-previous" type="button" disabled>Previous 100</button><button id="items-next" type="button" disabled>Next 100</button></div>
+      </nav>
+      <p class="hint">Preview shows up to 100 items at a time. All extracted records remain available through these controls. Details are prepared when opened.</p>
+      <div id="items" class="items"><p class="empty">The source belongs here.<br><span>Choose a file to inspect actual text items, UTF-16 spans and page geometry.</span></p></div>
+    </section>
+  </div>
+</main>
+<footer>Source extraction ≠ retrieval ≠ a verified answer. <a href="../02-contracts-before-services.html#browser-work-has-a-commit-boundary-too">Read the ownership lesson ↗</a></footer>
+</body></html>

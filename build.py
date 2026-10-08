@@ -10,6 +10,8 @@ import tempfile
 import uuid
 import re
 import markdown
+import json
+import hashlib
 
 ROOT = Path(__file__).resolve().parent
 
@@ -102,6 +104,7 @@ def validate_local_references(output):
 
 
 def render_site(root, output):
+    copy_browser_assets(root, output)
     figure_output = output / 'figures'
     figure_output.mkdir()
     for figure in guard_path(root / 'figures', root).iterdir():
@@ -137,6 +140,52 @@ def render_site(root, output):
     (output / 'index.html').write_text(render_page('Engineering notes', intro), encoding='utf-8')
     (output / 'style.css').write_text(guard_path(root / 'style.css', root).read_text(encoding='utf-8'), encoding='utf-8')
     return len(links)
+
+
+def copy_browser_assets(root, output):
+    """Named runtime modules and pinned parser resources; not a general npm copy."""
+    browser = guard_path(root / 'browser-rag', root)
+    if not browser.exists():
+        return
+    # Pure-controller-only sites do not yet have a runtime entry point.
+    if not (browser / 'inspector.html').exists():
+        return
+    registry = json.loads(guard_path(browser / 'pdf-assets.json', root).read_text(encoding='utf-8'))
+    package = guard_path(browser / 'node_modules' / 'pdfjs-dist', root)
+    installed = json.loads(guard_path(package / 'package.json', root).read_text(encoding='utf-8'))
+    if installed.get('version') != registry.get('version') or registry.get('version') != '6.4.299':
+        raise ValueError('PDF.js package version mismatch')
+    expected_modules = {'build/pdf.mjs', 'build/pdf.worker.mjs'}
+    if set(registry.get('moduleHashes', {})) != expected_modules:
+        raise ValueError('PDF.js module hash registry is incomplete')
+    target = output / 'browser-rag'
+    target.mkdir()
+
+    def copy(source, destination):
+        guard_path(source, root)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, destination)
+
+    for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'pdf-assets.json'):
+        copy(browser / name, target / name)
+    for name, expected_hash in registry['moduleHashes'].items():
+        source = guard_path(package / name, root)
+        if hashlib.sha256(source.read_bytes()).hexdigest() != expected_hash:
+            raise ValueError(f'PDF.js module hash mismatch: {name}')
+        copy(source, target / 'vendor' / name)
+    copy(package / 'LICENSE', target / 'vendor' / 'LICENSE')
+    # Only runtime-resource suffixes and their license notices in these named
+    # package directories. Never ship the npm tree, logs, fixtures or .env files.
+    groups = {'cmaps': {'.bcmap'}, 'standard_fonts': {'.pfb', '.ttf'},
+              'wasm': {'.wasm', '.js'}, 'iccs': {'.icc'}}
+    for directory, suffixes in groups.items():
+        source_dir = guard_path(package / directory, root)
+        if not source_dir.exists():
+            continue
+        for source in source_dir.iterdir():
+            guard_path(source, root)
+            if source.is_file() and (source.suffix in suffixes or source.name.startswith('LICENSE')):
+                copy(source, target / 'vendor' / directory / source.name)
 
 
 def build():
