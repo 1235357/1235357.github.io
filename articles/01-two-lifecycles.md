@@ -5,7 +5,7 @@ category: technical-article
 domain: financial-rag
 status: draft
 created: 2026-10-07
-updated: 2026-10-07
+updated: 2026-10-08
 source_type: implementation-and-primary-documentation
 metadata_version: 1
 tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
@@ -388,9 +388,12 @@ Before moving to embeddings, reproduce four checks yourself:
    Hashing identifies bytes; it cannot verify the revenue metric or fiscal year.”
 
 Keep your own prediction, screenshot, source check and explanation. Agent-run
-tests and a working interface do not establish your personal mastery. The next
-implementation gate is source-linked chunking followed by a separately tested
-compute worker; it must not borrow Python retrieval scores or an old threshold.
+tests and a working interface do not establish your personal mastery.
+The [source-linked chunking lesson](04-preserve-evidence-before-embedding.html#the-browser-variant-uses-a-different-explicit-chunking-contract)
+now explains the independently tested pure module, its exact source fragments,
+Unicode windows and output budgets. It is not yet wired into this inspector.
+The next implementation gate is the separately tested computation worker and
+its commit boundary; it must not borrow Python retrieval scores or an old threshold.
 
 ## Source and verification boundary
 

@@ -932,6 +932,581 @@ files, and checked out just those fixtures into a fresh temporary directory.
 All three index/working/checkout SHA-256 values match the recorded originals.
 No PDF spacing/content or global Git configuration was changed.
 
+<details>
+<summary>Source-linked chunking — implementation plan and October 8 receipt</summary>
+
+# Source-linked Chunking Implementation Plan
+
+> **For agentic workers:** use `superpowers:subagent-driven-development` for the
+> authorized current-chat execution, with fresh specification and quality
+> reviewers after implementation. Checkboxes record actual completion only.
+
+**Goal:** turn the accepted extractor artifact into bounded, page-local chunks
+whose exact parser text can be traced back to original TextItems.
+
+**Architecture:** one pure synchronous module owns structural validation, page
+joining, UTF-16 windows and source mapping. It consumes the existing extractor
+artifact without reading the PDF again. Embedding, token counting, compute-worker
+integration and UI delivery remain later increments of the approved roadmap.
+
+**Tech stack:** native JavaScript modules, `node:test`, `node:assert/strict`, and
+the already pinned PDF.js 6.4.299 legacy Node build for separate integration tests.
+
+**Reading boundary:** the following code blocks preserve the original execution
+blueprint, not an alternate current implementation to copy over reviewed code.
+The authoritative module is `browser-rag/chunking.mjs` and the retained tests are
+`browser-rag/tests/chunking.test.mjs`. Review tightened record validation,
+non-enumerable option handling and safe error normalization beyond those initial
+examples; the actual October 8 receipt is recorded at the end of this section.
+
+Only `browser-rag/chunking.mjs` and `browser-rag/tests/chunking.test.mjs` are to be
+created. Existing `browser-rag/pdf-source.mjs` provides `createPageRecord` and
+`extractPdf`; existing owned `acceptance/selectable-test.pdf` and
+`acceptance/pagination-test.pdf` provide real parsing fixtures. Do not change the
+extractor, fixtures, runtime/UI, dependencies or build asset allowlist in this
+increment. This README is the plan location; no additional planning page is needed.
+
+### Exact contract and acceptance boundary
+
+`chunkSource(source, options = {})` returns a detached, deeply frozen artifact.
+`ChunkingError` exposes only `INVALID_SOURCE`, `INVALID_CONFIG`, `CHUNK_LIMIT`
+or `EMPTY_SOURCE`, with fixed messages that contain no document text.
+
+Input is the trusted extractor artifact: `schemaVersion: 1`,
+`status: 'extracted-not-indexed'`, lowercase 64-character source SHA-256,
+`parser: { name: 'pdfjs', version: '6.4.299', policyVersion: 'text-items-v1',
+disableNormalization: true }`, `workerMode: 'native' | 'node-fake'`, physical
+pages numbered exactly `1..numPages`, string/null labels, and indexed TextItems
+with the exact full-item span fields produced by `createPageRecord`. Reject
+inconsistent source/parser/policy/page/item/span identities, wrong quotes or
+lengths, reordered/duplicate indexes, sparse arrays, more than 512 pages,
+100,000 items or 2,000,000 input UTF-16 code units. Geometry is not used or copied
+by this layer; original records remain unchanged. Structural consistency is not
+an authenticity certificate, a fresh SHA-256 computation or a parser sandbox.
+Adversarial JavaScript proxies/getters are outside this trusted-artifact boundary.
+
+Options have exactly five permitted keys. `maxChunkUtf16` defaults to 512 and is
+a safe integer in `[2, 4096]`. `overlapUtf16` defaults to 64 and is a nonnegative
+safe integer strictly below `maxChunkUtf16`; callers selecting short windows must
+explicitly lower overlap. `maxChunks: 10000`, `maxOutputUtf16: 4000000` and
+`maxFragments: 200000` are hard/default output limits; positive safe overrides may
+only lower them. Unknown keys, non-objects and excessive limits are refused.
+These are UTF-16 budgets, never token budgets or a tokenizer-truncation promise.
+
+For each physical page, join nonempty-length TextItems in their returned parser
+order using exactly `\n` between items. Do not trim or normalize their text or
+infer semantic reading order, columns, table relationships or facts. Empty-length
+items remain in the original artifact but create no joining segments. Skip only
+whole pages with no non-whitespace text; preserve every character, including
+whitespace and presentation separators, on every retained page. Chunks never
+cross a physical page, and every retained joined-page character is covered.
+
+An end boundary inside a valid surrogate pair moves back one UTF-16 code unit.
+The next start is `end - overlapUtf16`, moved forward one when inside a valid
+pair; if it does not advance beyond the previous start, advance to `end`.
+Effective overlap can be shorter than requested. For `A😀B`, window 2/overlap 0
+must produce `A`, `😀`, `B`, preserving complete pairs. Lone surrogate code units
+are preserved rather than silently rewritten.
+
+The output shape is exactly the following; `numPages` and `workerMode` preserve
+extractor provenance, not browser acceptance:
+
+```js
+{
+  schemaVersion: 1, status: 'chunked-not-embedded',
+  source: { sha256, name, size },
+  parser: { name: 'pdfjs', version: '6.4.299',
+    policyVersion: 'text-items-v1', disableNormalization: true },
+  numPages, workerMode,
+  chunker: { version: 'page-parser-order-v1', maxChunkUtf16, overlapUtf16,
+    separator: '\n', order: 'parser-item-order' },
+  counts: { chunks, outputUtf16, fragments },
+  chunks: [{ id, physicalPageNumber, pageLabel, startUtf16, endUtf16, text,
+    segments: [
+      { kind: 'source', sourceSpanId, itemIndex, startUtf16, endUtf16, quote,
+        chunkStartUtf16, chunkEndUtf16 },
+      { kind: 'presentation', text: '\n', chunkStartUtf16, chunkEndUtf16 }
+    ] }]
+}
+```
+
+Chunk offsets are half-open joined-page offsets. Source-segment offsets refer to
+the original item's text; `quote === item.text.slice(startUtf16, endUtf16)` and
+the corresponding chunk slice must equal that quote. A source segment references
+the full original span ID, not a fabricated sub-span ID. Presentation newlines
+are explicitly not source quotations. Transparent deterministic chunk IDs bind
+source SHA, parser/policy, chunker policy, configured size/overlap, physical page
+and offsets; page labels remain separate metadata. The identity example is
+`${sha}/pdfjs-6.4.299/text-items-v1/page-parser-order-v1/m512/o64/p1/u16-0-100`.
+
+Check budgets before creating each chunk or fragment. Exceeding any limit fails
+the entire call; no partial artifact is returned. Find the first intersecting
+joining segment with binary search, then visit intersecting segments only;
+avoid scanning all items for every chunk. These tests establish mapping and
+bounded software behavior, not retrieval, financial answering or a benchmark.
+
+### Task 1 — establish behavioral RED before implementing chunking
+
+- [x] Create `browser-rag/tests/chunking.test.mjs` with the following imports,
+  fixture helpers and complete behavior cases. Synthetic TextItems are unit
+  fixtures; the final two cases execute actual PDF.js separately.
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { createPageRecord, extractPdf } from '../pdf-source.mjs';
+import { chunkSource, ChunkingError } from '../chunking.mjs';
+
+const SHA = 'a'.repeat(64);
+const rawItem = str => ({ str, dir: 'ltr', transform: [1, 0, 0, 1, 30, 740],
+  width: 120, height: 12, fontName: 'f1', hasEOL: false });
+function sourceOf(texts = [['Alpha', ' Beta']], sha = SHA) {
+  return { schemaVersion: 1, status: 'extracted-not-indexed',
+    source: { sha256: sha, name: 'owned-fixture.pdf', size: 1002 },
+    parser: { name: 'pdfjs', version: '6.4.299', policyVersion: 'text-items-v1',
+      disableNormalization: true }, workerMode: 'node-fake', numPages: texts.length,
+    pages: texts.map((strings, index) => createPageRecord({ sourceSha256: sha,
+      parserVersion: '6.4.299', physicalPageNumber: index + 1,
+      pageLabel: index === 0 ? 'i' : String(index),
+      page: { view: [0, 0, 612, 792], rotate: 0, userUnit: 1 },
+      textContent: { items: strings.map(rawItem) } })) };
+}
+const code = expected => error => error instanceof ChunkingError
+  && error.code === expected && !error.message.includes('Alpha');
+function verifyMappings(input, output) {
+  for (const chunk of output.chunks) {
+    const page = input.pages[chunk.physicalPageNumber - 1];
+    const joined = page.textItems.filter(item => item.text.length).map(item => item.text).join('\n');
+    assert.equal(chunk.text, joined.slice(chunk.startUtf16, chunk.endUtf16));
+    assert.equal(chunk.segments.map(s => s.kind === 'source' ? s.quote : s.text).join(''), chunk.text);
+    let cursor = 0;
+    for (const segment of chunk.segments) {
+      assert.equal(segment.chunkStartUtf16, cursor);
+      if (segment.kind === 'source') {
+        const item = page.textItems[segment.itemIndex];
+        assert.equal(segment.sourceSpanId, item.span.id);
+        assert.equal(segment.quote, item.text.slice(segment.startUtf16, segment.endUtf16));
+        assert.equal(chunk.text.slice(segment.chunkStartUtf16, segment.chunkEndUtf16), segment.quote);
+      } else {
+        assert.equal(segment.kind, 'presentation'); assert.equal(segment.text, '\n');
+        assert.equal(chunk.text.slice(segment.chunkStartUtf16, segment.chunkEndUtf16), '\n');
+        assert.equal(Object.hasOwn(segment, 'sourceSpanId'), false);
+      }
+      cursor = segment.chunkEndUtf16;
+    }
+    assert.equal(cursor, chunk.text.length);
+  }
+}
+function verifyCoverage(input, output) {
+  for (const page of input.pages) {
+    if (page.status === 'empty') continue;
+    const text = page.textItems.filter(i => i.text.length).map(i => i.text).join('\n');
+    const counts = new Uint32Array(text.length);
+    for (const chunk of output.chunks.filter(c => c.physicalPageNumber === page.physicalPageNumber))
+      for (let i = chunk.startUtf16; i < chunk.endUtf16; i++) counts[i]++;
+    assert.ok(counts.every(count => count > 0));
+  }
+}
+
+test('maps parser-order text, presentation newline and leading space exactly', () => {
+  const input = sourceOf(), result = chunkSource(input);
+  assert.equal(result.status, 'chunked-not-embedded'); assert.equal(result.schemaVersion, 1);
+  assert.equal(result.chunks[0].text, 'Alpha\n Beta');
+  assert.deepEqual(result.chunks[0].segments, [
+    { kind: 'source', sourceSpanId: input.pages[0].textItems[0].span.id, itemIndex: 0,
+      startUtf16: 0, endUtf16: 5, quote: 'Alpha', chunkStartUtf16: 0, chunkEndUtf16: 5 },
+    { kind: 'presentation', text: '\n', chunkStartUtf16: 5, chunkEndUtf16: 6 },
+    { kind: 'source', sourceSpanId: input.pages[0].textItems[1].span.id, itemIndex: 1,
+      startUtf16: 0, endUtf16: 5, quote: ' Beta', chunkStartUtf16: 6, chunkEndUtf16: 11 }
+  ]);
+  assert.deepEqual(result.counts, { chunks: 1, outputUtf16: 11, fragments: 3 });
+  verifyMappings(input, result);
+});
+test('keeps pages separate, skips blank pages and retains original empty item indexes', () => {
+  const input = sourceOf([['', ' A ', ''], [], [' \t'], ['B']]);
+  const result = chunkSource(input);
+  assert.deepEqual(result.chunks.map(c => [c.physicalPageNumber, c.pageLabel, c.text]),
+    [[1, 'i', ' A '], [4, '3', 'B']]);
+  assert.equal(result.chunks[0].segments[0].itemIndex, 1);
+  assert.equal(input.pages[0].textItems.length, 3); verifyMappings(input, result);
+  assert.throws(() => chunkSource(sourceOf([[], [' \t']])), code('EMPTY_SOURCE'));
+});
+test('rejects invalid, unknown, unsafe or excessive configuration', () => {
+  const invalid = [null, [], { unknown: 1 }, { maxChunkUtf16: 1 }, { maxChunkUtf16: 4097 },
+    { maxChunkUtf16: 2 }, { overlapUtf16: -1 }, { overlapUtf16: 512 },
+    { maxChunks: 0 }, { maxChunks: 10001 }, { maxOutputUtf16: 4000001 },
+    { maxFragments: 200001 }, { maxFragments: 1.5 }, { maxChunks: Infinity },
+    { [Symbol('unknown')]: 1 }];
+  for (const options of invalid) assert.throws(() => chunkSource(sourceOf(), options), code('INVALID_CONFIG'));
+  assert.equal(chunkSource(sourceOf([['AB']]), { maxChunkUtf16: 2, overlapUtf16: 0 }).chunks.length, 1);
+});
+test('rejects inconsistent source, parser, pages, items, spans and sparse arrays', () => {
+  const changes = [s => s.schemaVersion = 2, s => s.status = 'indexed',
+    s => s.source.sha256 = 'A'.repeat(64), s => s.source.name = 4, s => s.source.size = 0,
+    s => s.parser.name = 'other', s => s.parser.version = '6.4.298',
+    s => s.parser.policyVersion = 'other', s => s.parser.disableNormalization = false,
+    s => s.workerMode = 'unknown', s => s.numPages = 2,
+    s => s.pages[0].sourceSha256 = 'b'.repeat(64), s => s.pages[0].parserVersion = 'other',
+    s => s.pages[0].policyVersion = 'other', s => s.pages[0].physicalPageNumber = 2,
+    s => s.pages[0].pageLabel = 3, s => s.pages[0].status = 'empty',
+    s => s.pages[0].textItems.reverse(), s => s.pages[0].textItems[1].itemIndex = 0,
+    s => s.pages[0].textItems[0].span.id += '-wrong',
+    s => s.pages[0].textItems[0].span.startUtf16 = 1,
+    s => s.pages[0].textItems[0].span.endUtf16 = 4,
+    s => s.pages[0].textItems[0].span.quote = 'wrong',
+    s => delete s.pages[0], s => delete s.pages[0].textItems[0]];
+  for (const change of changes) {
+    const source = structuredClone(sourceOf()); change(source);
+    assert.throws(() => chunkSource(source), code('INVALID_SOURCE'));
+  }
+  const reordered = structuredClone(sourceOf([['A'], ['B']])); reordered.pages.reverse();
+  assert.throws(() => chunkSource(reordered), code('INVALID_SOURCE'));
+});
+test('enforces fixed input limits before joining or emitting output', () => {
+  assert.throws(() => chunkSource(sourceOf(Array.from({ length: 513 }, () => ['A']))), code('INVALID_SOURCE'));
+  const tooMany = structuredClone(sourceOf()); tooMany.pages[0].textItems.length = 100001;
+  assert.throws(() => chunkSource(tooMany), code('INVALID_SOURCE'));
+  assert.throws(() => chunkSource(sourceOf([['A'.repeat(2000001)]])), code('INVALID_SOURCE'));
+});
+```
+
+Append the remaining behavior tests to the same test file before implementing
+the module. Their assertions exercise complete windows and mapping, not mocked
+chunker outputs.
+
+```js
+test('preserves surrogate pairs at ends and overlap starts, including high overlap', () => {
+  const input = sourceOf([['A😀B']]);
+  const result = chunkSource(input, { maxChunkUtf16: 2, overlapUtf16: 0 });
+  assert.deepEqual(result.chunks.map(c => [c.startUtf16, c.endUtf16, c.text]),
+    [[0, 1, 'A'], [1, 3, '😀'], [3, 4, 'B']]);
+  const paired = sourceOf([['😀😀😀A']]);
+  const overlapping = chunkSource(paired, { maxChunkUtf16: 2, overlapUtf16: 1 });
+  assert.deepEqual(overlapping.chunks.map(c => c.text), ['😀', '😀', '😀', 'A']);
+  verifyMappings(paired, overlapping); verifyCoverage(paired, overlapping);
+  const lone = sourceOf([['A\ud800B\udc00']]);
+  assert.equal(chunkSource(lone, { maxChunkUtf16: 2, overlapUtf16: 0 }).chunks.map(c => c.text).join(''),
+    'A\ud800B\udc00');
+});
+test('covers every retained character and never trims a whitespace-only window', () => {
+  const input = sourceOf([['A  ', '  B'], ['abcdefgh']]);
+  const result = chunkSource(input, { maxChunkUtf16: 4, overlapUtf16: 3 });
+  verifyMappings(input, result); verifyCoverage(input, result);
+  assert.ok(result.chunks.some(c => !c.text.trim()));
+  for (const page of [1, 2]) {
+    const chunks = result.chunks.filter(c => c.physicalPageNumber === page);
+    for (let i = 1; i < chunks.length; i++) assert.ok(chunks[i].startUtf16 > chunks[i - 1].startUtf16);
+  }
+});
+test('IDs are repeatable and bind source, size, overlap and physical page, not page label', () => {
+  const input = sourceOf([['abcdefgh'], ['abcdefgh']]);
+  const options = { maxChunkUtf16: 4, overlapUtf16: 1 };
+  const result = chunkSource(input, options);
+  assert.deepEqual(chunkSource(input, options), result);
+  assert.equal(result.chunks[0].id,
+    `${SHA}/pdfjs-6.4.299/text-items-v1/page-parser-order-v1/m4/o1/p1/u16-0-4`);
+  assert.notEqual(chunkSource(sourceOf([['abcdefgh']], 'b'.repeat(64)), options).chunks[0].id, result.chunks[0].id);
+  assert.notEqual(chunkSource(input, { maxChunkUtf16: 5, overlapUtf16: 1 }).chunks[0].id, result.chunks[0].id);
+  assert.notEqual(chunkSource(input, { maxChunkUtf16: 4, overlapUtf16: 0 }).chunks[0].id, result.chunks[0].id);
+  assert.notEqual(result.chunks[0].id, result.chunks.find(c => c.physicalPageNumber === 2).id);
+  const relabelled = structuredClone(input); relabelled.pages[0].pageLabel = 'different';
+  assert.equal(chunkSource(relabelled, options).chunks[0].id, result.chunks[0].id);
+});
+test('does not mutate input and detaches and freezes every returned nested object/array', () => {
+  const input = structuredClone(sourceOf()), before = structuredClone(input), result = chunkSource(input);
+  assert.deepEqual(input, before); assert.notEqual(result.source, input.source); assert.notEqual(result.parser, input.parser);
+  const checkFrozen = value => {
+    if (value && typeof value === 'object') {
+      assert.ok(Object.isFrozen(value)); for (const child of Object.values(value)) checkFrozen(child);
+    }
+  };
+  checkFrozen(result);
+  input.source.name = 'changed'; input.parser.version = 'changed'; input.pages[0].textItems[0].text = 'changed';
+  assert.equal(result.source.name, 'owned-fixture.pdf'); assert.equal(result.parser.version, '6.4.299');
+  assert.equal(result.chunks[0].text, 'Alpha\n Beta');
+  assert.throws(() => result.chunks.push({}), TypeError);
+  assert.throws(() => result.chunks[0].segments[0].quote = 'changed', TypeError);
+});
+test('allows exact output boundaries and refuses an entire over-budget call', () => {
+  const input = sourceOf([['abcd']]), before = structuredClone(input);
+  const options = { maxChunkUtf16: 2, overlapUtf16: 0, maxChunks: 2, maxOutputUtf16: 4, maxFragments: 2 };
+  assert.deepEqual(chunkSource(input, options).counts, { chunks: 2, outputUtf16: 4, fragments: 2 });
+  for (const reduced of [{ maxChunks: 1 }, { maxOutputUtf16: 3 }, { maxFragments: 1 }]) {
+    let returned = null;
+    assert.throws(() => { returned = chunkSource(input, { ...options, ...reduced }); }, code('CHUNK_LIMIT'));
+    assert.equal(returned, null); assert.deepEqual(input, before);
+  }
+  const splitItems = sourceOf([['A', 'B']]);
+  assert.equal(chunkSource(splitItems, { maxFragments: 3 }).counts.fragments, 3);
+  assert.throws(() => chunkSource(splitItems, { maxFragments: 2 }), code('CHUNK_LIMIT'));
+  const highOverlap = sourceOf([['abcdefgh']]);
+  assert.equal(chunkSource(highOverlap, { maxChunkUtf16: 4, overlapUtf16: 3, maxChunks: 5 }).chunks.length, 5);
+  assert.throws(() => chunkSource(highOverlap, { maxChunkUtf16: 4, overlapUtf16: 3, maxChunks: 4 }), code('CHUNK_LIMIT'));
+});
+for (const name of ['selectable-test.pdf', 'pagination-test.pdf']) {
+  test(`actual PDF.js legacy Node extraction maps every chunk back to ${name} (node-fake only)`, async () => {
+    const pdfjs = await import('../node_modules/pdfjs-dist/legacy/build/pdf.mjs');
+    const bytes = await readFile(new URL(`../acceptance/${name}`, import.meta.url));
+    const input = await extractPdf({ name, size: bytes.byteLength,
+      arrayBuffer: async () => new Uint8Array(bytes).slice().buffer }, { pdfjs,
+      assetBaseUrl: new URL('../node_modules/pdfjs-dist/', import.meta.url).href });
+    assert.equal(input.workerMode, 'node-fake'); assert.equal(input.parser.version, '6.4.299');
+    assert.equal(input.source.sha256, createHash('sha256').update(bytes).digest('hex'));
+    assert.deepEqual(input.pages.map(p => p.pageLabel), ['i', '1']);
+    const output = chunkSource(input, { maxChunkUtf16: 32, overlapUtf16: 8 });
+    assert.equal(output.workerMode, 'node-fake'); assert.equal(output.numPages, 2);
+    verifyMappings(input, output); verifyCoverage(input, output);
+    if (name === 'pagination-test.pdf') assert.equal(input.pages[0].textItems.length, 240);
+  });
+}
+```
+
+- [x] Add this initial export shell in `browser-rag/chunking.mjs`. It intentionally
+  throws so RED is a behavior failure after successful module loading.
+
+```js
+export class ChunkingError extends Error {
+  constructor(code) { super('The extracted source is invalid.'); this.name = 'ChunkingError'; this.code = code; }
+}
+export function chunkSource() { throw new ChunkingError('INVALID_SOURCE'); }
+```
+
+- [x] From the site root, run
+  `& 'C:\Program Files\nodejs\node.exe' --test browser-rag/tests/chunking.test.mjs`.
+  Record the actual failing mapping/window/budget assertions or thrown
+  `ChunkingError`; successful imports alone are not the RED receipt. The existing
+  fixture/parser tests must not be replaced with a fake parser to make this pass.
+
+### Task 2 — implement the single pure module, then obtain GREEN
+
+- [x] Replace the export shell in `browser-rag/chunking.mjs` with the following
+  four consecutive blocks, in order, in that one file. The first block defines
+  safe errors, exact configuration and source-identity helpers.
+
+```js
+const VERSION = 'page-parser-order-v1';
+const PARSER = Object.freeze({ name: 'pdfjs', version: '6.4.299',
+  policyVersion: 'text-items-v1', disableNormalization: true });
+const DEFAULTS = Object.freeze({ maxChunkUtf16: 512, overlapUtf16: 64,
+  maxChunks: 10000, maxOutputUtf16: 4000000, maxFragments: 200000 });
+const MESSAGES = Object.freeze({
+  INVALID_SOURCE: 'The extracted source is structurally invalid or exceeds input limits.',
+  INVALID_CONFIG: 'Chunk configuration requires known keys and bounded safe integers.',
+  CHUNK_LIMIT: 'The complete chunk artifact exceeds an output budget.',
+  EMPTY_SOURCE: 'The extracted source contains no selectable non-whitespace text.'
+});
+export class ChunkingError extends Error {
+  constructor(code) { super(MESSAGES[code]); this.name = 'ChunkingError'; this.code = code; }
+}
+const fail = code => { throw new ChunkingError(code); };
+const positive = value => Number.isSafeInteger(value) && value > 0;
+const record = value => value !== null && typeof value === 'object' && !Array.isArray(value)
+  && [Object.prototype, null].includes(Object.getPrototypeOf(value));
+function dense(value) {
+  if (!Array.isArray(value)) return false;
+  for (let i = 0; i < value.length; i++) if (!Object.hasOwn(value, i)) return false;
+  return true;
+}
+function configFor(options) {
+  if (!record(options) || Reflect.ownKeys(options).some(key => !Object.hasOwn(DEFAULTS, key))) fail('INVALID_CONFIG');
+  const c = { ...DEFAULTS, ...options };
+  if (!Number.isSafeInteger(c.maxChunkUtf16) || c.maxChunkUtf16 < 2 || c.maxChunkUtf16 > 4096
+      || !Number.isSafeInteger(c.overlapUtf16) || c.overlapUtf16 < 0 || c.overlapUtf16 >= c.maxChunkUtf16)
+    fail('INVALID_CONFIG');
+  for (const key of ['maxChunks', 'maxOutputUtf16', 'maxFragments'])
+    if (!positive(c[key]) || c[key] > DEFAULTS[key]) fail('INVALID_CONFIG');
+  return c;
+}
+const fullSpanId = (sha, page, index, length) =>
+  `${sha}/pdfjs-${PARSER.version}/${PARSER.policyVersion}/p${page}/i${index}/u16-0-${length}`;
+function freeze(value) {
+  if (value && typeof value === 'object') {
+    for (const child of Object.values(value)) freeze(child); Object.freeze(value);
+  }
+  return value;
+}
+```
+
+This validation checks the fields the chunker consumes, while leaving geometry
+and parser layout metadata untouched. Count and string checks precede joining.
+
+```js
+function validateSource(s) {
+  if (!record(s) || s.schemaVersion !== 1 || s.status !== 'extracted-not-indexed'
+      || !record(s.source) || typeof s.source.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(s.source.sha256)
+      || typeof s.source.name !== 'string' || !positive(s.source.size) || !record(s.parser)
+      || Object.entries(PARSER).some(([key, value]) => s.parser[key] !== value)
+      || !['native', 'node-fake'].includes(s.workerMode) || !positive(s.numPages) || s.numPages > 512
+      || !Array.isArray(s.pages) || s.pages.length !== s.numPages || !dense(s.pages)) fail('INVALID_SOURCE');
+  let items = 0, utf16 = 0;
+  for (let p = 0; p < s.pages.length; p++) {
+    const page = s.pages[p];
+    if (!record(page) || page.sourceSha256 !== s.source.sha256 || page.parserVersion !== PARSER.version
+        || page.policyVersion !== PARSER.policyVersion || page.physicalPageNumber !== p + 1
+        || (page.pageLabel !== null && typeof page.pageLabel !== 'string')
+        || !Array.isArray(page.textItems) || page.textItems.length > 100000 - items || !dense(page.textItems))
+      fail('INVALID_SOURCE');
+    items += page.textItems.length; if (items > 100000) fail('INVALID_SOURCE');
+    let hasText = false;
+    for (let i = 0; i < page.textItems.length; i++) {
+      const item = page.textItems[i];
+      if (!record(item) || item.itemIndex !== i || typeof item.text !== 'string' || !record(item.span))
+        fail('INVALID_SOURCE');
+      utf16 += item.text.length; if (utf16 > 2000000) fail('INVALID_SOURCE');
+      if (item.span.id !== fullSpanId(s.source.sha256, p + 1, i, item.text.length)
+          || item.span.startUtf16 !== 0 || item.span.endUtf16 !== item.text.length || item.span.quote !== item.text)
+        fail('INVALID_SOURCE');
+      if (item.text.trim()) hasText = true;
+    }
+    if (page.status !== (hasText ? 'text' : 'empty')) fail('INVALID_SOURCE');
+  }
+}
+function joinPage(page) {
+  const parts = [], runs = []; let length = 0;
+  for (const item of page.textItems) {
+    if (!item.text.length) continue;
+    if (parts.length) {
+      parts.push('\n'); runs.push({ kind: 'presentation', start: length, end: length + 1 }); length++;
+    }
+    parts.push(item.text);
+    runs.push({ kind: 'source', start: length, end: length + item.text.length,
+      itemIndex: item.itemIndex, sourceSpanId: item.span.id, text: item.text });
+    length += item.text.length;
+  }
+  return { text: parts.join(''), runs };
+}
+```
+
+Window edges use UTF-16 coordinates; segment search uses monotonic run ends.
+The fragment budget is checked before appending each mapped fragment.
+
+```js
+function insidePair(text, offset) {
+  if (offset <= 0 || offset >= text.length) return false;
+  const left = text.charCodeAt(offset - 1), right = text.charCodeAt(offset);
+  return left >= 0xd800 && left <= 0xdbff && right >= 0xdc00 && right <= 0xdfff;
+}
+function firstIntersection(runs, start) {
+  let low = 0, high = runs.length;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (runs[middle].end <= start) low = middle + 1; else high = middle;
+  }
+  return low;
+}
+function mapWindow(runs, start, end, c, counts) {
+  const segments = [];
+  for (let i = firstIntersection(runs, start); i < runs.length && runs[i].start < end; i++) {
+    const run = runs[i], left = Math.max(start, run.start), right = Math.min(end, run.end);
+    if (counts.fragments + 1 > c.maxFragments) fail('CHUNK_LIMIT');
+    counts.fragments++;
+    const positions = { chunkStartUtf16: left - start, chunkEndUtf16: right - start };
+    if (run.kind === 'source') {
+      const from = left - run.start, to = right - run.start;
+      segments.push({ kind: 'source', sourceSpanId: run.sourceSpanId, itemIndex: run.itemIndex,
+        startUtf16: from, endUtf16: to, quote: run.text.slice(from, to), ...positions });
+    } else segments.push({ kind: 'presentation', text: '\n', ...positions });
+  }
+  return segments;
+}
+```
+
+The public function creates no output until structural checks pass, preserves
+page provenance and freezes only newly allocated output. Internal partial arrays
+are never returned if a later budget check fails.
+
+```js
+export function chunkSource(source, options = {}) {
+  const c = configFor(options); validateSource(source);
+  const chunks = [], counts = { chunks: 0, outputUtf16: 0, fragments: 0 };
+  for (const page of source.pages) {
+    if (page.status === 'empty') continue;
+    const { text, runs } = joinPage(page); let start = 0;
+    while (start < text.length) {
+      let end = Math.min(text.length, start + c.maxChunkUtf16);
+      if (insidePair(text, end)) end--;
+      if (counts.chunks + 1 > c.maxChunks || counts.outputUtf16 + end - start > c.maxOutputUtf16)
+        fail('CHUNK_LIMIT');
+      const segments = mapWindow(runs, start, end, c, counts);
+      chunks.push({ id: `${source.source.sha256}/pdfjs-${PARSER.version}/${PARSER.policyVersion}`
+          + `/${VERSION}/m${c.maxChunkUtf16}/o${c.overlapUtf16}/p${page.physicalPageNumber}/u16-${start}-${end}`,
+        physicalPageNumber: page.physicalPageNumber, pageLabel: page.pageLabel,
+        startUtf16: start, endUtf16: end, text: text.slice(start, end), segments });
+      counts.chunks++; counts.outputUtf16 += end - start;
+      if (end === text.length) break;
+      let next = end - c.overlapUtf16; if (insidePair(text, next)) next++;
+      start = next > start ? next : end;
+    }
+  }
+  if (!chunks.length) fail('EMPTY_SOURCE');
+  return freeze({ schemaVersion: 1, status: 'chunked-not-embedded',
+    source: { sha256: source.source.sha256, name: source.source.name, size: source.source.size },
+    parser: { ...PARSER }, numPages: source.numPages, workerMode: source.workerMode,
+    chunker: { version: VERSION, maxChunkUtf16: c.maxChunkUtf16, overlapUtf16: c.overlapUtf16,
+      separator: '\n', order: 'parser-item-order' }, counts, chunks });
+}
+```
+
+- [x] Rerun the exact targeted Node command from Task 1. Expected: all retained
+  chunking cases pass, with no skipped integration cases. If a failure requires a
+  code change, retain a reproducing behavior assertion before repairing it.
+- [x] Inspect the full diff for a single production module, detached output,
+  pre-allocation budget checks, surrogate progress, logarithmic segment lookup
+  and exact source slices. Do not add a compute worker or UI to satisfy a test.
+
+### Task 3 — qualify the increment and hand it to independent reviewers
+
+- [x] From `D:\Desktop\GitHub-Staging\zhentong-ye-site\browser-rag`, run
+  `& 'C:\Program Files\nodejs\npm.cmd' test`. Expected: the complete existing
+  Node suite plus the new chunking cases passes; record actual counts.
+- [x] From the site root, run
+  `python -m unittest test_build test_browser_assets -q`. Expected: all 20
+  existing Python cases pass. These checks cover existing build/asset behavior;
+  they do not deliver or render `chunking.mjs` in the generated browser demo.
+- [x] A fresh specification reviewer checks every input/output field, full span
+  identity, newline attribution, all-character coverage, page isolation, strict
+  options, error codes and complete-call budget refusal against this contract.
+- [x] A separate quality reviewer checks allocation/search complexity, sparse
+  arrays, UTF-16 boundaries, high overlap/progress, source immutability, output
+  detachment and the two real PDF.js fixture mappings. Address concrete findings
+  with a failing regression first, then rerun only the relevant and full suites.
+- [ ] Update this existing README with actual RED/GREEN/reviewer receipts and
+  exact limitations after acceptance. Commit only the two module/test paths and
+  this receipt when the main agent has reviewed the result. Public release and
+  model downloads remain outside this increment.
+
+**October 8 scoped receipt:** the initial behavioral RED run loaded the real
+module and parser fixtures, then reported 103 cases: 42 passed and 61 failed.
+The implementer retained additional failing regressions for non-enumerable
+options and error normalization, plain/null record prototypes, and arrays
+reassigned to those allowed prototypes before repairing each behavior. Independent
+specification review also required reversed physical-page order and output page
+count assertions in both real PDF fixture tests. Final specification and quality
+reviews both passed; each independently ran the **137-case targeted suite with
+zero failures and zero skips**. The main agent reran the **213-case complete Node
+suite** (76 existing plus 137 new) and **20 existing Python build/asset tests**;
+all passed. A mistaken `unittest discover -s tests` invocation failed because
+these site tests are root modules; the documented explicit command above passed.
+
+The quality reviewer additionally checked 27,180 small UTF-16 window configurations
+without changing files. This is a supplemental diagnostic, not a retained test
+count or performance benchmark. The two actual legacy PDF.js fixture cases run
+with `workerMode: 'node-fake'`; expected optional canvas/DOMMatrix/Path2D warnings
+remain visible and do not establish PDF rendering acceptance.
+
+The [worked source-mapping lesson](articles/04-preserve-evidence-before-embedding.md)
+was added to the existing article rather than a new page. Its Alpha/leading-space
+Beta example was checked against the actual module and independently reviewed;
+the generated dark page was inspected in Codex IAB. Neither that reading check nor
+Node tests run chunking in the served inspector. The live inspector still reports
+extracted/not indexed. Compute-worker transfer, model token budgets, embeddings,
+retrieval, generated answers, sample permissions, network/offline privacy and
+device-specific performance remain separate unfinished acceptance work.
+
+</details>
+
 </details>
 
 ## Planned article sequence

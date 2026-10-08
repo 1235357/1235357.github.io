@@ -1,11 +1,14 @@
 ---
 title: Preserve evidence before embedding
+aliases: [Source-linked chunking]
 tags: [rag, ingestion, financial-data]
 category: technical-blog
+domain: rag
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-04
-source_type: implementation-review
+updated: 2026-10-08
+source_type: implementation-and-test-review
+metadata_version: 1
 ---
 
 # Preserve evidence before embedding
@@ -44,6 +47,115 @@ repeat nearby tokens on the same page; it cannot recover a missing header from
 another page. Also, this tokenizer's budget is not necessarily the embedding
 model's tokenizer budget. Inspect the actual encoder input and truncation before
 calling every 400-token chunk fully represented.
+
+## The browser variant uses a different, explicit chunking contract
+
+The independent browser variant must not silently reuse those Python token
+offsets. Its pure `browser-rag/chunking.mjs` module consumes the accepted
+PDF.js source artifact and returns **chunked; not embedded** records. The module
+is separate from the currently served [selected-file inspector](01-two-lifecycles.html#browser-source-lab).
+At this checkpoint it is not wired into that interface or a computation worker;
+running Node tests does not establish browser-native execution of this stage.
+
+The initial policy is deliberately mechanical: retain parser item order,
+join nonempty item strings with an authored newline, and form bounded windows
+inside each physical page. It is **not** a sentence-aware or semantic chunker,
+not a recovered table, and not a claim that parser order matches reading order.
+Empty item strings do not create separators; original whitespace in nonempty
+strings stays intact. Entirely blank pages create no chunks, but their physical
+page numbers are not renumbered.
+
+### Walk one chunk back to the source
+
+Suppose a page contains item 0, `Alpha`, followed by item 1, ` Beta`.
+The leading space belongs to item 1. Joining them produces `Alpha\n Beta`:
+11 UTF-16 code units, including one newline authored by the chunker.
+Choose a maximum of 8 code units and overlap of 2. Predict the following
+before reading the test output. In this table, `\u0020` explicitly denotes one
+space and `\n` one newline; they are escape notation, not literal added letters:
+
+| Window in the joined page | Exact text, with whitespace escaped | Original source fragments | Authored separator |
+| --- | --- | --- | --- |
+| `[0, 8)` | `Alpha\n\u0020B` | item 0 `[0, 5)` → `Alpha`; item 1 `[0, 2)` → `\u0020B` | joined position `[5, 6)` → `\n` |
+| `[6, 11)` | `\u0020Beta` | item 1 `[0, 5)` → `\u0020Beta` | none |
+
+The two windows overlap at joined positions `[6, 8)`. Their total output length
+is 13, although the joined page has length 11. Repeated overlap must count against
+the output budget. The newline also counts as an output fragment, but it has
+**no source-span ID**: displaying it as original quoted evidence would invent
+content. Each source fragment instead retains its original full span ID,
+item-relative start/end, exact quote, and corresponding start/end in the chunk.
+Those are three different coordinate systems: original item, joined page, chunk.
+None is a raw PDF byte offset or a model token count.
+
+Every chunk ID includes the selected-file SHA-256, parser and extraction policy,
+chunking policy, configured size/overlap, physical page and joined-page offsets.
+A displayed PDF page label remains separate metadata. Changing a label must
+not silently change which physical page the chunk references. This identity
+is a replay locator, not a publisher signature or financial verification.
+
+### Why not cut every string at exactly the nominal size?
+
+JavaScript strings use UTF-16 code units. In `A😀B`, the emoji occupies two
+units. With maximum 2 and overlap 0, safe windows are `[0, 1)` → `A`,
+`[1, 3)` → `😀`, and `[3, 4)` → `B`; blindly slicing at offset 2 would
+split a valid surrogate pair. The chunker adjusts the boundary and guarantees
+forward progress. It can reduce effective overlap to avoid splitting a pair.
+It does not normalize accents, repair lone surrogate units, or infer words.
+The eventual embedding adapter still needs the **actual model tokenizer** and
+explicit truncation checks; the UTF-16 budget cannot substitute for that step.
+
+### Budgets are separate from model quality
+
+Default windows are 512 UTF-16 units with 64 overlap. Independent output caps
+are 10,000 chunks, 4,000,000 output code units and 200,000 fragments; callers can
+lower those caps, not enlarge them. The input contract also checks the consumed
+extractor fields, physical page/item order, dense arrays, parser identity and
+full source spans before joining text. Unsupported or inconsistent records get
+a typed refusal; crossing an output cap throws the entire call rather than
+returning a silently truncated corpus. These are accepted-artifact boundaries,
+not a browser-memory sandbox or a latency measurement.
+
+Finding the first intersecting text run uses binary search; only the overlapping
+runs are then visited for that chunk. This avoids rescanning all items for each
+window. It does not make heavy overlapping configurations free: duplicated text
+and fragment output still consume their own budgets. An architectural reason
+to run this work in the approved computation worker is preserving interaction
+and cancellation boundaries, not turning a module into a network microservice.
+
+<details><summary>Reproduce the mapping, then explain it without the table</summary>
+
+Run from the locally staged site repository:
+
+```powershell
+& 'C:\Program Files\nodejs\node.exe' --test browser-rag/tests/chunking.test.mjs
+```
+
+The suite contains ordinary record fixtures plus two original PDFs parsed by
+the pinned legacy PDF.js **Node fake-worker** path. The latter is a real parser
+integration test, not a real browser worker or an embedding-quality test.
+The tests check exact fragments, coverage, page identity, Unicode boundaries,
+detachment, budgets and typed failures. Do not convert a count of passing tests
+into recall, financial correctness, browser performance or personal mastery.
+
+Your exercise: sketch the two windows above; label the three offset systems;
+explain why the newline cannot be quoted as source evidence; then predict what
+changes with zero overlap. Preserve your prediction and test observation.
+Try an intentionally wrong source-span quote only in a disposable synthetic
+record, and explain why it must be rejected before an encoder sees the text.
+
+English rehearsal: “I preserve source-relative spans while building page-local
+windows. Authored separators are labelled separately. The windows are bounded
+in UTF-16, not model tokens, so tokenization and truncation require another
+contract. This stage creates attributable candidates, not verified answers.”
+
+</details>
+
+This is independent practice applying CS381 responsibility boundaries and
+CS310 work/resource boundaries, not a graded course deliverable. Parsing owns
+source records; chunking owns window construction and source mapping; the
+future encoder owns its tokenizer and representations. Keep these changes
+testable independently before tuning end-to-end retrieval.
 
 ## Provenance helps replay, not truth verification
 
