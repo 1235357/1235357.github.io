@@ -5,3 +5,4 @@ figures/*.archify.delivery.json -text
 figures/ARCHIFY-LICENSE.txt -text
 figures/ARCHIFY-THIRD-PARTY-NOTICES.txt -text
 figures/JetBrainsMono-OFL.txt -text
+*.pdf binary

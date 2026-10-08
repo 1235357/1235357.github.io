@@ -852,8 +852,8 @@ python -m http.server 8765 --bind 127.0.0.1 --directory dist
 ```
 
 Root rerun: **76 Node tests PASS, 0 skipped**, including 33 source-core,
-7 session, 27 controller and 9 bounded-preview cases; **19 Python tests PASS** (14 previous build
-tests plus 5 browser-asset/markup regressions). Native startup has a 10-second
+7 session, 27 controller and 9 bounded-preview cases; **20 Python tests PASS** (14 previous build
+tests plus 6 browser-asset/markup/Git-fidelity regressions). Native startup has a 10-second
 ready gate. Each owned cleanup layer has a 5-second bound; timeout refuses the
 result and still attempts later layers, not a claim of successful physical
 cleanup. Error and timeout tests use deterministic disposable adapters. Two
@@ -919,6 +919,18 @@ to source and all 203 delivered PDF.js asset/notice files equal to installed
 bytes (211 files total). Registry checks still bind the two core modules; this
 byte comparison is not complete dependency-graph, offline or model acceptance.
 No runtime connection to the Python inference API or public release was added.
+
+The subsequent Git-fidelity check added `*.pdf binary` without changing the six
+existing figure/provenance rules. The new regression invokes actual
+`git check-attr text diff merge` for the three named original PDFs and requires
+all nine values to be `unset`. Separate specification and quality reviewers
+passed this narrow fix. The earlier index blobs already matched the original
+bytes: this is protection against future checkout text conversion, not a claim
+that a corrupted PDF was repaired. Root staged only the three named fixtures
+for renormalization (no blob changes), compared raw index bytes with the working
+files, and checked out just those fixtures into a fresh temporary directory.
+All three index/working/checkout SHA-256 values match the recorded originals.
+No PDF spacing/content or global Git configuration was changed.
 
 </details>
 

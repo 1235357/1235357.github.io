@@ -1,12 +1,28 @@
 """Synthetic filesystem tests, not real parser/worker acceptance."""
 import hashlib
 import json
+import subprocess
 import unittest
 import test_build as fixtures
 import build
 
 
 class InspectorMarkupTest(unittest.TestCase):
+    def test_pdf_acceptance_fixtures_disable_git_text_diff_and_merge(self):
+        paths = (
+            'browser-rag/acceptance/selectable-test.pdf',
+            'browser-rag/acceptance/empty-test.pdf',
+            'browser-rag/acceptance/pagination-test.pdf',
+        )
+        result = subprocess.run(
+            ['git', 'check-attr', 'text', 'diff', 'merge', '--', *paths],
+            cwd=build.ROOT, check=True, capture_output=True, text=True,
+        )
+        self.assertEqual(result.stdout.splitlines(), [
+            f'{path}: {attribute}: unset'
+            for path in paths for attribute in ('text', 'diff', 'merge')
+        ])
+
     def test_extraction_lab_is_embedded_in_the_existing_article_not_just_linked(self):
         article = (build.ROOT / 'articles' / '01-two-lifecycles.md').read_text(encoding='utf-8')
         self.assertIn('id="browser-source-lab"', article)
