@@ -186,6 +186,85 @@ def copy_browser_assets(root, output):
             guard_path(source, root)
             if source.is_file() and (source.suffix in suffixes or source.name.startswith('LICENSE')):
                 copy(source, target / 'vendor' / directory / source.name)
+    copy_embedding_assets(browser, target, root)
+
+
+def copy_embedding_assets(browser, target, root):
+    """Verify and deliver only the pinned same-origin embedding asset allowlist."""
+    registry_path = guard_path(browser / 'embedding-assets.json', root)
+    if not registry_path.exists():
+        return  # Keep synthetic PDF-only builds independent of model assets.
+    registry_bytes = registry_path.read_bytes()
+    registry = json.loads(registry_bytes)
+    identity = {
+        'schemaVersion': 1,
+        'modelId': 'Xenova/all-MiniLM-L6-v2',
+        'revision': '751bff37182d3f1213fa05d7196b954e230abad9',
+        'libraryVersion': '3.8.1',
+        'ortVersion': '1.22.0-dev.20250409-89f8206ba4',
+    }
+    if not isinstance(registry, dict) or set(registry) != set(identity) | {
+            'modelFiles', 'runtimeFiles', 'noticeFiles'}:
+        raise ValueError('Embedding registry keys are incomplete or unexpected')
+    if type(registry['schemaVersion']) is not int or any(
+            registry[key] != value for key, value in identity.items()):
+        raise ValueError('Embedding registry identity or version mismatch')
+    transformers = browser / 'node_modules' / '@huggingface' / 'transformers'
+    for package, version in ((transformers, identity['libraryVersion']),
+                             (browser / 'node_modules' / 'onnxruntime-web', identity['ortVersion'])):
+        installed = json.loads(guard_path(package / 'package.json', root).read_bytes())
+        if not isinstance(installed, dict) or installed.get('version') != version:
+            raise ValueError(f'Embedding package version mismatch: {package.name}')
+    models = browser / '.model-cache' / identity['revision']
+    model_names = ('config.json', 'tokenizer.json', 'tokenizer_config.json',
+                   'special_tokens_map.json', 'onnx/model.onnx')
+    runtime_names = ('transformers.min.js', 'ort-wasm-simd-threaded.jsep.mjs',
+                     'ort-wasm-simd-threaded.jsep.wasm')
+    # Source locations are authored here, never accepted from registry metadata.
+    notice_sources = {
+        'TRANSFORMERS-LICENSE.txt': transformers / 'LICENSE',
+        'JINJA-LICENSE.txt': browser / 'node_modules' / '@huggingface' / 'jinja' / 'LICENSE',
+        'FLATBUFFERS-LICENSE.txt': browser / 'node_modules' / 'flatbuffers' / 'LICENSE',
+        'LONG-LICENSE.txt': browser / 'node_modules' / 'long' / 'LICENSE',
+        'PLATFORM-LICENSE.txt': browser / 'node_modules' / 'platform' / 'LICENSE',
+        'PROTOBUFJS-LICENSE.txt': browser / 'node_modules' / 'protobufjs' / 'LICENSE',
+        'MODEL-CARD.txt': models / 'README.md',
+        'ONNXRUNTIME-LICENSE.txt': browser / 'notices' / 'ONNXRUNTIME-LICENSE.txt',
+        'ONNXRUNTIME-ThirdPartyNotices.txt': browser / 'notices' / 'ONNXRUNTIME-ThirdPartyNotices.txt',
+        'ATTRIBUTION.txt': browser / 'notices' / 'ATTRIBUTION.txt',
+    }
+    groups = (
+        ('modelFiles', {name: models / name for name in model_names},
+         target / 'models' / identity['revision'] / identity['modelId']),
+        ('runtimeFiles', {name: transformers / 'dist' / name for name in runtime_names},
+         target / 'vendor' / 'transformers'),
+        ('noticeFiles', notice_sources, target / 'notices'),
+    )
+    for group, sources, destination in groups:
+        metadata = registry[group]
+        if not isinstance(metadata, dict) or set(metadata) != set(sources):
+            raise ValueError(f'Embedding {group} registry keys are incomplete or unexpected')
+        for name, source in sources.items():
+            entry = metadata[name]
+            if (not isinstance(entry, dict) or set(entry) != {'bytes', 'sha256'}
+                    or type(entry['bytes']) is not int or entry['bytes'] <= 0
+                    or not isinstance(entry['sha256'], str)
+                    or re.fullmatch(r'[0-9a-fA-F]{64}', entry['sha256']) is None):
+                raise ValueError(f'Embedding asset metadata is invalid: {group}/{name}')
+            source = guard_path(source, root)
+            if not source.is_file():
+                raise ValueError(f'Embedding asset missing: {group}/{name}')
+            data = source.read_bytes()
+            if len(data) != entry['bytes']:
+                raise ValueError(f'Embedding asset bytes mismatch: {group}/{name}')
+            if hashlib.sha256(data).hexdigest() != entry['sha256'].lower():
+                raise ValueError(f'Embedding asset hash mismatch: {group}/{name}')
+            output = destination / name
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_bytes(data)  # Ship exactly the bytes just verified.
+    (target / 'embedding-assets.json').write_bytes(registry_bytes)
+    contract = guard_path(browser / 'embedding-contract.mjs', root)
+    shutil.copyfile(contract, target / contract.name)
 
 
 def build():

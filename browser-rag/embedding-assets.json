@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "modelId": "Xenova/all-MiniLM-L6-v2",
+  "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+  "libraryVersion": "3.8.1",
+  "ortVersion": "1.22.0-dev.20250409-89f8206ba4",
+  "modelFiles": {
+    "config.json": {
+      "bytes": 650,
+      "sha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7"
+    },
+    "tokenizer.json": {
+      "bytes": 711661,
+      "sha256": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0"
+    },
+    "tokenizer_config.json": {
+      "bytes": 366,
+      "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3"
+    },
+    "special_tokens_map.json": {
+      "bytes": 125,
+      "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3"
+    },
+    "onnx/model.onnx": {
+      "bytes": 90387606,
+      "sha256": "759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e"
+    }
+  },
+  "runtimeFiles": {
+    "transformers.min.js": {
+      "bytes": 888173,
+      "sha256": "aa5002b70e789798da263f5f99c62bd3e8fcd0c119258a493c40c180648365fa"
+    },
+    "ort-wasm-simd-threaded.jsep.mjs": {
+      "bytes": 44484,
+      "sha256": "08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9"
+    },
+    "ort-wasm-simd-threaded.jsep.wasm": {
+      "bytes": 21596019,
+      "sha256": "c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39"
+    }
+  },
+  "noticeFiles": {
+    "TRANSFORMERS-LICENSE.txt": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "JINJA-LICENSE.txt": {
+      "bytes": 1069,
+      "sha256": "d6e7b19451c1b3d1d66353bb4b1274138953b3bfd9ae60c56e77b1f548796982"
+    },
+    "FLATBUFFERS-LICENSE.txt": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "LONG-LICENSE.txt": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "PLATFORM-LICENSE.txt": {
+      "bytes": 1095,
+      "sha256": "4a161ebed4f1ef933e16ccfa00d86c718703f5d015a9987ea7ce1bb72a43cd22"
+    },
+    "PROTOBUFJS-LICENSE.txt": {
+      "bytes": 1937,
+      "sha256": "49d6a1c9a623784c61c6cb70f773f3457faceb1914a13c8560a9823b7631950c"
+    },
+    "MODEL-CARD.txt": {
+      "bytes": 1767,
+      "sha256": "63ea99bf681a2e9eda4f6a537d5ed8fda95d1677111656da37e9cfd080c3af02"
+    },
+    "ONNXRUNTIME-LICENSE.txt": {
+      "bytes": 1073,
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    },
+    "ONNXRUNTIME-ThirdPartyNotices.txt": {
+      "bytes": 326866,
+      "sha256": "e9e90971a8e75a9a8ac0c6412e29c1202d079998389915aa485f46c816c3b4cc"
+    },
+    "ATTRIBUTION.txt": {
+      "bytes": 2764,
+      "sha256": "f07dee5c4a05b7b9d3193280cf03d5bc78f577dd710093170d7e70c1c873892c"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+PINNED LOCAL EMBEDDING ASSETS AND LICENSE PRESERVATION
+
+The local model is Xenova/all-MiniLM-L6-v2 at revision
+751bff37182d3f1213fa05d7196b954e230abad9. The preserved model card identifies
+sentence-transformers/all-MiniLM-L6-v2 as its base model, describes the ONNX
+conversion for Transformers.js, and declares Apache-2.0. MODEL-CARD.txt is the
+unchanged card from that revision. Only the fp32 onnx/model.onnx is delivered.
+Source: https://huggingface.co/Xenova/all-MiniLM-L6-v2/blob/751bff37182d3f1213fa05d7196b954e230abad9/README.md
+Base model: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+
+Transformers.js is @huggingface/transformers 3.8.1, under Apache License 2.0.
+TRANSFORMERS-LICENSE.txt preserves its installed package LICENSE without edits.
+The named JS and WASM files come from this exact package's dist directory.
+Source: https://registry.npmjs.org/@huggingface/transformers/3.8.1
+
+ONNX Runtime Web is 1.22.0-dev.20250409-89f8206ba4, under the MIT License.
+ONNXRUNTIME-LICENSE.txt and ONNXRUNTIME-ThirdPartyNotices.txt preserve the
+upstream license and notices from the corresponding Microsoft revision.
+Sources: https://github.com/microsoft/onnxruntime/blob/89f8206ba4/LICENSE
+https://github.com/microsoft/onnxruntime/blob/89f8206ba4/ThirdPartyNotices.txt
+
+Additional unchanged installed package license files are preserved as:
+JINJA-LICENSE.txt (@huggingface/jinja, MIT), FLATBUFFERS-LICENSE.txt (flatbuffers,
+Apache License 2.0), LONG-LICENSE.txt (long, Apache License 2.0),
+PLATFORM-LICENSE.txt (platform, MIT), and PROTOBUFJS-LICENSE.txt (protobufjs,
+BSD 3-Clause). The full upstream text in each named file controls.
+
+PUBLICATION GATE: GUID-TYPESCRIPT LICENSE PROVENANCE REMAINS UNRESOLVED
+The npm metadata for guid-typescript 1.0.9 declares ISC and author "nicolas",
+but the installed package has no bundled license text. The primary npm record
+identifies gitHead 1870de806c3db7ba46c5b8a1387c60fc9dda9284 and the repository
+https://github.com/NicolasDeveloper/guid-typescript. The pinned gitHead lookup
+for package.json returned 404/no commit found during the source audit; the
+repository listing was available. No missing license or copyright text has
+been reconstructed or invented. This unresolved provenance remains a gate
+before public distribution; this local asset build is not license clearance.
+Source: https://registry.npmjs.org/guid-typescript/1.0.9
+Repository: https://github.com/NicolasDeveloper/guid-typescript
+
+License preservation does not grant rights to publish a user's unreviewed PDF,
+its contents, or extraction output. Reader-selected PDFs and acceptance
+fixtures are not bundled by this build. Asset integrity does not establish
+WebGPU execution, embedding quality, financial answer accuracy, or mastery.

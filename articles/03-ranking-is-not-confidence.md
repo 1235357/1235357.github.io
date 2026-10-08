@@ -4,7 +4,7 @@ tags: [rag, retrieval, engineering]
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-07
+updated: 2026-10-08
 source_type: implementation-and-course-review
 ---
 
@@ -237,23 +237,51 @@ that the particular returned chunk answers the consolidated-revenue question.
 
 ### Browser pilot: an encoder contract is more than a model name
 
-The browser-native path is approved but **not implemented**. Primary model cards
-were read in Codex IAB on October 7 to specify the next experiment, not to claim
-a new benchmark. The [Xenova MiniLM ONNX card](https://huggingface.co/Xenova/all-MiniLM-L6-v2)
+Native parsing and source-linked chunking have browser receipts; **real browser
+encoding is still in progress**, not an accepted inference result. The pure
+representation contract was independently reviewed on October 8. Primary model
+cards were read in Codex IAB to specify this experiment, not to claim a new
+benchmark. The [fixed Xenova MiniLM ONNX card](https://huggingface.co/Xenova/all-MiniLM-L6-v2/blob/751bff37182d3f1213fa05d7196b954e230abad9/README.md)
 shows mean pooling, normalization and 384-dimensional vectors. Its
 [upstream card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 describes short English sentences/paragraphs and default truncation beyond 256
 word pieces. A 500-word financial chunk cannot simply be declared fully encoded.
-The selected tokenizer must measure the actual inputs; the chunker must preserve
-source spans when splitting, and report any truncation instead of hiding it.
+The selected tokenizer must measure the actual inputs. This pilot refuses more
+than **256 total encoded IDs including special tokens**, rather than silently
+truncating. That is an explicit conservative policy: the downloaded tokenizer
+configuration declares a maximum of 512, and neither declaration proves every
+long financial window is usefully represented. Source-linked UTF-16 windows and
+model tokens are different measurements.
 
 For the pilot, both passage and query encoding must bind to the same repository
 revision, tokenizer, pooling, normalization, dtype and token-length policy. The
-observed candidate revision is `751bff37182d3f1213fa05d7196b954e230abad9`;
-it is not installed or browser-tested here. The proposed fp32 weight page lists
-90.4 MB, rounded. Model size is not complete download size, process RAM or GPU
-memory. A WebGPU trial still needs actual initialization, operator and failure
-acceptance on the reader's browser.
+fixed revision is `751bff37182d3f1213fa05d7196b954e230abad9`.
+`embedding-contract.mjs` freezes this identity, 384 dimensions, attention-mask
+mean pooling and L2 normalization. The fp32 weight file was downloaded into an
+ignored local cache: 90,387,606 bytes, with its upstream SHA-256 independently
+matched. All five model files total 91,100,408 bytes. Downloaded bytes are not
+process RAM, GPU memory or an inference receipt. A WebGPU trial still needs
+actual initialization, numerical output and failure acceptance in Codex IAB.
+
+The pinned Transformers.js 3.8.1 high-level feature-extraction implementation
+sets `truncation:true`. Our lower-level encoder must instead tokenize explicitly
+without truncation and validate the IDs **before inference**. For token hidden
+vectors `h[t]` and attention mask `m[t]`, the representation is:
+
+```text
+pooled[i] = sum_t(m[t] * h[t,i]) / sum_t(m[t])
+vector[i] = pooled[i] / sqrt(sum_j(pooled[j]^2))
+```
+
+The mask excludes padding; it does not identify the correct financial column.
+The current pure boundary rejects missing rows, nonfinite coordinates, zero
+vectors and norms outside `abs(norm - 1) <= 1e-4`; it does not repair a bad vector
+and report success. Its 17 passing contract tests and 386 passing total Node
+tests establish these boundaries, **not** actual model output or retrieval quality.
+The [fixed WebGPU guide](https://huggingface.co/docs/transformers.js/v3.8.1/guides/webgpu)
+and [local model settings](https://huggingface.co/docs/transformers.js/v3.8.1/custom_usage)
+provide the runtime basis; selecting a WebGPU provider is not proof every
+operator or the JavaScript pooling step executes on the GPU.
 
 Ask yourself: why can two encoders both output 384 floats yet produce
 incompatible indexes? Why can mean pooling over silently truncated text make a

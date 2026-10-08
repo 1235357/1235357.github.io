@@ -3,6 +3,7 @@ dist/
 .build-recovery/
 .archify/
 node_modules/
+browser-rag/.model-cache/
 __pycache__/
 .venv/
 .env

@@ -78,19 +78,31 @@ assert.ok(Object.isFrozen(accepted[0]));
 in ignored `browser-rag/.model-cache`; only reviewed registry/notice source is
 committed, never the npm tree or model binaries.
 
-- [ ] Download only config/tokenizer/tokenizer-config/special-token-map and fp32
+- [x] Download only config/tokenizer/tokenizer-config/special-token-map and fp32
   ONNX at the frozen revision; verify exact byte length and SHA-256. The upstream
   ONNX hash is `759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e`,
   length 90,387,606 bytes. Compute actual small-file hashes, not Git blob IDs.
   Preserve model/conversion/upstream attribution and Apache/MIT notices.
-- [ ] Add failing build tests for paired library/runtime/model hashes, missing
+- [x] Add failing build tests for paired library/runtime/model hashes, missing
   assets and previous-dist preservation. Vendor only bundled
   `dist/transformers.min.js`, paired `ort-wasm-simd-threaded.jsep.mjs/.wasm` and
   notices. The package-default web entry has bare imports and is not a valid
   unbundled browser entry. Keep same-origin CSP, permitting WebAssembly compile
   without `unsafe-eval`; do not permit model/PDF uploads or arbitrary CDNs.
-- [ ] Implement named hash checks/copy paths, rerun build tests and independent
+- [x] Implement named hash checks/copy paths, rerun build tests and independent
   specification/quality review. Record downloaded bytes separately from GPU RAM.
+
+  October 8 receipt: retained behavioral RED (11 selected tests, 78 assertion
+  failures, zero errors), then 38/38 Python build/asset tests and 386/386 Node
+  tests. Independent specification review and then quality review passed;
+  specification review also exercised 14 malformed-registry/Windows-junction
+  probes. All 18 delivered registry assets matched source byte lengths and
+  SHA-256: five model files 91,100,408 bytes, three runtime files 22,528,676,
+  ten notices 370,645. Missing/corrupt assets cannot replace yesterday's output;
+  promotion/restore failures preserve or report the recoverable previous build.
+  Notices retain exact bytes across Windows Git checkouts. GUID-typescript's
+  missing pinned license provenance remains a public-distribution gate, not
+  silently cleared by this local build. No model inference is established here.
 
 ### Task 3 — real encoder worker, owned lifecycle and visible evidence
 
@@ -122,6 +134,48 @@ committed, never the npm tree or model binaries.
   refusal and inspect GPU/backend/runtime errors. A supported WebGPU provider is
   not proof every operator ran on the GPU. Record network/privacy observations
   only to the extent actually captured. Update current blog and local commit.
+
+**Execution order inside Task 3:** review the runtime boundary (3a), then the
+owned worker transport (3b), then session/UI integration and live IAB acceptance
+(3c). Each receives specification review before quality review; do not implement
+the next part with unresolved findings. These are the same approved architecture,
+not alternative runtimes or additional features.
+
+- [ ] **3a / runtime:** create only `embedding-runtime.mjs` and its behavior
+  tests. Export a safe fixed-code runtime error and a dependency-injectable
+  runtime that accepts the already-reviewed chunk artifact. Fetch the bounded
+  registry and its exact eight assets from absolute same-origin paths, with
+  redirects refused; verify both size and SHA-256 for fetched and cached bytes.
+  Only the owned revision-namespaced asset cache may be written. This cache holds
+  model assets, never document text, IDs or vectors. The actual IAB adapter reports
+  `adapter.info.isFallbackAdapter === false`; support the older adapter property
+  too, and refuse a reported fallback or unconfirmed non-fallback device.
+  Configure ORT with the owned device before loading; use `AutoTokenizer` and
+  `AutoModel` directly. Preflight every input without truncation before the first
+  model inference. Build the int64 model tensors from those validated IDs/masks,
+  so the inferred input is not a separately truncated retokenization. Check
+  hidden-state dimensions, apply attention-mask mean pooling and L2, then pass
+  every result through the pure contract. Disposal/cancellation/device loss must
+  leave no partially accepted artifact. Injected tests are not GPU receipts.
+- [ ] **3b / transport:** create `embedding.worker.mjs`, `embedding-source.mjs`
+  and their tests. Add an explicitly tested `embed` operation with ordered stages
+  `download`, `initialize`, `encode` to `protocol.mjs`; do not call chunk encoding
+  an index or a query. One fresh native worker accepts one versioned command;
+  main validates the complete returned representation against ordered chunk
+  IDs, source SHA and fixed representation ID before returning an artifact.
+  Full IDs/vectors stay outside lifecycle metadata. Preserve terminal-sequence
+  capacity, typed safe errors, bounded timeouts and old-incarnation refusal.
+- [ ] **3c / UI and evidence:** extend the existing session, build allowlist and
+  split-pane lab, without adding a second document controller. Cancelling an
+  embedding retains accepted source/chunks, while replacing a document clears
+  dependent vectors atomically before abort callbacks. Only an explicit reader
+  action starts verified asset download/inference. Before that action show
+  **113,629,084 bytes** for model plus paired runtime, not a GPU-RAM estimate.
+  Inspect the selected chunk's tokens and actual 384-dimensional normalized
+  output; distinguish cold downloads, cache reads and measured compute time.
+  Run the real selectable-PDF path in Codex IAB, and retain tested versus live
+  evidence boundaries. Retrieval, query acceptance and generation remain later
+  gates; no fabricated financial answer or unsupported-GPU fallback.
 
 **Plan self-review:** implementation remains in the already approved architecture;
 this advances only representation. Retrieval, real generation, independent quality

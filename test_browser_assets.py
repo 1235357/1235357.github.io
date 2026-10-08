@@ -1,13 +1,30 @@
 """Synthetic filesystem tests, not real parser/worker acceptance."""
 import hashlib
 import json
+import re
 import subprocess
 import unittest
+from copy import deepcopy
+from pathlib import Path
+from unittest.mock import patch
 import test_build as fixtures
 import build
 
 
 class InspectorMarkupTest(unittest.TestCase):
+    def test_csp_allows_same_origin_wasm_without_broad_eval_or_remote_workers(self):
+        markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
+        policy = re.search(r'http-equiv="Content-Security-Policy" content="([^"]+)"', markup)
+        self.assertIsNotNone(policy)
+        directives = {parts[0]: parts[1:] for directive in policy.group(1).split(';')
+                      if (parts := directive.split())}
+        self.assertEqual(directives['script-src'], ["'self'", "'wasm-unsafe-eval'"])
+        self.assertEqual(directives['worker-src'], ["'self'"])
+        self.assertEqual(directives['connect-src'], ["'self'"])
+        self.assertEqual(directives['form-action'], ["'none'"])
+        self.assertNotIn("'unsafe-eval'", policy.group(1))
+        self.assertNotIn('https:', policy.group(1))
+
     def test_pdf_acceptance_fixtures_disable_git_text_diff_and_merge(self):
         paths = (
             'browser-rag/acceptance/selectable-test.pdf',
@@ -124,3 +141,321 @@ class BrowserAssetsTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'hash'):
             build.build()
         self.assertFalse((self.root / 'dist').exists())
+
+
+MODEL_ID = 'Xenova/all-MiniLM-L6-v2'
+MODEL_REVISION = '751bff37182d3f1213fa05d7196b954e230abad9'
+LIBRARY_VERSION = '3.8.1'
+ORT_VERSION = '1.22.0-dev.20250409-89f8206ba4'
+MODEL_NAMES = ('config.json', 'tokenizer.json', 'tokenizer_config.json',
+               'special_tokens_map.json', 'onnx/model.onnx')
+RUNTIME_NAMES = ('transformers.min.js', 'ort-wasm-simd-threaded.jsep.mjs',
+                 'ort-wasm-simd-threaded.jsep.wasm')
+NOTICE_SOURCES = {
+    'TRANSFORMERS-LICENSE.txt': 'node_modules/@huggingface/transformers/LICENSE',
+    'JINJA-LICENSE.txt': 'node_modules/@huggingface/jinja/LICENSE',
+    'FLATBUFFERS-LICENSE.txt': 'node_modules/flatbuffers/LICENSE',
+    'LONG-LICENSE.txt': 'node_modules/long/LICENSE',
+    'PLATFORM-LICENSE.txt': 'node_modules/platform/LICENSE',
+    'PROTOBUFJS-LICENSE.txt': 'node_modules/protobufjs/LICENSE',
+    'MODEL-CARD.txt': f'.model-cache/{MODEL_REVISION}/README.md',
+    'ONNXRUNTIME-LICENSE.txt': 'notices/ONNXRUNTIME-LICENSE.txt',
+    'ONNXRUNTIME-ThirdPartyNotices.txt': 'notices/ONNXRUNTIME-ThirdPartyNotices.txt',
+    'ATTRIBUTION.txt': 'notices/ATTRIBUTION.txt',
+}
+
+
+def metadata(data):
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+class EmbeddingAssetsTest(unittest.TestCase):
+    """Exercise fresh builds with tiny, explicitly named package/model fixtures."""
+    def setUp(self):
+        BrowserAssetsTest.setUp(self)
+        self.transformers = self.browser / 'node_modules' / '@huggingface' / 'transformers'
+        self.ort = self.browser / 'node_modules' / 'onnxruntime-web'
+        self.models = self.browser / '.model-cache' / MODEL_REVISION
+        self.embedding_registry = {
+            'schemaVersion': 1, 'modelId': MODEL_ID, 'revision': MODEL_REVISION,
+            'libraryVersion': LIBRARY_VERSION, 'ortVersion': ORT_VERSION,
+            'modelFiles': {}, 'runtimeFiles': {}, 'noticeFiles': {},
+        }
+        for package, version in ((self.transformers, LIBRARY_VERSION), (self.ort, ORT_VERSION)):
+            package.mkdir(parents=True)
+            (package / 'package.json').write_text(json.dumps({'version': version}))
+        for name in MODEL_NAMES:
+            self.add_asset('modelFiles', name, self.models / name, b'MODEL ' + name.encode())
+        for name in RUNTIME_NAMES:
+            self.add_asset('runtimeFiles', name, self.transformers / 'dist' / name,
+                           b'RUNTIME ' + name.encode())
+        for name, relative_source in NOTICE_SOURCES.items():
+            self.add_asset('noticeFiles', name, self.browser / relative_source,
+                           b'NOTICE ' + name.encode())
+        (self.browser / 'embedding-contract.mjs').write_bytes(b'CONTRACT FIXTURE')
+        self.write_registry()
+
+    def add_asset(self, group, name, source, data):
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_bytes(data)
+        self.embedding_registry[group][name] = metadata(data)
+
+    def write_registry(self):
+        (self.browser / 'embedding-assets.json').write_text(json.dumps(self.embedding_registry))
+
+    def source_for(self, group, name):
+        if group == 'modelFiles':
+            return self.models / name
+        if group == 'runtimeFiles':
+            return self.transformers / 'dist' / name
+        return self.browser / NOTICE_SOURCES[name]
+
+    def assert_rejected_preserving_dist(self, error='[Ee]mbedding|version|hash|bytes|registry|asset'):
+        before = fixtures.file_snapshot(self.root / 'dist')
+        with self.assertRaisesRegex((ValueError, FileNotFoundError), error):
+            build.build()
+        self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+    def test_pinned_assets_are_copied_to_named_same_origin_paths_only(self):
+        for source in (self.transformers / 'dist' / 'transformers.web.js',
+                       self.models / 'onnx' / 'model_quantized.onnx',
+                       self.browser / 'acceptance' / 'private.pdf',
+                       self.browser / 'tests' / 'embedding.test.mjs'):
+            source.parent.mkdir(parents=True, exist_ok=True)
+            source.write_bytes(b'NOT A SHIPPED ASSET')
+        build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        self.assertTrue((output / 'embedding-assets.json').is_file(), 'embedding registry was not delivered')
+        self.assertEqual((output / 'embedding-assets.json').read_bytes(),
+                         (self.browser / 'embedding-assets.json').read_bytes())
+        self.assertEqual((output / 'embedding-contract.mjs').read_bytes(), b'CONTRACT FIXTURE')
+        for group, prefix in (('modelFiles', f'models/{MODEL_REVISION}/{MODEL_ID}'),
+                              ('runtimeFiles', 'vendor/transformers'), ('noticeFiles', 'notices')):
+            for name in self.embedding_registry[group]:
+                with self.subTest(group=group, name=name):
+                    self.assertEqual((output / prefix / name).read_bytes(),
+                                     self.source_for(group, name).read_bytes())
+        actual = set(fixtures.file_snapshot(output))
+        self.assertFalse(any(name.startswith(('.model-cache', 'node_modules', 'tests', 'acceptance'))
+                             for name in actual))
+        self.assertFalse(any('quantized' in name or 'transformers.web.js' in name for name in actual))
+
+    def test_every_missing_pinned_asset_preserves_previous_build(self):
+        build.build()
+        for group in ('modelFiles', 'runtimeFiles', 'noticeFiles'):
+            for name in self.embedding_registry[group]:
+                with self.subTest(group=group, name=name):
+                    source = self.source_for(group, name)
+                    data = source.read_bytes()
+                    source.unlink()
+                    try:
+                        self.assert_rejected_preserving_dist()
+                    finally:
+                        source.write_bytes(data)
+
+    def test_changed_bytes_and_same_length_wrong_hashes_preserve_previous_build(self):
+        build.build()
+        for group, name in (('modelFiles', 'onnx/model.onnx'),
+                            ('runtimeFiles', 'transformers.min.js'),
+                            ('noticeFiles', 'ATTRIBUTION.txt')):
+            source = self.source_for(group, name)
+            data = source.read_bytes()
+            for damaged in (data + b'!', bytes([data[0] ^ 1]) + data[1:]):
+                with self.subTest(group=group, bytes=len(damaged)):
+                    source.write_bytes(damaged)
+                    try:
+                        self.assert_rejected_preserving_dist('bytes|hash')
+                    finally:
+                        source.write_bytes(data)
+
+    def test_wrong_pinned_registry_identity_preserves_previous_build(self):
+        build.build()
+        original = deepcopy(self.embedding_registry)
+        cases = (('schemaVersion', 2), ('schemaVersion', True), ('schemaVersion', 1.0),
+                 ('modelId', 'attacker/model'), ('revision', '0' * 40),
+                 ('libraryVersion', '3.8.0'), ('ortVersion', '1.22.0'))
+        for key, value in cases:
+            with self.subTest(key=key, value=value):
+                self.embedding_registry[key] = value
+                self.write_registry()
+                try:
+                    self.assert_rejected_preserving_dist()
+                finally:
+                    self.embedding_registry = deepcopy(original)
+                    self.write_registry()
+
+    def test_wrong_installed_versions_preserve_previous_build(self):
+        build.build()
+        for package, version in ((self.transformers, LIBRARY_VERSION), (self.ort, ORT_VERSION)):
+            with self.subTest(package=package.name):
+                source = package / 'package.json'
+                source.write_text(json.dumps({'version': 'OLD'}))
+                try:
+                    self.assert_rejected_preserving_dist('version')
+                finally:
+                    source.write_text(json.dumps({'version': version}))
+
+    def test_registry_rejects_missing_extra_and_escaping_file_keys(self):
+        build.build()
+        original = deepcopy(self.embedding_registry)
+        for group in ('modelFiles', 'runtimeFiles', 'noticeFiles'):
+            for action in ('missing', 'extra', 'escape'):
+                with self.subTest(group=group, action=action):
+                    name = next(iter(self.embedding_registry[group]))
+                    if action == 'missing':
+                        del self.embedding_registry[group][name]
+                    else:
+                        added = 'surprise.txt' if action == 'extra' else '../../secret.env'
+                        self.embedding_registry[group][added] = metadata(b'ignored')
+                    self.write_registry()
+                    try:
+                        self.assert_rejected_preserving_dist('registry')
+                    finally:
+                        self.embedding_registry = deepcopy(original)
+                        self.write_registry()
+
+    def test_registry_requires_positive_integer_bytes_and_sha256_metadata(self):
+        build.build()
+        original = deepcopy(self.embedding_registry)
+        cases = ({'bytes': 0, 'sha256': '0' * 64},
+                 {'bytes': -1, 'sha256': '0' * 64},
+                 {'bytes': True, 'sha256': '0' * 64},
+                 {'bytes': 1.0, 'sha256': '0' * 64},
+                 {'bytes': '1', 'sha256': '0' * 64},
+                 {'bytes': 1, 'sha256': 'z' * 64},
+                 {'bytes': 1, 'sha256': '0' * 63},
+                 {'bytes': 1, 'sha256': None},
+                 {'bytes': 1}, {'bytes': 1, 'sha256': '0' * 64, 'source': '../../secret.env'})
+        for group in ('modelFiles', 'runtimeFiles', 'noticeFiles'):
+            for value in cases:
+                with self.subTest(group=group, value=value):
+                    self.embedding_registry[group][next(iter(self.embedding_registry[group]))] = value
+                    self.write_registry()
+                    try:
+                        self.assert_rejected_preserving_dist('metadata')
+                    finally:
+                        self.embedding_registry = deepcopy(original)
+                        self.write_registry()
+
+    def test_registry_top_level_keys_are_exact_and_required(self):
+        build.build()
+        original = deepcopy(self.embedding_registry)
+        for action in ('extra', 'missing'):
+            with self.subTest(action=action):
+                if action == 'extra':
+                    self.embedding_registry['source'] = '../../secret.env'
+                else:
+                    del self.embedding_registry['noticeFiles']
+                self.write_registry()
+                try:
+                    self.assert_rejected_preserving_dist('registry')
+                finally:
+                    self.embedding_registry = deepcopy(original)
+                    self.write_registry()
+
+    def test_missing_contract_preserves_previous_build(self):
+        build.build()
+        (self.browser / 'embedding-contract.mjs').unlink()
+        self.assert_rejected_preserving_dist('embedding-contract')
+
+    def test_absent_registry_keeps_pdf_only_build_compatible_without_model_packages(self):
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        (self.browser / 'embedding-assets.json').unlink()
+        (self.transformers / 'package.json').unlink()
+        (self.ort / 'package.json').unlink()
+        (self.models / 'onnx' / 'model.onnx').unlink()
+        result = build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        self.assertEqual((output / 'pdf-source.mjs').read_bytes(),
+                         (self.browser / 'pdf-source.mjs').read_bytes())
+        for relative in ('embedding-assets.json', 'embedding-contract.mjs',
+                         'models', 'vendor/transformers', 'notices'):
+            self.assertFalse((output / relative).exists(), relative)
+        self.assertEqual(fixtures.file_snapshot(result['recovery_path']), before)
+
+    def test_unchanged_pinned_assets_do_not_accumulate_recovery_copies(self):
+        build.build()
+        result = build.build()
+        self.assertEqual(result['status'], 'unchanged')
+        self.assertIsNone(result['recovery_path'])
+        self.assertFalse((self.root / '.build-recovery').exists())
+
+    def test_failed_embedding_promotion_restores_previous_output(self):
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        (self.browser / 'inspector.css').write_bytes(b'CHANGED CORE STYLE')
+        real_rename = Path.rename
+
+        def blocked_promotion(path, target):
+            if path.name.startswith('.dist-stage-') and Path(target) == self.root / 'dist':
+                raise OSError('simulated embedding build promotion lock')
+            return real_rename(path, target)
+
+        with patch.object(Path, 'rename', blocked_promotion):
+            with self.assertRaisesRegex(OSError, 'promotion lock'):
+                build.build()
+        self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+    def test_failed_embedding_restore_retains_recovery_and_reports_its_path(self):
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        (self.browser / 'inspector.css').write_bytes(b'CHANGED CORE STYLE')
+        real_rename = Path.rename
+
+        def blocked_promotion_and_restore(path, target):
+            if Path(target) == self.root / 'dist':
+                if path.name.startswith('.dist-stage-'):
+                    raise OSError('simulated embedding build promotion lock')
+                if path.parent == self.root / '.build-recovery':
+                    raise OSError('simulated embedding build restore lock')
+            return real_rename(path, target)
+
+        with patch.object(Path, 'rename', blocked_promotion_and_restore):
+            with self.assertRaisesRegex(OSError, 'Promotion failed; restore also failed') as captured:
+                build.build()
+        recovery = list((self.root / '.build-recovery').iterdir())
+        self.assertEqual(len(recovery), 1)
+        self.assertEqual(fixtures.file_snapshot(recovery[0]), before)
+        self.assertIn(str(recovery[0]), str(captured.exception))
+        self.assertFalse((self.root / 'dist').exists())
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+
+class RealEmbeddingRegistryTest(unittest.TestCase):
+    def test_recorded_metadata_matches_all_named_installed_bytes_without_inference(self):
+        browser = build.ROOT / 'browser-rag'
+        self.assertTrue((browser / 'embedding-assets.json').is_file(), 'pinned embedding registry is missing')
+        registry = json.loads((browser / 'embedding-assets.json').read_text(encoding='utf-8'))
+        self.assertEqual(registry['schemaVersion'], 1)
+        self.assertEqual(registry['modelId'], MODEL_ID)
+        self.assertEqual(registry['revision'], MODEL_REVISION)
+        self.assertEqual(registry['libraryVersion'], LIBRARY_VERSION)
+        self.assertEqual(registry['ortVersion'], ORT_VERSION)
+        expected_model = {
+            'config.json': (650, '7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7'),
+            'tokenizer.json': (711661, 'da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0'),
+            'tokenizer_config.json': (366, '9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3'),
+            'special_tokens_map.json': (125, 'b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3'),
+            'onnx/model.onnx': (90387606, '759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e'),
+        }
+        expected_runtime = {
+            'transformers.min.js': (888173, 'aa5002b70e789798da263f5f99c62bd3e8fcd0c119258a493c40c180648365fa'),
+            'ort-wasm-simd-threaded.jsep.mjs': (44484, '08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9'),
+            'ort-wasm-simd-threaded.jsep.wasm': (21596019, 'c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39'),
+        }
+        for group, expected, directory in (
+            ('modelFiles', expected_model, browser / '.model-cache' / MODEL_REVISION),
+            ('runtimeFiles', expected_runtime, browser / 'node_modules' / '@huggingface' / 'transformers' / 'dist'),
+        ):
+            self.assertEqual(set(registry[group]), set(expected))
+            for name, (size, digest) in expected.items():
+                with self.subTest(group=group, name=name):
+                    self.assertEqual(registry[group][name], {'bytes': size, 'sha256': digest})
+                    self.assertEqual(metadata((directory / name).read_bytes()), registry[group][name])
+        self.assertEqual(set(registry['noticeFiles']), set(NOTICE_SOURCES))
+        for name, relative_source in NOTICE_SOURCES.items():
+            with self.subTest(notice=name):
+                self.assertEqual(metadata((browser / relative_source).read_bytes()), registry['noticeFiles'][name])
