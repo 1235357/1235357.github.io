@@ -2,6 +2,134 @@
 
 Status: local construction only; no remote, publication or license grant.
 
+<details>
+<summary>WebGPU embedding pilot implementation plan — October 8</summary>
+
+# WebGPU embedding pilot implementation plan
+
+> **For agentic workers:** continue subagent-driven-development in this chat;
+> retain RED regressions and independently review specification before quality.
+
+**Goal:** turn accepted browser chunks into a separately versioned, validated
+384-dimensional representation using the reader's GPU. This increment is not
+retrieval or a generated-answer acceptance.
+
+**Architecture:** keep the one document session and its current parse/chunk
+artifacts. A separate owned module worker loads fixed assets only after an
+explicit model-download action. Query and passage encoding use the same frozen
+representation. Cancellation, device loss or failure revokes the worker; retries
+use a new incarnation because the pinned runtime's rejected inference chain may
+not recover in-place. Source text, token IDs and vectors remain outside lifecycle
+metadata.
+
+**Tech stack:** `@huggingface/transformers` 3.8.1, its exact ORT Web dependency
+`1.22.0-dev.20250409-89f8206ba4`, native Worker/WebGPU and MiniLM fp32 at whole
+revision `751bff37182d3f1213fa05d7196b954e230abad9`. Main verified the fixed
+[WebGPU guide](https://huggingface.co/docs/transformers.js/v3.8.1/guides/webgpu),
+[local asset settings](https://huggingface.co/docs/transformers.js/v3.8.1/custom_usage),
+[model card](https://huggingface.co/Xenova/all-MiniLM-L6-v2/blob/751bff37182d3f1213fa05d7196b954e230abad9/README.md)
+and installed package source. Its high-level feature-extraction pipeline always
+sets `truncation:true`; the pilot therefore uses explicit `AutoTokenizer`,
+`AutoModel`, `mean_pooling` and L2 normalization, with `truncation:false`.
+
+### Task 1 — pure representation boundaries
+
+**Files:** `browser-rag/embedding-contract.mjs` and
+`browser-rag/tests/embedding-contract.test.mjs`.
+
+- [x] Write behavior assertions before implementation. Export a frozen
+  `EMBEDDING_SPEC` and safe `EmbeddingError`; define `validateTokenIds(ids)` and
+  `acceptEmbeddingVectors(rows, expectedCount)`. The frozen representation binds
+  model/revision/tokenizer/pooling/normalization/dtype/device/dimensions and policy.
+
+```js
+assert.equal(EMBEDDING_SPEC.dimensions, 384);
+assert.throws(() => validateTokenIds(Array(257).fill(1)),
+  error => error.code === 'ENCODER_INPUT_LIMIT');
+assert.throws(() => acceptEmbeddingVectors([Array(384).fill(0)], 1),
+  error => error.code === 'INVALID_EMBEDDING');
+const basis = Array(384).fill(0); basis[0] = 1;
+const accepted = acceptEmbeddingVectors([basis], 1);
+basis[0] = 0;
+assert.equal(accepted[0][0], 1);
+assert.ok(Object.isFrozen(accepted[0]));
+```
+
+  Encoded IDs are dense integer arrays, nonnegative safe IDs, 3–256 total tokens
+  including special tokens. This is a conservative pilot policy, not a claim
+  that the tokenizer's declared max is 256. Reject missing, blank or oversized
+  inputs before inference; never silently truncate. Pilot budgets are 512 chunks,
+  batch size 1, 131,072 aggregate encoded tokens. Vector rows are dense finite
+  numeric arrays, exactly 384 values and one row per expected input; unit norm
+  tolerance is 1e-4. Copy and deeply freeze accepted rows. Refuse zero vectors,
+  ragged/sparse/NaN/Infinity rows, invalid counts and rows outside normalization
+  tolerance. These pure tests do not prove a real model ran.
+- [x] Observe RED, implement only these boundaries, rerun targeted/full Node
+  tests; independent specification review, then quality review, before commit.
+  October 8 receipt: retained assertion RED 17/17 failures; targeted GREEN 17/17,
+  full Node 386/386 and static/build Python 23/23. Fresh independent specification
+  and then quality reviews both passed. These validate only the pure contract,
+  not tokenization, model loading or GPU inference.
+
+### Task 2 — verified, same-origin runtime and model files
+
+**Files:** `browser-rag/embedding-assets.json`, `build.py`,
+`test_browser_assets.py`, `.gitignore`, package/lock files. Weight downloads live
+in ignored `browser-rag/.model-cache`; only reviewed registry/notice source is
+committed, never the npm tree or model binaries.
+
+- [ ] Download only config/tokenizer/tokenizer-config/special-token-map and fp32
+  ONNX at the frozen revision; verify exact byte length and SHA-256. The upstream
+  ONNX hash is `759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e`,
+  length 90,387,606 bytes. Compute actual small-file hashes, not Git blob IDs.
+  Preserve model/conversion/upstream attribution and Apache/MIT notices.
+- [ ] Add failing build tests for paired library/runtime/model hashes, missing
+  assets and previous-dist preservation. Vendor only bundled
+  `dist/transformers.min.js`, paired `ort-wasm-simd-threaded.jsep.mjs/.wasm` and
+  notices. The package-default web entry has bare imports and is not a valid
+  unbundled browser entry. Keep same-origin CSP, permitting WebAssembly compile
+  without `unsafe-eval`; do not permit model/PDF uploads or arbitrary CDNs.
+- [ ] Implement named hash checks/copy paths, rerun build tests and independent
+  specification/quality review. Record downloaded bytes separately from GPU RAM.
+
+### Task 3 — real encoder worker, owned lifecycle and visible evidence
+
+**Files:** `browser-rag/embedding-runtime.mjs`, `embedding.worker.mjs`,
+`embedding-source.mjs`, their tests, current `pdf-session.mjs`, `pdf-app.mjs`,
+`inspector.html/css`, session/UI tests; no new tutorial Markdown page.
+
+- [ ] Write RED tests around the real runtime boundary with injected tokenizer,
+  model loader, GPU and transport. Refuse no WebGPU/null adapter/device loss;
+  request high-performance non-fallback device. Configure absolute same-origin
+  `wasmPaths`, `proxy:false`, `numThreads:1` before first session; use the owned
+  device, `device:'webgpu'`, `dtype:'fp32'`. Model fetch only after explicit user
+  action; report actual completed/total asset bytes and verify every cached or
+  fetched asset. Cache is an owned versioned namespace, not shared cache deletion.
+- [ ] Tokenize every nonblank chunk with special tokens and no truncation, then
+  use mask-aware mean pooling and L2 normalization. Validate all rows; return
+  detached vectors/token IDs tied to ordered chunk IDs and representation ID.
+  Carry full artifacts outside controller metadata. Version ready/command packets
+  separately from `chunks-v1`; typed errors, ready/work timeouts, cancellation and
+  stale-worker events cannot publish partial vectors. No automatic CPU fallback.
+- [ ] Extend the same session with explicit embedding and a new runtime identity;
+  errors/cancel retain accepted chunks/source, replacement clears dependent
+  vectors. Show selected input token IDs/counts, vector dimension/norm/first values,
+  actual backend, download receipt and measured duration. Clearly say
+  **embedded; no retrieval or generation yet**. Download size is shown before
+  the explicit action; no success label without actual model output.
+- [ ] Independent specification then quality review, tests and real IAB selected
+  PDF acceptance. Measure first/warm runs separately, verify no partial commit on
+  refusal and inspect GPU/backend/runtime errors. A supported WebGPU provider is
+  not proof every operator ran on the GPU. Record network/privacy observations
+  only to the extent actually captured. Update current blog and local commit.
+
+**Plan self-review:** implementation remains in the already approved architecture;
+this advances only representation. Retrieval, real generation, independent quality
+evaluation and rights-cleared NVIDIA mode remain required later goal increments.
+No public push, old-index reuse or grade/mastery claim is authorized by this plan.
+
+</details>
+
 ## Current scope — October 8
 
 This milestone continues the locally staged technical blog and independent RAG
