@@ -112,9 +112,10 @@ committed, never the npm tree or model binaries.
 
 - [ ] Write RED tests around the real runtime boundary with injected tokenizer,
   model loader, GPU and transport. Refuse no WebGPU/null adapter/device loss;
-  request high-performance non-fallback device. Configure absolute same-origin
-  `wasmPaths`, `proxy:false`, `numThreads:1` before first session; use the owned
-  device, `device:'webgpu'`, `dtype:'fp32'`. Model fetch only after explicit user
+  select a high-performance non-fallback adapter. Configure absolute same-origin
+  `wasmPaths`, `proxy:false`, `numThreads:1` before first session; capture and
+  monitor ORT's actual device through its supported adapter input, with
+  `device:'webgpu'`, `dtype:'fp32'`. Model fetch only after explicit user
   action; report actual completed/total asset bytes and verify every cached or
   fetched asset. Cache is an owned versioned namespace, not shared cache deletion.
 - [ ] Tokenize every nonblank chunk with special tokens and no truncation, then
@@ -141,7 +142,7 @@ owned worker transport (3b), then session/UI integration and live IAB acceptance
 the next part with unresolved findings. These are the same approved architecture,
 not alternative runtimes or additional features.
 
-- [ ] **3a / runtime:** create only `embedding-runtime.mjs` and its behavior
+- [x] **3a / runtime:** create only `embedding-runtime.mjs` and its behavior
   tests. Export a safe fixed-code runtime error and a dependency-injectable
   runtime that accepts the already-reviewed chunk artifact. Fetch the bounded
   registry and its exact eight assets from absolute same-origin paths, with
@@ -150,13 +151,25 @@ not alternative runtimes or additional features.
   model assets, never document text, IDs or vectors. The actual IAB adapter reports
   `adapter.info.isFallbackAdapter === false`; support the older adapter property
   too, and refuse a reported fallback or unconfirmed non-fallback device.
-  Configure ORT with the owned device before loading; use `AutoTokenizer` and
-  `AutoModel` directly. Preflight every input without truncation before the first
+  Configure ORT's supported adapter input before loading, preserving native
+  receivers and ORT's device descriptor. Capture/watch the device ORT actually
+  creates; do not monitor a separate preflight device. This pinned JSEP ignores
+  an assigned `env.webgpu.device` and installs readonly device/adapter fields.
+  Each attempt therefore belongs to a fresh worker/SDK realm, not a reused
+  imported singleton. Use `AutoTokenizer` and `AutoModel` directly. Preflight
+  every input without truncation before the first
   model inference. Build the int64 model tensors from those validated IDs/masks,
   so the inferred input is not a separately truncated retokenization. Check
   hidden-state dimensions, apply attention-mask mean pooling and L2, then pass
   every result through the pure contract. Disposal/cancellation/device loss must
   leave no partially accepted artifact. Injected tests are not GPU receipts.
+  Accepted 2026-10-08 after independent specification and quality reviews:
+  48 runtime tests, 434 full Node tests and 38 Python tests passed. The pinned
+  ORT-shaped fixture covers native receivers, descriptor forwarding, readonly
+  environment installation and cleanup of late devices. This is a single-attempt
+  runtime contract, not real WebGPU inference or browser acceptance; 3b and 3c
+  remain open. The restored localhost inspector and NVIDIA adapter capability
+  check establish page availability/capability only.
 - [ ] **3b / transport:** create `embedding.worker.mjs`, `embedding-source.mjs`
   and their tests. Add an explicitly tested `embed` operation with ordered stages
   `download`, `initialize`, `encode` to `protocol.mjs`; do not call chunk encoding
