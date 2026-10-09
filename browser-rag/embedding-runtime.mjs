@@ -55,7 +55,10 @@ function dependencies(options) {
       fail('INVALID_EMBEDDING_CONFIG');
     }
     const config = { baseURL: base.href, gpu: own('gpu', () => globalThis.navigator?.gpu),
-      fetch: own('fetch', () => globalThis.fetch), cacheStorage: own('cacheStorage', () => globalThis.caches),
+      fetch: own('fetch', () => {
+        const fetch = globalThis.fetch;
+        return typeof fetch === 'function' ? fetch.bind(globalThis) : fetch;
+      }), cacheStorage: own('cacheStorage', () => globalThis.caches),
       crypto: own('crypto', () => globalThis.crypto), importer: own('importer', () => url => import(url)),
       now: own('now', () => () => globalThis.performance.now()), signal: options.signal, onProgress: options.onProgress };
     if (typeof config.fetch !== 'function' || typeof config.importer !== 'function' || typeof config.now !== 'function'

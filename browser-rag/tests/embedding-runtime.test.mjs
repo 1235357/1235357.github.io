@@ -154,6 +154,55 @@ async function assetFixture() {
 }
 const loadingStopped = fixture => assert.rejects(encodeChunks(artifact(), fixture.opts), safeError('EMBEDDING_LOAD_FAILED'));
 
+test('default global fetch retains its global receiver during asset verification', async () => {
+  const fixture = await assetFixture(), fetch = fixture.opts.fetch;
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'fetch');
+  let receiverRejected = false;
+  Object.defineProperty(globalThis, 'fetch', { configurable: true, writable: true,
+    value: function(url, request) {
+      if (this !== globalThis) { receiverRejected = true; throw new TypeError('Illegal invocation'); }
+      return fetch(url, request);
+    } });
+  delete fixture.opts.fetch;
+  try {
+    const error = await encodeChunks(artifact(), fixture.opts).catch(error => error);
+    assert.equal(receiverRejected, false, 'default fetch must receive globalThis to avoid Illegal invocation');
+    assert.equal(safeError('EMBEDDING_LOAD_FAILED')(error), true);
+    assert.equal(fixture.requests.length, 9); assert.equal(fixture.stored.size, 8);
+    assert.equal(fixture.imports.length, 1);
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, 'fetch', descriptor);
+    else delete globalThis.fetch;
+  }
+});
+
+test('an absent or invalid default global fetch is refused before GPU access', async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'fetch');
+  try {
+    for (const fetch of [undefined, null, 7]) {
+      Object.defineProperty(globalThis, 'fetch', { configurable: true, writable: true, value: fetch });
+      let reads = 0;
+      await assert.rejects(encodeChunks(artifact(), options({ gpu: { requestAdapter() { reads++; } } })),
+        safeError('INVALID_EMBEDDING_CONFIG'));
+      assert.equal(reads, 0);
+    }
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, 'fetch', descriptor);
+    else delete globalThis.fetch;
+  }
+});
+
+test('an explicitly injected fetch retains its configuration receiver', async () => {
+  const fixture = await assetFixture(), fetch = fixture.opts.fetch;
+  const injectedFetch = function(url, request) {
+    assert.notEqual(this, globalThis); assert.equal(this.fetch, injectedFetch);
+    assert.equal(this.baseURL, BASE); return fetch(url, request);
+  };
+  fixture.opts.fetch = injectedFetch;
+  await loadingStopped(fixture);
+  assert.equal(fixture.requests.length, 9); assert.equal(fixture.imports.length, 1);
+});
+
 test('all eight local assets are hashed and cached before importing the encoder', async () => {
   const fixture = await assetFixture(); await loadingStopped(fixture);
   assert.equal(fixture.imports.length, 1);
