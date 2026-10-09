@@ -110,7 +110,7 @@ committed, never the npm tree or model binaries.
 `embedding-source.mjs`, their tests, current `pdf-session.mjs`, `pdf-app.mjs`,
 `inspector.html/css`, session/UI tests; no new tutorial Markdown page.
 
-- [ ] Write RED tests around the real runtime boundary with injected tokenizer,
+- [x] Write RED tests around the real runtime boundary with injected tokenizer,
   model loader, GPU and transport. Refuse no WebGPU/null adapter/device loss;
   select a high-performance non-fallback adapter. Configure absolute same-origin
   `wasmPaths`, `proxy:false`, `numThreads:1` before first session; capture and
@@ -118,7 +118,7 @@ committed, never the npm tree or model binaries.
   `device:'webgpu'`, `dtype:'fp32'`. Model fetch only after explicit user
   action; report actual completed/total asset bytes and verify every cached or
   fetched asset. Cache is an owned versioned namespace, not shared cache deletion.
-- [ ] Tokenize every nonblank chunk with special tokens and no truncation, then
+- [x] Tokenize every nonblank chunk with special tokens and no truncation, then
   use mask-aware mean pooling and L2 normalization. Validate all rows; return
   detached vectors/token IDs tied to ordered chunk IDs and representation ID.
   Carry full artifacts outside controller metadata. Version ready/command packets
@@ -167,10 +167,10 @@ not alternative runtimes or additional features.
   48 runtime tests, 434 full Node tests and 38 Python tests passed. The pinned
   ORT-shaped fixture covers native receivers, descriptor forwarding, readonly
   environment installation and cleanup of late devices. This is a single-attempt
-  runtime contract, not real WebGPU inference or browser acceptance; 3b and 3c
-  remain open. The restored localhost inspector and NVIDIA adapter capability
+  runtime contract, not real WebGPU inference or browser acceptance; session/UI
+  integration and live acceptance remain open. The restored localhost inspector and NVIDIA adapter capability
   check establish page availability/capability only.
-- [ ] **3b / transport:** create `embedding.worker.mjs`, `embedding-source.mjs`
+- [x] **3b / transport:** create `embedding.worker.mjs`, `embedding-source.mjs`
   and their tests. Add an explicitly tested `embed` operation with ordered stages
   `download`, `initialize`, `encode` to `protocol.mjs`; do not call chunk encoding
   an index or a query. One fresh native worker accepts one versioned command;
@@ -178,6 +178,15 @@ not alternative runtimes or additional features.
   IDs, source SHA and fixed representation ID before returning an artifact.
   Full IDs/vectors stay outside lifecycle metadata. Preserve terminal-sequence
   capacity, typed safe errors, bounded timeouts and old-incarnation refusal.
+  Accepted 2026-10-08 after independent specification then quality reviews:
+  255 targeted transport/worker/protocol tests, 662 full Node tests and 39 Python
+  tests passed. Source/worker SHA-256 are respectively
+  `094b249a3a2a83617932dbd86feaacabaa1ebbec59af423faa24fd042480ca040`
+  and `dce1be6f320667f6cc2f64e1e0a1bc8d41fbcf2971ec467470bff28187310d13`.
+  Regression tests cover single-read primitive snapshots, dense numeric-array
+  properties, fixed timeout budgets, stale/reentrant cleanup and canonical errors.
+  This accepts the message boundary, not selected-PDF GPU inference, retrieval
+  or generation.
 - [ ] **3c / UI and evidence:** extend the existing session, build allowlist and
   split-pane lab, without adding a second document controller. Cancelling an
   embedding retains accepted source/chunks, while replacing a document clears
@@ -185,7 +194,10 @@ not alternative runtimes or additional features.
   action starts verified asset download/inference. Before that action show
   **113,629,084 bytes** for model plus paired runtime, not a GPU-RAM estimate.
   Inspect the selected chunk's tokens and actual 384-dimensional normalized
-  output; distinguish cold downloads, cache reads and measured compute time.
+  output; distinguish downloaded/cache body bytes and measured total attempt
+  duration. That duration includes loading/initialization/disposal, not isolated
+  GPU compute time. Progress bars use verified bytes or completed chunks;
+  initialization has no reliable percentage and remains indeterminate.
   Run the real selectable-PDF path in Codex IAB, and retain tested versus live
   evidence boundaries. Retrieval, query acceptance and generation remain later
   gates; no fabricated financial answer or unsupported-GPU fallback.
@@ -282,8 +294,12 @@ portion: retain the staged technical blog and reusable repository for the extern
 portfolio, and restore the personal vault as a visual Excalidraw learning surface.
 That is a requested migration, not a completed one. Preserve historical files;
 do not delete them or recommend presenting the entire 49-slide deck. The technical
-blog holds deep explanations; a live walkthrough starts with one core architecture
-diagram and then the question, answer/outcome and only the relevant trace details.
+blog holds deep explanations; a live walkthrough starts with the question and
+honest answer/outcome status, then one core architecture diagram and only the
+relevant trace details. Article 01's opening now follows that order; its scoped
+rendered-order regression and independent specification/quality reviews passed
+on October 8 (39 Python tests). This editorial acceptance is not generated-answer
+or browser-model acceptance.
 
 Mentor feedback reviewed from the local October 2 transcript: 00:55:57 asks for
 question/answer before detail; 00:57:38–00:59:59 asks for fewer slides and one core
@@ -1963,6 +1979,46 @@ site build tests. Those are the pre-worker baseline, not worker acceptance.
 Run `python build.py`, then serve only the generated directory with
 `python -m http.server 8765 --bind 127.0.0.1 --directory dist`.
 The build currently renders six articles and the series index; it does not publish.
+Preview availability is volatile: on October 8 the previously started process
+was absent after a tool/session reconnection, while an inspector tab still held
+old page state. A fresh port check and HTTP request failed. The cause of process
+termination is not established. A loopback restart in a pollable command session
+initially restored HTTP/IAB access, but that process was absent after a later
+session boundary too. The preview now uses an explicitly owned Windows hidden
+background process, independent of the temporary terminal handle. A subsequent
+tool call verified its process, `127.0.0.1:8765` listener and HTTP 200; survival
+across future session boundaries remains to be verified.
+Do not call the preview permanently running or infer readiness from a cached
+page. Before live acceptance, check the current listener and request
+`/browser-rag/inspector.html`; start the command above only if no listener exists.
+If the browser tools reconnect, inventory the same IAB again and bind its current
+normal-page tab: numeric tab IDs and in-memory selected documents are not durable.
+An old internal error page is not an application exception or a reason to bypass
+browser security controls. Verify parsing, worker output and actual model
+inference separately after page recovery.
+
+For this Windows workspace, after verifying that port 8765 has no existing
+listener, the equivalent background start is:
+
+```powershell
+$previewProcess = Start-Process -FilePath 'C:\ProgramData\anaconda3\python.exe' `
+  -ArgumentList @('-m', 'http.server', '8765', '--bind', '127.0.0.1', '--directory', 'dist') `
+  -WorkingDirectory 'D:\Desktop\GitHub-Staging\zhentong-ye-site' `
+  -WindowStyle Hidden -PassThru
+$previewProcess.Id
+```
+
+Record the returned PID for the current run; do not treat an old PID, a retained
+browser page or a successful start command as proof of current availability.
+The recovered IAB page was then exercised through its actual file chooser with
+the owned 1,002-byte selectable fixture. PDF.js 6.4.299 reported native parsing,
+two physical pages with distinct PDF labels, then the explicit chunk action
+returned two source-linked chunks (96 UTF-16 units, two mapping fragments) in
+the owned native compute worker. No warning/error console entry was observed in
+that bounded check. This restores parsing/chunking evidence only, not model
+inference, privacy completeness or uptime guarantees. Two older error tabs could
+not be bound for cleanup because browser policy blocked access; no alternate
+surface or security bypass was attempted.
 Build regression command: `python -m unittest test_build -q`. The October 7
 fresh-output repair passed **14 tests**, including six added fixture regressions
 that failed before the repair. An independent reviewer reran all six fresh-build

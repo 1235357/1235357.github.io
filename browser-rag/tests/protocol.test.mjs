@@ -2,6 +2,20 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createController } from '../protocol.mjs';
 
+test('embedding vocabulary accepts only its three stages without changing other operations', () => {
+  const controller = createController('embedding-runtime');
+  let identity;
+  assert.doesNotThrow(() => { identity = controller.begin('embed'); });
+  for (const [index, stage] of ['download', 'initialize', 'encode'].entries()) {
+    assert.deepEqual(controller.accept({ ...identity, kind: 'progress', stage, seq: index + 1,
+      payload: { completed: 0, total: null, unit: 'chunks', estimated: false } }), { accepted: true });
+  }
+  assert.deepEqual(controller.accept({ ...identity, kind: 'result', stage: 'index', seq: 4,
+    payload: { data: {} } }), { accepted: false, reason: 'invalid-stage' });
+  assert.equal(controller.accept({ ...identity, kind: 'result', stage: 'encode', seq: 5,
+    payload: { data: { status: 'embedded-not-retrieved' } } }).accepted, true);
+});
+
 test('an ingest accepts progress and completes exactly once', () => {
   const controller = createController('runtime-1');
   const identity = controller.begin('ingest');
