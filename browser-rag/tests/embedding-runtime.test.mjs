@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
-import { EmbeddingRuntimeError, encodeChunks } from '../embedding-runtime.mjs';
+import { EmbeddingRuntimeError, encodeChunks, encodeQuery } from '../embedding-runtime.mjs';
 import { EMBEDDING_SPEC } from '../embedding-contract.mjs';
 import { Tensor as LibraryTensor, mean_pooling as libraryMeanPooling }
   from '../node_modules/@huggingface/transformers/src/utils/tensor.js';
@@ -764,4 +764,288 @@ test('listener removal failure cannot leak a private diagnostic after cleanup', 
     removeEventListener() { throw new Error('PRIVATE listener removal'); } };
   const result = await encodeChunks(artifact(), fixture.opts);
   assert.equal(result.status, 'embedded-not-retrieved'); assert.equal(fixture.hardware.calls.at(-1), 'destroy');
+});
+
+test('a query preserves its raw text and returns the actual pooled vector with token progress', async () => {
+  const fixture = await encoderFixture(), question = '  PRIVATE revenue?\n\t';
+  fixture.frames.push({ input_ids: [101, 7, 8, 9, 102], attention_mask: [1, 1, 1, 1, 1],
+    token_type_ids: [0, 0, 0, 0, 0] });
+  const result = await encodeQuery(question, fixture.opts);
+  assert.deepEqual(Object.keys(result), ['schemaVersion', 'status', 'representationId', 'representation',
+    'backend', 'dtype', 'tokenIds', 'vector', 'counts', 'receipt']);
+  assert.equal(result.schemaVersion, 1); assert.equal(result.status, 'query-embedded-not-retrieved');
+  assert.equal(result.representationId, EMBEDDING_SPEC.version); assert.equal(result.representation, EMBEDDING_SPEC);
+  assert.equal(result.backend, 'webgpu'); assert.equal(result.dtype, 'fp32');
+  assert.deepEqual(result.tokenIds, [101, 7, 8, 9, 102]);
+  assert.deepEqual(result.counts, { totalTokens: 5, dimensions: 384 });
+  assert.equal(result.vector.length, 384);
+  // Five hidden rows have first coordinates 1..5 and second coordinate 2:
+  // attention-mask mean [3, 2], then L2 normalization [3/sqrt(13), 2/sqrt(13)].
+  assert.ok(Math.abs(result.vector[0] - 3 / Math.sqrt(13)) < 1e-6);
+  assert.ok(Math.abs(result.vector[1] - 2 / Math.sqrt(13)) < 1e-6);
+  assert.equal(result.vector.slice(2).every(value => value === 0), true);
+  assert.deepEqual(fixture.events.find(([stage]) => stage === 'tokenize').slice(1), [question,
+    { padding: false, truncation: false, add_special_tokens: true, return_tensor: false }]);
+  assert.deepEqual(fixture.calls, [{ input_ids: { type: 'int64', dims: [1, 5], data: [101n, 7n, 8n, 9n, 102n] },
+    attention_mask: { type: 'int64', dims: [1, 5], data: [1n, 1n, 1n, 1n, 1n] },
+    token_type_ids: { type: 'int64', dims: [1, 5], data: [0n, 0n, 0n, 0n, 0n] } }]);
+  assert.deepEqual(fixture.events.find(([stage]) => stage === 'pool').slice(1), [[1n, 1n, 1n, 1n, 1n]]);
+  assert.deepEqual(fixture.events.find(([stage]) => stage === 'normalize').slice(1), [2, -1]);
+  assert.ok(fixture.events.findIndex(([stage]) => stage === 'tokenize')
+    < fixture.events.findIndex(([stage]) => stage === 'load-model'));
+  assert.deepEqual(fixture.progress.map(([stage]) => stage), [...Array(9).fill('download'), 'initialize', 'encode', 'encode']);
+  assert.deepEqual(fixture.progress.slice(-3), [
+    ['initialize', { completed: 0, total: null, unit: 'tokens', estimated: false }],
+    ['encode', { completed: 0, total: 5, unit: 'tokens', estimated: false }],
+    ['encode', { completed: 5, total: 5, unit: 'tokens', estimated: false }],
+  ]);
+  assert.equal(fixture.progress.every(([, payload]) => Object.isFrozen(payload)), true);
+  assert.equal(fixture.modelDisposals, 1); assert.equal(fixture.resources.every(item => item.disposals === 1), true);
+  assert.equal(fixture.hardware.calls.filter(value => value === 'destroy').length, 1);
+});
+
+test('invalid queries are refused before options, defaults, dependencies or GPU can be read', async () => {
+  const descriptors = ['navigator', 'fetch', 'caches', 'crypto', 'performance', 'location']
+    .map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]);
+  let reads = 0;
+  const badOptions = new Proxy({}, {
+    get() { reads++; throw new Error('PRIVATE option'); },
+    ownKeys() { reads++; throw new Error('PRIVATE option keys'); },
+    getPrototypeOf() { reads++; throw new Error('PRIVATE option prototype'); },
+  });
+  try {
+    for (const [key] of descriptors) Object.defineProperty(globalThis, key, { configurable: true,
+      get() { reads++; throw new Error('PRIVATE dependency'); } });
+    for (const question of [undefined, null, false, 1, {}, [], new String('question'), '', ' \n\t',
+      'x'.repeat(4097), '😀'.repeat(2049)]) {
+      await assert.rejects(encodeQuery(question, badOptions), safeError('INVALID_EMBEDDING_CONFIG'));
+    }
+    assert.equal(reads, 0);
+  } finally {
+    for (const [key, descriptor] of descriptors) {
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key];
+    }
+  }
+});
+
+test('a 4096 UTF-16-unit query is accepted and passed through without text repair', async () => {
+  const fixture = await encoderFixture(), question = '😀'.repeat(2048);
+  const result = await encodeQuery(question, fixture.opts);
+  assert.equal(result.counts.totalTokens, 3);
+  assert.equal(fixture.events.find(([stage]) => stage === 'tokenize')[1], question);
+});
+
+test('query artifacts are deeply frozen and detached from tokenizer and tensor buffers', async () => {
+  const fixture = await encoderFixture(), frame = { input_ids: [101, 4, 102],
+    attention_mask: [1, 1, 1], token_type_ids: [0, 0, 0] };
+  fixture.frames.push(frame);
+  const result = await encodeQuery('PRIVATE query', fixture.opts);
+  assert.equal([result, result.representation, result.tokenIds, result.vector, result.counts, result.receipt]
+    .every(Object.isFrozen), true);
+  assert.notEqual(result.tokenIds, frame.input_ids);
+  frame.input_ids.fill(0); fixture.hiddenBuffers.forEach(buffer => buffer.fill(0));
+  assert.deepEqual(result.tokenIds, [101, 4, 102]); assert.ok(result.vector[0] > 0.7);
+  assert.throws(() => { result.vector[0] = 0; }, TypeError);
+  assert.throws(() => { result.counts.totalTokens = 0; }, TypeError);
+});
+
+test('query byte progress and mixed cache receipts count the same eight verified local assets', async () => {
+  const fixture = await encoderFixture(), cachedURL = [...fixture.bodies.keys()][0];
+  const bytes = fixture.bodies.get(cachedURL); fixture.stored.set(cachedURL, new Response(bytes));
+  const result = await encodeQuery('query', fixture.opts);
+  assert.deepEqual(result.receipt, { verifiedBytes: fixture.total, networkBytes: fixture.total - bytes.length,
+    cacheBytes: bytes.length, elapsedMs: 1 });
+  assert.equal(result.receipt.verifiedBytes, result.receipt.networkBytes + result.receipt.cacheBytes);
+  assert.equal(fixture.requests.length, 8); assert.equal(fixture.imports.length, 1);
+  assert.equal(fixture.imports[0], BASE + 'vendor/transformers/transformers.min.js');
+  for (const [url, request] of fixture.requests) {
+    assert.equal(new URL(url).origin, 'https://reader.example'); assert.equal(request.redirect, 'error');
+    assert.equal(request.credentials, 'omit'); assert.equal(request.signal instanceof AbortSignal, true);
+  }
+  const progress = fixture.progress.filter(([stage]) => stage === 'download').map(([, payload]) => payload);
+  assert.equal(progress.length, 9); assert.equal(progress[0].completed, 0);
+  assert.deepEqual(progress.at(-1), { completed: fixture.total, total: fixture.total, unit: 'bytes', estimated: false });
+  assert.equal(progress.every((payload, index) => payload.total === fixture.total && payload.unit === 'bytes'
+    && payload.estimated === false && (!index || payload.completed > progress[index - 1].completed)), true);
+  assert.deepEqual(fixture.events.find(([stage]) => stage === 'load-tokenizer').slice(1),
+    [EMBEDDING_SPEC.modelId, { revision: EMBEDDING_SPEC.revision, local_files_only: true }]);
+  assert.deepEqual(fixture.events.find(([stage]) => stage === 'load-model').slice(1),
+    [EMBEDDING_SPEC.modelId, { revision: EMBEDDING_SPEC.revision, local_files_only: true, device: 'webgpu', dtype: 'fp32' }]);
+  assert.equal(fixture.library.env.allowRemoteModels, false); assert.equal(fixture.library.env.allowLocalModels, true);
+  assert.equal((await fixture.library.env.customCache.match('https://evil.example/model.onnx')).status, 404);
+});
+
+test('query verification uses default global fetch with its native receiver', async () => {
+  const fixture = await encoderFixture(), fetch = fixture.opts.fetch;
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'fetch');
+  Object.defineProperty(globalThis, 'fetch', { configurable: true, writable: true,
+    value: function(url, request) { assert.equal(this, globalThis); return fetch(url, request); } });
+  delete fixture.opts.fetch;
+  try {
+    const result = await encodeQuery('query', fixture.opts);
+    assert.equal(result.status, 'query-embedded-not-retrieved'); assert.equal(fixture.requests.length, 9);
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, 'fetch', descriptor); else delete globalThis.fetch;
+  }
+});
+
+test('query configuration refuses a cross-origin base before requesting an adapter', async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'location'); let requests = 0;
+  Object.defineProperty(globalThis, 'location', { configurable: true, value: { origin: 'https://reader.example' } });
+  try {
+    await assert.rejects(encodeQuery('query', options({ baseURL: 'https://evil.example/browser-rag/',
+      gpu: { requestAdapter() { requests++; } } })), safeError('INVALID_EMBEDDING_CONFIG'));
+    assert.equal(requests, 0);
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, 'location', descriptor); else delete globalThis.location;
+  }
+});
+
+test('invalid query token IDs refuse model loading without truncation or diagnostics', async () => {
+  for (const ids of [[101, 102], [101, ...Array(255).fill(1), 102], [101, 30522, 102],
+    [101, -1, 102], [101, 1.1, 102], [100, 1, 102], [101, 1, 103], [101, , 102],
+    new Uint32Array([101, 1, 102])]) {
+    const fixture = await encoderFixture();
+    fixture.frames.push({ input_ids: ids, attention_mask: Array(ids.length).fill(1), token_type_ids: Array(ids.length).fill(0) });
+    await assert.rejects(encodeQuery('PRIVATE query', fixture.opts), safeError('ENCODER_INPUT_LIMIT'));
+    assert.equal(fixture.events.some(([stage]) => stage === 'load-model'), false);
+    assert.equal(fixture.calls.length, 0); assert.equal(fixture.resources.length, 0);
+    assert.equal(fixture.hardware.calls.includes('device'), false);
+  }
+});
+
+test('invalid query masks and token types refuse inference before model creation', async () => {
+  for (const frame of [
+    { input_ids: [101, 1, 102], attention_mask: [1, 0, 1], token_type_ids: [0, 0, 0] },
+    { input_ids: [101, 1, 102], attention_mask: [1, 1], token_type_ids: [0, 0, 0] },
+    { input_ids: [101, 1, 102], attention_mask: [1, , 1], token_type_ids: [0, 0, 0] },
+    { input_ids: [101, 1, 102], attention_mask: [1, 1, 1], token_type_ids: [0, 1, 0] },
+    { input_ids: [101, 1, 102], attention_mask: [1, 1, 1] }]) {
+    const fixture = await encoderFixture(); fixture.frames.push(frame);
+    await assert.rejects(encodeQuery('PRIVATE query', fixture.opts), safeError('ENCODER_INPUT_LIMIT'));
+    assert.equal(fixture.events.some(([stage]) => stage === 'load-model'), false); assert.equal(fixture.calls.length, 0);
+  }
+});
+
+test('the maximum query token budget reaches inference with every original token', async () => {
+  const fixture = await encoderFixture(), ids = [101, ...Array(254).fill(30521), 102];
+  fixture.frames.push({ input_ids: ids, attention_mask: Array(256).fill(1), token_type_ids: Array(256).fill(0) });
+  const result = await encodeQuery('query', fixture.opts);
+  assert.deepEqual(result.tokenIds, ids); assert.equal(result.counts.totalTokens, 256);
+  assert.equal(fixture.calls[0].input_ids.data.length, 256);
+  assert.deepEqual(fixture.progress.at(-1), ['encode', { completed: 256, total: 256, unit: 'tokens', estimated: false }]);
+});
+
+test('a query refuses a malformed hidden state and releases the output and inference inputs', async () => {
+  const fixture = await encoderFixture();
+  const model = async () => ({ last_hidden_state: fixture.hidden(4) }); model.dispose = fixture.model.dispose;
+  fixture.runtime.loadModel = async () => model;
+  await assert.rejects(encodeQuery('PRIVATE query', fixture.opts), safeError('INVALID_EMBEDDING'));
+  assert.equal(fixture.resources.every(item => item.disposals === 1), true);
+  assert.equal(fixture.modelDisposals, 1); assert.equal(fixture.hardware.calls.filter(value => value === 'destroy').length, 1);
+});
+
+test('a query refuses zero and nonfinite model output rather than repairing a vector', async () => {
+  for (const value of [0, NaN, Infinity]) {
+    const fixture = await encoderFixture();
+    const model = async inputs => { const output = fixture.hidden(inputs.input_ids.dims[1]); output.data.fill(value);
+      return { last_hidden_state: output }; };
+    model.dispose = fixture.model.dispose; fixture.runtime.loadModel = async () => model;
+    await assert.rejects(encodeQuery('PRIVATE query', fixture.opts), safeError('INVALID_EMBEDDING'));
+    assert.equal(fixture.resources.every(item => item.disposals === 1), true); assert.equal(fixture.modelDisposals, 1);
+  }
+});
+
+test('query model failures expose a safe error and release all owned resources', async () => {
+  const fixture = await encoderFixture();
+  const model = async () => { throw new Error('PRIVATE query model input'); }; model.dispose = fixture.model.dispose;
+  fixture.runtime.loadModel = async () => model;
+  await assert.rejects(encodeQuery('PRIVATE query', fixture.opts), safeError('EMBEDDING_FAILED'));
+  assert.equal(fixture.resources.length, 3); assert.equal(fixture.resources.every(item => item.disposals === 1), true);
+  assert.equal(fixture.modelDisposals, 1); assert.equal(fixture.hardware.calls.at(-1), 'destroy');
+});
+
+test('query cancellation before queued work prevents adapter and asset requests', async () => {
+  const fixture = await encoderFixture(), controller = new AbortController(); fixture.opts.signal = controller.signal;
+  const pending = encodeQuery('query', fixture.opts); controller.abort();
+  await assert.rejects(pending, safeError('ABORTED'));
+  assert.equal(fixture.hardware.calls.length, 0); assert.equal(fixture.requests.length, 0);
+});
+
+test('a query device delivered after cancellation is destroyed exactly once', { timeout: 1000 }, async () => {
+  const fixture = await encoderFixture(), controller = new AbortController(), gate = deferred(), started = deferred();
+  fixture.opts.signal = controller.signal;
+  fixture.hardware.adapter.requestDevice = () => { started.resolve(); return gate.promise; };
+  const pending = encodeQuery('query', fixture.opts); await started.promise; controller.abort();
+  await assert.rejects(pending, safeError('ABORTED'));
+  gate.resolve(fixture.hardware.device); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(fixture.hardware.calls.filter(value => value === 'destroy').length, 1);
+  assert.equal(fixture.calls.length, 0); assert.equal(fixture.modelDisposals, 0);
+});
+
+test('a query model delivered after cancellation is disposed without inference', { timeout: 1000 }, async () => {
+  const fixture = await encoderFixture(), controller = new AbortController(), gate = deferred(), started = deferred();
+  fixture.opts.signal = controller.signal;
+  fixture.runtime.loadModel = () => { started.resolve(); return gate.promise; };
+  const pending = encodeQuery('query', fixture.opts); await started.promise; controller.abort();
+  await assert.rejects(pending, safeError('ABORTED'));
+  gate.resolve(fixture.model); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(fixture.modelDisposals, 1); assert.equal(fixture.calls.length, 0);
+  assert.equal(fixture.hardware.calls.filter(value => value === 'destroy').length, 1);
+});
+
+test('query cancellation releases inputs and aliased tensors returned after inference stops', { timeout: 1000 }, async () => {
+  const fixture = await encoderFixture(), controller = new AbortController(), gate = deferred(), started = deferred();
+  fixture.opts.signal = controller.signal;
+  const model = () => { started.resolve(); return gate.promise; }; model.dispose = fixture.model.dispose;
+  fixture.runtime.loadModel = async () => model;
+  const pending = encodeQuery('query', fixture.opts); await started.promise; controller.abort();
+  await assert.rejects(pending, safeError('ABORTED'));
+  const late = fixture.hidden(3); gate.resolve({ last_hidden_state: late, alias: late });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(fixture.resources.every(item => item.disposals === 1), true);
+  assert.equal(fixture.modelDisposals, 1); assert.equal(fixture.hardware.calls.filter(value => value === 'destroy').length, 1);
+});
+
+test('query device loss while loading cleans up a late model and refuses inference', { timeout: 1000 }, async () => {
+  const fixture = await encoderFixture(), gate = deferred(), started = deferred();
+  fixture.runtime.loadModel = () => { started.resolve(); return gate.promise; };
+  const pending = encodeQuery('query', fixture.opts); await started.promise; fixture.hardware.lost.resolve({});
+  await assert.rejects(pending, safeError('GPU_DEVICE_LOST'));
+  gate.resolve(fixture.model); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(fixture.modelDisposals, 1); assert.equal(fixture.calls.length, 0);
+  assert.equal(fixture.hardware.calls.filter(value => value === 'destroy').length, 1);
+});
+
+test('query device loss settles inference and releases late aliased output tensors', { timeout: 1000 }, async () => {
+  const fixture = await encoderFixture(), gate = deferred(), started = deferred();
+  const model = () => { started.resolve(); return gate.promise; }; model.dispose = fixture.model.dispose;
+  fixture.runtime.loadModel = async () => model;
+  const pending = encodeQuery('query', fixture.opts); await started.promise;
+  fixture.hardware.lost.resolve({ message: 'PRIVATE query device diagnostic' });
+  await assert.rejects(pending, safeError('GPU_DEVICE_LOST'));
+  const late = fixture.hidden(3); gate.resolve({ last_hidden_state: late, alias: late });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(fixture.resources.every(item => item.disposals === 1), true);
+  assert.equal(fixture.modelDisposals, 1); assert.equal(fixture.hardware.calls.filter(value => value === 'destroy').length, 1);
+});
+
+test('a query device returned after model loading failed is still destroyed once', { timeout: 1000 }, async () => {
+  const fixture = await encoderFixture(), gate = deferred(); let started = false;
+  fixture.hardware.adapter.requestDevice = () => { started = true; return gate.promise; };
+  fixture.library.AutoModel.from_pretrained = () => {
+    fixture.library.env.backends.onnx.webgpu.adapter.requestDevice({ requiredFeatures: [] }).catch(() => {});
+    throw new Error('PRIVATE query SDK initialization');
+  };
+  await assert.rejects(encodeQuery('query', fixture.opts), safeError('EMBEDDING_LOAD_FAILED'));
+  assert.equal(started, true);
+  gate.resolve(fixture.hardware.device); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(fixture.hardware.calls.filter(value => value === 'destroy').length, 1); assert.equal(fixture.calls.length, 0);
+});
+
+test('a query cancelled by the final clock cannot return a completed artifact', async () => {
+  const fixture = await encoderFixture(), controller = new AbortController(); fixture.opts.signal = controller.signal;
+  let calls = 0; fixture.opts.now = () => { if (calls++) controller.abort(); return 10; };
+  await assert.rejects(encodeQuery('query', fixture.opts), safeError('ABORTED'));
+  assert.equal(fixture.modelDisposals, 1); assert.equal(fixture.hardware.calls.at(-1), 'destroy');
 });

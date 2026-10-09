@@ -268,7 +268,30 @@ function clock(config) {
 }
 
 export async function encodeChunks(chunkArtifact, options = {}) {
-  const projected = projectChunks(chunkArtifact), config = dependencies(options);
+  const projected = projectChunks(chunkArtifact);
+  const encoded = await encodeTextRows(projected.chunks.map(chunk => chunk.text), options, 'chunks');
+  return Object.freeze({ schemaVersion: 1, status: 'embedded-not-retrieved', sourceSha256: projected.sourceSha256,
+    representationId: EMBEDDING_SPEC.version, representation: EMBEDDING_SPEC, backend: 'webgpu', dtype: 'fp32',
+    chunkIds: Object.freeze(projected.chunks.map(chunk => chunk.id)),
+    tokenIds: encoded.tokenIds, vectors: encoded.vectors,
+    counts: Object.freeze({ chunks: encoded.tokenIds.length, totalTokens: encoded.totalTokens,
+      dimensions: EMBEDDING_SPEC.dimensions }), receipt: encoded.receipt });
+}
+
+export async function encodeQuery(question, options = {}) {
+  if (typeof question !== 'string' || !question.trim() || question.length > 4096) fail('INVALID_EMBEDDING_CONFIG');
+  const encoded = await encodeTextRows([question], options, 'tokens');
+  return Object.freeze({ schemaVersion: 1, status: 'query-embedded-not-retrieved',
+    representationId: EMBEDDING_SPEC.version, representation: EMBEDDING_SPEC, backend: 'webgpu', dtype: 'fp32',
+    tokenIds: encoded.tokenIds[0], vector: encoded.vectors[0],
+    counts: Object.freeze({ totalTokens: encoded.totalTokens, dimensions: EMBEDDING_SPEC.dimensions }),
+    receipt: encoded.receipt });
+}
+
+// Passage and query inputs use the same verified assets, token preflight,
+// inference, pooling and resource lifetime. Only their progress units differ.
+async function encodeTextRows(texts, options, unit) {
+  const config = dependencies(options);
   const scope = lifecycle(config), released = new WeakSet(); let device, model, closed = false;
   const releaseDevice = value => {
     if (value && typeof value.destroy === 'function' && !released.has(value)) {
@@ -295,7 +318,7 @@ export async function encodeChunks(chunkArtifact, options = {}) {
       ? adapter.info.isFallbackAdapter : adapter?.isFallbackAdapter;
     if (!adapter || fallback !== false || typeof adapter.requestDevice !== 'function') fail('GPU_UNAVAILABLE');
     const assets = await verifyAssets(config, scope);
-    scope.emit('initialize', { completed: 0, total: null, unit: 'chunks', estimated: false });
+    scope.emit('initialize', { completed: 0, total: null, unit, estimated: false });
     const library = await scope.wait(() => config.importer(new URL('vendor/transformers/transformers.min.js', config.baseURL).href),
       'EMBEDDING_LOAD_FAILED');
     // This operation owns a fresh worker/library instance. The pinned ORT JSEP
@@ -319,8 +342,8 @@ export async function encodeChunks(chunkArtifact, options = {}) {
     const tokenizer = await scope.wait(() => library.AutoTokenizer.from_pretrained(EMBEDDING_SPEC.modelId, settings), 'EMBEDDING_LOAD_FAILED');
     if (typeof tokenizer !== 'function') fail('EMBEDDING_LOAD_FAILED');
     const frames = []; let totalTokens = 0;
-    for (const chunk of projected.chunks) {
-      const frame = tokenFrame(await scope.wait(() => tokenizer(chunk.text, {
+    for (const text of texts) {
+      const frame = tokenFrame(await scope.wait(() => tokenizer(text, {
         padding: false, truncation: false, add_special_tokens: true, return_tensor: false,
       }), 'ENCODER_INPUT_LIMIT'));
       totalTokens += frame.input_ids.length;
@@ -331,8 +354,9 @@ export async function encodeChunks(chunkArtifact, options = {}) {
       ...settings, device: 'webgpu', dtype: 'fp32',
     }), 'EMBEDDING_LOAD_FAILED', releaseModel);
     if (typeof model !== 'function' || typeof model.dispose !== 'function') fail('EMBEDDING_LOAD_FAILED');
-    const rows = [], total = frames.length;
-    scope.emit('encode', { completed: 0, total, unit: 'chunks', estimated: false });
+    const rows = [], total = unit === 'tokens' ? totalTokens : frames.length;
+    let completed = 0;
+    scope.emit('encode', { completed, total, unit, estimated: false });
     for (const frame of frames) {
       const tensors = new Set();
       const own = tensor => { tensors.add(tensor); return tensor; };
@@ -353,7 +377,8 @@ export async function encodeChunks(chunkArtifact, options = {}) {
         try { rows.push(acceptEmbeddingVectors([Array.from(normalized.data)], 1)[0]); }
         catch { fail('INVALID_EMBEDDING'); }
       } finally { for (const tensor of tensors) releaseTensor(tensor); }
-      scope.emit('encode', { completed: rows.length, total, unit: 'chunks', estimated: false });
+      completed += unit === 'tokens' ? frame.input_ids.length : 1;
+      scope.emit('encode', { completed, total, unit, estimated: false });
     }
     let vectors;
     try { vectors = acceptEmbeddingVectors(rows, frames.length); } catch { fail('INVALID_EMBEDDING'); }
@@ -361,14 +386,10 @@ export async function encodeChunks(chunkArtifact, options = {}) {
     const elapsedMs = clock(config) - started;
     if (!Number.isFinite(elapsedMs) || elapsedMs < 0) fail('INVALID_EMBEDDING_CONFIG');
     scope.check();
-    return Object.freeze({ schemaVersion: 1, status: 'embedded-not-retrieved', sourceSha256: projected.sourceSha256,
-      representationId: EMBEDDING_SPEC.version, representation: EMBEDDING_SPEC, backend: 'webgpu', dtype: 'fp32',
-      chunkIds: Object.freeze(projected.chunks.map(chunk => chunk.id)),
-      tokenIds: Object.freeze(frames.map(frame => frame.input_ids)), vectors,
-      counts: Object.freeze({ chunks: frames.length, totalTokens, dimensions: EMBEDDING_SPEC.dimensions }),
+    return { tokenIds: Object.freeze(frames.map(frame => frame.input_ids)), vectors, totalTokens,
       // These are verified asset-body reads, excluding registry/HTTP overhead
       // and any later SDK transport. They are not a browser traffic capture.
-      receipt: Object.freeze({ ...assets.receipt, elapsedMs }) });
+      receipt: Object.freeze({ ...assets.receipt, elapsedMs }) };
   } catch (error) { if (error instanceof EmbeddingRuntimeError) throw error; fail('EMBEDDING_FAILED'); }
   finally {
     closed = true;

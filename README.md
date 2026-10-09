@@ -381,6 +381,10 @@ tests; extend query loading stages in `protocol.mjs` plus its behavior tests. A
 neutral `worker-console.mjs` may hold the existing suppression implementation,
 with `embedding.worker.mjs` importing it; never import a worker entry module into
 another worker, which would install two native handlers.
+Update `build.py`'s explicit module allowlist and `test_browser_assets.py`'s
+synthetic fixture/closure assertions in this same task. Once the embedding worker
+imports the neutral module, an intermediate build must still deliver its complete
+graph; do not leave that closure repair until later UI wiring.
 
 Interface:
 
@@ -407,6 +411,15 @@ the question, token IDs, vectors or candidate chunk IDs. Copy/validate the query
 and recompute the pure ranker at acceptance to reject altered scores/source/order.
 Historical passage-download receipts remain separate from this query attempt.
 
+Shared acceptance interfaces for the later session:
+`copyQueryArtifact(artifact, downloadTotal, metadata)` returns the validated,
+detached frozen query; `queryReceipt(artifact)` returns only bounded metadata;
+`queryResultReceipt({query,retrieval})` returns the two bounded receipts;
+`copyQueryResult(artifact, source, passages, topK, downloadTotal, metadata)`
+validates the query, recomputes ranking against the owned source/passages, checks
+every submitted rank/score/source field and returns the owned frozen pair.
+Neither receipt contains question text, token IDs, vectors or candidate IDs.
+
 Error messages are fixed and safe; unknown diagnostics become `QUERY_FAILED`.
 Readiness/work deadlines are fixed (progress cannot renew them), all listeners are
 removed and the owned worker is terminated exactly once before publishing. Mark
@@ -414,13 +427,20 @@ settled before termination hooks. A fresh runtime/document/operation identity an
 strict sequences gate every progress/result. Only query gains download/initialize
 in the generic vocabulary; other operations are unchanged.
 
-- [ ] TDD shared query encoding and preserve the whole passage/runtime suite;
+- [x] TDD shared query encoding and preserve the whole passage/runtime suite;
   obtain SPEC then QUALITY review before committing 3d.2a.
 - [ ] TDD preflight, worker, strict stage/terminal copies, deadlines/cancellation,
   stale ownership and safe errors; obtain SPEC then QUALITY review for 3d.2b.
 
 Controlled Worker/injected encoder fixtures prove channel behavior, not live
 inference. Actual query inference remains the browser acceptance in 3d.3.
+
+October 9 shared-encoder checkpoint: independent SPEC and QUALITY reviews passed
+the current implementation, with 72/72 focused runtime tests (51 passage and 21
+query cases). The root-run complete Node suite passed 876/876; the static build
+and asset suite passed 44/44. This accepts the shared query-encoding code and its
+controlled resource/lifecycle behavior only. The owned query channel, visible
+question workflow and actual native query inference have not yet been accepted.
 
 #### Task 3d.3 — visible question-to-source walkthrough and acceptance
 
@@ -429,6 +449,33 @@ original/resolved/encoder question (no rewrite), candidate result first, numeric
 score/dot/norm details and a control to inspect the retained chunk/source mapping.
 Question failure/cancel retains source/chunks/passages but clears its result;
 document replacement/rechunk/re-embed invalidates all dependent query results.
+
+Files: `pdf-session.mjs` and its behavior tests own question/query/retrieval
+state; `pdf-app.mjs`, `inspector.html`, `inspector.css` own the visible walkthrough;
+`build.py` and its asset/build behavior tests own the explicit module allowlist.
+The session adds `query(question, {topK = 5} = {})`, `question()`,
+`queryEmbedding()`, `retrieval()` and `clearQuery()`. Validate the question,
+top-k, accepted artifacts, adapter and fresh runtime identity before mutating
+accepted state. Every new query clears old query/retrieval only; passage vectors
+remain an independent accepted artifact. Store the exact immutable question for
+that attempt outside controller metadata. Gate all progress and terminals by the
+captured identity; copy the query and recompute ranking before the synchronous
+artifact/status commit and subscriber notification. Revoke identity before abort
+hooks. Query cancellation/clear cannot erase accepted source/chunks/passages;
+document clear/replacement, rechunking and re-embedding invalidate every dependent
+query artifact. `clearQuery()` revokes active query work without cancelling an
+unrelated parser/chunker/encoder operation.
+
+The existing two-column inspector keeps explicit input on the left and candidate
+results first on the right, above source/chunk/vector detail. Disable question
+editing while its captured attempt is active; editing it afterwards clears the
+old query result without claiming a new inference. Show the captured original,
+resolved and encoder strings as equal (this version has no rewrite). Render all
+question/chunk/model strings with text nodes, never `innerHTML`. Candidate controls
+select the retained original chunk/physical page and show score, dot product and
+both norms, with full token/vector details collapsed. Progress units remain
+actual bytes/tokens/chunks; no estimated answer percentage or confidence threshold.
+No context or generation control is enabled by this retrieval milestone.
 
 - [ ] TDD owned state and escaping; copy modules in the existing build allowlist.
 - [ ] Run real IAB chooser → passage encoding → typed question → actual query
@@ -652,6 +699,30 @@ drawn boxes are already independently deployed services.
 3. Release no end-to-end or quality claim until a real generated answer, original
    PDF checks, frozen independent cases and an actual calibrated stronger-model
    judge run exist. Downloaded models, citations and passing gates are insufficient.
+
+October 9 independent consumer recheck: the API installation acceptance above
+belongs to `D:/Desktop/GitHub-Staging/nvidia-financial-rag`, not the preserved
+course-workspace copy. The staged wheel and all 14 shipped Python modules matched
+its source and installed package; replaying the retained pristine API-only
+environment passed the import/HTTP smoke and `pip check`. The exported installed-
+package subset passed 45 tests. This was a current replay, not a newly created
+environment or a real model run. Remaining blockers include a constant `/readyz`,
+untyped mode/outcome/error distinctions, and a `[generation]` extra that does not
+itself guarantee Torch. That staged repository still has no commit or remote;
+local installability is not yet a versioned, pullable enterprise release.
+
+October 9 generator preflight remains read-only. The fixed candidate
+[`onnx-community/Qwen2.5-0.5B-Instruct` configuration](https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/blob/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/config.json)
+sets `max_position_embeddings: 32768`, whereas its paired tokenizer advertises
+`model_max_length: 131072`. Use the model limit and an independently accepted
+device budget, never the larger tokenizer number. Its
+[generation defaults](https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/blob/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/generation_config.json)
+enable sampling and include EOS IDs `151645` and `151643`; later deterministic
+acceptance must explicitly override sampling and record the output-token cap.
+The fixed tokenizer chat template renders explicit role delimiters and an
+assistant-generation prefix. Render and count the full selected evidence without
+silent truncation. No generator weights were downloaded by this inspection, and
+the existing MiniLM byte/memory verifier is not a generator acceptance gate.
 
 Two data entrances remain in scope: explicitly selected reader PDFs and NVIDIA
 samples only after permission review. Browser PDF/index/model/cache artifacts need
