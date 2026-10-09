@@ -4,6 +4,8 @@ import {readFile} from 'node:fs/promises';
 import {createPageRecord} from '../pdf-source.mjs';
 import {createPdfSession} from '../pdf-session.mjs';
 import {createComputeCommandHandler} from '../compute.worker.mjs';
+import {embedInWorker,embeddingReceipt} from '../embedding-source.mjs';
+import {EMBEDDING_SPEC} from '../embedding-contract.mjs';
 
 const windowModule = await import('../item-window.mjs').catch(error => {
   if (error.code !== 'ERR_MODULE_NOT_FOUND') throw error;
@@ -82,6 +84,7 @@ class DomElement {
     this.listeners.get(name).push(listener);
   }
   dispatch(name) { for (const listener of this.listeners.get(name) ?? []) listener({target: this}); }
+  removeAttribute(name) { if (name === 'value') this._value = ''; }
 }
 
 const appText = await readFile(new URL('../pdf-app.mjs', import.meta.url), 'utf8');
@@ -90,13 +93,13 @@ const elementsOf = (element, tag) => element.children.flatMap(child => [
   ...(child.tagName === tag.toUpperCase() ? [child] : []), ...elementsOf(child, tag),
 ]);
 
-function sourceRecord(name, counts) {
+function sourceRecord(name, counts, firstText = '<img src=x onerror=alert(1)>') {
   const sha256 = 'a'.repeat(64);
   const pages = counts.map((count, index) => createPageRecord({sourceSha256: sha256,
     parserVersion: '6.4.299', physicalPageNumber: index + 1, pageLabel: `label-${index + 1}`,
     page: {view: [0, 0, 612, 792], rotate: 0, userUnit: 1},
     textContent: {items: Array.from({length: count}, (_, itemIndex) => ({
-      str: itemIndex === 0 ? '<img src=x onerror=alert(1)>' : `${name} page ${index + 1} item ${itemIndex}`,
+      str: itemIndex === 0 ? firstText : `${name} page ${index + 1} item ${itemIndex}`,
       dir: 'ltr', transform: [1, 0, 0, 1, 10, 10], width: 10, height: 10, fontName: 'F1', hasEOL: false,
     }))},
   }));
@@ -105,11 +108,12 @@ function sourceRecord(name, counts) {
     workerMode: 'native', numPages: pages.length, pages: Object.freeze(pages)});
 }
 
-function appHarness(sources, computeOverride) {
+function appHarness(sources, computeOverride, {embed = embedInWorker, runtimeIdFactory} = {}) {
   const ids = new Map();
   for (const id of ['pdf-file', 'page-select', 'items', 'receipt', 'page-meta', 'status-title',
     'status-detail', 'cancel', 'clear', 'trace', 'items-first', 'items-previous', 'items-next', 'items-range',
-    'build-chunks','chunk-select','chunk-detail','chunk-meta','chunks-previous','chunks-next']) {
+    'build-chunks','chunk-select','chunk-detail','chunk-meta','chunks-previous','chunks-next',
+    'embed-chunks','embedding-detail','embedding-meta','embedding-receipt','operation-progress']) {
     ids.set(id, new DomElement(['page-select','chunk-select'].includes(id) ? 'select' : 'div'));
   }
   const document = {getElementById: id => ids.get(id), createElement: tag => new DomElement(tag)};
@@ -124,7 +128,7 @@ function appHarness(sources, computeOverride) {
   const executable = appText.replace(/^import .*;\r?\n/gm, '')
     .replaceAll('import.meta.url', JSON.stringify(new URL('../pdf-app.mjs', import.meta.url).href));
   const run = new Function('document', 'window', 'Worker', 'pdfjs', 'extractPdf',
-    'createPdfSession', 'getItemWindow', 'JSON', 'chunkInWorker', executable);
+    'createPdfSession', 'getItemWindow', 'JSON', 'chunkInWorker', 'embedInWorker', executable);
   const compute=computeOverride??(async(source,{identity,onProgress,chunkOptions})=>{
     const packets=[];createComputeCommandHandler(packet=>packets.push(packet))({kind:'chunk-source',identity,source,options:chunkOptions??{}});
     onProgress(packets[0].event);
@@ -133,9 +137,9 @@ function appHarness(sources, computeOverride) {
   });
   let runtimeNumber=0;
   run(document, {addEventListener() {}}, class {}, {}, async file => sources.find(source => source.source.name === file.name),
-    options => { session = createPdfSession({...options, runtimeId: 'preview-test',runtimeIdFactory:()=>`compute-test-${++runtimeNumber}`}); return session; }, getItemWindow, checkedJson,compute);
+    options => { session = createPdfSession({...options, runtimeId: 'preview-test',runtimeIdFactory:runtimeIdFactory??(()=>`compute-test-${++runtimeNumber}`)}); return session; }, getItemWindow, checkedJson,compute,embed);
   return {ids, serializedItems,serializedChunks, select: name => session.select({name}), source: () => session.document(),
-    chunk:options=>session.chunk(options),chunks:()=>session.chunks(),state:()=>session.snapshot(),
+    chunk:options=>session.chunk(options),chunks:()=>session.chunks(),embeddings:()=>session.embeddings(),state:()=>session.snapshot(),
     rows: () => elementsOf(ids.get('items'), 'article')};
 }
 
@@ -272,4 +276,130 @@ test('chunk cancellation keeps the source and retry control while preventing a l
   const before=app.ids.get('chunk-detail').textContent;resolve({});await operation;
   assert.equal(app.ids.get('status-title').textContent,'Commit rights revoked');
   assert.equal(app.ids.get('chunk-detail').textContent,before);
+});
+
+const uiTurn = () => new Promise(resolve => setImmediate(resolve));
+const acceptedAppState = app => ({source:app.source(),chunks:app.chunks(),embeddings:app.embeddings(),state:app.state(),
+  page:app.ids.get('page-select').value,chunk:app.ids.get('chunk-select').value,
+  chunkDetail:app.ids.get('chunk-detail').textContent,embeddingDetail:app.ids.get('embedding-detail').textContent,
+  trace:app.ids.get('trace').textContent});
+function assertPreflightRefusal(app) {
+  assert.equal(app.ids.get('status-title').textContent,'Embedding did not start');
+  assert.equal(app.ids.get('status-detail').textContent,
+    'INVALID_EMBEDDING_CONFIG · The accepted chunks exceed the embedding input contract or the configuration is invalid. Source, chunks and any accepted vectors are retained.');
+  assert.equal(app.ids.get('operation-progress').hidden,true);
+}
+function successfulEmbedding(input,{identity,onProgress}) {
+  const count=input.counts.chunks,bytes=113629084;
+  const artifact={schemaVersion:1,status:'embedded-not-retrieved',sourceSha256:input.source.sha256,
+    representationId:EMBEDDING_SPEC.version,representation:{...EMBEDDING_SPEC},backend:'webgpu',dtype:'fp32',
+    counts:{chunks:count,totalTokens:count*3,dimensions:384},
+    receipt:{verifiedBytes:bytes,networkBytes:bytes,cacheBytes:0,elapsedMs:12.5},
+    chunkIds:input.chunks.map(chunk=>chunk.id),tokenIds:input.chunks.map(()=>[101,1000,102]),
+    vectors:input.chunks.map(()=>[1,...Array(383).fill(0)])};
+  for(const [index,[stage,completed,total,unit]] of [
+    ['download',0,bytes,'bytes'],['download',bytes,bytes,'bytes'],['initialize',0,null,'chunks'],
+    ['encode',0,count,'chunks'],['encode',count,count,'chunks'],
+  ].entries())onProgress({...identity,kind:'progress',stage,seq:index+1,payload:{completed,total,unit,estimated:false}});
+  return {event:{...identity,kind:'result',stage:'encode',seq:6,payload:{data:embeddingReceipt(artifact)}},artifact};
+}
+
+test('the actual Embed click visibly refuses an oversized accepted chunk set without adapter effects or lost selection',async()=>{
+  const source=sourceRecord('large.pdf',[1],'A'.repeat(300000));let calls=0;
+  const app=appHarness([source],undefined,{embed:()=>{calls++;throw new Error('private adapter diagnostic');}});
+  await app.select('large.pdf');await app.chunk();
+  assert.equal(app.chunks().counts.chunks,670);assert.equal(app.ids.get('embed-chunks').disabled,false);
+  app.ids.get('chunks-next').dispatch('click');app.ids.get('chunk-select').value=117;app.ids.get('chunk-select').dispatch('change');
+  const before=acceptedAppState(app);
+  app.ids.get('embed-chunks').dispatch('click');await uiTurn();
+  assertPreflightRefusal(app);assert.equal(calls,0);assert.deepEqual(acceptedAppState(app),before);
+});
+
+test('the actual Embed click visibly refuses a reused chunk incarnation without an unhandled rejection or state change',async()=>{
+  let calls=0;const source=sourceRecord('A',[1]);
+  const app=appHarness([source],undefined,{runtimeIdFactory:()=> 'used-chunk-incarnation',
+    embed:()=>{calls++;throw new Error('private adapter diagnostic');}});
+  await app.select('A');await app.chunk();const before=acceptedAppState(app);
+  app.ids.get('embed-chunks').dispatch('click');await uiTurn();
+  assertPreflightRefusal(app);assert.equal(calls,0);assert.deepEqual(acceptedAppState(app),before);
+  assert.doesNotMatch(app.ids.get('status-detail').textContent,/private|used-chunk-incarnation/);
+});
+
+test('a preflight refusal preserves already accepted vectors and the selected vector detail',async()=>{
+  const incarnations=['chunk-incarnation','embedding-incarnation','embedding-incarnation'];let calls=0;
+  const app=appHarness([sourceRecord('A',[2])],undefined,{runtimeIdFactory:()=>incarnations.shift(),
+    embed:(input,options)=>{calls++;return successfulEmbedding(input,options);}});
+  await app.select('A');await app.chunk({maxChunkUtf16:20,overlapUtf16:0});
+  app.ids.get('chunk-select').value=1;app.ids.get('chunk-select').dispatch('change');
+  app.ids.get('embed-chunks').dispatch('click');await uiTurn();
+  assert.equal(app.state().status,'embedded-not-retrieved');const before=acceptedAppState(app);
+  app.ids.get('embed-chunks').dispatch('click');await uiTurn();
+  assertPreflightRefusal(app);assert.equal(calls,1);assert.deepEqual(acceptedAppState(app),before);
+});
+
+test('the next legitimate Embed retry clears the preflight refusal and uses the existing session progress rendering',async()=>{
+  const incarnations=['chunk-incarnation','chunk-incarnation','fresh-embedding-incarnation'];let finish,calls=0;
+  const app=appHarness([sourceRecord('A',[1])],undefined,{runtimeIdFactory:()=>incarnations.shift(),
+    embed:(input,options)=>{calls++;return new Promise(resolve=>{finish=()=>resolve(successfulEmbedding(input,options));});}});
+  await app.select('A');await app.chunk();const source=app.source(),chunks=app.chunks();
+  app.ids.get('embed-chunks').dispatch('click');await uiTurn();assertPreflightRefusal(app);
+  app.ids.get('embed-chunks').dispatch('click');
+  assert.equal(calls,1);assert.equal(app.ids.get('status-title').textContent,'Embedding accepted chunks');
+  assert.doesNotMatch(app.ids.get('status-detail').textContent,/INVALID_EMBEDDING_CONFIG/);
+  assert.equal(app.ids.get('operation-progress').hidden,false);
+  finish();await uiTurn();assert.equal(app.state().status,'embedded-not-retrieved');
+  assert.equal(app.source(),source);assert.equal(app.chunks(),chunks);assert.equal(app.embeddings().vectors[0].length,384);
+});
+
+test('a rapid valid Embed retry is not overwritten by the earlier preflight rejection',async()=>{
+  const incarnations=['chunk-incarnation','chunk-incarnation','fresh-embedding-incarnation'];let finish,calls=0;
+  const app=appHarness([sourceRecord('A',[1])],undefined,{runtimeIdFactory:()=>incarnations.shift(),
+    embed:(input,options)=>{calls++;return new Promise(resolve=>{finish=()=>resolve(successfulEmbedding(input,options));});}});
+  await app.select('A');await app.chunk();const source=app.source(),chunks=app.chunks();
+  app.ids.get('embed-chunks').dispatch('click');app.ids.get('embed-chunks').dispatch('click');await uiTurn();
+  assert.equal(calls,1);assert.equal(app.state().status,'embedding');
+  assert.equal(app.ids.get('status-title').textContent,'Embedding accepted chunks');
+  assert.doesNotMatch(app.ids.get('status-detail').textContent,/INVALID_EMBEDDING_CONFIG/);
+  finish();await uiTurn();assert.equal(app.state().status,'embedded-not-retrieved');
+  assert.equal(app.source(),source);assert.equal(app.chunks(),chunks);
+});
+
+test('chunk inspection clears a shown preflight refusal without changing accepted state',async()=>{
+  const app=appHarness([sourceRecord('A',[2])],undefined,{runtimeIdFactory:()=> 'used-incarnation'});
+  await app.select('A');await app.chunk();const before=acceptedAppState(app);
+  app.ids.get('embed-chunks').dispatch('click');await uiTurn();assertPreflightRefusal(app);
+  app.ids.get('chunk-select').dispatch('change');
+  assert.equal(app.ids.get('status-title').textContent,'Chunked; not embedded');
+  assert.doesNotMatch(app.ids.get('status-detail').textContent,/INVALID_EMBEDDING_CONFIG/);
+  assert.deepEqual(acceptedAppState(app),before);
+});
+
+for(const action of ['clear','replacement','rechunk','inspection'])test(`a stale Embed preflight rejection cannot overwrite a subsequent ${action} UI action`,async()=>{
+  const incarnations=['used-incarnation','used-incarnation','fresh-incarnation'];let calls=0;
+  const app=appHarness([sourceRecord('A',[2]),sourceRecord('B',[1])],undefined,{runtimeIdFactory:()=>incarnations.shift(),
+    embed:()=>{calls++;throw new Error('private adapter diagnostic');}});
+  await app.select('A');await app.chunk();const before=acceptedAppState(app);
+  app.ids.get('embed-chunks').dispatch('click');
+  if(action==='replacement'){
+    app.ids.get('pdf-file').files=[{name:'B'}];app.ids.get('pdf-file').dispatch('change');
+  }else app.ids.get(action==='clear'?'clear':action==='rechunk'?'build-chunks':'chunk-select').dispatch(action==='inspection'?'change':'click');
+  await uiTurn();assert.equal(calls,0);
+  assert.equal(app.ids.get('status-title').textContent,action==='clear'?'Waiting for a PDF':action==='replacement'?'Extracted; not indexed':'Chunked; not embedded');
+  assert.doesNotMatch(app.ids.get('status-detail').textContent,/INVALID_EMBEDDING_CONFIG/);
+  if(action==='clear'){assert.equal(app.source(),null);assert.equal(app.chunks(),null);assert.equal(app.state().lifecycle.documentEpoch,before.state.lifecycle.documentEpoch+1);}
+  else if(action==='replacement'){assert.equal(app.source().source.name,'B');assert.equal(app.chunks(),null);assert.equal(app.state().lifecycle.documentEpoch,before.state.lifecycle.documentEpoch+1);}
+  else if(action==='rechunk'){assert.equal(app.source(),before.source);assert.notEqual(app.chunks(),before.chunks);}
+  else assert.deepEqual(acceptedAppState(app),before);
+});
+
+for(const action of ['clear','replacement','rechunk'])test(`a shown Embed preflight refusal is cleared by ${action}`,async()=>{
+  const incarnations=['used-incarnation','used-incarnation','fresh-incarnation'];
+  const app=appHarness([sourceRecord('A',[2]),sourceRecord('B',[1])],undefined,{runtimeIdFactory:()=>incarnations.shift()});
+  await app.select('A');await app.chunk();app.ids.get('embed-chunks').dispatch('click');await uiTurn();assertPreflightRefusal(app);
+  if(action==='replacement'){
+    app.ids.get('pdf-file').files=[{name:'B'}];app.ids.get('pdf-file').dispatch('change');
+  }else app.ids.get(action==='clear'?'clear':'build-chunks').dispatch('click');
+  await uiTurn();
+  assert.equal(app.ids.get('status-title').textContent,action==='clear'?'Waiting for a PDF':action==='replacement'?'Extracted; not indexed':'Chunked; not embedded');
+  assert.doesNotMatch(app.ids.get('status-detail').textContent,/INVALID_EMBEDDING_CONFIG/);
 });

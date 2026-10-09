@@ -3,6 +3,7 @@ import {extractPdf} from './pdf-source.mjs';
 import {createPdfSession} from './pdf-session.mjs';
 import {getItemWindow} from './item-window.mjs';
 import {chunkInWorker} from './compute-source.mjs';
+import {embedInWorker} from './embedding-source.mjs';
 
 const byId=id=>document.getElementById(id);
 const fileInput=byId('pdf-file'),pageSelect=byId('page-select'),items=byId('items');
@@ -15,14 +16,39 @@ const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
   PARSER_VERSION_UNSUPPORTED:'The paired parser runtime is incompatible.',
   CLEANUP_FAILED:'Owned parser resource cleanup did not complete.',
   COMPUTE_TIMEOUT:'The computation worker exceeded its readiness/work time budget. Retry from the retained source.',
-  WORKER_PROTOCOL_ERROR:'The computation worker reply did not match this operation. No chunk artifact was accepted.',
+  WORKER_PROTOCOL_ERROR:'The worker reply did not match this operation. No new artifact was accepted.',
   CHUNK_LIMIT:'The requested chunk output exceeds its budget. No partial artifact was accepted.',
   INVALID_SOURCE:'The extracted records did not match the chunking source contract.',
   INVALID_CONFIG:'The chunking options are invalid.',
-  EMPTY_SOURCE:'No nonblank selectable text is available for chunking.'};
-let lastSource=null,lastChunks=null,itemWindowIndex=0,chunkWindowIndex=0;
+  EMPTY_SOURCE:'No nonblank selectable text is available for chunking.',
+  INVALID_EMBEDDING_CONFIG:'The accepted chunks exceed the embedding input contract or the configuration is invalid.',
+  ENCODER_INPUT_LIMIT:'An input exceeds the token budget. No text was silently truncated; source and chunks are retained.',
+  GPU_UNAVAILABLE:'A confirmed non-fallback WebGPU adapter is required. No automatic CPU fallback is used.',
+  GPU_DEVICE_LOST:'The encoder’s WebGPU device was lost. Retry starts a fresh worker.',
+  ASSET_INTEGRITY_ERROR:'Model or paired runtime bytes did not pass verification. No vectors were committed.',
+  EMBEDDING_LOAD_FAILED:'The pinned local encoder could not initialize. Source and chunks are retained.',
+  EMBEDDING_FAILED:'The encoder failed. No partial vectors were committed; source and chunks are retained.',
+  INVALID_EMBEDDING:'The encoder output did not satisfy the finite, normalized 384-dimensional contract.',
+  EMBEDDING_TIMEOUT:'The embedding worker exceeded its readiness/work budget. Source and chunks are retained.'};
+let lastSource=null,lastChunks=null,lastEmbeddings=null,itemWindowIndex=0,chunkWindowIndex=0;
+let uiActionNonce=0,embeddingRefusal=false;
+function beginUiAction(){uiActionNonce++;if(embeddingRefusal)render(session.snapshot());return uiActionNonce;}
 function element(tag,text,className){const value=document.createElement(tag);if(text!==undefined)value.textContent=text;if(className)value.className=className;return value;}
 function receipt(rows){const list=byId('receipt');list.replaceChildren();for(const [key,value] of rows){list.append(element('dt',key),element('dd',String(value)));}}
+function showEmbedding(){
+  const target=byId('embedding-detail'),meta=byId('embedding-meta');target.replaceChildren();
+  const artifact=session.embeddings(),index=Number(byId('chunk-select').value);
+  if(!artifact){meta.textContent='No vectors committed. Embed accepted chunks to inspect actual encoder output.';return;}
+  const vector=artifact.vectors[index],ids=artifact.tokenIds[index];if(!vector)return;
+  const norm=Math.sqrt(vector.reduce((sum,value)=>sum+value*value,0));
+  meta.textContent=`Chunk ${index+1} of ${artifact.counts.chunks} · ${ids.length} actual token IDs · ${vector.length} dimensions · L2 norm ${norm.toFixed(6)}`;
+  target.append(element('p',artifact.chunkIds[index],'identity'),element('p',`Token IDs including CLS / SEP (${ids.length} total)`,'hint'),
+    element('pre',JSON.stringify(ids)),element('p','First 12 vector values · bounded preview','hint'),
+    element('p',vector.slice(0,12).map(value=>value.toFixed(6)).join('  '),'vector-preview'));
+  const detail=element('details'),summary=element('summary','Inspect this selected vector’s full 384 values');detail.append(summary);
+  detail.addEventListener('toggle',()=>{detail.replaceChildren(summary,...(detail.open?[element('pre',JSON.stringify(vector,null,2))]:[]));});
+  target.append(detail);
+}
 function showItemRange(range){
   byId('items-range').textContent=range.total===0?'Showing 0 items of 0.':
     `Showing items ${range.start+1}–${range.end} of ${range.total} · preview window ${range.windowIndex+1} of ${range.windowCount}`;
@@ -49,10 +75,11 @@ function showPage(){
 }
 function showChunk(){
   const target=byId('chunk-detail');target.replaceChildren();
+  showEmbedding();
   const artifact=session.chunks();
   if(!artifact){
     target.append(element('p','No chunk artifact. Build from an accepted source.','empty'));
-    byId('chunk-meta').textContent='No chunks committed. No embedding index exists.';return;
+    byId('chunk-meta').textContent='No chunks committed.';return;
   }
   const chunk=artifact.chunks[Number(byId('chunk-select').value)];
   if(!chunk)return;
@@ -89,19 +116,32 @@ function showChunkWindow(){
   showChunk();
 }
 function render(state){
-  const source=session.document(),chunks=session.chunks();
-  const titles={idle:'Waiting for a PDF',parsing:'Reading selected bytes',chunking:'Building source-linked windows',cancelled:'Commit rights revoked','runtime-error':'No result committed','extracted-not-indexed':'Extracted; not indexed','chunked-not-embedded':'Chunked; not embedded'};
+  uiActionNonce++;embeddingRefusal=false;
+  const source=session.document(),chunks=session.chunks(),embeddings=session.embeddings();
+  const titles={idle:'Waiting for a PDF',parsing:'Reading selected bytes',chunking:'Building source-linked windows',embedding:'Embedding accepted chunks',cancelled:'Commit rights revoked','runtime-error':'No new result committed','extracted-not-indexed':'Extracted; not indexed','chunked-not-embedded':'Chunked; not embedded','embedded-not-retrieved':'Embedded; not retrieved'};
   byId('status-title').textContent=titles[state.status];
-  const progress=state.lifecycle.active?.progress;
+  const active=state.lifecycle.active,progress=active?.progress,bar=byId('operation-progress');
+  bar.hidden=!active;
+  if(progress?.total!==null&&progress?.total>0){bar.max=progress.total;bar.value=progress.completed;}
+  else bar.removeAttribute('value');
+  let progressText;
+  if(active?.operation==='embed'){
+    progressText=active.stage==='download'?`${progress.completed.toLocaleString()} / ${progress.total.toLocaleString()} verified asset body bytes. Whole verified assets advance this bar; it is not a streamed network percentage.`:
+      active.stage==='initialize'?'Encoder initialization · indeterminate. No reliable initialization percentage.':
+      active.stage==='encode'?`${progress.completed} / ${progress.total} completed chunks · encoding with the pinned WebGPU provider.`:
+      'Waiting for the fresh embedding worker. Asset verification, initialization and encoding follow.';
+  }else if(progress){progressText=`${progress.completed} / ${progress.total??'unknown'} ${progress.unit} · ${active.stage==='index'?'chunking':active.stage==='parse'?'parsing':active.stage}.`;}
   byId('status-detail').textContent=state.error?(ERROR_HELP[state.error.code]||'Work failed. No new artifact was committed.'):
-    progress?`${progress.completed} / ${progress.total??'unknown'} ${progress.unit} · ${state.status==='chunking'?'chunking, not embedding':'parsing'}.`:
+    progressText?progressText:
+    state.status==='embedded-not-retrieved'?`${embeddings.counts.chunks} chunks · ${embeddings.counts.totalTokens} actual tokens · ${embeddings.counts.dimensions} dimensions. No retrieval or generated answer yet.`:
     state.status==='chunked-not-embedded'?`${chunks.counts.chunks} chunks · ${chunks.counts.outputUtf16} output UTF-16 units · ${chunks.counts.fragments} mapping fragments. No vectors or generated answer.`:
     state.status==='extracted-not-indexed'?'Actual parser records below. No embedding index or generated answer exists.':
     state.status==='chunking'?'Waiting for the owned computation worker, then building page windows. No fabricated percentage.':
     state.status==='parsing'?'Hashing/loading/parsing are separate from accepting a result.':
-    state.status==='cancelled'?(source?'Late chunk work cannot update this session. Source retained for retry.':'Late work cannot update this session. Owned worker cleanup follows.'):'No source is stored. No embedding index or answer exists.';
+    state.status==='cancelled'?(chunks?'Late embedding work cannot update this session. Source and chunks retained for retry.':source?'Late chunk work cannot update this session. Source retained for retry.':'Late work cannot update this session. Owned worker cleanup follows.'):'No source is stored. No embedding index or answer exists.';
   byId('cancel').disabled=!state.lifecycle.active;
   byId('build-chunks').disabled=!source||Boolean(state.lifecycle.active);
+  byId('embed-chunks').disabled=!chunks||Boolean(state.lifecycle.active);
   byId('trace').textContent=JSON.stringify(state.lifecycle,null,2);
   if(source!==lastSource){
     lastSource=source;itemWindowIndex=0;pageSelect.replaceChildren();pageSelect.disabled=!source;
@@ -111,24 +151,45 @@ function render(state){
       showPage();
     }
   }
-  if(source)receipt([['File',source.source.name],['Bytes',source.source.size],['SHA-256',source.source.sha256],['Parser',`PDF.js ${source.parser.version}`],['Parse worker',source.workerMode],['Compute',chunks?'native · owned module worker':'no chunk result'],['Pages',source.numPages],['Epoch',state.lifecycle.documentEpoch],['Stage',chunks?'chunked; not embedded':'extracted; not indexed']]);
+  if(source)receipt([['File',source.source.name],['Bytes',source.source.size],['SHA-256',source.source.sha256],['Parser',`PDF.js ${source.parser.version}`],['Parse worker',source.workerMode],['Compute',chunks?'native · owned module worker':'no chunk result'],['Pages',source.numPages],['Epoch',state.lifecycle.documentEpoch],['Stage',embeddings?'embedded; not retrieved':chunks?'chunked; not embedded':'extracted; not indexed']]);
   if(chunks!==lastChunks){lastChunks=chunks;chunkWindowIndex=0;showChunkWindow();}
+  if(embeddings!==lastEmbeddings){
+    lastEmbeddings=embeddings;showEmbedding();const list=byId('embedding-receipt');list.replaceChildren();
+    if(embeddings){for(const [key,value]of [['Representation',embeddings.representationId],['Backend',`${embeddings.backend} · ${embeddings.dtype}`],
+      ['Verified body',`${embeddings.receipt.verifiedBytes.toLocaleString()} bytes`],['Fetched body',`${embeddings.receipt.networkBytes.toLocaleString()} bytes`],
+      ['Cached body',`${embeddings.receipt.cacheBytes.toLocaleString()} bytes`],['Attempt elapsed',`${embeddings.receipt.elapsedMs.toFixed(1)} ms`]])
+      list.append(element('dt',key),element('dd',value));}
+  }
 }
 const session=createPdfSession({extract:extractPdf,parserOptions:{pdfjs,
   assetBaseUrl:new URL('./vendor/',import.meta.url).href,
   workerFactory:url=>new Worker(url,{type:'module'})},
-  compute:chunkInWorker,computeOptions:{workerFactory:url=>new Worker(url,{type:'module'})},onState:render});
-fileInput.addEventListener('change',()=>{const file=fileInput.files?.[0];if(file)void session.select(file);});
-byId('cancel').addEventListener('click',()=>session.cancel());
-byId('clear').addEventListener('click',()=>{session.clear();fileInput.value='';});
-pageSelect.addEventListener('change',()=>{itemWindowIndex=0;showPage();});
-byId('items-first').addEventListener('click',()=>{itemWindowIndex=0;showPage();});
-byId('items-previous').addEventListener('click',()=>{itemWindowIndex--;showPage();});
-byId('items-next').addEventListener('click',()=>{itemWindowIndex++;showPage();});
-byId('build-chunks').addEventListener('click',()=>{void session.chunk();});
-byId('chunk-select').addEventListener('change',showChunk);
-byId('chunks-previous').addEventListener('click',()=>{chunkWindowIndex--;showChunkWindow();});
-byId('chunks-next').addEventListener('click',()=>{chunkWindowIndex++;showChunkWindow();});
-window.addEventListener('pagehide',()=>session.clear());
+  compute:chunkInWorker,computeOptions:{workerFactory:url=>new Worker(url,{type:'module'})},
+  embed:embedInWorker,embeddingOptions:{workerFactory:url=>new Worker(url,{type:'module'})},onState:render});
+fileInput.addEventListener('change',()=>{const file=fileInput.files?.[0];if(file){beginUiAction();void session.select(file);}});
+byId('cancel').addEventListener('click',()=>{beginUiAction();session.cancel();});
+byId('clear').addEventListener('click',()=>{beginUiAction();session.clear();fileInput.value='';});
+pageSelect.addEventListener('change',()=>{beginUiAction();itemWindowIndex=0;showPage();});
+byId('items-first').addEventListener('click',()=>{beginUiAction();itemWindowIndex=0;showPage();});
+byId('items-previous').addEventListener('click',()=>{beginUiAction();itemWindowIndex--;showPage();});
+byId('items-next').addEventListener('click',()=>{beginUiAction();itemWindowIndex++;showPage();});
+byId('build-chunks').addEventListener('click',()=>{beginUiAction();void session.chunk();});
+byId('embed-chunks').addEventListener('click',()=>{
+  const action=beginUiAction(),state=session.snapshot(),source=session.document(),chunks=session.chunks(),embeddings=session.embeddings();
+  void session.embed().catch(()=>{
+    const current=session.snapshot();
+    // This UI-only refusal is not a worker terminal. A later action or render
+    // revokes its display permission without changing accepted session state.
+    if(action!==uiActionNonce||current.lifecycle.documentEpoch!==state.lifecycle.documentEpoch
+        ||current.lifecycle.active!==null||source!==session.document()||chunks!==session.chunks()||embeddings!==session.embeddings())return;
+    embeddingRefusal=true;
+    byId('status-title').textContent='Embedding did not start';
+    byId('status-detail').textContent=`INVALID_EMBEDDING_CONFIG · ${ERROR_HELP.INVALID_EMBEDDING_CONFIG} Source, chunks and any accepted vectors are retained.`;
+  });
+});
+byId('chunk-select').addEventListener('change',()=>{beginUiAction();showChunk();});
+byId('chunks-previous').addEventListener('click',()=>{beginUiAction();chunkWindowIndex--;showChunkWindow();});
+byId('chunks-next').addEventListener('click',()=>{beginUiAction();chunkWindowIndex++;showChunkWindow();});
+window.addEventListener('pagehide',()=>{beginUiAction();session.clear();});
 render(session.snapshot());
 showChunkWindow();

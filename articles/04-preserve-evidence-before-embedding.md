@@ -6,7 +6,7 @@ category: technical-blog
 domain: rag
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-08
+updated: 2026-10-09
 source_type: implementation-and-test-review
 metadata_version: 1
 ---
@@ -103,8 +103,9 @@ units. With maximum 2 and overlap 0, safe windows are `[0, 1)` → `A`,
 split a valid surrogate pair. The chunker adjusts the boundary and guarantees
 forward progress. It can reduce effective overlap to avoid splitting a pair.
 It does not normalize accents, repair lone surrogate units, or infer words.
-The eventual embedding adapter still needs the **actual model tokenizer** and
-explicit truncation checks; the UTF-16 budget cannot substitute for that step.
+The separately accepted embedding adapter now uses the **actual model tokenizer**
+and refuses oversized input without silent truncation. The UTF-16 budget still
+cannot substitute for that step; a window can pass chunking and fail encoding.
 
 ### Budgets are separate from model quality
 
@@ -175,8 +176,25 @@ contract. This stage creates attributable candidates, not verified answers.”
 This is independent practice applying CS381 responsibility boundaries and
 CS310 work/resource boundaries, not a graded course deliverable. Parsing owns
 source records; chunking owns window construction and source mapping; the
-future encoder owns its tokenizer and representations. Keep these changes
+encoder owns its tokenizer and representations. Keep these changes
 testable independently before tuning end-to-end retrieval.
+
+### The encoder is a separate accepted artifact
+
+The October 9 native-browser fixture run advances the lab to **embedded; not
+retrieved**. MiniLM FP32/WebGPU returns ordered token-ID lists and normalized
+384-dimensional rows tied to the exact chunk IDs, file SHA-256 and frozen
+representation contract. The two-page toy PDF yielded two rows and 24 total
+encoded IDs. It does not demonstrate ranking, financial relevance or generation.
+The [first/cache-run receipt](01-two-lifecycles.html#a-real-representation-receipt-not-a-retrieval-benchmark)
+records the actual bounded observation rather than inferring it from passing tests.
+
+Cancellation retains accepted source/chunks but prevents partial vector commits;
+replacing the selected document invalidates all dependent artifacts before old
+work can update the page. Download/cache receipts describe verified asset bodies,
+not document uploads, complete network traffic or GPU memory. Query encoding and
+ranking must next check the same representation and source/order contract; equal
+vector dimensions alone are insufficient compatibility evidence.
 
 ## Provenance helps replay, not truth verification
 

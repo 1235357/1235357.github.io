@@ -1,5 +1,7 @@
 import {createController} from './protocol.mjs';
 import {ComputeError} from './compute-source.mjs';
+import {projectEmbeddingInput,createEmbeddingStageGuard,copyEmbeddingArtifact,
+  embeddingReceipt,EmbeddingWorkerError} from './embedding-source.mjs';
 
 const SAFE_CODES = new Set(['INVALID_RECORD','INVALID_INPUT','FILE_TOO_LARGE','INVALID_PDF',
   'PARSER_VERSION_UNSUPPORTED','WORKER_UNAVAILABLE','INVALID_LIMITS','EXTRACTION_LIMIT','EMPTY_DOCUMENT',
@@ -10,6 +12,10 @@ const record=value=>value!==null&&typeof value==='object'&&!Array.isArray(value)
 const exact=(value,keys)=>record(value)&&Reflect.ownKeys(value).length===keys.length
   &&Reflect.ownKeys(value).every(key=>keys.includes(key));
 const COUNT_KEYS=['chunks','outputUtf16','fragments'];
+const IDENTITY_KEYS=['protocolVersion','runtimeId','operationId','documentEpoch','operation'];
+const EVENT_KEYS=[...IDENTITY_KEYS,'kind','stage','seq','payload'];
+const DOWNLOAD_BYTES=113629084;
+const fields=(value,keys)=>Object.fromEntries(keys.map(key=>[key,value[key]]));
 
 // The adapter validates the full artifact. This small boundary guard prevents
 // accidental source/chunk data from ever entering the lifecycle controller.
@@ -29,14 +35,15 @@ function chunkReceipt(result,source) {
     &&Array.isArray(artifact.chunks)&&artifact.chunks.length===data.counts.chunks;
 }
 
-export function createPdfSession({extract,parserOptions={},compute,computeOptions={},onState=()=>{},
+export function createPdfSession({extract,parserOptions={},compute,computeOptions={},embed:embeddingAdapter,
+  embeddingOptions={},onState=()=>{},
   runtimeId=crypto.randomUUID(),runtimeIdFactory=()=>crypto.randomUUID()}) {
   if(typeof extract!=='function') throw new TypeError('A parser adapter is required');
   const controller=createController(runtimeId);
-  let source=null,chunks=null,aborter=null,status='idle',error=null,invalidating=false;
+  let source=null,chunks=null,embeddings=null,aborter=null,status='idle',error=null,invalidating=false;
   const snapshot=()=>Object.freeze({status,error,lifecycle:controller.snapshot()});
   const notify=()=>onState(snapshot());
-  function invalidate(replace,retainSource=false,nextStatus='idle') {
+  function invalidate(replace,retainSource=false,nextStatus='idle',retainChunks=false) {
     invalidating=true;
     try {
       // Commit the revoked state and detach the old owner before synchronous
@@ -44,7 +51,7 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
       // this transition; direct calls after it returns can retry normally.
       if(replace) controller.replaceDocument(); else controller.cancel();
       const ownedAborter=aborter;aborter=null;
-      chunks=null;if(!retainSource)source=null;error=null;status=nextStatus;
+      embeddings=null;if(!retainChunks)chunks=null;if(!retainSource)source=null;error=null;status=nextStatus;
       ownedAborter?.abort();
     } finally { invalidating=false; }
   }
@@ -52,8 +59,77 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
     snapshot,
     document:()=>source,
     chunks:()=>chunks,
-    cancel(){ if(invalidating||controller.snapshot().active===null) return; invalidate(false,status==='chunking','cancelled');notify(); },
+    embeddings:()=>embeddings,
+    cancel(){ if(invalidating||controller.snapshot().active===null) return;
+      invalidate(false,['chunking','embedding'].includes(status),'cancelled',status==='embedding');notify(); },
     clear(){ if(invalidating)return;invalidate(true);notify(); },
+    async embed(options={}){
+      if(invalidating||source===null||chunks===null||controller.snapshot().active!==null
+          ||typeof embeddingAdapter!=='function'||typeof runtimeIdFactory!=='function')
+        throw new EmbeddingWorkerError('INVALID_EMBEDDING_CONFIG');
+      // Snapshot the accepted chunk input once. The adapter only sees this
+      // detached, frozen projection; attribution remains in the source artifact.
+      const input=projectEmbeddingInput(chunks);
+      try{
+        const incarnation=runtimeIdFactory();
+        if(typeof incarnation!=='string'||incarnation.length>256||incarnation.trim().length===0)
+          throw new EmbeddingWorkerError('INVALID_EMBEDDING_CONFIG');
+        controller.replaceRuntime(incarnation);
+      }catch{throw new EmbeddingWorkerError('INVALID_EMBEDDING_CONFIG');}
+      const identity=controller.begin('embed'),ownedAborter=new AbortController();aborter=ownedAborter;
+      const stages=createEmbeddingStageGuard(input.counts.chunks);
+      let seq=0;embeddings=null;error=null;status='embedding';
+      const ownsOperation=()=>{
+        const active=controller.snapshot().active;
+        return aborter===ownedAborter&&!ownedAborter.signal.aborted&&active!==null
+          &&IDENTITY_KEYS.every(key=>active[key]===identity[key]);
+      };
+      function checkedEvent(raw,kind){
+        if(!exact(raw,EVENT_KEYS))throw new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR');
+        const event=fields(raw,EVENT_KEYS);
+        if(event.kind!==kind||!IDENTITY_KEYS.every(key=>event[key]===identity[key])
+            ||!Number.isSafeInteger(event.seq)||event.seq<=seq||event.seq<1
+            ||(kind==='progress'&&event.seq===Number.MAX_SAFE_INTEGER))
+          throw new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR');
+        return event;
+      }
+      notify();
+      try{
+        const result=await embeddingAdapter(input,{...embeddingOptions,...options,identity,signal:ownedAborter.signal,
+          onProgress:raw=>{
+            if(!ownsOperation())return;
+            try{
+              const event=checkedEvent(raw,'progress');
+              if(!exact(event.payload,['completed','total','unit','estimated']))return;
+              const payload=fields(event.payload,['completed','total','unit','estimated']);
+              if(event.stage==='download'&&payload.total!==DOWNLOAD_BYTES)return;
+              // Header, sequence and primitive snapshots are valid BEFORE the
+              // stage guard advances. A stale/invalid packet consumes nothing.
+              if(!ownsOperation())return;
+              event.payload=stages.accept(event.stage,payload);
+              if(controller.accept(event).accepted){seq=event.seq;notify();}
+            }catch{ /* untrusted progress cannot publish diagnostics or consume sequence */ }
+          }});
+        if(!ownsOperation())return;
+        if(!exact(result,['event','artifact']))throw new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR');
+        const event=checkedEvent(result.event,'result');
+        if(event.stage!=='encode'||!exact(event.payload,['data']))throw new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR');
+        stages.assertComplete();
+        const artifact=copyEmbeddingArtifact(result.artifact,input,stages.downloadTotal,event.payload.data);
+        event.payload={data:embeddingReceipt(artifact)};
+        if(!ownsOperation())return;
+        // Original identity/kind/stage/sequence survive validation. Commit all
+        // owned state synchronously before a subscriber can reenter the session.
+        if(controller.accept(event).accepted){embeddings=artifact;status='embedded-not-retrieved';aborter=null;notify();}
+        else throw new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR');
+      }catch(cause){
+        if(!ownsOperation())return;
+        let code;try{code=cause?.code;}catch{ /* private thrown getters stay private */ }
+        const safe=new EmbeddingWorkerError(code);
+        const event={...identity,kind:'error',stage:stages.stage,seq:seq+1,payload:{code:safe.code,message:safe.message}};
+        if(controller.accept(event).accepted){embeddings=null;error=Object.freeze({...event.payload});status='runtime-error';aborter=null;notify();}
+      }
+    },
     async chunk(options={}){
       if(invalidating||source===null||controller.snapshot().active!==null||typeof compute!=='function'
           ||typeof runtimeIdFactory!=='function')throw new ComputeError('INVALID_COMPUTE_CONFIG');
@@ -67,7 +143,7 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
       }catch{throw new ComputeError('INVALID_COMPUTE_CONFIG');}
       const identity=controller.begin('ingest'),ownedSource=source;
       const ownedAborter=new AbortController();aborter=ownedAborter;
-      let seq=0;chunks=null;error=null;status='chunking';notify();
+      let seq=0;chunks=null;embeddings=null;error=null;status='chunking';notify();
       const failure=code=>({...identity,kind:'error',stage:'index',seq:seq+1,
         payload:{code:code.code,message:code.message}});
       try{

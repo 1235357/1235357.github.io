@@ -4,6 +4,12 @@ import {createPdfSession} from '../pdf-session.mjs';
 import {chunkInWorker,ComputeError} from '../compute-source.mjs';
 import {createComputeCommandHandler} from '../compute.worker.mjs';
 import {createPageRecord} from '../pdf-source.mjs';
+import {EMBEDDING_SPEC} from '../embedding-contract.mjs';
+import {embedInWorker,embeddingReceipt,EmbeddingWorkerError} from '../embedding-source.mjs';
+import {createEmbeddingCommandHandler} from '../embedding.worker.mjs';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+import {getItemWindow} from '../item-window.mjs';
 
 const deferred = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
 const source = name => ({status:'extracted-not-indexed',source:{name,sha256:'a'.repeat(64),size:8},parser:{version:'6.4.299'},numPages:2,pages:[]});
@@ -395,4 +401,268 @@ test('compute rejection preserves typed safe codes and never records raw excepti
     assert.equal(session.snapshot().status,'runtime-error');assert.equal(session.chunks(),null);
     assert.equal(session.document().source.name,'private-A.pdf');assert.equal(JSON.stringify(session.snapshot()).includes('private'),false);
   }
+});
+
+const DOWNLOAD_BYTES=113629084;
+const embeddingState=session=>({...completeState(session),embeddings:session.embeddings()});
+const fixedEmbeddingError=code=>error=>error instanceof EmbeddingWorkerError&&error.code===code;
+function embeddedArtifact(input){
+  const count=input.counts.chunks;
+  return {schemaVersion:1,status:'embedded-not-retrieved',sourceSha256:input.source.sha256,
+    representationId:EMBEDDING_SPEC.version,representation:{...EMBEDDING_SPEC},backend:'webgpu',dtype:'fp32',
+    counts:{chunks:count,totalTokens:count*3,dimensions:384},
+    receipt:{verifiedBytes:DOWNLOAD_BYTES,networkBytes:DOWNLOAD_BYTES,cacheBytes:0,elapsedMs:12.5},
+    chunkIds:input.chunks.map(chunk=>chunk.id),tokenIds:input.chunks.map(()=>[101,1000,102]),
+    vectors:input.chunks.map(()=>[1,...Array(383).fill(0)])};
+}
+function embeddingPackets(task){
+  const count=task.record.counts.chunks;
+  const progress=[['download',0,DOWNLOAD_BYTES,'bytes'],['download',DOWNLOAD_BYTES,DOWNLOAD_BYTES,'bytes'],
+    ['initialize',0,null,'chunks'],['encode',0,count,'chunks'],['encode',count,count,'chunks']]
+    .map(([stage,completed,total,unit],index)=>({...task.options.identity,kind:'progress',stage,seq:index+1,
+      payload:{completed,total,unit,estimated:false}}));
+  const artifact=embeddedArtifact(task.record);
+  return {progress,result:{event:{...task.options.identity,kind:'result',stage:'encode',seq:6,
+    payload:{data:structuredClone(embeddingReceipt(artifact))}},artifact}};
+}
+function finishEmbedding(task){const packet=embeddingPackets(task);packet.progress.forEach(task.options.onProgress);task.resolve(packet.result);return packet.result;}
+async function chunkedSession(extra={}){
+  const embeds=[];
+  const harness=await selected({embed:(record,options)=>{
+    const pending=deferred();embeds.push({record,options,...pending});return pending.promise;
+  },...extra});
+  const operation=harness.session.chunk(chunkOptions);settle(harness.tasks[0]);await operation;
+  return {...harness,embeds};
+}
+
+test('embedding is an explicit action with no adapter effects during select or chunk',async()=>{
+  const {session,embeds}=await chunkedSession();
+  assert.equal(typeof session.embed,'function','accepted chunks need an explicit embedding action');
+  assert.equal(typeof session.embeddings,'function');assert.equal(session.embeddings(),null);assert.equal(embeds.length,0);
+  const before=session.snapshot(),source=session.document(),chunks=session.chunks();
+  const operation=session.embed();assert.equal(session.snapshot().status,'embedding');
+  assert.equal(session.snapshot().lifecycle.active.operation,'embed');
+  assert.equal(session.snapshot().lifecycle.documentEpoch,before.lifecycle.documentEpoch);
+  assert.notEqual(session.snapshot().lifecycle.runtimeId,before.lifecycle.runtimeId);
+  const terminal=finishEmbedding(embeds[0]);await operation;
+  assert.equal(session.snapshot().status,'embedded-not-retrieved');assert.equal(session.document(),source);assert.equal(session.chunks(),chunks);
+  assert.deepEqual(session.snapshot().lifecycle.terminal,terminal.event);assert.deepEqual(session.embeddings(),terminal.artifact);
+  assert.ok(Object.isFrozen(session.embeddings().vectors[0]));terminal.artifact.vectors[0][0]=0;
+  assert.equal(session.embeddings().vectors[0][0],1);
+  for(const text of ['private-A.pdf','Alpha','tokenIds','vectors','chunkIds'])assert.equal(JSON.stringify(session.snapshot()).includes(text),false);
+});
+
+test('embedding preconditions and absent adapter preserve state without side effects',async()=>{
+  const {session}=controlledSession({embed:()=>{throw new Error('must not start');}});
+  assert.equal(typeof session.embed,'function');const idle=embeddingState(session);
+  await assert.rejects(session.embed(),fixedEmbeddingError('INVALID_EMBEDDING_CONFIG'));assert.deepEqual(embeddingState(session),idle);
+  await session.select({name:'private-A.pdf'});const sourceOnly=embeddingState(session);
+  await assert.rejects(session.embed(),fixedEmbeddingError('INVALID_EMBEDDING_CONFIG'));assert.deepEqual(embeddingState(session),sourceOnly);
+  const absent=await chunkedSession({embed:undefined});const before=embeddingState(absent.session);
+  await assert.rejects(absent.session.embed(),fixedEmbeddingError('INVALID_EMBEDDING_CONFIG'));assert.deepEqual(embeddingState(absent.session),before);
+});
+
+test('caller embedding options cannot replace the owned identity signal or progress',async()=>{
+  const foreign=new AbortController(),{session,embeds}=await chunkedSession({embeddingOptions:{identity:{runtimeId:'foreign'},
+    signal:foreign.signal,onProgress:()=>{throw new Error('PRIVATE');}}});
+  const operation=session.embed({identity:{runtimeId:'also-foreign'},signal:foreign.signal,onProgress:()=>{throw new Error('PRIVATE');}});
+  assert.equal(embeds[0].options.identity.operation,'embed');assert.notEqual(embeds[0].options.signal,foreign.signal);
+  finishEmbedding(embeds[0]);await operation;assert.equal(session.snapshot().status,'embedded-not-retrieved');
+});
+
+test('embedding runtime factory throw or reuse preserves accepted vectors',async()=>{
+  let next='chunk-A';const {session,embeds}=await chunkedSession({runtimeIdFactory:()=>{if(next instanceof Error)throw next;return next;}});
+  next='embed-A';const operation=session.embed();finishEmbedding(embeds[0]);await operation;const before=embeddingState(session);
+  for(const invalid of ['chunk-A','embed-A','parser-owner','',null,42,new Error('PRIVATE')]){
+    next=invalid;await assert.rejects(session.embed(),fixedEmbeddingError('INVALID_EMBEDDING_CONFIG'));
+    assert.deepEqual(embeddingState(session),before);
+  }
+});
+
+test('embedding cancel revokes before synchronous abort callbacks and retains source and chunks',async()=>{
+  const {session,embeds}=await chunkedSession(),source=session.document(),chunks=session.chunks();
+  const first=session.embed();let during,reentrant;
+  embeds[0].options.signal.addEventListener('abort',()=>{during=embeddingState(session);reentrant=session.embed();reentrant.catch(()=>{});session.clear();});
+  session.cancel();await assert.rejects(reentrant,fixedEmbeddingError('INVALID_EMBEDDING_CONFIG'));
+  assert.deepEqual(during,embeddingState(session));assert.equal(during.snapshot.lifecycle.active,null);assert.equal(during.embeddings,null);
+  assert.equal(session.document(),source);assert.equal(session.chunks(),chunks);assert.equal(session.snapshot().status,'cancelled');
+  const retry=session.embed(),before=embeddingState(session);finishEmbedding(embeds[0]);await first;
+  assert.deepEqual(embeddingState(session),before);session.cancel();assert.equal(embeds[1].options.signal.aborted,true);
+  embeds[1].reject(new EmbeddingWorkerError('ABORTED'));await retry;
+});
+
+for(const transition of ['clear','replace'])test(`${transition} clears embedding dependencies before abort dispatch`,async()=>{
+  const {session,embeds}=await chunkedSession();const first=session.embed();let during,reentrant;
+  embeds[0].options.signal.addEventListener('abort',()=>{during=embeddingState(session);reentrant=session.embed();reentrant.catch(()=>{});});
+  if(transition==='clear')session.clear();else await session.select({name:'private-B.pdf'});
+  await assert.rejects(reentrant,fixedEmbeddingError('INVALID_EMBEDDING_CONFIG'));
+  assert.equal(during.document,null);assert.equal(during.chunks,null);assert.equal(during.embeddings,null);assert.equal(during.snapshot.lifecycle.active,null);
+  const before=embeddingState(session);finishEmbedding(embeds[0]);await first;assert.deepEqual(embeddingState(session),before);
+});
+
+test('restart embedding and rechunk discard vectors while preserving their accepted dependencies',async()=>{
+  const {session,tasks,embeds}=await chunkedSession();let operation=session.embed();finishEmbedding(embeds[0]);await operation;
+  const source=session.document(),chunks=session.chunks();operation=session.embed();
+  assert.equal(session.embeddings(),null);assert.equal(session.document(),source);assert.equal(session.chunks(),chunks);
+  finishEmbedding(embeds[1]);await operation;operation=session.chunk();
+  assert.equal(session.embeddings(),null);assert.equal(session.chunks(),null);assert.equal(session.document(),source);
+  settle(tasks[1]);await operation;
+});
+
+for(const late of ['result','error'])test(`identical SHA replacement refuses old embedding ${late} and progress and preserves the new aborter`,async()=>{
+  const {session,tasks,embeds}=await chunkedSession();const first=session.embed();await session.select({name:'private-B.pdf'});
+  const chunk=session.chunk();settle(tasks[1]);await chunk;const second=session.embed(),before=embeddingState(session);
+  const packet=embeddingPackets(embeds[0]);packet.progress.forEach(embeds[0].options.onProgress);
+  if(late==='result')embeds[0].resolve(packet.result);else embeds[0].reject(new Error('PRIVATE'));
+  await first;assert.deepEqual(embeddingState(session),before);session.cancel();assert.equal(embeds[1].options.signal.aborted,true);
+  embeds[1].reject(new EmbeddingWorkerError('ABORTED'));await second;
+});
+
+test('stale or malformed embedding progress does not consume stage guard or sequence',async()=>{
+  const {session,embeds}=await chunkedSession();const operation=session.embed(),task=embeds[0],packet=embeddingPackets(task),before=embeddingState(session);
+  for(const mutate of [event=>{event.runtimeId='foreign';},event=>{event.documentEpoch++;},event=>{event.seq=0;},
+    event=>{event.seq=Number.MAX_SAFE_INTEGER;},event=>{event.private='PRIVATE';},event=>{event.kind='result';},
+    event=>{event.stage='encode';},event=>{event.payload.total--;},event=>{event.payload.completed=1;},
+    event=>{event.payload.text='PRIVATE';},event=>{event.payload.estimated=true;}]){
+    const event=structuredClone(packet.progress[0]);mutate(event);task.options.onProgress(event);assert.deepEqual(embeddingState(session),before);
+  }
+  task.options.onProgress(null);assert.deepEqual(embeddingState(session),before);
+  task.options.onProgress(packet.progress[0]);const accepted=embeddingState(session);
+  const wrong=structuredClone(packet.progress[1]);wrong.seq=1;task.options.onProgress(wrong);assert.deepEqual(embeddingState(session),accepted);
+  packet.progress.slice(1).forEach(task.options.onProgress);task.resolve(packet.result);await operation;
+  assert.equal(session.snapshot().status,'embedded-not-retrieved');
+});
+
+for(const [name,mutate]of [
+  ['full text metadata',packet=>{packet.result.event.payload.data.text='PRIVATE';}],
+  ['wrong identity',packet=>{packet.result.event.runtimeId='foreign';}],
+  ['wrong stage',packet=>{packet.result.event.stage='index';}],
+  ['wrong source',packet=>{packet.result.artifact.sourceSha256='b'.repeat(64);}],
+  ['zero vectors',packet=>{packet.result.artifact.vectors[0].fill(0);}],
+  ['nonfinite vector',packet=>{packet.result.artifact.vectors[0][0]=NaN;}],
+  ['wrong receipt',packet=>{packet.result.event.payload.data.receipt.cacheBytes++;}],
+  ['wrong dimensions',packet=>{packet.result.artifact.counts.dimensions=383;}],
+  ['no complete encode',packet=>{packet.progress.pop();}],
+])test(`embedding terminal refuses ${name} without partial vectors`,async()=>{
+  const {session,embeds}=await chunkedSession(),chunks=session.chunks(),operation=session.embed(),packet=embeddingPackets(embeds[0]);
+  mutate(packet);packet.progress.forEach(embeds[0].options.onProgress);embeds[0].resolve(packet.result);await operation;
+  assert.equal(session.embeddings(),null);assert.equal(session.chunks(),chunks);assert.equal(session.snapshot().status,'runtime-error');
+  assert.equal(session.snapshot().error.code,'WORKER_PROTOCOL_ERROR');assert.equal(session.snapshot().lifecycle.active,null);
+  assert.equal(JSON.stringify(session.snapshot()).includes('PRIVATE'),false);
+});
+
+for(const stageIndex of [-1,1,2,4])test(`embedding safe error settles at last accepted stage after progress ${stageIndex}`,async()=>{
+  const {session,embeds}=await chunkedSession(),operation=session.embed(),packet=embeddingPackets(embeds[0]);
+  packet.progress.slice(0,stageIndex+1).forEach(embeds[0].options.onProgress);
+  const thrown={get code(){throw new Error('PRIVATE');}};embeds[0].reject(thrown);await operation;
+  assert.equal(session.snapshot().error.code,'EMBEDDING_FAILED');assert.equal(session.snapshot().lifecycle.active,null);
+  assert.equal(session.snapshot().lifecycle.terminal.stage,stageIndex<0?'download':packet.progress[stageIndex].stage);
+  assert.equal(session.snapshot().lifecycle.terminal.seq,stageIndex+2);assert.equal(session.embeddings(),null);
+});
+
+test('maximum safe progress reserves terminal capacity for an embedding failure',async()=>{
+  const {session,embeds}=await chunkedSession(),operation=session.embed(),packet=embeddingPackets(embeds[0]);
+  packet.progress[0].seq=Number.MAX_SAFE_INTEGER-1;embeds[0].options.onProgress(packet.progress[0]);
+  embeds[0].reject(new EmbeddingWorkerError('GPU_UNAVAILABLE'));await operation;
+  assert.equal(session.snapshot().lifecycle.terminal.seq,Number.MAX_SAFE_INTEGER);assert.equal(session.snapshot().error.code,'GPU_UNAVAILABLE');
+});
+
+class EmbeddingSessionWorker extends SessionWorker{
+  postMessage(command){this.pending=createEmbeddingCommandHandler(packet=>this.packets.push(packet),{
+    encode:async(input,{onProgress})=>{const task={record:input,options:{identity:command.identity}};
+      for(const event of embeddingPackets(task).progress)onProgress(event.stage,event.payload);
+      return embeddedArtifact(input);}})(command);}
+  ready(){this.emit({kind:'embedding-ready',protocolVersion:1,workerVersion:'embedding-v1'});}
+}
+test('real embedding adapter and command handler integrate with the session through a controlled channel',async()=>{
+  const worker=new EmbeddingSessionWorker(),{session}=await chunkedSession({embed:embedInWorker,embeddingOptions:{workerFactory:()=>worker}});
+  const operation=session.embed();worker.ready();await worker.pending;worker.packets.forEach(packet=>worker.emit(packet));await operation;
+  assert.equal(worker.terminated,1);assert.equal(session.snapshot().status,'embedded-not-retrieved');
+  assert.deepEqual(session.snapshot().lifecycle.terminal,worker.packets.at(-1).event);
+  assert.equal(session.embeddings().receipt.verifiedBytes,DOWNLOAD_BYTES);
+});
+
+// Minimal DOM at the platform boundary; the actual app renderer and session run.
+// Native PDF/GPU/browser acceptance is deliberately left to the live IAB review.
+class AppElement{
+  constructor(tag='div'){this.tag=tag;this.children=[];this.listeners=new Map();this.textContent='';this.value='';this.disabled=false;this.open=false;this.hidden=false;}
+  append(...children){this.children.push(...children);if(this.tag==='select'&&this.value===''&&this.children.length)this.value=String(this.children[0].value);}
+  replaceChildren(...children){this.children=[];if(this.tag==='select')this.value='';this.append(...children);}
+  addEventListener(type,listener){this.listeners.set(type,listener);}
+  removeAttribute(name){if(name==='value')this.value=undefined;}
+  fire(type){this.listeners.get(type)?.();}
+}
+function appHarness(){
+  const ids=new Map(),embeds=[];let session,incarnation=0;
+  const byId=id=>{if(!ids.has(id))ids.set(id,new AppElement(id.endsWith('select')?'select':'div'));return ids.get(id);};
+  const context={document:{getElementById:byId,createElement:tag=>new AppElement(tag)},window:{addEventListener(){}},
+    URL,Worker:class{},pdfjs:{},extractPdf(){},chunkInWorker(){},embedInWorker(){},getItemWindow,EMBEDDING_SPEC,
+    createPdfSession:options=>{session=createPdfSession({...options,runtimeId:'ui-parser',runtimeIdFactory:()=>`ui-${++incarnation}`,
+      extract:async file=>extracted(file.name),compute:async(record,options)=>{
+        const packets=workerPackets(record,options.identity,chunkOptions);options.onProgress(packets[0].event);return packets[1];},
+      embed:(record,options)=>{const pending=deferred();embeds.push({record,options,...pending});return pending.promise;}});return session;}};
+  const code=readFileSync(new URL('../pdf-app.mjs',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'')
+    .replace(/import\.meta\.url/g,JSON.stringify('https://example.test/project/browser-rag/pdf-app.mjs'));
+  vm.runInNewContext(code,context);return {session,embeds,byId};
+}
+test('app uses explicit embed action and real operation stage progress without resetting selected chunk',async()=>{
+  const {session,embeds,byId}=appHarness();
+  assert.equal(byId('embed-chunks').disabled,true,'embedding needs accepted chunks');
+  await session.select({name:'private-ui.pdf'});assert.equal(byId('embed-chunks').disabled,true);
+  await session.chunk();assert.equal(byId('embed-chunks').disabled,false);assert.equal(embeds.length,0);
+  byId('chunk-select').value='1';byId('chunk-select').fire('change');const text=byId('chunk-meta').textContent;
+  const operation=session.embed(),packet=embeddingPackets(embeds[0]);
+  assert.equal(byId('operation-progress').hidden,false);assert.equal(byId('operation-progress').value,undefined);
+  for(const event of packet.progress){embeds[0].options.onProgress(event);
+    assert.equal(byId('chunk-select').value,'1');assert.equal(byId('chunk-meta').textContent,text);
+    assert.match(byId('status-detail').textContent,new RegExp(event.stage==='download'?'verified':event.stage==='initialize'?'initializ':'completed'));
+    assert.doesNotMatch(byId('status-detail').textContent,/parsing/);
+  }
+  embeds[0].resolve(packet.result);await operation;
+  assert.equal(byId('status-title').textContent,'Embedded; not retrieved');
+  assert.match(byId('embedding-meta').textContent,/384/);assert.match(byId('embedding-meta').textContent,/1\.000000/);
+  const detail=byId('embedding-detail');assert.ok(detail.children.some(child=>child.tag==='details'));
+  assert.equal(detail.children.filter(child=>child.tag==='pre').length,1,'token IDs are shown; full vector remains lazy');
+  byId('chunk-select').value='0';byId('chunk-select').fire('change');assert.equal(embeds.length,1,'inspection never reruns inference');
+  session.clear();assert.match(byId('embedding-meta').textContent,/No vectors/);assert.equal(byId('operation-progress').hidden,true);
+});
+
+test('active embedding refuses a concurrent attempt without clearing its owned state',async()=>{
+  const {session,embeds}=await chunkedSession(),operation=session.embed(),before=embeddingState(session);
+  await assert.rejects(session.embed(),fixedEmbeddingError('INVALID_EMBEDDING_CONFIG'));
+  assert.deepEqual(embeddingState(session),before);assert.equal(embeds.length,1);
+  finishEmbedding(embeds[0]);await operation;
+});
+
+test('embedding projection refuses oversized accepted chunks before touching the adapter or incarnation',async()=>{
+  for(const mode of ['oversized text','too many chunks']){
+    let incarnations=0;const harness=await selected({extract:async()=>extracted('large.pdf','A'.repeat(2050)),
+      runtimeIdFactory:()=>`large-${++incarnations}`,embed:()=>assert.fail('invalid input must not reach the encoder'),
+      compute:async(record,options)=>{
+        const packet=structuredClone(workerPackets(record,options.identity,mode==='too many chunks'?{maxChunkUtf16:2,overlapUtf16:0}:{}).at(-1));
+        if(mode==='oversized text')packet.artifact.chunks[0].text='A'.repeat(4097);
+        return packet;}});
+    await harness.session.chunk();
+    const before=embeddingState(harness.session),count=incarnations;
+    await assert.rejects(harness.session.embed(),fixedEmbeddingError('INVALID_EMBEDDING_CONFIG'));
+    assert.deepEqual(embeddingState(harness.session),before);assert.equal(incarnations,count);
+  }
+});
+
+test('embedding input and numerical output commit only the caller component value read once',async()=>{
+  let reads=0,original;const embeds=[];
+  const {session}=await selected({compute:async(record,options)=>{
+    const packet=structuredClone(workerPackets(record,options.identity,chunkOptions).at(-1)),chunkArray=packet.artifact.chunks;
+    original=chunkArray[0];packet.artifact.chunks=new Proxy(chunkArray,{get(target,key,receiver){
+      if(key==='0'){reads++;return reads===1?original:{...original,text:'PRIVATE ALTERNATE'};}return Reflect.get(target,key,receiver);}});
+    return packet;},embed:(record,options)=>{const pending=deferred();embeds.push({record,options,...pending});return pending.promise;}});
+  await session.chunk();
+  // The full chunk artifact is an adapter boundary in this controlled test.
+  // The accepted input projection must not make a second numeric-array read.
+  const operation=session.embed();assert.equal(reads,1);assert.equal(embeds[0].record.chunks[0].text,original.text);
+  const packet=embeddingPackets(embeds[0]);let vectorReads=0;
+  packet.result.artifact.vectors[0]=new Proxy(packet.result.artifact.vectors[0],{get(target,key,receiver){
+    if(key==='0'){vectorReads++;return vectorReads===1?1:0;}return Reflect.get(target,key,receiver);}});
+  packet.progress.forEach(embeds[0].options.onProgress);embeds[0].resolve(packet.result);await operation;
+  assert.equal(session.snapshot().status,'embedded-not-retrieved');assert.equal(vectorReads,1);assert.equal(session.embeddings().vectors[0][0],1);
 });

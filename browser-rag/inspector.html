@@ -4,15 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>Source inspector — local PDF lab</title>
+  <title>Source &amp; vector inspector — local PDF lab</title>
   <link rel="stylesheet" href="inspector.css">
   <script type="module" src="pdf-app.mjs"></script>
 </head>
 <body>
-<header><a href="../index.html">ENGINEERING NOTES / SOURCE LAB</a><span>LOCAL DRAFT · NO MODEL</span></header>
+<header><a href="../index.html">ENGINEERING NOTES / SOURCE LAB</a><span>LOCAL DRAFT · BEFORE RETRIEVAL</span></header>
 <main>
-  <section class="lead"><p class="eyebrow">01 / BEFORE RETRIEVAL</p><h1>Keep the source.<br>Inspect the extraction.</h1>
-  <p>A citation needs a location, not just a filename. Choose one PDF and examine what the parser actually returned.</p></section>
+  <section class="lead"><p class="eyebrow">01 / BEFORE RETRIEVAL</p><h1>Keep the source.<br>Inspect the representation.</h1>
+  <p>Follow one local PDF from parser records to source-linked chunks and explicit encoder output. Every accepted stage keeps its own receipt.</p></section>
   <div class="workspace">
     <section class="controls panel" aria-labelledby="input-title">
       <h2 id="input-title">Your document</h2>
@@ -22,12 +22,24 @@
       <div class="buttons"><button id="cancel" disabled>Cancel work</button><button id="clear">Clear source</button></div>
       <button id="build-chunks" class="build-chunks" disabled>Build source-linked chunks</button>
       <p class="hint">Explicit next step: mechanical page windows in a native computation worker. No model download.</p>
-      <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">COMMIT BOUNDARY</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p></div>
+      <div class="model-contract"><p class="eyebrow">PINNED ENCODER / EXPLICIT ACTION</p>
+        <p><strong>MiniLM L6 · FP32 · WebGPU</strong><br><span>113,629,084 bytes · model + paired runtime</span></p>
+        <p class="hint">512 chunks · 256 tokens per chunk including special tokens · 131,072 total tokens. UTF-16 units are not tokens; oversized inputs are refused without silent truncation.</p>
+        <details><summary>Representation and download contract</summary>
+          <p>Xenova/all-MiniLM-L6-v2 · revision <code>751bff37182d3f1213fa05d7196b954e230abad9</code>. Attention-mask mean pooling + L2 normalization · 384 dimensions. Transformers.js 3.8.1 with its paired ORT Web runtime.</p>
+          <p>The displayed bytes are verified asset body size, not a GPU memory estimate. A confirmed non-fallback WebGPU adapter is required; no automatic CPU fallback. Chunk text is limited to 4,096 UTF-16 units; the tokenizer then checks the separate token limits.</p>
+        </details>
+      </div>
+      <button id="embed-chunks" class="embed-chunks" disabled>Download model &amp; embed chunks</button>
+      <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">COMMIT BOUNDARY</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></div>
       <dl id="receipt" class="receipt"></dl>
+      <details><summary>Accepted embedding receipt</summary><dl id="embedding-receipt" class="receipt"></dl>
+        <p>Verified, fetched and cached counts describe asset body bytes, not all network traffic. Attempt elapsed includes loading, initialization, encoding and disposal; it is not isolated GPU time. A WebGPU provider does not prove every operator ran on the GPU; mean pooling runs in JavaScript on the CPU.</p>
+      </details>
       <details><summary>What this lab does — and does not do</summary>
-        <p><strong>Extracted; not indexed.</strong> After parsing, you may explicitly build source-linked chunks. <strong>Chunked; not embedded.</strong> This increment has no embeddings, retrieval or generation. It does not establish financial facts, table columns, reading order or OCR.</p>
+        <p><strong>Extracted; not indexed.</strong> After parsing, build source-linked chunks. <strong>Chunked; not embedded.</strong> Explicitly download the pinned encoder to continue. <strong>Embedded; not retrieved.</strong> Accepted output is a representation, with no retrieval or generation yet. It does not establish financial facts, table columns, reading order or OCR.</p>
         <p>Text is the original parser-extracted string, not a raw PDF byte offset. PDF.js can replace whitespace. Geometry describes a text item, not every character.</p>
-        <p>Replacing a document first revokes the old operation's right to commit. Physical cleanup is a separate responsibility. Cancelling chunk work preserves the accepted source for retry, but commits no partial chunk artifact.</p>
+        <p>Replacing a document first revokes the old operation's right to commit and clears its dependent artifacts. Cancelling chunk work preserves the accepted source; cancelling embedding preserves source and chunks. Neither commits partial output.</p>
       </details>
       <details><summary>Accepted lifecycle trace</summary><pre id="trace">No accepted events yet.</pre></details>
       <p class="hint">NVIDIA sample mode remains unavailable until its source/permission review passes. This local-file inspector is not the complete RAG demo.</p>
@@ -43,13 +55,19 @@
       <p class="hint">Preview shows up to 100 items at a time. All extracted records remain available through these controls. Details are prepared when opened.</p>
       <div id="items" class="items"><p class="empty">The source belongs here.<br><span>Choose a file to inspect actual text items, UTF-16 spans and page geometry.</span></p></div>
       <section class="chunk-inspection" aria-labelledby="chunk-title">
-        <div class="section-heading"><div><p class="eyebrow">PAGE WINDOWS · NOT VECTORS</p><h2 id="chunk-title">Chunk inspection</h2></div>
+        <div class="section-heading"><div><p class="eyebrow">EXACT INPUT · SOURCE MAPPING</p><h2 id="chunk-title">Chunk inspection</h2></div>
           <label for="chunk-select">Current chunk <select id="chunk-select" disabled><option>No chunks</option></select></label></div>
         <p id="chunk-meta" class="hint" role="status" aria-live="polite">Build chunks after a source has been accepted.</p>
         <div class="item-navigation-buttons"><button id="chunks-previous" disabled>Previous 100 chunks</button><button id="chunks-next" disabled>Next 100 chunks</button></div>
         <p class="hint">Inspect one chunk at a time. Selector windows contain at most 100 chunks. Inserted presentation newlines have no source span; they are not quotations from the PDF.</p>
         <div id="chunk-detail"><p class="empty">No chunk artifact.<span>Source-linked windows still need embeddings, retrieval, context and generation.</span></p></div>
         <a class="hint" href="../04-preserve-evidence-before-embedding.html#the-browser-variant-uses-a-different-explicit-chunking-contract">Read the exact offset and overlap lesson ↗</a>
+      </section>
+      <section class="embedding-inspection" aria-labelledby="embedding-title">
+        <p class="eyebrow">SELECTED CHUNK / ACTUAL ENCODER OUTPUT</p><h2 id="embedding-title">Vector inspection</h2>
+        <p id="embedding-meta" class="hint" role="status" aria-live="polite">No vectors committed. Embed accepted chunks to inspect actual encoder output.</p>
+        <div id="embedding-detail"></div>
+        <p class="hint">The chunk selector controls this view. Changing selection inspects retained token IDs and vectors; it does not run inference again.</p>
       </section>
     </section>
   </div>

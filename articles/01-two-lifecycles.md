@@ -5,7 +5,7 @@ category: technical-article
 domain: financial-rag
 status: draft
 created: 2026-10-07
-updated: 2026-10-08
+updated: 2026-10-09
 source_type: implementation-and-primary-documentation
 metadata_version: 1
 tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
@@ -46,8 +46,9 @@ Python and its cached query encoder on the developer's Windows host; it is not
 an in-browser deployment on a reader's own computer. The browser-native variant
 is a separate design and acceptance requirement, not a completed capability.
 The source inspector embedded below now parses selected bytes and explicitly
-builds source-linked chunks in a native computation worker. It is not the
-classroom retrieval demo and does not yet run an embedding or generator.
+builds source-linked chunks in a native computation worker. An explicit next
+action now runs a pinned MiniLM encoder with WebGPU. It is not the classroom
+retrieval demo: query ranking and browser generation are still unimplemented.
 
 ## Offline work creates a reusable representation
 
@@ -303,13 +304,14 @@ The Python API remains independent and must not secretly answer browser-native
 requests. A diagram iframe below is only the architecture viewer, not the
 future embedded RAG demo.
 
-As of October 8, the operation controller is implemented and tested,
+As of October 9, the operation controller is implemented and tested,
 including stale-message rejection, cancellation and worker-incarnation identity.
 The selected-PDF adapter now uses a native parsing worker and has passed the
 bounded original-fixture browser checks described below. A separate native
 computation worker builds source-linked page windows on an explicit button click.
-Those two stages are implemented; the full figure's model, retrieval and
-generation path remains planned, not demonstrated by its drawing.
+Those stages and explicit MiniLM passage encoding have bounded native-browser
+receipts. The figure remains the full target topology, not a live status diagram:
+query retrieval and generation are still planned, not demonstrated by its drawing.
 The [commit-boundary lesson](02-contracts-before-services.html#browser-work-has-a-commit-boundary-too)
 explains result ownership; the full RAG figure remains planned.
 
@@ -337,9 +339,9 @@ device-specific performance evidence must precede any release claim.
 ## First browser increment: inspect before indexing
 
 <figure class="architecture-figure" id="browser-source-lab" aria-label="Interactive local PDF extraction lab, not a complete RAG runtime">
-<div class="figure-heading"><span class="figure-status">03 / SOURCE AND CHUNK INSPECTOR · NO MODEL</span><h3>Choose bytes. Keep their identity.</h3><p>This is an actual application entry point, not a diagram. Parse the selected file, then click Build source-linked chunks. Inspect exact source fragments and separately labelled presentation newlines.</p></div>
+<div class="figure-heading"><span class="figure-status">03 / SOURCE AND VECTOR INSPECTOR · BEFORE RETRIEVAL</span><h3>Choose bytes. Keep their identity.</h3><p>This is an actual application entry point, not a diagram. Parse the selected file, build source-linked chunks, then explicitly download the pinned encoder. Inspect source fragments, token IDs and real vectors separately.</p></div>
 <iframe src="browser-rag/inspector.html" title="Local PDF source and chunk inspector — no retrieval or generation" loading="lazy"></iframe>
-<figcaption>“Extracted; not indexed” after parsing. “Chunked; not embedded” after explicitly choosing Build chunks. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection is explicit; no PDF upload endpoint is implemented. NVIDIA sample mode, embeddings, vector indexing, retrieval and generation remain unavailable in this increment. Browser acceptance is recorded separately from unit tests.</figcaption>
+<figcaption>“Extracted; not indexed” → “Chunked; not embedded” → “Embedded; not retrieved”, each after its own accepted action. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection and model download are explicit; no PDF upload endpoint is implemented. NVIDIA sample mode, query retrieval and generation remain unavailable. Browser acceptance is recorded separately from unit tests.</figcaption>
 </figure>
 
 <details><summary>What was actually checked in Codex IAB on October 7?</summary>
@@ -428,8 +430,48 @@ The [source-linked chunking lesson](04-preserve-evidence-before-embedding.html#t
 explains the pure transform and its native-worker connection, exact source
 fragments, Unicode windows and output budgets. Click Build, compare one fragment
 with its original item, and explain why an inserted newline has no source span.
-The next implementation gate is actual tokenizer-checked representations, followed
-by retrieval and generation; none can borrow Python scores or an old threshold.
+The explicit encoder now exposes actual tokenizer IDs and accepted representations.
+Query retrieval and generation remain next; neither can borrow Python scores or
+an old threshold merely because both encoders output 384-dimensional vectors.
+
+### A real representation receipt, not a retrieval benchmark
+
+On October 9, the standalone lab's actual file chooser selected the original
+two-page, 1,002-byte test PDF. Native parsing and chunking produced two chunks;
+an explicit MiniLM FP32/WebGPU action produced two finite 384-dimensional rows
+and 24 actual token IDs in total. Chunk 1 has 11 IDs including CLS/SEP, chunk 2
+has 13. Both displayed an L2 norm of 1.000000; the inspected full second row had
+norm 1.00000002128878. Selecting it did not create another runtime or inference.
+This is real browser model output, but the fixture contains no financial facts.
+The rebuilt article's iframe was separately exercised through its actual chooser,
+native parsing, explicit chunking and WebGPU encoding; it produced the same
+two-row/24-token/384-dimension receipt. This is an application embedded in the
+blog, not merely a diagram or a secretly Python-backed answer.
+
+| Observed attempt | Verified asset-body bytes | Fetched / cached body bytes | Total attempt time |
+| --- | --- | --- | --- |
+| First observed successful run | 113,629,084 | 113,629,084 / 0 | 2,331.1 ms |
+| Fresh-worker cache retry | 113,629,084 | 0 / 113,629,084 | 1,039.7 ms |
+
+These two observations belong to this device and fixture, not a percentile,
+throughput or isolated-GPU benchmark. Time includes verification, initialization,
+encoding and disposal. The WebGPU provider does not prove every operator executes
+on the GPU; mean pooling and L2 normalization run in JavaScript on the CPU.
+Body-byte receipts are not complete network/privacy audits.
+
+A further native attempt was cancelled during initialization: no partial vectors
+were committed, source/chunks remained, and a retry used another worker. Replacing
+the file with the original empty PDF cleared dependent results and returned
+`EMPTY_DOCUMENT`. Clear/reselect restored the parsing path. Two earlier IAB
+whole-tab crashes were not explained by these checks; successful recovery is
+not evidence that their underlying cause has been fixed.
+
+Your exercise: inspect one token list and predict why 45 UTF-16 units do not imply
+45 model tokens. Open its complete vector, count 384 finite values and explain
+why unit norm permits a similarity calculation but cannot verify a fiscal year.
+Then cancel an encoding attempt and distinguish retained chunks from absent
+vectors. The next implementation must encode the query with the same frozen
+representation before ranking; passage encoding alone is not RAG.
 
 ## Source and verification boundary
 

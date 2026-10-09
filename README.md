@@ -124,13 +124,13 @@ committed, never the npm tree or model binaries.
   Carry full artifacts outside controller metadata. Version ready/command packets
   separately from `chunks-v1`; typed errors, ready/work timeouts, cancellation and
   stale-worker events cannot publish partial vectors. No automatic CPU fallback.
-- [ ] Extend the same session with explicit embedding and a new runtime identity;
+- [x] Extend the same session with explicit embedding and a new runtime identity;
   errors/cancel retain accepted chunks/source, replacement clears dependent
   vectors. Show selected input token IDs/counts, vector dimension/norm/first values,
   actual backend, download receipt and measured duration. Clearly say
   **embedded; no retrieval or generation yet**. Download size is shown before
   the explicit action; no success label without actual model output.
-- [ ] Independent specification then quality review, tests and real IAB selected
+- [x] Independent specification then quality review, tests and real IAB selected
   PDF acceptance. Measure first/warm runs separately, verify no partial commit on
   refusal and inspect GPU/backend/runtime errors. A supported WebGPU provider is
   not proof every operator ran on the GPU. Record network/privacy observations
@@ -187,7 +187,7 @@ not alternative runtimes or additional features.
   properties, fixed timeout budgets, stale/reentrant cleanup and canonical errors.
   This accepts the message boundary, not selected-PDF GPU inference, retrieval
   or generation.
-- [ ] **3c / UI and evidence:** extend the existing session, build allowlist and
+- [x] **3c / UI and evidence:** extend the existing session, build allowlist and
   split-pane lab, without adding a second document controller. Cancelling an
   embedding retains accepted source/chunks, while replacing a document clears
   dependent vectors atomically before abort callbacks. Only an explicit reader
@@ -202,6 +202,74 @@ not alternative runtimes or additional features.
   evidence boundaries. Retrieval, query acceptance and generation remain later
   gates; no fabricated financial answer or unsupported-GPU fallback.
 
+  October 9 review state: independent specification review found a dropped
+  preflight-rejection promise in the first candidate (692 Node / 42 Python).
+  The bounded repair displays a fixed UI-only refusal, preserving artifacts and
+  selections; action/epoch/reference guards prevent a stale catch from replacing
+  a newer UI state. Fresh full specification re-review passed with **705 Node /
+  42 Python** tests and unchanged candidate hashes. Quality review then exposed
+  a separate PDF-only packaging defect: without the optional model registry,
+  the app's static imports lacked the pure embedding contract. The bounded
+  build repair moves that contract into the core explicit allowlist; it does
+  not make model assets mandatory or load the model on page entry. Three
+  behavior regressions first failed, then passed. They inspect real repository
+  module bodies and verify that a missing dependency refuses promotion while
+  preserving every previous output byte. The repaired candidate has **705
+  Node / 44 Python** passing tests. Independent full specification re-review
+  passed on the frozen eight-file candidate (705 Node and 35 isolated Python
+  tests independently rerun); root also reran all 44 Python tests successfully.
+  Independent quality re-review also passed on that candidate. A subsequent
+  native-browser asset error exposed a separate default-fetch receiver defect:
+  the same native `fetch` and request returned `Illegal invocation` when called
+  as a configuration method, but HTTP 200 when invoked with the Window receiver.
+  The bounded repair binds only the omitted default to its global receiver;
+  explicitly injected fetch values retain their previous identity and receiver.
+  The receiver regression first failed; all three added cases then passed.
+  Fresh independent specification and quality reviews passed; root reran **708
+  Node / 44 Python** tests. These tests alone do not prove model inference.
+
+  October 9 real IAB receipt: the actual chooser selected the original 1,002-byte
+  two-page PDF, SHA-256
+  `8abdd9acd09b7196f20a7b1095be3714d8529003aa5b2a8bc277825b1c0c20a7`.
+  Native PDF.js 6.4.299 parsing and the explicit native chunk worker produced
+  two chunks, 96 UTF-16 units and two mapping fragments. The explicit encoder
+  action then committed **2 rows / 24 actual token IDs / 384 dimensions** with
+  `miniLM-fp32-mean-l2-webgpu-v1`, `webgpu`, `fp32`. The first observed run verified
+  113,629,084 asset-body bytes, all fetched and none cached; total attempt time
+  was 2,331.1 ms. A fresh-worker retry verified the same bytes entirely from the
+  owned cache, with zero fetched asset-body bytes and 1,039.7 ms total time.
+  These are two device-specific observations, not a latency benchmark, isolated
+  GPU timing or proof every operator ran on the GPU. Pooling/normalization are
+  JavaScript CPU work; the byte receipt does not describe all network traffic.
+  Both selected rows displayed unit norm; the second complete row was inspected
+  as 384 finite values with norm 1.00000002128878. Selecting another row retained
+  the same runtime/terminal instead of running inference again.
+
+  A third native attempt was cancelled during `initialize`: commit rights were
+  revoked, no vectors remained, and source/chunks were retained for retry. The
+  empty-PDF replacement reached `EMPTY_DOCUMENT`, disabled Build/Embed and left
+  no source/chunks/vectors. Clear emptied the file control; reselect/parse/chunk
+  and a subsequent fresh embedding attempt were exercised separately. The UI
+  also ran the same actual chooser/parse/chunk/encode path inside the rebuilt
+  article's iframe: runtime `bc7ef773-b890-4434-a6f2-5ebcd86c73ce`, epoch 1,
+  terminal `result/encode`, sequence 14; two rows, 24 tokens, 384 dimensions,
+  113,629,084 cached asset-body bytes, zero fetched body bytes, 940.5 ms total
+  attempt time. The standalone lab at a 390×844 responsive override had document
+  client/scroll widths both 375 px and all nine buttons 44 px high; the override
+  was reset afterwards. These check that fixture and viewport, not all PDFs or
+  device sizes. The complete first row was also inspected as 384 finite values
+  with norm 0.9999997468018608.
+  The lab reports **Embedded; not retrieved**—no query, ranking or answer is accepted.
+  Two earlier whole-tab crashes remain unexplained; the exact fixture also
+  passed an isolated native parser/cleanup diagnostic before this successful
+  chooser run. Do not label a browser crash as a model error or claim the crash
+  cause was fixed. Arbitrary PDFs, GPU-device-loss recovery, full offline/privacy
+  auditing, financial quality and GitHub Pages prefix inference remain open.
+  Session preflight validates its adapter/factory, projected input and fresh
+  incarnation before clearing accepted vectors. Transport-only options remain
+  the adapter's responsibility; a valid new attempt deliberately clears previous
+  vectors, and an adapter failure cannot commit partial replacement vectors.
+
 **Plan self-review:** implementation remains in the already approved architecture;
 this advances only representation. Retrieval, real generation, independent quality
 evaluation and rights-cleared NVIDIA mode remain required later goal increments.
@@ -209,13 +277,14 @@ No public push, old-index reuse or grade/mastery claim is authorized by this pla
 
 </details>
 
-## Current scope — October 8
+## Current scope — October 9
 
 This milestone continues the locally staged technical blog and independent RAG
 runtime. It does not modify the Obsidian vault or expand the old PPT. Those
 historical learning-surface requests remain separate from this browser/API goal.
-Actual PDF parsing and native-worker chunking now run in the standalone browser
-lab; the representation/retrieval/generation chain is still unfinished.
+Actual PDF parsing, native-worker chunking and explicit MiniLM WebGPU encoding
+now run in the standalone browser lab on the bounded original fixture. Query
+retrieval, real generation and their independent evaluation remain unfinished.
 The full approved design and remaining acceptance gates below are not completion
 receipts. No push, public endpoint or GitHub publication has been performed.
 
@@ -1984,10 +2053,40 @@ was absent after a tool/session reconnection, while an inspector tab still held
 old page state. A fresh port check and HTTP request failed. The cause of process
 termination is not established. A loopback restart in a pollable command session
 initially restored HTTP/IAB access, but that process was absent after a later
-session boundary too. The preview now uses an explicitly owned Windows hidden
-background process, independent of the temporary terminal handle. A subsequent
-tool call verified its process, `127.0.0.1:8765` listener and HTTP 200; survival
-across future session boundaries remains to be verified.
+session boundary too. An explicitly owned Windows hidden background process,
+independent of the temporary terminal handle, was then tried. A subsequent
+tool call verified its process, `127.0.0.1:8765` listener and HTTP 200. On the next
+October 9 goal continuation that hidden process was also absent, with no listener
+and a failed HTTP request. Hidden launch therefore has not fixed cross-session
+survival. A necessary restart restored current availability, not an uptime
+guarantee. Its recorded parent then disappeared while the child remained alive,
+so ordinary parent exit alone does not explain the earlier termination. Bounded
+Application/System event checks found no crash/reboot explanation; process-exit
+audit records were unavailable without additional privileges. No escalation or
+new watchdog/service was attempted. The termination cause remains unestablished.
+At 00:23:58 CDT on October 9, the replacement hidden process (PID 43812) was
+also absent and the port had no listener. A necessary foreground, pollable
+command session then started PID 62632 at 00:24:11 CDT, retaining the server's
+console output. The next check confirmed its exact command, loopback listener
+and HTTP 200; this established availability then, not an uptime guarantee. Tests
+were searched for process-stop commands without finding one; that does not prove
+the exit cause. Continue recording exact launch, listener and console evidence,
+and treat a missing process or terminal session result as authoritative rather
+than restarting because an observation merely times out.
+At 00:35:16 CDT, that foreground session handle was missing, PID 62632 was
+absent, the listener count was zero and HTTP was refused. Thus the foreground
+launch has not demonstrated cross-continuation survival either. Keep this
+failure separate from application/model errors; the exit cause is still unknown.
+At 00:37:36 CDT, a Windows WMI-created **hidden new-console** process (PID 16420,
+parent `WmiPrvSE.exe` PID 7540) restored the same loopback-only `dist` mount and
+returned HTTP 200. This changes the launching parent without introducing a
+service, scheduled task, elevated privilege or job-breakaway flag. The initial
+detached-console variant (PID 46776) listened but ended HTTP responses prematurely;
+it was stopped only after its exact owned command was verified. The hidden
+new-console variant was a subsequent experiment, not proof of permanent survival.
+[Microsoft's process-creation contract](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/create-method-in-class-win32-process)
+and [startup flags](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processstartup)
+describe these startup options; neither documents Codex session lifetime.
 Do not call the preview permanently running or infer readiness from a cached
 page. Before live acceptance, check the current listener and request
 `/browser-rag/inspector.html`; start the command above only if no listener exists.
@@ -1997,19 +2096,60 @@ An old internal error page is not an application exception or a reason to bypass
 browser security controls. Verify parsing, worker output and actual model
 inference separately after page recovery.
 
-For this Windows workspace, after verifying that port 8765 has no existing
-listener, the equivalent background start is:
+For this Windows workspace, first verify that port 8765 has no existing listener.
+The currently observed successful launch uses WMI and a hidden new console;
+the earlier `Start-Process` and foreground-session variants did not establish
+cross-continuation survival. This is a local preview process, not an installed
+service or uptime guarantee:
 
 ```powershell
-$previewProcess = Start-Process -FilePath 'C:\ProgramData\anaconda3\python.exe' `
-  -ArgumentList @('-m', 'http.server', '8765', '--bind', '127.0.0.1', '--directory', 'dist') `
-  -WorkingDirectory 'D:\Desktop\GitHub-Staging\zhentong-ye-site' `
-  -WindowStyle Hidden -PassThru
-$previewProcess.Id
+$previewStartup = New-CimInstance -ClassName Win32_ProcessStartup -ClientOnly `
+  -Property @{ CreateFlags = [uint32]16; ShowWindow = [uint16]0 }
+$previewCreate = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
+  CommandLine = '"C:\ProgramData\anaconda3\python.exe" -u -m http.server 8765 --bind 127.0.0.1 --directory "D:\Desktop\GitHub-Staging\zhentong-ye-site\dist"'
+  CurrentDirectory = 'D:\Desktop\GitHub-Staging\zhentong-ye-site'
+  ProcessStartupInformation = $previewStartup
+}
+if ($previewCreate.ReturnValue -ne 0) { throw 'Local preview process creation failed.' }
+$previewCreate.ProcessId
 ```
+
+Process creation returning zero is not HTTP readiness. Verify the returned PID's
+creation time and exact command, its loopback listener, then a successful HTTP
+request before reloading the app. Never start a duplicate just because a browser
+observation timed out, and never stop an unrelated process occupying the port.
+
+October 9 bounded Windows repair: PID 16420 was still serving HTTP 200, but its
+working directory was `dist`. Seven navigation tests then failed at the build's
+`dist.rename(...)` with `WinError 32`. After verifying and stopping only that
+owned process, the same 44 Python tests passed. Replacement PID 44620 uses the
+repository root as its working directory while retaining the explicit `--directory
+...\dist` mount; its exact command, loopback listener and HTTP 200 were checked.
+All 44 Python tests passed again with that server alive. After the existing
+articles were updated, a changed-output build also promoted successfully,
+retained the previous output at `.build-recovery/20261009T131621Z-009eca3f65b44fd396d704f3844f7863`,
+and left PID 44620 listening with HTTP 200. This verifies one live promotion,
+not every possible Windows handle or cross-session uptime. An unchanged build
+alone would not exercise rename.
+Never launch the preview with `dist` as its working directory on Windows.
 
 Record the returned PID for the current run; do not treat an old PID, a retained
 browser page or a successful start command as proof of current availability.
+The canonical URL for this `dist`-root local mount is
+`http://127.0.0.1:8765/browser-rag/inspector.html`; a future GitHub Pages project
+prefix is a different mount and cannot simply be appended to this local URL.
+If the port is occupied, verify its owning PID and command line before reusing
+it; do not stop an unknown service or accept its arbitrary HTTP 200. If the
+correct server returns 404, check `dist/index.html`, the inspector and required
+modules first. Source files are not served until the explicit build allowlist
+copies them. An absent `dist` after failed promotion requires the retained path
+named by the build error, not an indiscriminate server restart or overwrite.
+After a successful build, compare a changed small module's HTTP bytes with the
+current `dist` bytes, then reload the same normal IAB page before functional
+acceptance. Python's seconds-granularity `If-Modified-Since` handling and an old
+module realm can retain stale content; this is a known risk, not a reproduced
+cause of the earlier process termination. Do not clear model caches merely to
+hide a preview problem. Finish the build before running the model acceptance.
 The recovered IAB page was then exercised through its actual file chooser with
 the owned 1,002-byte selectable fixture. PDF.js 6.4.299 reported native parsing,
 two physical pages with distinct PDF labels, then the explicit chunk action
@@ -2034,8 +2174,9 @@ if rollback also fails, the error names the intact retained output. Only the
 current invocation's guarded disposable stage is removed.
 
 This is two directory renames, **not** continuously atomic Windows replacement;
-real open handles can prevent a rename. Lock failure was injected in tests, not
-reproduced with live locked handles. Root/child escapes and links/junctions are
+real open handles can prevent a rename. The October 9 `dist`-working-directory
+failure above is a live Windows lock observation; other lock/rollback cases use
+injected tests. Root/child escapes and links/junctions are
 refused. Sources remain unchanged. Old HTML checks do **not** cover JS imports,
 CSS URLs, dynamic runtime downloads, WASM assets or real browser inference; the
 future browser build needs its own complete asset-graph/privacy acceptance.

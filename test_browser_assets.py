@@ -11,6 +11,31 @@ import test_build as fixtures
 import build
 
 
+REPOSITORY_BROWSER = Path(__file__).resolve().parent / 'browser-rag'
+STATIC_RELATIVE_MJS_IMPORT = re.compile(
+    r"^[ \t]*(?:import|export)[ \t]+(?:[^;]*?\bfrom[ \t]+)?['\"](\.{1,2}/[^'\"]+\.mjs)['\"][ \t]*;",
+    re.MULTILINE,
+)
+
+
+def static_mjs_graph(directory, entry):
+    """Literal relative static .mjs imports only; do not execute SDK/worker URLs."""
+    directory = directory.resolve()
+    pending = [directory / entry]
+    graph = {}
+    while pending:
+        module = pending.pop().resolve()
+        if not module.is_relative_to(directory) or not module.is_file():
+            raise AssertionError(f'Missing or escaping static module: {module}')
+        relative = module.relative_to(directory).as_posix()
+        if relative in graph:
+            continue
+        imports = STATIC_RELATIVE_MJS_IMPORT.findall(module.read_text(encoding='utf-8'))
+        graph[relative] = set(imports)
+        pending.extend(module.parent / reference for reference in imports)
+    return graph
+
+
 class InspectorMarkupTest(unittest.TestCase):
     def test_csp_allows_same_origin_wasm_without_broad_eval_or_remote_workers(self):
         markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
@@ -69,14 +94,31 @@ class InspectorMarkupTest(unittest.TestCase):
         self.assertIn('no source span', markup)
         self.assertNotIn('type="search"', markup)
 
+    def test_embedding_inspection_is_explicit_and_evidence_bounded(self):
+        markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
+        for identifier in ('embed-chunks', 'embedding-detail', 'embedding-meta', 'operation-progress'):
+            self.assertIn(f'id="{identifier}"', markup)
+        for text in ('113,629,084', '751bff37182d3f1213fa05d7196b954e230abad9',
+                     '512 chunks', '256 tokens', '131,072', 'Embedded; not retrieved',
+                     'UTF-16', 'CPU fallback', 'pooling', 'GPU memory'):
+            self.assertIn(text, markup)
+        self.assertNotIn('NO MODEL', markup)
+        app = (build.ROOT / 'browser-rag' / 'pdf-app.mjs').read_text(encoding='utf-8')
+        self.assertNotIn('innerHTML', app)
+        self.assertIn('session.embed()', app)
+        self.assertIn('lastEmbeddings', app)
+
 
 class BrowserAssetsTest(unittest.TestCase):
     def setUp(self):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs'):
-            (self.browser / name).write_text('<!-- fixture -->' if name.endswith('.html') else 'fixture', encoding='utf-8')
+        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs'):
+            if name.endswith('.mjs'):
+                (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
+            else:
+                (self.browser / name).write_text('<!-- fixture -->' if name.endswith('.html') else 'fixture', encoding='utf-8')
         self.package = self.browser / 'node_modules' / 'pdfjs-dist'
         (self.package / 'build').mkdir(parents=True)
         (self.package / 'package.json').write_text(json.dumps({'version': '6.4.299'}))
@@ -106,6 +148,48 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertFalse((output / 'vendor' / 'standard_fonts' / 'private.txt').exists())
         self.assertFalse((output / 'node_modules').exists())
 
+    def test_pdf_only_build_closes_the_real_static_module_graph_without_model_assets(self):
+        # Real paired PDF.js module bodies also remain data-only build inputs.
+        for name in self.registry['moduleHashes']:
+            data = (REPOSITORY_BROWSER / 'node_modules' / 'pdfjs-dist' / name).read_bytes()
+            (self.package / name).write_bytes(data)
+            self.registry['moduleHashes'][name] = hashlib.sha256(data).hexdigest()
+        (self.browser / 'pdf-assets.json').write_text(json.dumps(self.registry))
+        build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        graph = static_mjs_graph(output, 'pdf-app.mjs')
+        self.assertIn('./pdf-session.mjs', graph['pdf-app.mjs'])
+        self.assertIn('./embedding-source.mjs', graph['pdf-session.mjs'])
+        self.assertIn('./embedding-contract.mjs', graph['embedding-source.mjs'])
+        self.assertEqual(graph['embedding-contract.mjs'], set())
+        self.assertNotIn('embedding-runtime.mjs', graph,
+                         'The app static graph must not eagerly import the model runtime.')
+        worker_graph = static_mjs_graph(output, 'embedding.worker.mjs')
+        self.assertIn('./embedding-runtime.mjs', worker_graph['embedding.worker.mjs'])
+        self.assertIn('./embedding-contract.mjs', worker_graph['embedding-runtime.mjs'])
+        for name in set(graph) | set(worker_graph):
+            source = (self.package / name.removeprefix('vendor/') if name.startswith('vendor/')
+                      else REPOSITORY_BROWSER / name)
+            self.assertEqual((output / name).read_bytes(), source.read_bytes(), name)
+        for relative in ('embedding-assets.json', 'models', 'vendor/transformers', 'notices',
+                         'node_modules', 'tests', 'secret.env'):
+            self.assertFalse((output / relative).exists(), relative)
+
+    def test_pdf_only_missing_contract_refuses_before_promotion_and_retains_all_previous_bytes(self):
+        build.build()
+        previous_binary = self.root / 'dist' / 'prior-output' / 'binary.bin'
+        previous_binary.parent.mkdir()
+        previous_binary.write_bytes(bytes(range(256)))
+        before = fixtures.file_snapshot(self.root / 'dist')
+        (self.browser / 'embedding-contract.mjs').unlink()
+        (self.browser / 'inspector.css').write_bytes(b'CHANGED CORE STYLE')
+        with self.assertRaisesRegex((ValueError, FileNotFoundError), 'embedding-contract'):
+            build.build()
+        self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+        self.assertFalse((self.root / '.build-recovery').exists(),
+                         'A missing core module must refuse before moving the old output.')
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
     def test_named_compute_modules_are_delivered_without_test_sources(self):
         (self.browser / 'tests').mkdir()
         (self.browser / 'tests' / 'compute-source.test.mjs').write_bytes(b'NOT RUNTIME')
@@ -122,6 +206,30 @@ class BrowserAssetsTest(unittest.TestCase):
         with self.assertRaisesRegex((ValueError, FileNotFoundError), 'compute.worker'):
             build.build()
         self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+
+    def test_named_embedding_modules_are_delivered_without_unknown_files(self):
+        (self.browser / 'unknown.mjs').write_bytes(b'PRIVATE UNKNOWN')
+        build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        for name in ('embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs'):
+            self.assertTrue((output / name).is_file(), f'fresh build omits {name}')
+            self.assertEqual((output / name).read_bytes(), (self.browser / name).read_bytes())
+        self.assertFalse((output / 'unknown.mjs').exists())
+
+    def test_missing_each_embedding_module_preserves_previous_build(self):
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        for name in ('embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs'):
+            with self.subTest(name=name):
+                source = self.browser / name
+                data = source.read_bytes()
+                source.unlink()
+                try:
+                    with self.assertRaisesRegex((ValueError, FileNotFoundError), re.escape(name)):
+                        build.build()
+                    self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+                finally:
+                    source.write_bytes(data)
 
     def test_missing_core_asset_cannot_borrow_previous_build(self):
         build.build()
@@ -370,8 +478,11 @@ class EmbeddingAssetsTest(unittest.TestCase):
         output = self.root / 'dist' / 'browser-rag'
         self.assertEqual((output / 'pdf-source.mjs').read_bytes(),
                          (self.browser / 'pdf-source.mjs').read_bytes())
-        for relative in ('embedding-assets.json', 'embedding-contract.mjs',
-                         'models', 'vendor/transformers', 'notices'):
+        self.assertTrue((output / 'embedding-contract.mjs').is_file(),
+                        'The PDF-only static module graph needs the pure embedding contract.')
+        self.assertEqual((output / 'embedding-contract.mjs').read_bytes(),
+                         (self.browser / 'embedding-contract.mjs').read_bytes())
+        for relative in ('embedding-assets.json', 'models', 'vendor/transformers', 'notices'):
             self.assertFalse((output / relative).exists(), relative)
         self.assertEqual(fixtures.file_snapshot(result['recovery_path']), before)
 
