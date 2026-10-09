@@ -279,6 +279,169 @@ No public push, old-index reuse or grade/mastery claim is authorized by this pla
 
 ## Current scope — October 9
 
+<details>
+<summary>Task 3d — exact query retrieval: execution checklist, October 9</summary>
+
+### Exact Query Retrieval Implementation Plan
+
+> **For agentic workers:** use subagent-driven-development, with independent
+> specification review before quality review. This expands step 3 of the already
+> approved browser design; it does not authorize a new architecture or publication.
+
+**Goal:** encode a real question with the accepted MiniLM representation, rank the
+accepted document vectors and inspect the corresponding original source, without
+claiming an answer or financial verification.
+
+**Architecture:** keep the accepted PDF/chunk/passage artifacts in the owned
+session. Use the same pinned encoder in a fresh native worker for a question;
+perform exact bounded cosine ranking there and commit candidates only after the
+current document/question identity passes. No backend, new vector database,
+question rewrite, old Python index or confidence threshold is introduced.
+
+**Tech stack:** existing PDF.js/Transformers.js/WebGPU, ES modules, Node tests.
+**Spec:** the approved "Browser-native RAG" design in this README.
+
+**Global constraints:** 384 finite components, unit-norm tolerance `1e-4`, at most
+512 document rows, the exact `EMBEDDING_SPEC` model/revision/tokenizer/pooling/dtype
+contract, actual nontruncated query token IDs (3–256), and no network question/PDF
+transmission. Query and passage are separate artifacts. A candidate is not an answer.
+
+**Review focus:** reject wrong representations, wrong source/order, zero/nonfinite
+vectors and invalid budgets; retain accepted document artifacts after query failure;
+reject old question/runtime/document results even for a reselected identical SHA;
+do not silently truncate/rewrite input; render source/model strings as text only.
+
+#### Task 3d.1 — pure exact ranking boundary
+
+Files: create `browser-rag/retrieval.mjs` and
+`browser-rag/tests/retrieval.test.mjs` only. No runtime, session or UI wiring yet.
+
+Interface: `rankCandidates(chunkArtifact, embeddingArtifact, query, {topK = 5} = {})`.
+`query` is exactly `{representationId, representation, vector}`; it is the narrow
+projection of the later independently encoded query, never a fictitious PDF chunk.
+Consume existing `projectEmbeddingInput`/`copyEmbeddingArtifact` validators and
+`acceptEmbeddingVectors` rather than rebuilding their accepted input contracts.
+Validate matching source SHA, ordered chunk IDs/counts and every exact spec field.
+Return a detached deeply frozen object with `schemaVersion: 1`,
+`status: 'candidates-only'`, `sourceSha256`, `representationId`, `requestedTopK`,
+`returnedCount`, `queryNorm`, and `candidates`. Each candidate is
+`{chunkId, ordinal, score, dotProduct, chunkNorm}`; ordinal is zero-based source
+order. Compute `dotProduct / (queryNorm * chunkNorm)`, not a unit-vector assumption.
+Sort descending score with exact-score ties in original ordinal order. Return
+`min(topK, rowCount)`; accept only integer `topK` in 1–512, no threshold/repair.
+Reject invalid input using a fixed safe `RetrievalError` with code
+`INVALID_RETRIEVAL_INPUT`; no input text or private exception is included.
+
+- [x] Write RED tests for hand-derived cosine 1/0/-1, a 0.6/0.8 vector, a within-
+  tolerance nonexact unit norm, deterministic ties, default/capped top-k, immutable
+  detached results and unchanged inputs. Assert real numbers, not source text.
+- [x] Add rejection cases for source mismatch, reordered/duplicate IDs, each
+  representation mismatch, zero/nonfinite/sparse/wrong-size rows, invalid top-k
+  and accessor failures sanitized to the fixed error.
+- [x] Observe meaningful RED, implement the single module, run its tests and the
+  whole Node suite. Obtain fresh SPEC, then fresh QUALITY review before commit.
+
+October 9 local checkpoint: the pure ranker passed independent SPEC and QUALITY
+reviews, its 147 focused cases, and the root-run 855-case Node suite. This accepts
+numerical candidate ranking only; query inference and browser acceptance remain
+open. QUALITY suggested an additional successful tail-component fixture; the
+current implementation scans all 384 components, so this was nonblocking test
+strengthening, not an observed incorrect result.
+
+#### Task 3d.2 — real query encoding and owned ranking worker
+
+**3d.2a — shared real encoder:** modify `embedding-runtime.mjs` and its runtime
+tests only. Extract the existing asset verification, tokenizer, GPU inference and
+disposal body into a private text-row core. Preserve `encodeChunks` and its
+artifact/progress behavior. Export `encodeQuery(question, options = {})`; accept
+one nonblank string of at most 4096 UTF-16 units before loading resources. Send
+that exact string to the same tokenizer without trimming, truncating or adding an
+instruction prefix. Query progress is download bytes, initialize
+`{completed:0,total:null,unit:'tokens',estimated:false}`, then encode 0 to the
+actual token count (3–256), not a simulated token-generation stream.
+
+Return this separate, detached frozen query artifact:
+
+```js
+{
+  schemaVersion: 1, status: 'query-embedded-not-retrieved',
+  representationId, representation, backend: 'webgpu', dtype: 'fp32',
+  tokenIds, vector,
+  counts: { totalTokens, dimensions: 384 },
+  receipt: { verifiedBytes, networkBytes, cacheBytes, elapsedMs }
+}
+```
+
+There are no PDF source/chunk IDs in a query artifact. Model identity, pooling,
+normalization, actual tokens and device-loss/abort/late-resource cleanup must use
+the same accepted core as passage encoding.
+
+**3d.2b — owned channel:** create `query-source.mjs`, `query.worker.mjs` and their
+tests; extend query loading stages in `protocol.mjs` plus its behavior tests. A
+neutral `worker-console.mjs` may hold the existing suppression implementation,
+with `embedding.worker.mjs` importing it; never import a worker entry module into
+another worker, which would install two native handlers.
+
+Interface:
+
+```js
+queryInWorker(chunkArtifact, embeddingArtifact, question, {
+  topK = 5, identity, workerFactory, onProgress, signal,
+  readyTimeoutMs = 10000, workTimeoutMs = 120000
+})
+```
+
+Readiness is exactly `{kind:'query-ready',protocolVersion:1,workerVersion:'query-v1'}`.
+The one-shot command is exactly
+`{kind:'query-candidates',identity,question,chunkArtifact,embeddingArtifact,topK}`;
+identity has operation `query`. Preflight copies owned passages using the existing
+source/embedding validators before creating a worker. The worker calls real
+`encodeQuery`, then the reviewed `rankCandidates`; it does not re-encode passages.
+
+Strict order: completed download → initialize → encode (tokens, 0 to actual count)
+→ rank (chunks, 0 to document row count). Stable totals, nonregressing counts and
+units, and `estimated:false` are required. Terminal success is allowed only after
+rank completion; its full artifact is `{query:queryArtifact,retrieval:rankerArtifact}`.
+The controller result metadata holds only bounded query/retrieval receipts, never
+the question, token IDs, vectors or candidate chunk IDs. Copy/validate the query
+and recompute the pure ranker at acceptance to reject altered scores/source/order.
+Historical passage-download receipts remain separate from this query attempt.
+
+Error messages are fixed and safe; unknown diagnostics become `QUERY_FAILED`.
+Readiness/work deadlines are fixed (progress cannot renew them), all listeners are
+removed and the owned worker is terminated exactly once before publishing. Mark
+settled before termination hooks. A fresh runtime/document/operation identity and
+strict sequences gate every progress/result. Only query gains download/initialize
+in the generic vocabulary; other operations are unchanged.
+
+- [ ] TDD shared query encoding and preserve the whole passage/runtime suite;
+  obtain SPEC then QUALITY review before committing 3d.2a.
+- [ ] TDD preflight, worker, strict stage/terminal copies, deadlines/cancellation,
+  stale ownership and safe errors; obtain SPEC then QUALITY review for 3d.2b.
+
+Controlled Worker/injected encoder fixtures prove channel behavior, not live
+inference. Actual query inference remains the browser acceptance in 3d.3.
+
+#### Task 3d.3 — visible question-to-source walkthrough and acceptance
+
+Wire the adapter into `pdf-session.mjs` and the existing inspector. Show exact
+original/resolved/encoder question (no rewrite), candidate result first, numeric
+score/dot/norm details and a control to inspect the retained chunk/source mapping.
+Question failure/cancel retains source/chunks/passages but clears its result;
+document replacement/rechunk/re-embed invalidates all dependent query results.
+
+- [ ] TDD owned state and escaping; copy modules in the existing build allowlist.
+- [ ] Run real IAB chooser → passage encoding → typed question → actual query
+  encoding/ranking, including retry/replacement and the blog iframe path.
+- [ ] Update existing articles/README with observed receipts and limitations.
+  Synthetic fixture ranking is not financial quality or generated-answer acceptance.
+
+**Plan self-review:** the approved larger generation/evaluation/sample/license/
+privacy/performance/API/GitHub-Pages gates remain open. This checklist implements
+retrieval on that path, not a smaller replacement for the original goal.
+
+</details>
+
 This milestone continues the locally staged technical blog and independent RAG
 runtime. It does not modify the Obsidian vault or expand the old PPT. Those
 historical learning-surface requests remain separate from this browser/API goal.
