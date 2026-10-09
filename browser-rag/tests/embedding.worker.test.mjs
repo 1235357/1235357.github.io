@@ -23,10 +23,33 @@ test('pure handler emits monotonic metadata events and a separate immutable arti
   assert.equal(packets[5].event.kind, 'result'); assert.equal(JSON.stringify(packets.map(packet => packet.event)).includes('PRIVATE'), false);
   assert.deepEqual(packets[5].artifact, output()); assert.ok(Object.isFrozen(packets[5].artifact.vectors[0]));
 });
-test('Node import and pure command handler never alter main-thread console methods', async () => {
-  const original = Object.fromEntries(['log', 'error', 'warn', 'table', 'trace', 'debug'].map(key => [key, console[key]]));
-  const handle = handler(() => {}, { encode: async (_source, { onProgress }) => { stages(onProgress); return output(); } });
-  await handle(command()); for (const [key, value] of Object.entries(original)) assert.equal(console[key], value);
+test('isolated Node imports and pure embedding handler preserve console identity, prototype and descriptors', () => {
+  const fixture = `import assert from 'node:assert/strict';
+    const original = globalThis.console, prototype = Object.getPrototypeOf(original);
+    const keys = Reflect.ownKeys(original);
+    const descriptors = new Map(keys.map(key => [key, Object.getOwnPropertyDescriptor(original, key)]));
+    function unchanged(stage) {
+      assert.equal(globalThis.console, original, stage + ': console identity');
+      assert.equal(Object.getPrototypeOf(globalThis.console), prototype, stage + ': console prototype');
+      assert.deepEqual(Reflect.ownKeys(globalThis.console), keys, stage + ': console own keys');
+      for (const [key, descriptor] of descriptors) {
+        assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis.console, key), descriptor, stage + ': ' + String(key));
+      }
+    }
+    const worker = await import(${JSON.stringify(new URL('../embedding.worker.mjs', import.meta.url).href)});
+    unchanged('embedding import');
+    await import(${JSON.stringify(new URL('../query.worker.mjs', import.meta.url).href)});
+    unchanged('query import');
+    const packets = [];
+    const handle = worker.createEmbeddingCommandHandler(packet => packets.push(packet), {
+      encode: (_source, { onProgress }) => { (${stages.toString()})(onProgress); return ${JSON.stringify(output())}; },
+    });
+    unchanged('handler creation');
+    assert.equal(await handle(${JSON.stringify(command())}), true);
+    assert.equal(packets.at(-1).event.kind, 'result');
+    unchanged('pure embedding command');`;
+  const run = spawnSync(process.execPath, ['--input-type=module', '-e', fixture], { encoding: 'utf8', timeout: 10_000 });
+  assert.equal(run.status, 0, run.stderr || run.error?.message);
 });
 for (const [name, mutate] of [
   ['wrong kind', value => { value.kind = 'wrong'; }], ['extra command', value => { value.filename = 'PRIVATE'; }],
@@ -132,10 +155,10 @@ function nativeFixture(frozen = false) {
       ${frozen ? 'Object.freeze(console);' : ''}
       globalThis.postMessage=packet=>state.packets.push(packet);globalThis.addEventListener=(type,listener)=>state.listeners[type]=listener;
       globalThis.setTimeout=()=>{};\`,context);
-    const cache=new Map(); async function load(url){if(cache.has(url))return cache.get(url);const code=url.endsWith('/embedding-runtime.mjs')?
+    const cache=new Map(); function load(url){if(cache.has(url))return cache.get(url);const code=url.endsWith('/embedding-runtime.mjs')?
       \`export class EmbeddingRuntimeError extends Error{};export async function encodeChunks(){state.calls++;console.error('PRIVATE_TENSOR');throw new Error('PRIVATE_RUNTIME');}\`:fs.readFileSync(new URL(url),'utf8');
-      const mod=new vm.SourceTextModule(code,{context,identifier:url});cache.set(url,mod);await mod.link((specifier,parent)=>load(new URL(specifier,parent.identifier).href));return mod;}
-    const root=await load(${JSON.stringify(sourceURL.href)});await root.evaluate();
+      const mod=new vm.SourceTextModule(code,{context,identifier:url});cache.set(url,mod);return mod;}
+    const root=load(${JSON.stringify(sourceURL.href)});await root.link((specifier,parent)=>load(new URL(specifier,parent.identifier).href));await root.evaluate();
     const before=state.leaks.length; console.log('host console unaffected');
     vm.runInContext('state.listeners.message({data:JSON.parse('+${JSON.stringify(JSON.stringify(JSON.stringify(command())))}+')})',context);await new Promise(done=>setImmediate(done));
     process.stdout.write(JSON.stringify({calls:state.calls,leaks:state.leaks,packets:state.packets,before}));`;

@@ -65,6 +65,74 @@ test('input is synchronously projected, copied, bounded and stripped of unrelate
     chunks: input().chunks } });
   worker.stages(); worker.emit('message', result()); await pending; clean(worker);
 });
+
+test('shared projection ignores inherited array map overrides and owns only id and text', () => {
+  const source = input(), callerChunks = source.chunks;
+  callerChunks[0].privateGeometry = { page: 7 }; let mapReads = 0;
+  source.chunks = new Proxy(callerChunks, { get(target, key, receiver) {
+    if (key === 'map') { mapReads++; return () => callerChunks; }
+    return Reflect.get(target, key, receiver);
+  } });
+  const copied = module.projectEmbeddingInput(source);
+  assert.equal(mapReads, 0);
+  assert.deepEqual(copied, { schemaVersion: 1, status: 'chunked-not-embedded', source: { sha256: HASH },
+    counts: { chunks: 2 }, chunks: [
+      { id: 'PRIVATE_ID_ALPHA', text: 'PRIVATE_TEXT_ALPHA' }, { id: 'PRIVATE_ID_BETA', text: 'PRIVATE_TEXT_BETA' },
+    ] });
+  assert.notEqual(copied.chunks, callerChunks);
+  for (let index = 0; index < callerChunks.length; index++) {
+    assert.notEqual(copied.chunks[index], callerChunks[index]);
+    assert.deepEqual(Reflect.ownKeys(copied.chunks[index]), ['id', 'text']);
+    assert.ok(Object.isFrozen(copied.chunks[index])); assert.equal(Object.isFrozen(callerChunks[index]), false);
+  }
+  assert.equal(Object.isFrozen(callerChunks), false); assert.equal(Object.isFrozen(callerChunks[0].privateGeometry), false);
+});
+
+test('shared projection uses the one validated chunk-array length despite subsequent proxy changes', () => {
+  const source = input(); let lengthReads = 0;
+  source.chunks = new Proxy(source.chunks, { get(target, key, receiver) {
+    if (key === 'length') return ++lengthReads === 1 ? 2 : 1;
+    return Reflect.get(target, key, receiver);
+  } });
+  const copied = module.projectEmbeddingInput(source);
+  assert.deepEqual(copied.chunks, [
+    { id: 'PRIVATE_ID_ALPHA', text: 'PRIVATE_TEXT_ALPHA' }, { id: 'PRIVATE_ID_BETA', text: 'PRIVATE_TEXT_BETA' },
+  ]);
+  assert.equal(copied.counts.chunks, 2); assert.equal(lengthReads, 1);
+});
+
+for (const [name, mutate] of [
+  ['duplicate IDs', chunks => { chunks[1].id = chunks[0].id; }],
+  ['blank ID', chunks => { chunks[0].id = ' '; }], ['long ID', chunks => { chunks[0].id = 'x'.repeat(1025); }],
+  ['blank text', chunks => { chunks[0].text = ' '; }], ['long text', chunks => { chunks[0].text = 'x'.repeat(4097); }],
+  ['non-record chunk', chunks => { chunks[0] = null; }],
+]) test(`shared projection rejects ${name} even when inherited map bypasses its callback`, () => {
+  const source = input(), callerChunks = source.chunks; mutate(callerChunks); let mapReads = 0;
+  source.chunks = new Proxy(callerChunks, { get(target, key, receiver) {
+    if (key === 'map') { mapReads++; return () => callerChunks; }
+    return Reflect.get(target, key, receiver);
+  } });
+  assert.throws(() => module.projectEmbeddingInput(source), code('INVALID_EMBEDDING_CONFIG'));
+  assert.equal(mapReads, 0); assert.equal(Object.isFrozen(callerChunks), false);
+});
+
+test('passage embedding preflight posts detached projected chunks without caller array methods', async () => {
+  const source = input(), callerChunks = source.chunks; callerChunks[0].privateGeometry = { page: 7 }; let mapReads = 0;
+  source.chunks = new Proxy(callerChunks, { get(target, key, receiver) {
+    if (key === 'map') { mapReads++; return () => callerChunks; }
+    return Reflect.get(target, key, receiver);
+  } });
+  const { worker, pending } = start({}, source); worker.ready(); worker.stages(); worker.emit('message', result()); await pending; clean(worker);
+  assert.equal(mapReads, 0); assert.notEqual(worker.sent[0].chunkArtifact.chunks, callerChunks);
+  assert.deepEqual(worker.sent[0].chunkArtifact.chunks, [
+    { id: 'PRIVATE_ID_ALPHA', text: 'PRIVATE_TEXT_ALPHA' }, { id: 'PRIVATE_ID_BETA', text: 'PRIVATE_TEXT_BETA' },
+  ]);
+  for (let index = 0; index < callerChunks.length; index++) {
+    assert.notEqual(worker.sent[0].chunkArtifact.chunks[index], callerChunks[index]);
+    assert.equal(Object.isFrozen(callerChunks[index]), false);
+  }
+  assert.equal(Object.isFrozen(callerChunks[0].privateGeometry), false);
+});
 test('validated progress is detached, frozen and metadata-only', async () => {
   const seen = []; const { worker, pending } = start({ onProgress: value => seen.push(value) });
   worker.ready(); worker.stages(); worker.emit('message', result()); await pending;

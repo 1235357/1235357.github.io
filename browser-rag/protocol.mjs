@@ -11,7 +11,7 @@ const EVENT_KEYS = [...IDENTITY_KEYS, 'kind', 'stage', 'seq', 'payload'];
 const STAGES = new Map([
   ['model-load', ['download', 'initialize']], ['ingest', ['parse', 'index']],
   ['embed', ['download', 'initialize', 'encode']],
-  ['query', ['encode', 'rank', 'context', 'generate', 'release']], ['clear', ['clear']],
+  ['query', ['download', 'initialize', 'encode', 'rank', 'context', 'generate', 'release']], ['clear', ['clear']],
 ]);
 const UNITS = new Set(['bytes', 'pages', 'chunks', 'tokens']);
 const MAX_JSON_BYTES = 256 * 1024;

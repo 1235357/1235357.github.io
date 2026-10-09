@@ -2,6 +2,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createController } from '../protocol.mjs';
 
+test('query vocabulary includes loading without changing other operation stages', () => {
+  const controller = createController('query-runtime'), identity = controller.begin('query');
+  for (const [index, stage] of ['download', 'initialize', 'encode', 'rank', 'context', 'generate', 'release'].entries()) {
+    assert.equal(controller.accept({ ...identity, kind: 'progress', stage, seq: index + 1,
+      payload: { completed: 0, total: null, unit: 'tokens', estimated: false } }).accepted, true);
+  }
+  assert.equal(controller.accept({ ...identity, kind: 'result', stage: 'release', seq: 8, payload: { data: {} } }).accepted, true);
+  const ingest = controller.begin('ingest');
+  assert.deepEqual(controller.accept({ ...ingest, kind: 'progress', stage: 'download', seq: 1,
+    payload: { completed: 0, total: null, unit: 'bytes', estimated: false } }), { accepted: false, reason: 'invalid-stage' });
+});
+
 test('embedding vocabulary accepts only its three stages without changing other operations', () => {
   const controller = createController('embedding-runtime');
   let identity;
@@ -369,7 +381,7 @@ test('unsafe, nonpositive and nonnumeric sequences do not consume a sequence', (
 test('each operation accepts only its declared stage vocabulary', () => {
   const stages = {
     'model-load': ['download', 'initialize'], ingest: ['parse', 'index'],
-    query: ['encode', 'rank', 'context', 'generate', 'release'], clear: ['clear'],
+    query: ['download', 'initialize', 'encode', 'rank', 'context', 'generate', 'release'], clear: ['clear'],
   };
   for (const [operation, allowed] of Object.entries(stages)) {
     const controller = createController(`runtime-${operation}`);

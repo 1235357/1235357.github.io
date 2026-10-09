@@ -429,7 +429,7 @@ in the generic vocabulary; other operations are unchanged.
 
 - [x] TDD shared query encoding and preserve the whole passage/runtime suite;
   obtain SPEC then QUALITY review before committing 3d.2a.
-- [ ] TDD preflight, worker, strict stage/terminal copies, deadlines/cancellation,
+- [x] TDD preflight, worker, strict stage/terminal copies, deadlines/cancellation,
   stale ownership and safe errors; obtain SPEC then QUALITY review for 3d.2b.
 
 Controlled Worker/injected encoder fixtures prove channel behavior, not live
@@ -439,8 +439,26 @@ October 9 shared-encoder checkpoint: independent SPEC and QUALITY reviews passed
 the current implementation, with 72/72 focused runtime tests (51 passage and 21
 query cases). The root-run complete Node suite passed 876/876; the static build
 and asset suite passed 44/44. This accepts the shared query-encoding code and its
-controlled resource/lifecycle behavior only. The owned query channel, visible
-question workflow and actual native query inference have not yet been accepted.
+controlled resource/lifecycle behavior only. At that shared-encoder checkpoint,
+the owned query channel, visible question workflow and actual native query
+inference had not yet been accepted.
+The root then rebuilt/reloaded the actual IAB lab and replayed the selectable-PDF
+passage path with the refactored encoder: 2 native-worker chunks, 24 actual tokens,
+384 dimensions, WebGPU/FP32, verified body 113,629,084 bytes entirely from the
+verified cache, 1248.5 ms attempt elapsed, and no captured warning/error log.
+This is passage-regression evidence on the original synthetic fixture, not native
+query inference, financial accuracy, total traffic measurement or isolated GPU time.
+
+October 9 owned-query-channel checkpoint: renewed independent SPEC (460 focused
+cases) and QUALITY (607 focused cases plus 11 synthetic build cases) passed after
+repairing a caller-array `map` projection bypass. The shared projector now copies
+only bounded, independently owned `id`/`text` fields, never freezes caller chunks,
+and captures the validated row count once. Isolated before-import console tests
+also passed. Root independently ran the whole Node suite (1,081/1,081) and the
+Python static-build/asset suite (46/46), including actual local output promotion.
+This accepts Task 3d.2b's channel, cleanup and build closure only; visible query
+workflow, actual native query inference, generation and financial evaluation
+remain the following gates. No push or publication.
 
 #### Task 3d.3 — visible question-to-source walkthrough and acceptance
 

@@ -12,6 +12,22 @@ import build
 
 
 REPOSITORY_BROWSER = Path(__file__).resolve().parent / 'browser-rag'
+# Build-only graph fixtures let allowlist tests run while worker implementation
+# is developed in parallel. Once present, the real module bytes take precedence.
+QUERY_GRAPH_FIXTURES = {
+    'query-source.mjs': (
+        "import './embedding-source.mjs';\n"
+        "import './embedding-contract.mjs';\n"
+        "import './retrieval.mjs';\n"
+    ),
+    'query.worker.mjs': (
+        "import './query-source.mjs';\n"
+        "import './embedding-runtime.mjs';\n"
+        "import './retrieval.mjs';\n"
+        "import './worker-console.mjs';\n"
+    ),
+    'worker-console.mjs': "import './embedding-source.mjs';\n",
+}
 STATIC_RELATIVE_MJS_IMPORT = re.compile(
     r"^[ \t]*(?:import|export)[ \t]+(?:[^;]*?\bfrom[ \t]+)?['\"](\.{1,2}/[^'\"]+\.mjs)['\"][ \t]*;",
     re.MULTILINE,
@@ -119,6 +135,13 @@ class BrowserAssetsTest(unittest.TestCase):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
                 (self.browser / name).write_text('<!-- fixture -->' if name.endswith('.html') else 'fixture', encoding='utf-8')
+        (self.browser / 'retrieval.mjs').write_bytes((REPOSITORY_BROWSER / 'retrieval.mjs').read_bytes())
+        for name, fixture in QUERY_GRAPH_FIXTURES.items():
+            source = REPOSITORY_BROWSER / name
+            if source.is_file():
+                (self.browser / name).write_bytes(source.read_bytes())
+            else:
+                (self.browser / name).write_text(fixture, encoding='utf-8')
         self.package = self.browser / 'node_modules' / 'pdfjs-dist'
         (self.package / 'build').mkdir(parents=True)
         (self.package / 'package.json').write_text(json.dumps({'version': '6.4.299'}))
@@ -165,8 +188,14 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertNotIn('embedding-runtime.mjs', graph,
                          'The app static graph must not eagerly import the model runtime.')
         worker_graph = static_mjs_graph(output, 'embedding.worker.mjs')
-        self.assertIn('./embedding-runtime.mjs', worker_graph['embedding.worker.mjs'])
-        self.assertIn('./embedding-contract.mjs', worker_graph['embedding-runtime.mjs'])
+        self.assertEqual(worker_graph, {
+            'embedding.worker.mjs': {'./embedding-runtime.mjs', './embedding-source.mjs',
+                                     './worker-console.mjs'},
+            'embedding-runtime.mjs': {'./embedding-contract.mjs'},
+            'embedding-source.mjs': {'./embedding-contract.mjs'},
+            'embedding-contract.mjs': set(),
+            'worker-console.mjs': {'./embedding-source.mjs'},
+        })
         for name in set(graph) | set(worker_graph):
             source = (self.package / name.removeprefix('vendor/') if name.startswith('vendor/')
                       else REPOSITORY_BROWSER / name)
@@ -189,6 +218,56 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertFalse((self.root / '.build-recovery').exists(),
                          'A missing core module must refuse before moving the old output.')
         self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+    def test_named_query_modules_close_the_complete_static_worker_graph(self):
+        (self.browser / 'unknown.mjs').write_bytes(b'PRIVATE UNKNOWN')
+        (self.browser / 'tests').mkdir()
+        (self.browser / 'tests' / 'query.worker.test.mjs').write_bytes(b'NOT RUNTIME')
+        build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        names = ('retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs')
+        for name in names:
+            self.assertTrue((output / name).is_file(), f'fresh build omits {name}')
+            self.assertEqual((output / name).read_bytes(), (self.browser / name).read_bytes(), name)
+        graph = static_mjs_graph(output, 'query.worker.mjs')
+        self.assertEqual(graph, {
+            'query.worker.mjs': {'./query-source.mjs', './embedding-runtime.mjs',
+                                 './retrieval.mjs', './worker-console.mjs'},
+            'query-source.mjs': {'./embedding-source.mjs', './embedding-contract.mjs',
+                                 './retrieval.mjs'},
+            'retrieval.mjs': {'./embedding-source.mjs', './embedding-contract.mjs'},
+            'embedding-source.mjs': {'./embedding-contract.mjs'},
+            'embedding-runtime.mjs': {'./embedding-contract.mjs'},
+            'embedding-contract.mjs': set(),
+            'worker-console.mjs': {'./embedding-source.mjs'},
+        })
+        for name in graph:
+            self.assertEqual((output / name).read_bytes(), (self.browser / name).read_bytes(), name)
+        for relative in ('embedding.worker.mjs', 'compute.worker.mjs', 'pdf-session.mjs'):
+            self.assertNotIn(relative, graph, 'Query workers must not register another worker handler.')
+        for relative in ('embedding-assets.json', 'models', 'vendor/transformers', 'notices',
+                         'node_modules', 'tests', 'secret.env', 'unknown.mjs'):
+            self.assertFalse((output / relative).exists(), relative)
+
+    def test_missing_each_query_module_refuses_before_promotion_and_retains_all_previous_bytes(self):
+        build.build()
+        previous_binary = self.root / 'dist' / 'prior-output' / 'binary.bin'
+        previous_binary.parent.mkdir()
+        previous_binary.write_bytes(bytes(range(256)))
+        before = fixtures.file_snapshot(self.root / 'dist')
+        for name in ('retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs'):
+            with self.subTest(name=name):
+                source = self.browser / name
+                data = source.read_bytes()
+                source.unlink()
+                try:
+                    with self.assertRaisesRegex((ValueError, FileNotFoundError), re.escape(name)):
+                        build.build()
+                    self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+                    self.assertFalse((self.root / '.build-recovery').exists())
+                    self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+                finally:
+                    source.write_bytes(data)
 
     def test_named_compute_modules_are_delivered_without_test_sources(self):
         (self.browser / 'tests').mkdir()

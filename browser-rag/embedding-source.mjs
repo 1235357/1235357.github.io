@@ -36,10 +36,11 @@ const exact = (value, keys) => record(value) && Reflect.ownKeys(value).length ==
 const positive = value => Number.isSafeInteger(value) && value > 0;
 const nonnegative = value => Number.isSafeInteger(value) && value >= 0;
 const same = (a, b, keys) => keys.every(key => a[key] === b[key]);
-function dense(value, max) {
-  if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype || value.length > max
-      || Reflect.ownKeys(value).length !== value.length + 1) return false;
-  for (let i = 0; i < value.length; i++) {
+function dense(value, max, length) {
+  if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return false;
+  if (length === undefined) length = value.length;
+  if (!nonnegative(length) || length > max || Reflect.ownKeys(value).length !== length + 1) return false;
+  for (let i = 0; i < length; i++) {
     const entry = Object.getOwnPropertyDescriptor(value, i);
     if (entry?.enumerable !== true || !Object.hasOwn(entry, 'value')) return false;
   }
@@ -70,18 +71,22 @@ export function projectEmbeddingInput(artifact) {
     const { schemaVersion, status, source, counts, chunks: sourceChunks } = artifact;
     if (schemaVersion !== 1 || status !== 'chunked-not-embedded' || !record(source) || !record(counts)) fail('INVALID_EMBEDDING_CONFIG');
     const sha256 = source.sha256, chunkCount = counts.chunks;
+    if (!Array.isArray(sourceChunks)) fail('INVALID_EMBEDDING_CONFIG');
+    const length = sourceChunks.length;
     if (typeof sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(sha256)
-        || !dense(sourceChunks, EMBEDDING_SPEC.maxChunks) || sourceChunks.length < 1
-        || chunkCount !== sourceChunks.length) fail('INVALID_EMBEDDING_CONFIG');
-    const ids = new Set();
-    const chunks = sourceChunks.map(chunk => {
+        || !positive(length) || length > EMBEDDING_SPEC.maxChunks || chunkCount !== length
+        || !dense(sourceChunks, EMBEDDING_SPEC.maxChunks, length)) fail('INVALID_EMBEDDING_CONFIG');
+    const ids = new Set(), chunks = [];
+    // Read only bounded indices; inherited array methods belong to the caller.
+    for (let index = 0; index < length; index++) {
+      const chunk = sourceChunks[index];
       if (!record(chunk)) fail('INVALID_EMBEDDING_CONFIG');
       const { id, text } = chunk;
       if (typeof id !== 'string' || !id.trim() || id.length > 1024
           || ids.has(id) || typeof text !== 'string' || !text.trim()
           || text.length > 4096) fail('INVALID_EMBEDDING_CONFIG');
-      ids.add(id); return { id, text };
-    });
+      ids.add(id); chunks.push({ id, text });
+    }
     return freeze({ schemaVersion: 1, status: 'chunked-not-embedded', source: { sha256 },
       counts: { chunks: chunks.length }, chunks });
   } catch { fail('INVALID_EMBEDDING_CONFIG'); }
