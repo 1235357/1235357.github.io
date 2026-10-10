@@ -324,6 +324,28 @@ Python BGE matrix into a browser demo. Matching dimensions is necessary but not
 sufficient. Retrieval similarity and financially checked release remain
 different responsibilities even when all computation moves into a browser.
 
+### The generator has a different token budget
+
+The next browser increment is still **planned, not a running generator**. Its
+first declared software window reserves 128 output tokens within a combined
+2,048-token prompt/output ceiling. That leaves at most 1,920 input tokens, not
+2,048 tokens of evidence. The input includes the system instruction, your exact
+question, selected evidence headers and text, chat-role delimiters and the
+assistant-generation prefix. It must be counted with the paired Qwen tokenizer
+after rendering the complete prompt, without silent truncation. Neither 512
+UTF-16 units per chunk nor MiniLM's 256-ID encoding budget answers that question.
+
+The [fixed Qwen model configuration](https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/blob/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/config.json)
+declares 32,768 model positions. That architectural limit does not prove a
+reader's GPU can run that context; the smaller 2,048-token pilot limit is a
+software policy, not a measured memory guarantee. For rehearsal, suppose the
+whole rendered prompt has 1,921 tokens and the output cap is 128. Explain why the
+first policy must refuse it even though it is far below 32,768. Shortening your
+question invisibly would change the request; cutting a financial quote could
+remove its period or unit. A future explicit whole-evidence omission policy must
+retain its omissions and recount the exact prompt rather than claim all
+candidates reached the model.
+
 1. Hand-calculate the two-dimensional cosine example without an assistant.
 2. Find normalization, candidate selection and sorting in the source.
 3. Explain why the report year can differ from a financial column year.

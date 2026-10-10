@@ -793,6 +793,87 @@ assistant-generation prefix. Render and count the full selected evidence without
 silent truncation. No generator weights were downloaded by this inspection, and
 the existing MiniLM byte/memory verifier is not a generator acceptance gate.
 
+<details>
+<summary>Task 4 — owned real generation: execution checklist, October 9</summary>
+
+This continues step 4 of the approved browser plan, not another architecture
+selection. It must finish with a real local model invocation, preserved raw
+output and a separately evaluated release/refusal outcome. A context builder or
+test double cannot complete it.
+
+1. **Token and sequence contract — implemented, pure checks only.** Added
+   `browser-rag/generator-contract.mjs` and behavior tests. Pin the selected whole
+   Qwen revision, q4/WebGPU identity, 32,768 model positions and 151,936 vocabulary
+   entries. Use a conservative declared 2,048-token **combined prompt/output**
+   ceiling for the first experiment; it is a software budget, not proof of GPU
+   capacity. Count the entire rendered prompt without truncation, reserve an
+   explicit output cap, reject invalid IDs/budgets and retain a detached frozen
+   copy. Override sampling, beam/return-sequence count, EOS/pad and output cap.
+   Validate the SDK's prompt-plus-suffix IDs by exact prompt prefix and numeric
+   vocabulary range. Distinguish EOS, exhausted cap, incomplete and empty output;
+   only an EOS receipt is not yet a factual release decision. This pure task
+   downloads no model, changes no accepted query/UI channel and claims no native
+   generation acceptance.
+2. **Context and provenance.** Capture the complete accepted source/chunks plus
+   the independently recomputed retrieval, not the encoder's `{id, text}`
+   projection. Resolve candidate ordinal/ID to physical page, PDF label, exact
+   quote and source-span ranges. Assemble fixed evidence units with stable
+   citation IDs and explicit whole-unit omissions. Preserve the raw question and
+   treat source text as untrusted data. Render the pinned chat template with
+   `tokenize:false, add_generation_prompt:true`; tokenize that whole rendered
+   string with explicit `add_special_tokens:false, padding:false,
+   truncation:false, return_tensor:false`. The first budget policy refuses excess
+   context; any later whole-unit reduction must be explicit and recounted.
+3. **Separate verified generator assets.** Fixed metadata is not downloaded-byte
+   acceptance. Use a distinct exact asset registry for the paired config,
+   tokenizer/chat template, generation config, q4 ONNX weight, runtime and
+   notices. The selected weight alone is 786,156,820 bytes; MiniLM's 100 MiB/file
+   and 128 MiB/total verifier cannot simply be reused with raised caps and repeated
+   giant copies. Bound large/small files, retained buffers and total bytes;
+   rehash cache reads, prohibit unreviewed SDK fetches/redirects and keep the
+   failed-build recovery boundary. Conversion provenance/redistribution notices
+   remain a separate acceptance gate.
+4. **Runtime and ownership.** Add `generator.mjs`, a dedicated generation worker
+   command/adapter and generator stage guard while preserving the accepted query
+   worker. Parent-owned ready/work deadlines must terminate an unresponsive
+   worker: installed Transformers.js 3.8.1 does not wire `max_time` into its
+   stopping criteria. Serialize heavy work, retain late-resource disposal and
+   GPU-loss handling, use controlled token callbacks rather than the streamer's
+   default console logging, and dispose owned inputs/outputs/model/device.
+   Question edits, requery, clear, document replacement, rechunk and re-embed
+   revoke context/draft/release before cancellation callbacks can reenter.
+5. **Release and independent evaluation.** Add `release-policy.mjs`. Preserve
+   unmodified decoded output even on refusal. Citation IDs must resolve to the
+   selected source SHA/page/spans; financial period, metric, value, unit and
+   column relationships need separate checks. Valid JSON/citation syntax or a
+   matching number is insufficient. Freeze source-reviewed held-out financial,
+   ambiguous, unanswerable and injection cases before tuning; do not weaken the
+   gate to hide a small model's failure.
+6. **Native acceptance, not test-only success.** After independent SPEC then
+   QUALITY review, run selected PDF → accepted query → exact prompt → real
+   pinned local generation → retained draft → release/refusal in Codex IAB and
+   the article iframe. Record real tokens/settings/model identity/termination,
+   TTFT and total boundaries, cancellation/replacement/failures and cold/warm
+   requests. Network/privacy, disabled-network warm use, permission-reviewed
+   NVIDIA examples, broader evaluation, API integration and Pages-prefix
+   acceptance stay separate. Nothing is pushed or published by these tasks.
+
+Current task status: token/sequence contract **implemented and independently
+reviewed**. Its actual RED was a missing `GENERATION_SPEC` export; GREEN is
+84/84 focused tests. Root reran the whole Node suite at 1,204/1,204 and the static
+Python suite at 47/47. A fresh SPEC reviewer independently passed 84 tests and
+5,051 bounded oracle assertions; a separate QUALITY reviewer passed 84 tests and
+521 additional assertions, with no actionable findings. The module accepts
+`preflightGeneration` and `inspectGeneratedSequence` receipts whose
+`generationMode` is deliberately `not-run`; it checks IDs, budgets, exact
+settings and sequence termination, not model bytes, decoding or financial truth.
+Context, generator assets, runtime, release and native generation remain
+unimplemented. The
+standalone and embedded MiniLM query acceptance is the previous checkpoint,
+not completion of this list.
+
+</details>
+
 Two data entrances remain in scope: explicitly selected reader PDFs and NVIDIA
 samples only after permission review. Browser PDF/index/model/cache artifacts need
 their own identities and evaluations; no reuse of the Python 0.78 threshold as a
