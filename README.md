@@ -867,10 +867,103 @@ Python suite at 47/47. A fresh SPEC reviewer independently passed 84 tests and
 `preflightGeneration` and `inspectGeneratedSequence` receipts whose
 `generationMode` is deliberately `not-run`; it checks IDs, budgets, exact
 settings and sequence termination, not model bytes, decoding or financial truth.
-Context, generator assets, runtime, release and native generation remain
-unimplemented. The
-standalone and embedded MiniLM query acceptance is the previous checkpoint,
-not completion of this list.
+The pure provenance context is accepted separately below. Prompt construction,
+verified generator assets, runtime, release and native generation remain
+unimplemented. The standalone and embedded MiniLM query acceptance is the
+previous UI checkpoint, not completion of this list.
+
+<details>
+<summary>Task 4.2a — pure provenance context: current-chat implementation plan</summary>
+
+The accepted lifecycle repair is the prerequisite, not the end of generation
+work. This increment assembles a detached evidence record only: no UI enablement,
+prompt rendering, Qwen tokenization, model download, inference or answer release.
+
+1. Export `copyValidatedChunkArtifact(source, artifact)` from the existing
+   `compute-source.mjs`. Own only bounded consumed source fields before use;
+   ignore geometry/extractor extras. Require page ordinals, page SHA/parser
+   identity, original item ordinals, deterministic full-item spans and actual
+   text/empty status to agree with the accepted source contract. Read bounded
+   array indices rather than caller-owned `map`; never freeze the caller.
+2. Strengthen the shared full-artifact checker, and reuse it in the existing
+   worker terminal path. Validate the declared mechanical windows completely:
+   first start zero, exact surrogate-safe end/next/overlap, every text page and
+   final end covered, no skipped/extra/reordered windows. Use finite source-item
+   coordinates and code-unit reads, not main-thread page joining, substring
+   rechunking or another invocation of `chunkSource`. Continue checking every
+   exact source/presentation segment and aggregate count. Only known validated
+   fields are copied/frozen; fixed safe errors must not include source content.
+   The public two-argument copier derives declared window settings within global
+   caps, but the worker path must also retain its requested settings, reduced
+   output budgets and terminal receipt equality; public validation cannot weaken
+   per-request constraints. Valid blank mechanical windows stay intact, even
+   when the later encoder's existing nonblank-input policy refuses them.
+3. Add `context-contract.mjs` with
+   `assembleProvenanceContext({source, chunkArtifact, embeddingArtifact, question,
+   queryResult, topK, queryDownloadTotal, queryMetadata})`. Require all eight
+   fields with no extras, raw nonblank question at most 4,096 UTF-16 units,
+   top K integer 1–512, and explicit query download/terminal metadata. Undefined
+   values cannot satisfy the required fields; terminal metadata must be an exact
+   `{query,retrieval}` record rather than invoking optional shared defaults.
+   Compose the full
+   chunk copier, shared encoder projection, `copyQueryPassages` and
+   `copyQueryResult`; the latter independently recomputes exact ranking and
+   checks every candidate and receipt. Do not accept an `{id,text}` projection
+   as full provenance or build another cosine implementation.
+4. Return schema version 1, status `context-not-generated`, exact raw `question`,
+   detached source/parser/numPages/workerMode/chunker/counts headers,
+   representation, full verified `query` and `retrieval`, ranked `evidenceUnits`
+   and `omissions: []`. Each complete unit has citation ID `E${ordinal+1}`
+   (stable in this accepted source order, not ranking order), one-based rank,
+   ordinal, score/dotProduct/chunkNorm, chunkId, physical page, nullable PDF
+   label, joined-page UTF-16 window, exact text and full source/presentation
+   segments. Preserve whitespace and Unicode; no trimming, deduplication,
+   partial quote, implicit budget reduction or factual-validity label.
+5. Write behavior tests first using real `createPageRecord` → `chunkSource`
+   fixtures and the shared embedding/query/ranking contracts with synthetic
+   unit vectors. Observe RED before implementation, then GREEN; test reordered
+   ranks, null/repeated labels, surrogate-safe overlap, omitted pages/windows
+   with recalculated counts, changed SHA/parser/item/span/status, broken
+   projection/embedding/ranking/metadata, bounded arrays, detached ownership,
+   ignored geometry and fixed private-safe errors. Run independent SPEC then
+   QUALITY review and all existing Node/static-build regressions.
+
+The module validates consistency, not trusted publication of a PDF or semantic
+binding of a raw question to its vector. That binding belongs to the already
+owned query operation and later session integration. UTF-16 units are not model
+tokens. Exact chat-template rendering and complete prompt token accounting are
+the next 4.2b gate; native generation, release policy and independent financial
+evaluation remain open. This step must not claim any of those accepted.
+
+Status: **implemented and independently accepted as a pure consistency
+contract, October 10**. The implementer reported behavioral RED before
+production edits: 211 focused tests, 112 passing and 99 failing, including
+missing exports and accepted omitted-window cases. Fresh SPEC review passed
+211/211 tests plus 5,250 real source/chunker differential comparisons. A separate
+QUALITY review passed 578/578 context, compute, embedding-source and query-source
+tests, including bounded assertions at 2,000,000 source UTF-16 units, 100,000
+items, 10,000 chunks and 512 pages/candidates. No actionable code finding
+remained; the misleading comment about a second cosine scan was corrected to
+describe reuse of the same ranker implementation. Root reran all Node tests at
+1,312/1,312 and static build/assets tests at 47/47. These checks do not prove
+source rights, semantic question/vector binding, a browser generation run or
+financial quality. The new context module is not yet wired into or shipped by
+the preview runtime's explicit module allowlist.
+
+For the next 4.2b step, root read the fixed
+[Qwen tokenizer configuration](https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/blob/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/tokenizer_config.json)
+in Codex IAB and downloaded only that 7,849-byte JSON file. Its SHA-256 is
+`6a14243f0ae04884e597b3f032c05e15de9f417318fdcac24ab4e2680e691430`.
+A separate read-only audit of installed SDK 3.8.1 confirmed that explicit
+`tokenize:false` template rendering yields one string and a single-string,
+`return_tensor:false` tokenizer call yields flat ID/mask arrays. It also found
+that `add_special_tokens:false` does not suppress reserved-token spellings in
+source text. Data-only JSON must be losslessly escaped before template rendering;
+the actual template delimiters must remain intact. This is research for the
+owned prompt/asset implementation, not downloaded-tokenizer, injection-resistance
+or inference acceptance. No generator weights were downloaded.
+
+</details>
 
 </details>
 

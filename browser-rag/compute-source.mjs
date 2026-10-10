@@ -15,6 +15,11 @@ const EVENT_KEYS = [...IDENTITY_KEYS, 'kind', 'stage', 'seq', 'payload'];
 const SOURCE_KEYS = ['sha256', 'name', 'size'];
 const PARSER_KEYS = ['name', 'version', 'policyVersion', 'disableNormalization'];
 const COUNTS_KEYS = ['chunks', 'outputUtf16', 'fragments'];
+const ARTIFACT_KEYS = ['schemaVersion', 'status', 'source', 'parser', 'numPages', 'workerMode', 'chunker', 'counts', 'chunks'];
+const CHUNKER_KEYS = ['version', 'maxChunkUtf16', 'overlapUtf16', 'separator', 'order'];
+const CHUNK_KEYS = ['id', 'physicalPageNumber', 'pageLabel', 'startUtf16', 'endUtf16', 'text', 'segments'];
+const SOURCE_SEGMENT_KEYS = ['kind', 'sourceSpanId', 'itemIndex', 'startUtf16', 'endUtf16', 'quote', 'chunkStartUtf16', 'chunkEndUtf16'];
+const PRESENTATION_SEGMENT_KEYS = ['kind', 'text', 'chunkStartUtf16', 'chunkEndUtf16'];
 const DEFAULTS = Object.freeze({ maxChunkUtf16: 512, overlapUtf16: 64,
   maxChunks: 10000, maxOutputUtf16: 4000000, maxFragments: 200000 });
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -54,8 +59,18 @@ function chunkConfig(options) {
 }
 
 function sameFields(a, b, fields) { return fields.every(key => a[key] === b[key]); }
+function fields(value, keys) {
+  const owned = {};
+  for (const key of keys) owned[key] = value[key];
+  return owned;
+}
+function snapshot(value, keys) {
+  if (!exact(value, keys)) fail('WORKER_PROTOCOL_ERROR');
+  return fields(value, keys);
+}
 function dense(array, maximum) {
-  if (!Array.isArray(array) || array.length > maximum || Reflect.ownKeys(array).length !== array.length + 1) return false;
+  if (!Array.isArray(array) || Object.getPrototypeOf(array) !== Array.prototype
+      || array.length > maximum || Reflect.ownKeys(array).length !== array.length + 1) return false;
   for (let index = 0; index < array.length; index++) if (!Object.hasOwn(array, index)) return false;
   return true;
 }
@@ -65,80 +80,118 @@ function dense(array, maximum) {
 // introduce no authored separator, exactly as the accepted chunker contract.
 function pageCoordinates(page) {
   let length = 0, hasRun = false;
-  const itemStarts = [], separators = new Set();
+  const runs = [];
   for (const item of page.textItems) {
-    if (item.text.length === 0) { itemStarts.push(null); continue; }
-    if (hasRun) { separators.add(length); length++; }
-    itemStarts.push(length); length += item.text.length; hasRun = true;
+    if (item.text.length === 0) continue;
+    if (hasRun) { runs.push({ kind: 'presentation', start: length, end: length + 1 }); length++; }
+    runs.push({ kind: 'source', start: length, end: length + item.text.length, item });
+    length += item.text.length; hasRun = true;
   }
-  return { length, itemStarts, separators };
+  return { length, runs };
 }
 
-// Walk the known finite artifact schema before copying/freezing it. This checks
-// attribution and receipts; it deliberately does not rechunk/join pages or run
-// chunkSource on the main thread. The worker remains responsible for windows.
-function copyArtifact(artifact, source, config, receipt) {
-  if (!exact(artifact, ['schemaVersion', 'status', 'source', 'parser', 'numPages', 'workerMode', 'chunker', 'counts', 'chunks'])
-      || artifact.schemaVersion !== 1 || artifact.status !== 'chunked-not-embedded'
-      || !exact(artifact.source, SOURCE_KEYS) || !sameFields(artifact.source, source.source, SOURCE_KEYS)
-      || !exact(artifact.parser, PARSER_KEYS) || !sameFields(artifact.parser, source.parser, PARSER_KEYS)
+function firstIntersectingRun(runs, offset) {
+  let low = 0, high = runs.length;
+  while (low < high) {
+    const middle = low + Math.floor((high - low) / 2);
+    if (runs[middle].end <= offset) low = middle + 1; else high = middle;
+  }
+  return low;
+}
+function codeUnitAt(position, offset) {
+  const run = position.runs[firstIntersectingRun(position.runs, offset)];
+  return run.kind === 'presentation' ? 10 : run.item.text.charCodeAt(offset - run.start);
+}
+function insidePair(position, offset) {
+  if (offset <= 0 || offset >= position.length) return false;
+  const high = codeUnitAt(position, offset - 1), low = codeUnitAt(position, offset);
+  return high >= 0xD800 && high <= 0xDBFF && low >= 0xDC00 && low <= 0xDFFF;
+}
+
+// Verify the declared mechanical windows using finite item coordinates and
+// code-unit reads. No joined page, rechunked substring, or second chunkSource
+// invocation is constructed. Copy only the same known values we validate.
+function copyArtifact(artifact, source, requestedConfig, receipt) {
+  artifact = snapshot(artifact, ARTIFACT_KEYS);
+  artifact.source = snapshot(artifact.source, SOURCE_KEYS);
+  artifact.parser = snapshot(artifact.parser, PARSER_KEYS);
+  artifact.chunker = snapshot(artifact.chunker, CHUNKER_KEYS);
+  artifact.counts = snapshot(artifact.counts, COUNTS_KEYS);
+  const config = requestedConfig ?? chunkConfig({ maxChunkUtf16: artifact.chunker.maxChunkUtf16,
+    overlapUtf16: artifact.chunker.overlapUtf16 });
+  if (artifact.schemaVersion !== 1 || artifact.status !== 'chunked-not-embedded'
+      || !sameFields(artifact.source, source.source, SOURCE_KEYS)
+      || !sameFields(artifact.parser, source.parser, PARSER_KEYS)
       || artifact.numPages !== source.numPages || artifact.workerMode !== source.workerMode
-      || !exact(artifact.chunker, ['version', 'maxChunkUtf16', 'overlapUtf16', 'separator', 'order'])
       || artifact.chunker.version !== 'page-parser-order-v1' || artifact.chunker.maxChunkUtf16 !== config.maxChunkUtf16
       || artifact.chunker.overlapUtf16 !== config.overlapUtf16 || artifact.chunker.separator !== '\n'
-      || artifact.chunker.order !== 'parser-item-order' || !exact(artifact.counts, COUNTS_KEYS)
-      || !sameFields(artifact.counts, receipt.counts, COUNTS_KEYS)
+      || artifact.chunker.order !== 'parser-item-order'
+      || (receipt !== undefined && !sameFields(artifact.counts, receipt.counts, COUNTS_KEYS))
       || !dense(artifact.chunks, config.maxChunks) || artifact.chunks.length !== artifact.counts.chunks
       || !positive(artifact.counts.chunks) || !positive(artifact.counts.outputUtf16) || !positive(artifact.counts.fragments)
       || artifact.counts.outputUtf16 > config.maxOutputUtf16 || artifact.counts.fragments > config.maxFragments) fail('WORKER_PROTOCOL_ERROR');
-  const coordinates = source.pages.map(pageCoordinates);
-  let outputUtf16 = 0, fragments = 0, previousPage = 0, previousStart = -1;
-  for (const chunk of artifact.chunks) {
-    if (!exact(chunk, ['id', 'physicalPageNumber', 'pageLabel', 'startUtf16', 'endUtf16', 'text', 'segments'])
-        || !positive(chunk.physicalPageNumber) || chunk.physicalPageNumber > source.numPages
-        || chunk.physicalPageNumber < previousPage || !Number.isSafeInteger(chunk.startUtf16) || chunk.startUtf16 < 0
-        || !Number.isSafeInteger(chunk.endUtf16) || chunk.endUtf16 <= chunk.startUtf16
-        || !boundedText(chunk.text, config.maxChunkUtf16) || chunk.text.length !== chunk.endUtf16 - chunk.startUtf16
-        || !dense(chunk.segments, config.maxFragments - fragments)) fail('WORKER_PROTOCOL_ERROR');
-    const page = source.pages[chunk.physicalPageNumber - 1];
-    const position = coordinates[chunk.physicalPageNumber - 1];
-    if (!page || page.physicalPageNumber !== chunk.physicalPageNumber || page.pageLabel !== chunk.pageLabel
-        || page.status !== 'text' || chunk.endUtf16 > position.length
-        || (chunk.physicalPageNumber === previousPage && chunk.startUtf16 <= previousStart)
-        || chunk.id !== `${source.source.sha256}/pdfjs-${source.parser.version}/${source.parser.policyVersion}`
-          + `/page-parser-order-v1/m${config.maxChunkUtf16}/o${config.overlapUtf16}`
-          + `/p${chunk.physicalPageNumber}/u16-${chunk.startUtf16}-${chunk.endUtf16}`) fail('WORKER_PROTOCOL_ERROR');
-    previousPage = chunk.physicalPageNumber; previousStart = chunk.startUtf16;
-    outputUtf16 += chunk.text.length; fragments += chunk.segments.length;
-    if (outputUtf16 > config.maxOutputUtf16 || fragments > config.maxFragments) fail('WORKER_PROTOCOL_ERROR');
-    let offset = 0;
-    for (const segment of chunk.segments) {
-      if (!record(segment) || segment.chunkStartUtf16 !== offset || !positive(segment.chunkEndUtf16)
-          || segment.chunkEndUtf16 <= offset || segment.chunkEndUtf16 > chunk.text.length) fail('WORKER_PROTOCOL_ERROR');
-      if (segment.kind === 'source') {
-        if (!exact(segment, ['kind', 'sourceSpanId', 'itemIndex', 'startUtf16', 'endUtf16', 'quote', 'chunkStartUtf16', 'chunkEndUtf16'])
-            || !Number.isSafeInteger(segment.itemIndex) || segment.itemIndex < 0 || !Number.isSafeInteger(segment.startUtf16)
-            || segment.startUtf16 < 0 || !positive(segment.endUtf16) || segment.endUtf16 <= segment.startUtf16
-            || !boundedText(segment.quote, config.maxChunkUtf16)) fail('WORKER_PROTOCOL_ERROR');
-        const item = page.textItems[segment.itemIndex];
-        if (!item || segment.sourceSpanId !== item.span.id || segment.endUtf16 > item.text.length
-            || position.itemStarts[segment.itemIndex] === null
-            || chunk.startUtf16 + segment.chunkStartUtf16 !== position.itemStarts[segment.itemIndex] + segment.startUtf16
-            || chunk.startUtf16 + segment.chunkEndUtf16 !== position.itemStarts[segment.itemIndex] + segment.endUtf16
-            || segment.quote !== item.text.slice(segment.startUtf16, segment.endUtf16)
-            || segment.quote !== chunk.text.slice(offset, segment.chunkEndUtf16)) fail('WORKER_PROTOCOL_ERROR');
-      } else if (segment.kind === 'presentation') {
-        if (!exact(segment, ['kind', 'text', 'chunkStartUtf16', 'chunkEndUtf16']) || segment.text !== '\n'
-            || segment.chunkEndUtf16 !== offset + 1
-            || !position.separators.has(chunk.startUtf16 + segment.chunkStartUtf16)
-            || chunk.text.slice(offset, segment.chunkEndUtf16) !== '\n') fail('WORKER_PROTOCOL_ERROR');
-      } else fail('WORKER_PROTOCOL_ERROR');
-      offset = segment.chunkEndUtf16;
+  let outputUtf16 = 0, fragments = 0, chunkIndex = 0;
+  const chunks = [], prefix = `${source.source.sha256}/pdfjs-${source.parser.version}/${source.parser.policyVersion}`
+    + `/page-parser-order-v1/m${config.maxChunkUtf16}/o${config.overlapUtf16}`;
+  for (const page of source.pages) {
+    if (page.status === 'empty') continue;
+    const position = pageCoordinates(page);
+    let start = 0;
+    while (start < position.length) {
+      let end = Math.min(start + config.maxChunkUtf16, position.length);
+      if (insidePair(position, end)) end--;
+      if (chunkIndex >= artifact.chunks.length) fail('WORKER_PROTOCOL_ERROR');
+      const chunk = snapshot(artifact.chunks[chunkIndex], CHUNK_KEYS);
+      if (chunk.physicalPageNumber !== page.physicalPageNumber || chunk.pageLabel !== page.pageLabel
+          || chunk.startUtf16 !== start || chunk.endUtf16 !== end
+          || chunk.id !== `${prefix}/p${page.physicalPageNumber}/u16-${start}-${end}`
+          || !boundedText(chunk.text, config.maxChunkUtf16) || chunk.text.length !== end - start
+          || !dense(chunk.segments, config.maxFragments - fragments)) fail('WORKER_PROTOCOL_ERROR');
+      outputUtf16 += chunk.text.length; fragments += chunk.segments.length;
+      if (outputUtf16 > config.maxOutputUtf16 || fragments > config.maxFragments) fail('WORKER_PROTOCOL_ERROR');
+      const segments = [];
+      let segmentIndex = 0;
+      for (let runIndex = firstIntersectingRun(position.runs, start);
+        runIndex < position.runs.length && position.runs[runIndex].start < end; runIndex++) {
+        const run = position.runs[runIndex], from = Math.max(run.start, start), to = Math.min(run.end, end);
+        if (segmentIndex >= chunk.segments.length) fail('WORKER_PROTOCOL_ERROR');
+        const segment = snapshot(chunk.segments[segmentIndex], run.kind === 'source' ? SOURCE_SEGMENT_KEYS : PRESENTATION_SEGMENT_KEYS);
+        if (segment.kind !== run.kind || segment.chunkStartUtf16 !== from - start
+            || segment.chunkEndUtf16 !== to - start) fail('WORKER_PROTOCOL_ERROR');
+        if (run.kind === 'source') {
+          const item = run.item, itemStart = from - run.start, itemEnd = to - run.start;
+          if (segment.itemIndex !== item.itemIndex || segment.sourceSpanId !== item.span.id
+              || segment.startUtf16 !== itemStart || segment.endUtf16 !== itemEnd
+              || !boundedText(segment.quote, config.maxChunkUtf16) || segment.quote.length !== to - from) fail('WORKER_PROTOCOL_ERROR');
+          for (let offset = 0; offset < to - from; offset++) {
+            const unit = item.text.charCodeAt(itemStart + offset);
+            if (segment.quote.charCodeAt(offset) !== unit || chunk.text.charCodeAt(from - start + offset) !== unit) fail('WORKER_PROTOCOL_ERROR');
+          }
+        } else if (segment.text !== '\n' || chunk.text.charCodeAt(from - start) !== 10) fail('WORKER_PROTOCOL_ERROR');
+        segments.push(segment); segmentIndex++;
+      }
+      if (segmentIndex !== chunk.segments.length) fail('WORKER_PROTOCOL_ERROR');
+      chunk.segments = segments; chunks.push(chunk); chunkIndex++;
+      if (end === position.length) break;
+      let next = end - config.overlapUtf16;
+      if (insidePair(position, next)) next++;
+      start = next > start ? next : end;
     }
-    if (offset !== chunk.text.length) fail('WORKER_PROTOCOL_ERROR');
   }
-  if (outputUtf16 !== artifact.counts.outputUtf16 || fragments !== artifact.counts.fragments) fail('WORKER_PROTOCOL_ERROR');
-  return freeze(structuredClone(artifact));
+  if (chunkIndex !== artifact.chunks.length || outputUtf16 !== artifact.counts.outputUtf16
+      || fragments !== artifact.counts.fragments) fail('WORKER_PROTOCOL_ERROR');
+  artifact.chunks = chunks;
+  return freeze(artifact);
+}
+
+// Public two-argument provenance boundary uses global output caps and the
+// artifact's validated declared settings. Worker validation keeps the caller's
+// requested settings, reduced output budgets and terminal count equality.
+export function copyValidatedChunkArtifact(source, artifact) {
+  try { source = projectSource(source); }
+  catch { fail('INVALID_SOURCE'); }
+  try { return copyArtifact(artifact, source); }
+  catch { fail('WORKER_PROTOCOL_ERROR'); }
 }
 
 function freeze(value) {
@@ -157,50 +210,53 @@ function receiptValid(data, source) {
     && COUNTS_KEYS.every(key => positive(data.counts[key]));
 }
 
-function validSourceHeader(source) {
-  return record(source) && source.schemaVersion === 1 && source.status === 'extracted-not-indexed'
-    && record(source.source) && typeof source.source.sha256 === 'string' && /^[a-f0-9]{64}$/.test(source.source.sha256)
-    && boundedText(source.source.name, 4096) && positive(source.source.size)
-    && record(source.parser) && source.parser.name === 'pdfjs' && source.parser.version === '6.4.299'
-    && source.parser.policyVersion === 'text-items-v1' && source.parser.disableNormalization === true
-    && ['native', 'node-fake'].includes(source.workerMode) && positive(source.numPages) && source.numPages <= 512
-    && dense(source.pages, 512) && source.pages.length === source.numPages;
-}
-
 // Own only the fields consumed by the chunker before the first asynchronous
 // boundary. Geometry and extractor extras are neither needed nor copied. The
 // projection is bounded; it does not join pages or calculate chunk windows.
 function projectSource(source) {
-  if (!validSourceHeader(source)) fail('INVALID_SOURCE');
+  if (!record(source)) fail('INVALID_SOURCE');
+  source = fields(source, ['schemaVersion', 'status', 'source', 'parser', 'numPages', 'workerMode', 'pages']);
+  if (!record(source.source) || !record(source.parser)) fail('INVALID_SOURCE');
+  source.source = fields(source.source, SOURCE_KEYS); source.parser = fields(source.parser, PARSER_KEYS);
+  if (source.schemaVersion !== 1 || source.status !== 'extracted-not-indexed'
+      || typeof source.source.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(source.source.sha256)
+      || !boundedText(source.source.name, 4096) || !positive(source.source.size)
+      || source.parser.name !== 'pdfjs' || source.parser.version !== '6.4.299'
+      || source.parser.policyVersion !== 'text-items-v1' || source.parser.disableNormalization !== true
+      || !['native', 'node-fake'].includes(source.workerMode) || !positive(source.numPages) || source.numPages > 512
+      || !dense(source.pages, 512) || source.pages.length !== source.numPages) fail('INVALID_SOURCE');
   let items = 0, textUtf16 = 0;
-  const pages = source.pages.map(page => {
-    if (!record(page) || !positive(page.physicalPageNumber)
-        || (page.pageLabel !== null && !boundedText(page.pageLabel, 4096))
-        || typeof page.sourceSha256 !== 'string' || !/^[a-f0-9]{64}$/.test(page.sourceSha256)
-        || !boundedText(page.parserVersion, 64) || !boundedText(page.policyVersion, 64)
-        || !['text', 'empty'].includes(page.status)
+  const pages = [];
+  for (let pageIndex = 0; pageIndex < source.pages.length; pageIndex++) {
+    let page = source.pages[pageIndex];
+    if (!record(page)) fail('INVALID_SOURCE');
+    page = fields(page, ['physicalPageNumber', 'pageLabel', 'sourceSha256', 'parserVersion', 'policyVersion', 'status', 'textItems']);
+    if (page.physicalPageNumber !== pageIndex + 1 || (page.pageLabel !== null && !boundedText(page.pageLabel, 4096))
+        || page.sourceSha256 !== source.source.sha256 || page.parserVersion !== source.parser.version
+        || page.policyVersion !== source.parser.policyVersion
         || !dense(page.textItems, 100000 - items)) fail('INVALID_SOURCE');
     items += page.textItems.length;
-    const textItems = page.textItems.map(item => {
-      if (!record(item) || !Number.isSafeInteger(item.itemIndex) || item.itemIndex < 0
-          || typeof item.text !== 'string' || !record(item.span)
-          || !boundedText(item.span.id, 512) || !Number.isSafeInteger(item.span.startUtf16)
-          || !Number.isSafeInteger(item.span.endUtf16) || item.span.startUtf16 < 0
-          || item.span.endUtf16 < item.span.startUtf16 || item.span.quote !== item.text) fail('INVALID_SOURCE');
+    const textItems = [];
+    let pageHasText = false;
+    for (let itemIndex = 0; itemIndex < page.textItems.length; itemIndex++) {
+      let item = page.textItems[itemIndex];
+      if (!record(item)) fail('INVALID_SOURCE');
+      item = fields(item, ['itemIndex', 'text', 'span']);
+      if (item.itemIndex !== itemIndex || typeof item.text !== 'string' || !record(item.span)) fail('INVALID_SOURCE');
       textUtf16 += item.text.length;
       if (textUtf16 > 2000000) fail('INVALID_SOURCE');
-      return { itemIndex: item.itemIndex, text: item.text,
-        span: { id: item.span.id, startUtf16: item.span.startUtf16,
-          endUtf16: item.span.endUtf16, quote: item.span.quote } };
-    });
-    return { physicalPageNumber: page.physicalPageNumber, pageLabel: page.pageLabel,
-      sourceSha256: page.sourceSha256, parserVersion: page.parserVersion,
-      policyVersion: page.policyVersion, status: page.status, textItems };
-  });
-  return freeze({ schemaVersion: source.schemaVersion, status: source.status,
-    source: Object.fromEntries(SOURCE_KEYS.map(key => [key, source.source[key]])),
-    parser: Object.fromEntries(PARSER_KEYS.map(key => [key, source.parser[key]])),
-    numPages: source.numPages, workerMode: source.workerMode, pages });
+      item.span = fields(item.span, ['id', 'startUtf16', 'endUtf16', 'quote']);
+      if (item.span.startUtf16 !== 0 || item.span.endUtf16 !== item.text.length || item.span.quote !== item.text
+          || item.span.id !== `${source.source.sha256}/pdfjs-${source.parser.version}/${source.parser.policyVersion}`
+            + `/p${page.physicalPageNumber}/i${itemIndex}/u16-0-${item.text.length}`) fail('INVALID_SOURCE');
+      if (item.text.trim()) pageHasText = true;
+      textItems.push(item);
+    }
+    if (page.status !== (pageHasText ? 'text' : 'empty')) fail('INVALID_SOURCE');
+    page.textItems = textItems; pages.push(page);
+  }
+  source.pages = pages;
+  return freeze(source);
 }
 
 // Own exactly one native worker and one request. Termination is cancellation of

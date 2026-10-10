@@ -4,7 +4,7 @@ tags: [rag, generation, evidence]
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-07
+updated: 2026-10-10
 source_type: implementation-and-course-review
 ---
 
@@ -105,6 +105,52 @@ termination before decoding. A syntactically complete citation at the output
 budget is not enough to establish normal completion. Greedy decoding does not
 prove repeatability across model revisions, hardware or software versions, and
 it certainly does not prove correctness.
+
+## Browser lesson: a context record is not yet a prompt
+
+The browser-native implementation is independent of the Python service above.
+Its next boundary is `assembleProvenanceContext` in
+`browser-rag/context-contract.mjs`: a pure source module independently reviewed
+on October 10, not an enabled or preview-packaged generator. The result is explicitly named
+`context-not-generated`. It retains the question exactly as typed and associates
+ranked candidates with complete source-linked evidence units. There is no model
+download, prompt rendering or inference in this function.
+
+Consider the synthetic fixture used by its regression tests. The best-ranked
+passage has source ordinal 1, so its citation is `E2`; the next passage has
+ordinal 0 and citation `E1`. Rank answers “which candidate comes first for this
+query?” while citation identity answers “which chunk in this accepted document
+does this refer to?” Giving the first-ranked passage a new identity on every
+query would conflate those responsibilities. A citation remains stable within
+the accepted source and chunking configuration, not across a changed index.
+These fixture ranks are not results from an NVIDIA financial report.
+
+The full chunk record is necessary here. The encoder's smaller `{id, text}`
+projection is useful for inference, but it omits the physical page, nullable PDF
+page label, exact text range and source-item segments required for inspection.
+The new boundary checks the entire declared sequence of chunk windows, not just
+the windows that happened to be returned. Removing a middle window and updating
+the aggregate counts must still fail. An inserted presentation newline also
+remains distinguishable from a quotation taken from a PDF text item. This is an
+application of the CS381 responsibility-boundary lesson: transport validation,
+retrieval ranking and source attribution have separate contracts even when they
+run in the same application.
+
+To study this boundary, run the context contract tests and read the fixture's
+source, chunk, retrieval candidate and evidence unit together. Change one page
+identity or remove one window, then explain why the operation must refuse it.
+After that, explain what it cannot detect: structurally consistent source data
+can still be misleading, a correct citation can support the wrong financial
+metric, and this pure module does not bind a typed question semantically to its
+embedding. Session ownership and financial evaluation remain separate checks.
+Passing a programming test is not evidence that the learner has completed this
+exercise or mastered it.
+
+The following step must render the pinned model's full chat template and count
+its actual token IDs, including instructions, evidence and generation markers.
+UTF-16 ranges locate JavaScript text; they are not the generator's token budget.
+Any future context reduction must be explicit and recounted. For now, neither
+this record nor the existing generator contract is a generated answer.
 
 ## Explain the observed failure without exaggeration
 

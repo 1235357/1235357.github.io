@@ -343,3 +343,62 @@ test('numeric attribution preserves original indices while zero-length items cre
   worker.result({ event: eventOf('result', 2, identity(), { data: receiptOf(artifact) }), artifact });
   assert.deepEqual((await pending).artifact, artifact); clean(worker);
 });
+
+function sourceWithPages(pages) {
+  const source = sourceOf();
+  source.numPages = pages.length;
+  source.pages = pages.map((strings, index) => createPageRecord({ sourceSha256: SHA,
+    parserVersion: PARSER.version, physicalPageNumber: index + 1, pageLabel: null,
+    page: { view: [0, 0, 612, 792], rotate: 0, userUnit: 1 },
+    textContent: { items: strings.map(str => ({ str, dir: 'ltr', transform: [1, 0, 0, 1, 30, 740],
+      width: 120, height: 12, fontName: 'f1', hasEOL: false })) } }));
+  return source;
+}
+function recount(artifact) {
+  artifact.counts = { chunks: artifact.chunks.length,
+    outputUtf16: artifact.chunks.reduce((sum, chunk) => sum + chunk.text.length, 0),
+    fragments: artifact.chunks.reduce((sum, chunk) => sum + chunk.segments.length, 0) };
+}
+for (const [name, alter] of [
+  ['first window', artifact => artifact.chunks.shift()],
+  ['middle window', artifact => artifact.chunks.splice(1, 1)],
+  ['final window', artifact => artifact.chunks.pop()],
+  ['entire text page', artifact => { artifact.chunks = artifact.chunks.filter(chunk => chunk.physicalPageNumber !== 2); }],
+]) test(`canonical worker windows reject an omitted ${name} even with consistent counts and receipt`, async () => {
+  const source = sourceWithPages([['ABCDEFGHIJKLMN'], ['Second page']]);
+  const chunkOptions = { maxChunkUtf16: 5, overlapUtf16: 1 };
+  const artifact = structuredClone(chunkSource(source, chunkOptions)); alter(artifact); recount(artifact);
+  const { worker, pending } = start(undefined, { chunkOptions }, source); worker.ready();
+  worker.result({ event: eventOf('result', 2, identity(), { data: receiptOf(artifact) }), artifact });
+  await assert.rejects(pending, codeIs('WORKER_PROTOCOL_ERROR')); clean(worker);
+});
+for (const [name, alter] of [
+  ['page ordinal', source => { source.pages[0].physicalPageNumber = 2; }],
+  ['page SHA', source => { source.pages[0].sourceSha256 = 'b'.repeat(64); }],
+  ['page parser', source => { source.pages[0].parserVersion = '6.4.300'; }],
+  ['page policy', source => { source.pages[0].policyVersion = 'other'; }],
+  ['item ordinal', source => { source.pages[0].textItems[0].itemIndex = 1; }],
+  ['span ID', source => { source.pages[0].textItems[0].span.id = 'PRIVATE_FORGED_SPAN'; }],
+  ['full span start', source => { source.pages[0].textItems[0].span.startUtf16 = 1; }],
+  ['full span end', source => { source.pages[0].textItems[0].span.endUtf16 = 4; }],
+  ['actual page status', source => { source.pages[0].status = 'empty'; }],
+]) test(`source projection rejects inconsistent ${name} before constructing a worker`, async () => {
+  const source = structuredClone(sourceOf()); alter(source); let constructed = false;
+  const { pending } = start(undefined, { workerFactory: () => { constructed = true; throw new Error('PRIVATE'); } }, source);
+  await assert.rejects(pending, codeIs('INVALID_SOURCE')); assert.equal(constructed, false);
+});
+test('worker keeps blank mechanical windows in a text page rather than filtering them', async () => {
+  const source = sourceOf(['A       B']), chunkOptions = { maxChunkUtf16: 3, overlapUtf16: 0 };
+  const artifact = structuredClone(chunkSource(source, chunkOptions));
+  assert.ok(artifact.chunks.some(chunk => !chunk.text.trim()));
+  const { worker, pending } = start(undefined, { chunkOptions }, source); worker.ready();
+  worker.result({ event: eventOf('result', 2, identity(), { data: receiptOf(artifact) }), artifact });
+  assert.deepEqual((await pending).artifact, artifact); clean(worker);
+});
+for (const [budget, value] of [['maxChunks', 1], ['maxOutputUtf16', 1], ['maxFragments', 1]]) {
+  test(`worker terminal retains the requested reduced ${budget} budget`, async () => {
+    const chunkOptions = { ...OPTIONS, [budget]: value };
+    const { worker, pending } = start(undefined, { chunkOptions }); worker.ready(); worker.result();
+    await assert.rejects(pending, codeIs('WORKER_PROTOCOL_ERROR')); clean(worker);
+  });
+}
