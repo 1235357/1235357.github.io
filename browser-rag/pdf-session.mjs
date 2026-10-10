@@ -2,6 +2,8 @@ import {createController} from './protocol.mjs';
 import {ComputeError} from './compute-source.mjs';
 import {projectEmbeddingInput,createEmbeddingStageGuard,copyEmbeddingArtifact,
   embeddingReceipt,EmbeddingWorkerError} from './embedding-source.mjs';
+import {copyQueryPassages,createQueryStageGuard,copyQueryResult,queryResultReceipt,
+  QueryWorkerError} from './query-source.mjs';
 
 const SAFE_CODES = new Set(['INVALID_RECORD','INVALID_INPUT','FILE_TOO_LARGE','INVALID_PDF',
   'PARSER_VERSION_UNSUPPORTED','WORKER_UNAVAILABLE','INVALID_LIMITS','EXTRACTION_LIMIT','EMPTY_DOCUMENT',
@@ -16,6 +18,19 @@ const IDENTITY_KEYS=['protocolVersion','runtimeId','operationId','documentEpoch'
 const EVENT_KEYS=[...IDENTITY_KEYS,'kind','stage','seq','payload'];
 const DOWNLOAD_BYTES=113629084;
 const fields=(value,keys)=>Object.fromEntries(keys.map(key=>[key,value[key]]));
+const QUERY_OPTION_KEYS=['topK','workerFactory','readyTimeoutMs','workTimeoutMs','identity','signal','onProgress'];
+function queryOptionsSnapshot(value){
+  // Plain option records may come from another window/realm. Reserved adapter
+  // fields are read once but are always replaced with session-owned values.
+  const prototype=value!==null&&typeof value==='object'?Object.getPrototypeOf(value):undefined;
+  const plain=prototype===null||(prototype&&Object.getPrototypeOf(prototype)===null
+    &&Object.getOwnPropertyDescriptor(prototype,'constructor')?.value?.name==='Object');
+  if(!plain||Array.isArray(value))throw new QueryWorkerError('INVALID_QUERY_WORKER_CONFIG');
+  const keys=Reflect.ownKeys(value);
+  if(keys.some(key=>!QUERY_OPTION_KEYS.includes(key)))
+    throw new QueryWorkerError('INVALID_QUERY_WORKER_CONFIG');
+  return fields(value,keys);
+}
 
 // The adapter validates the full artifact. This small boundary guard prevents
 // accidental source/chunk data from ever entering the lifecycle controller.
@@ -36,14 +51,16 @@ function chunkReceipt(result,source) {
 }
 
 export function createPdfSession({extract,parserOptions={},compute,computeOptions={},embed:embeddingAdapter,
-  embeddingOptions={},onState=()=>{},
+  embeddingOptions={},query:queryAdapter,queryOptions={},onState=()=>{},
   runtimeId=crypto.randomUUID(),runtimeIdFactory=()=>crypto.randomUUID()}) {
   if(typeof extract!=='function') throw new TypeError('A parser adapter is required');
   const controller=createController(runtimeId);
-  let source=null,chunks=null,embeddings=null,aborter=null,status='idle',error=null,invalidating=false;
+  let source=null,chunks=null,embeddings=null,question=null,queryEmbedding=null,retrieval=null;
+  let aborter=null,status='idle',error=null,invalidating=false,queryRevision=0;
   const snapshot=()=>Object.freeze({status,error,lifecycle:controller.snapshot()});
   const notify=()=>onState(snapshot());
-  function invalidate(replace,retainSource=false,nextStatus='idle',retainChunks=false) {
+  const discardQuery=()=>{queryRevision++;question=null;queryEmbedding=null;retrieval=null;};
+  function invalidate(replace,retainSource=false,nextStatus='idle',retainChunks=false,retainEmbeddings=false) {
     invalidating=true;
     try {
       // Commit the revoked state and detach the old owner before synchronous
@@ -51,7 +68,7 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
       // this transition; direct calls after it returns can retry normally.
       if(replace) controller.replaceDocument(); else controller.cancel();
       const ownedAborter=aborter;aborter=null;
-      embeddings=null;if(!retainChunks)chunks=null;if(!retainSource)source=null;error=null;status=nextStatus;
+      discardQuery();if(!retainEmbeddings)embeddings=null;if(!retainChunks)chunks=null;if(!retainSource)source=null;error=null;status=nextStatus;
       ownedAborter?.abort();
     } finally { invalidating=false; }
   }
@@ -60,9 +77,106 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
     document:()=>source,
     chunks:()=>chunks,
     embeddings:()=>embeddings,
+    question:()=>question,
+    queryEmbedding:()=>queryEmbedding,
+    retrieval:()=>retrieval,
     cancel(){ if(invalidating||controller.snapshot().active===null) return;
-      invalidate(false,['chunking','embedding'].includes(status),'cancelled',status==='embedding');notify(); },
+      const querying=status==='querying';
+      invalidate(false,querying||['chunking','embedding'].includes(status),'cancelled',querying||status==='embedding',querying);notify(); },
     clear(){ if(invalidating)return;invalidate(true);notify(); },
+    clearQuery(){
+      if(invalidating)return;
+      // A clear also revokes a preflight currently reading an option getter,
+      // without touching an unrelated parser/chunker/passage encoder.
+      queryRevision++;
+      const active=controller.snapshot().active;
+      if(active!==null&&active.operation!=='query')return;
+      if(active===null&&question===null&&queryEmbedding===null&&retrieval===null)return;
+      invalidate(false,true,embeddings?'embedded-not-retrieved':status,true,true);notify();
+    },
+    async query(rawQuestion,options={}){
+      const capturedRevision=queryRevision,ownedSource=source,ownedChunks=chunks,ownedEmbeddings=embeddings;
+      const preflightOwned=()=>!invalidating&&queryRevision===capturedRevision&&source===ownedSource
+        &&chunks===ownedChunks&&embeddings===ownedEmbeddings&&controller.snapshot().active===null;
+      let configured,input,passages,incarnation;
+      try{
+        if(!preflightOwned()||source===null||chunks===null||embeddings===null
+            ||typeof queryAdapter!=='function'||typeof runtimeIdFactory!=='function'
+            ||typeof rawQuestion!=='string'||rawQuestion.trim().length===0||rawQuestion.length>4096)
+          throw new QueryWorkerError('INVALID_QUERY_WORKER_CONFIG');
+        configured={...queryOptionsSnapshot(queryOptions),...queryOptionsSnapshot(options)};
+        if(configured.topK===undefined)configured.topK=5;
+        if(!Number.isSafeInteger(configured.topK)||configured.topK<1||configured.topK>512
+            ||(configured.workerFactory!==undefined&&typeof configured.workerFactory!=='function')
+            ||['readyTimeoutMs','workTimeoutMs'].some(key=>configured[key]!==undefined
+              &&(!Number.isSafeInteger(configured[key])||configured[key]<1||configured[key]>2147483647)))
+          throw new QueryWorkerError('INVALID_QUERY_WORKER_CONFIG');
+        const selectedSourceSha256=ownedSource.source.sha256;
+        input=projectEmbeddingInput(ownedChunks);
+        if(input.source.sha256!==selectedSourceSha256)throw new QueryWorkerError('INVALID_QUERY_WORKER_CONFIG');
+        passages=copyQueryPassages(ownedEmbeddings,input);
+        if(!preflightOwned())throw new QueryWorkerError('INVALID_QUERY_WORKER_CONFIG');
+        incarnation=runtimeIdFactory();
+        if(typeof incarnation!=='string'||incarnation.length>256||incarnation.trim().length===0||!preflightOwned())
+          throw new QueryWorkerError('INVALID_QUERY_WORKER_CONFIG');
+        controller.replaceRuntime(incarnation);
+      }catch{throw new QueryWorkerError('INVALID_QUERY_WORKER_CONFIG');}
+      const identity=controller.begin('query'),ownedAborter=new AbortController();aborter=ownedAborter;
+      const stages=createQueryStageGuard(input.counts.chunks),topK=configured.topK;
+      let seq=0;discardQuery();question=rawQuestion;error=null;status='querying';
+      const ownsOperation=()=>{
+        const active=controller.snapshot().active;
+        return aborter===ownedAborter&&!ownedAborter.signal.aborted&&active!==null
+          &&IDENTITY_KEYS.every(key=>active[key]===identity[key]);
+      };
+      function checkedEvent(raw,kind){
+        if(!exact(raw,EVENT_KEYS))throw new QueryWorkerError('WORKER_PROTOCOL_ERROR');
+        const event=fields(raw,EVENT_KEYS);
+        if(event.kind!==kind||!IDENTITY_KEYS.every(key=>event[key]===identity[key])
+            ||!Number.isSafeInteger(event.seq)||event.seq<=seq||event.seq<1
+            ||(kind==='progress'&&event.seq===Number.MAX_SAFE_INTEGER))
+          throw new QueryWorkerError('WORKER_PROTOCOL_ERROR');
+        return event;
+      }
+      notify();
+      if(!ownsOperation())return;
+      try{
+        const result=await queryAdapter(input,passages,rawQuestion,{...configured,identity,signal:ownedAborter.signal,
+          onProgress:raw=>{
+            if(!ownsOperation())return;
+            try{
+              const event=checkedEvent(raw,'progress');
+              if(!exact(event.payload,['completed','total','unit','estimated']))return;
+              const payload=fields(event.payload,['completed','total','unit','estimated']);
+              if(event.stage==='download'&&payload.total!==DOWNLOAD_BYTES)return;
+              if(!ownsOperation()||event.seq<=seq)return;
+              event.payload=stages.accept(event.stage,payload);
+              if(controller.accept(event).accepted){seq=event.seq;notify();}
+            }catch{ /* malformed/stale progress consumes neither stage nor sequence */ }
+          }});
+        if(!ownsOperation())return;
+        if(!exact(result,['event','artifact']))throw new QueryWorkerError('WORKER_PROTOCOL_ERROR');
+        const event=checkedEvent(result.event,'result');
+        if(event.stage!=='rank'||!exact(event.payload,['data']))throw new QueryWorkerError('WORKER_PROTOCOL_ERROR');
+        const artifact=copyQueryResult(result.artifact,input,passages,topK,stages.downloadTotal,event.payload.data);
+        stages.assertComplete(artifact.query.counts.totalTokens);
+        event.payload={data:queryResultReceipt(artifact)};
+        if(!ownsOperation())return;
+        // The exact ranker is recomputed against captured inputs before one
+        // synchronous metadata/artifact/status commit and any subscriber call.
+        if(controller.accept(event).accepted){queryEmbedding=artifact.query;retrieval=artifact.retrieval;
+          status='query-candidates-only';aborter=null;notify();}
+        else throw new QueryWorkerError('WORKER_PROTOCOL_ERROR');
+      }catch(cause){
+        if(!ownsOperation())return;
+        let code;try{code=cause?.code;}catch{ /* untrusted diagnostic getters stay private */ }
+        if(!ownsOperation())return;
+        const safe=new QueryWorkerError(code),event={...identity,kind:'error',stage:stages.stage,seq:seq+1,
+          payload:{code:safe.code,message:safe.message}};
+        if(controller.accept(event).accepted){discardQuery();error=Object.freeze({...event.payload});
+          status='runtime-error';aborter=null;notify();}
+      }
+    },
     async embed(options={}){
       if(invalidating||source===null||chunks===null||controller.snapshot().active!==null
           ||typeof embeddingAdapter!=='function'||typeof runtimeIdFactory!=='function')
@@ -78,7 +192,7 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
       }catch{throw new EmbeddingWorkerError('INVALID_EMBEDDING_CONFIG');}
       const identity=controller.begin('embed'),ownedAborter=new AbortController();aborter=ownedAborter;
       const stages=createEmbeddingStageGuard(input.counts.chunks);
-      let seq=0;embeddings=null;error=null;status='embedding';
+      let seq=0;discardQuery();embeddings=null;error=null;status='embedding';
       const ownsOperation=()=>{
         const active=controller.snapshot().active;
         return aborter===ownedAborter&&!ownedAborter.signal.aborted&&active!==null
@@ -143,7 +257,7 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
       }catch{throw new ComputeError('INVALID_COMPUTE_CONFIG');}
       const identity=controller.begin('ingest'),ownedSource=source;
       const ownedAborter=new AbortController();aborter=ownedAborter;
-      let seq=0;chunks=null;embeddings=null;error=null;status='chunking';notify();
+      let seq=0;discardQuery();chunks=null;embeddings=null;error=null;status='chunking';notify();
       const failure=code=>({...identity,kind:'error',stage:'index',seq:seq+1,
         payload:{code:code.code,message:code.message}});
       try{

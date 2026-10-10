@@ -4,7 +4,7 @@ tags: [rag, retrieval, engineering]
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-08
+updated: 2026-10-09
 source_type: implementation-and-course-review
 ---
 
@@ -82,7 +82,7 @@ scores, fully sort them, then keep k. For N candidates of dimension D, the dense
 arithmetic is approximately O(ND), while full sorting is O(N log N). An
 argpartition-based selection could reduce sorting work, but would need explicit
 tie behavior and regression checks before replacement. It is a possible change,
-not a implemented optimization.
+not an implemented optimization.
 
 Notice another measurement trap: the constructor converts vectors with
 `np.asarray(raw_matrix, dtype=float)` and then normalizes them. On the usual
@@ -237,9 +237,14 @@ that the particular returned chunk answers the consolidated-revenue question.
 
 ### Browser pilot: an encoder contract is more than a model name
 
-Native parsing and source-linked chunking have browser receipts; **real browser
-encoding is still in progress**, not an accepted inference result. The pure
-representation contract was independently reviewed on October 8. Primary model
+Native parsing, source-linked chunking and **explicit passage encoding now have
+bounded native-browser receipts**. The original two-page toy PDF produced two
+384-dimensional rows and 24 actual encoded IDs on October 9. That observation
+does not by itself establish query retrieval, financial relevance or generation.
+The later owned question workflow separately completed native encoding and ranking
+in the standalone lab and blog iframe. Independent code reviews passed; the
+[question-to-page walkthrough](01-two-lifecycles.html#from-your-exact-question-to-its-candidate-page)
+records the actual bounded run. Primary model
 cards were read in Codex IAB to specify this experiment, not to claim a new
 benchmark. The [fixed Xenova MiniLM ONNX card](https://huggingface.co/Xenova/all-MiniLM-L6-v2/blob/751bff37182d3f1213fa05d7196b954e230abad9/README.md)
 shows mean pooling, normalization and 384-dimensional vectors. Its
@@ -260,12 +265,14 @@ fixed revision is `751bff37182d3f1213fa05d7196b954e230abad9`.
 mean pooling and L2 normalization. The fp32 weight file was downloaded into an
 ignored local cache: 90,387,606 bytes, with its upstream SHA-256 independently
 matched. All five model files total 91,100,408 bytes. Downloaded bytes are not
-process RAM, GPU memory or an inference receipt. A WebGPU trial still needs
-actual initialization, numerical output and failure acceptance in Codex IAB.
+process RAM or GPU memory. The separately recorded passage trial used the complete
+113,629,084-byte model-plus-runtime asset set, not only the weight file. Its attempt
+receipt includes loading, initialization, encoding and cleanup; it is not isolated
+GPU time or a general performance benchmark.
 
 The pinned Transformers.js 3.8.1 high-level feature-extraction implementation
-sets `truncation:true`. Our lower-level encoder must instead tokenize explicitly
-without truncation and validate the IDs **before inference**. For token hidden
+sets `truncation:true`. Our shared lower-level encoder instead tokenizes explicitly
+without truncation and validates the IDs **before inference**. For token hidden
 vectors `h[t]` and attention mask `m[t]`, the representation is:
 
 ```text
@@ -276,12 +283,39 @@ vector[i] = pooled[i] / sqrt(sum_j(pooled[j]^2))
 The mask excludes padding; it does not identify the correct financial column.
 The current pure boundary rejects missing rows, nonfinite coordinates, zero
 vectors and norms outside `abs(norm - 1) <= 1e-4`; it does not repair a bad vector
-and report success. Its 17 passing contract tests and 386 passing total Node
-tests establish these boundaries, **not** actual model output or retrieval quality.
+and report success. Contract tests establish those refusal boundaries; they are
+not substitutes for native model output or independently labelled retrieval quality.
 The [fixed WebGPU guide](https://huggingface.co/docs/transformers.js/v3.8.1/guides/webgpu)
 and [local model settings](https://huggingface.co/docs/transformers.js/v3.8.1/custom_usage)
 provide the runtime basis; selecting a WebGPU provider is not proof every
 operator or the JavaScript pooling step executes on the GPU.
+
+### Read the browser ranker without importing the Python threshold
+
+The browser's `retrieval.mjs` consumes the accepted page-window artifact, its
+ordered passage vectors and a separately encoded query with the exact same
+representation contract. It validates source SHA-256 and chunk order before
+scoring. At most 512 rows enter this pilot; it scans all 384 components of every
+row, sorts by descending cosine and breaks an exact score tie by original ordinal.
+It retains the dot product and both norms rather than assuming unit norms are
+mathematically exact. Top-k controls returned candidates, not financial confidence.
+
+The owned query worker uses the shared real encoder, then this pure ranker.
+Before publishing, the main-thread boundary copies the numerical artifact and
+recomputes the same ranking to reject altered scores, source identities or order.
+This check protects transfer consistency. It is not a second model, a relevance
+judge, or evidence that the selected passage answers the question. Controlled
+worker tests exercise that composition. The separate native fixture receipt
+contains eight query token IDs, a finite 384-dimensional vector and candidate
+cosines 0.358194 / 0.199773 for physical pages 2 / 1. These numbers establish
+execution on this toy fixture, not financial relevance, calibration or an answer.
+
+There is no question rewrite or instruction prefix in this variant. The original,
+resolved and encoder-input strings must be the same captured raw question. The
+query has its own token/vector artifact and asset-attempt receipt; the historical
+passage receipt is not charged again as a new passage-encoding run. No browser
+0.78 gate is inherited from the Python BGE index. A MiniLM score belongs to this
+representation and candidate scope, not to that earlier experiment.
 
 Ask yourself: why can two encoders both output 384 floats yet produce
 incompatible indexes? Why can mean pooling over silently truncated text make a

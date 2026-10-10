@@ -53,6 +53,24 @@ def static_mjs_graph(directory, entry):
 
 
 class InspectorMarkupTest(unittest.TestCase):
+    def test_query_controls_and_candidate_inspection_are_explicit_and_evidence_bounded(self):
+        markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
+        for identifier in ('question-input', 'query-top-k', 'run-query', 'clear-query',
+                           'question-original', 'question-resolved', 'question-encoder',
+                           'candidate-results', 'candidate-meta', 'query-embedding-detail',
+                           'query-embedding-meta', 'query-receipt'):
+            self.assertIn(f'id="{identifier}"', markup)
+        self.assertRegex(markup, r'<label[^>]*for="question-input"')
+        self.assertRegex(markup, r'<label[^>]*for="query-top-k"')
+        self.assertRegex(markup, r'<textarea[^>]*id="question-input"')
+        self.assertRegex(markup, r'<input[^>]*id="query-top-k"[^>]*min="1"[^>]*max="512"')
+        self.assertRegex(markup, r'<button[^>]*id="generate-answer"[^>]*disabled')
+        self.assertIn('Candidates; not an answer', markup)
+        self.assertIn('Generation remains disabled', markup)
+        self.assertIn('Query attempt receipt', markup)
+        self.assertLess(markup.index('id="candidate-results"'), markup.index('id="source-title"'))
+        self.assertNotIn('https://', markup)
+
     def test_csp_allows_same_origin_wasm_without_broad_eval_or_remote_workers(self):
         markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
         policy = re.search(r'http-equiv="Content-Security-Policy" content="([^"]+)"', markup)

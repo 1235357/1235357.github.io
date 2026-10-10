@@ -181,20 +181,23 @@ testable independently before tuning end-to-end retrieval.
 
 ### The encoder is a separate accepted artifact
 
-The October 9 native-browser fixture run advances the lab to **embedded; not
-retrieved**. MiniLM FP32/WebGPU returns ordered token-ID lists and normalized
+The October 9 passage-encoding receipt marks **embedded; not retrieved** as
+its own accepted stage. The later explicit query advances to sourced candidates,
+not an answer. MiniLM FP32/WebGPU returns ordered token-ID lists and normalized
 384-dimensional rows tied to the exact chunk IDs, file SHA-256 and frozen
 representation contract. The two-page toy PDF yielded two rows and 24 total
-encoded IDs. It does not demonstrate ranking, financial relevance or generation.
+encoded IDs. That passage receipt alone does not demonstrate ranking, financial
+relevance or generation; the later question run has its own artifact and receipt.
 The [first/cache-run receipt](01-two-lifecycles.html#a-real-representation-receipt-not-a-retrieval-benchmark)
 records the actual bounded observation rather than inferring it from passing tests.
 
 Cancellation retains accepted source/chunks but prevents partial vector commits;
 replacing the selected document invalidates all dependent artifacts before old
 work can update the page. Download/cache receipts describe verified asset bodies,
-not document uploads, complete network traffic or GPU memory. Query encoding and
-ranking must next check the same representation and source/order contract; equal
-vector dimensions alone are insufficient compatibility evidence.
+not document uploads, complete network traffic or GPU memory. The implemented
+query encoder and ranker check that same representation and source/order contract;
+equal vector dimensions alone are insufficient compatibility evidence. Editing
+the question preserves passage vectors; replacing the source invalidates them.
 
 ## Provenance helps replay, not truth verification
 

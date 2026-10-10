@@ -495,15 +495,51 @@ both norms, with full token/vector details collapsed. Progress units remain
 actual bytes/tokens/chunks; no estimated answer percentage or confidence threshold.
 No context or generation control is enabled by this retrieval milestone.
 
-- [ ] TDD owned state and escaping; copy modules in the existing build allowlist.
-- [ ] Run real IAB chooser → passage encoding → typed question → actual query
+- [x] TDD owned state and escaping; copy modules in the existing build allowlist.
+- [x] Run real IAB chooser → passage encoding → typed question → actual query
   encoding/ranking, including retry/replacement and the blog iframe path.
-- [ ] Update existing articles/README with observed receipts and limitations.
+- [x] Update existing articles/README with observed receipts and limitations.
   Synthetic fixture ranking is not financial quality or generated-answer acceptance.
 
 **Plan self-review:** the approved larger generation/evaluation/sample/license/
 privacy/performance/API/GitHub-Pages gates remain open. This checklist implements
 retrieval on that path, not a smaller replacement for the original goal.
+
+**October 9 acceptance:** the original session/UI specification and the minimal
+startup follow-up passed independent SPEC review; an independent QUALITY reviewer
+then inspected the current implementation and found no actionable defects. Root
+and QUALITY independently ran all 1,120 Node tests successfully; root ran all
+47 Python build/asset tests, including actual local output promotion. Controlled
+tests cover reentry, cancellation, raw-text escaping, tampered rankings and stale
+dependencies, not browser model quality.
+
+Real Codex-IAB actions separately selected `acceptance/selectable-test.pdf`
+(1,002 bytes, SHA-256 `8abdd9acd09b7196f20a7b1095be3714d8529003aa5b2a8bc277825b1c0c20a7`),
+parsed and chunked it, encoded its 2 passages / 24 total tokens / 384 dimensions,
+then ran raw `  What does page two say?` plus a newline with top K 2. Both the
+standalone inspector and the article iframe produced 8 query IDs / 384 dimensions
+and physical-page 2 / 1 candidate cosines 0.358194 / 0.199773. Original/resolved/
+encoder text preserved the raw characters. Inspecting candidate 1 selected page 2,
+label `1`, chunk 2 and source range `[0, 51)` without another inference.
+
+The standalone query receipt recorded 1,236.3 ms whole-attempt elapsed; the
+iframe query 1,041.3 ms. Both verified/cache-read 113,629,084 asset-body bytes and
+fetched zero model/runtime body bytes. These bounded observations are not isolated
+GPU time, all-network inspection, privacy acceptance or financial evaluation.
+Cancellation via Clear question and global Cancel retained passages; invalid
+top K 0 left the lifecycle unchanged; retry succeeded without re-embedding.
+Editing cleared only the query; replacing the file with `pagination-test.pdf`
+accepted its different digest at epoch 2 with no old chunks/vectors/candidates.
+An HTML-looking question rendered as literal escaped text, not markup.
+
+The native check found a distinct startup defect: a browser-restored file control
+could name a PDF while the fresh session owned no source, suppressing selection
+of the same file. Bootstrap now clears only that control before the first render,
+with no automatic parsing/querying. Its RED→GREEN actual-app regression and fresh
+IAB reload/same-file selection passed. This does not explain or fix the earlier
+whole-tab crashes. Desktop two-column and narrow iframe candidate views were
+inspected; temporary viewport overrides were reset. Arbitrary-PDF/device usability
+and performance remain unaccepted.
 
 </details>
 
@@ -511,8 +547,9 @@ This milestone continues the locally staged technical blog and independent RAG
 runtime. It does not modify the Obsidian vault or expand the old PPT. Those
 historical learning-surface requests remain separate from this browser/API goal.
 Actual PDF parsing, native-worker chunking and explicit MiniLM WebGPU encoding
-now run in the standalone browser lab on the bounded original fixture. Query
-retrieval, real generation and their independent evaluation remain unfinished.
+now run in the standalone browser lab on the bounded original fixture. Explicit
+question encoding/ranking also ran in that lab and its blog iframe. Real context
+assembly, generation and independent financial evaluation remain unfinished.
 The full approved design and remaining acceptance gates below are not completion
 receipts. No push, public endpoint or GitHub publication has been performed.
 
@@ -724,9 +761,23 @@ course-workspace copy. The staged wheel and all 14 shipped Python modules matche
 its source and installed package; replaying the retained pristine API-only
 environment passed the import/HTTP smoke and `pip check`. The exported installed-
 package subset passed 45 tests. This was a current replay, not a newly created
-environment or a real model run. Remaining blockers include a constant `/readyz`,
-untyped mode/outcome/error distinctions, and a `[generation]` extra that does not
-itself guarantee Torch. That staged repository still has no commit or remote;
+environment or a real model run. A separate October 9 current-file audit reran
+45 installed-package tests and verified all 14 installed modules against staging.
+It also reproduced four consumer-contract gaps; passing those tests does not
+resolve them:
+
+| Consumer contract | Observed current behavior | Remaining implementation gate |
+| --- | --- | --- |
+| Readiness | `/readyz` returns 200 even when the query dependency fails with 503. | Explicit dependency-aware readiness with bounded probe semantics. |
+| Evidence versus answer | Evidence-only returns `can_answer=true` with an empty answer. | Typed mode/outcome and documented answer invariants. |
+| Generation dependency failure | Internal generator failure returns HTTP 200 with the same structured flags as intentional abstention. | Safe machine-readable operational outcome; dependency failure must not masquerade as a domain refusal. |
+| Generated client contract | OpenAPI lists an optional authorization header and only query 200/422 responses. | Required bearer security plus actual 401/503 response schemas. |
+
+These are synthetic installed-service observations, not a model or live-network
+run. The checked environment already contains optional ML packages; the import
+guard attempted none, but this was not a fresh pristine `[api]` installation.
+The `[generation]` extra does not itself guarantee Torch, and a runnable installed
+launcher is not packaged. The staged repository still has no commit or remote;
 local installability is not yet a versioned, pullable enterprise release.
 
 October 9 generator preflight remains read-only. The fixed candidate
@@ -2299,8 +2350,27 @@ site build tests. Those are the pre-worker baseline, not worker acceptance.
 
 Run `python build.py`, then serve only the generated directory with
 `python -m http.server 8765 --bind 127.0.0.1 --directory dist`.
-The build currently renders six articles and the series index; it does not publish.
-Preview availability is volatile: on October 8 the previously started process
+Run the server **from the repository root, never from `dist` on Windows**.
+The build renders six articles and the series index; it does not publish.
+
+Separate these failure layers before changing anything:
+
+| Observation | First check | Recovery boundary |
+| --- | --- | --- |
+| Connection refused | Current listener, owning PID and exact command | Restart only when the owned process is actually absent; an observation timeout is not proof of exit. |
+| HTTP 404 or missing module | Explicit generated asset graph and current `dist` bytes | Repair/build the missing asset; restarting a healthy server cannot supply it. |
+| Build promotion fails with `WinError 32` | Preview working directory and verified owned handles | Keep the server outside `dist`; preserve the named recovery directory. Never stop an unknown process. |
+| HTTP 200 but old UI or browser error tab | Normal IAB tab, changed module bytes and completed build | Reload after promotion; selected PDFs and tab IDs are not durable state. Do not bypass security or erase model caches. |
+
+The canonical URL for this local mount is
+`http://127.0.0.1:8765/browser-rag/inspector.html`. Recheck the listener and HTTP
+response before native-worker/model acceptance. No launch method below proves
+cross-session uptime.
+
+<details>
+<summary>Dated process-lifetime investigation: observations, not an uptime claim</summary>
+
+On October 8 the previously started process
 was absent after a tool/session reconnection, while an inspector tab still held
 old page state. A fresh port check and HTTP request failed. The cause of process
 termination is not established. A loopback restart in a pollable command session
@@ -2347,6 +2417,8 @@ normal-page tab: numeric tab IDs and in-memory selected documents are not durabl
 An old internal error page is not an application exception or a reason to bypass
 browser security controls. Verify parsing, worker output and actual model
 inference separately after page recovery.
+
+</details>
 
 For this Windows workspace, first verify that port 8765 has no existing listener.
 The currently observed successful launch uses WMI and a hidden new console;

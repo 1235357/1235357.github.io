@@ -44,11 +44,13 @@ implementation, not a production deployment or a claim of personal mastery.
 **Current execution boundary:** the browser is a client. The classroom demo runs
 Python and its cached query encoder on the developer's Windows host; it is not
 an in-browser deployment on a reader's own computer. The browser-native variant
-is a separate design and acceptance requirement, not a completed capability.
+has its own implemented retrieval slice and separate acceptance requirements.
 The source inspector embedded below now parses selected bytes and explicitly
 builds source-linked chunks in a native computation worker. An explicit next
 action now runs a pinned MiniLM encoder with WebGPU. It is not the classroom
-retrieval demo: query ranking and browser generation are still unimplemented.
+retrieval demo: it now encodes an explicit question and ranks retained MiniLM
+passages in a fresh browser worker. Browser context assembly and generation are
+still disabled; this is not the complete RAG product.
 
 ## Offline work creates a reusable representation
 
@@ -309,9 +311,10 @@ including stale-message rejection, cancellation and worker-incarnation identity.
 The selected-PDF adapter now uses a native parsing worker and has passed the
 bounded original-fixture browser checks described below. A separate native
 computation worker builds source-linked page windows on an explicit button click.
-Those stages and explicit MiniLM passage encoding have bounded native-browser
-receipts. The figure remains the full target topology, not a live status diagram:
-query retrieval and generation are still planned, not demonstrated by its drawing.
+Those stages, explicit MiniLM passage encoding and question-to-source ranking
+have bounded native-browser receipts. The figure remains the full target topology,
+not a live status diagram: the implemented retrieval slice does not establish
+context assembly, generation, sample permission or independent financial quality.
 The [commit-boundary lesson](02-contracts-before-services.html#browser-work-has-a-commit-boundary-too)
 explains result ownership; the full RAG figure remains planned.
 
@@ -339,9 +342,9 @@ device-specific performance evidence must precede any release claim.
 ## First browser increment: inspect before indexing
 
 <figure class="architecture-figure" id="browser-source-lab" aria-label="Interactive local PDF extraction lab, not a complete RAG runtime">
-<div class="figure-heading"><span class="figure-status">03 / SOURCE AND VECTOR INSPECTOR · BEFORE RETRIEVAL</span><h3>Choose bytes. Keep their identity.</h3><p>This is an actual application entry point, not a diagram. Parse the selected file, build source-linked chunks, then explicitly download the pinned encoder. Inspect source fragments, token IDs and real vectors separately.</p></div>
-<iframe src="browser-rag/inspector.html" title="Local PDF source and chunk inspector — no retrieval or generation" loading="lazy"></iframe>
-<figcaption>“Extracted; not indexed” → “Chunked; not embedded” → “Embedded; not retrieved”, each after its own accepted action. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection and model download are explicit; no PDF upload endpoint is implemented. NVIDIA sample mode, query retrieval and generation remain unavailable. Browser acceptance is recorded separately from unit tests.</figcaption>
+<div class="figure-heading"><span class="figure-status">03 / QUESTION-TO-SOURCE LAB · CANDIDATES ONLY</span><h3>Choose bytes. Ask. Inspect the source.</h3><p>This is an actual application entry point, not a diagram. Parse the selected file, build chunks, explicitly encode passages, then run your exact question. Inspect candidates, source fragments, token IDs and vectors separately.</p></div>
+<iframe src="browser-rag/inspector.html" title="Local question-to-source inspector — candidates, not generated answers" loading="lazy"></iframe>
+<figcaption>“Extracted; not indexed” → “Chunked; not embedded” → “Embedded; not retrieved” → “Query candidates; not an answer”, each after its own accepted action. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection and model download are explicit; no PDF upload endpoint is implemented. Context assembly, NVIDIA sample mode and generation remain unavailable. Browser acceptance is recorded separately from unit tests.</figcaption>
 </figure>
 
 <details><summary>What was actually checked in Codex IAB on October 7?</summary>
@@ -431,8 +434,9 @@ explains the pure transform and its native-worker connection, exact source
 fragments, Unicode windows and output budgets. Click Build, compare one fragment
 with its original item, and explain why an inserted newline has no source span.
 The explicit encoder now exposes actual tokenizer IDs and accepted representations.
-Query retrieval and generation remain next; neither can borrow Python scores or
-an old threshold merely because both encoders output 384-dimensional vectors.
+The query now uses the same frozen representation to rank accepted passages.
+Neither its scores nor future generation can borrow a Python threshold merely
+because both encoders output 384-dimensional vectors.
 
 ### A real representation receipt, not a retrieval benchmark
 
@@ -470,8 +474,53 @@ Your exercise: inspect one token list and predict why 45 UTF-16 units do not imp
 45 model tokens. Open its complete vector, count 384 finite values and explain
 why unit norm permits a similarity calculation but cannot verify a fiscal year.
 Then cancel an encoding attempt and distinguish retained chunks from absent
-vectors. The next implementation must encode the query with the same frozen
-representation before ranking; passage encoding alone is not RAG.
+vectors. The separately tested query path below uses that same frozen
+representation; passage encoding alone was not retrieval and retrieval alone
+is not generation.
+
+### From your exact question to its candidate page
+
+On October 9, the standalone inspector and this article's actual iframe each
+completed an explicit question against the original two-page fixture. The raw
+input was `  What does page two say?` followed by a newline; original, resolved
+and encoder-input displays retained those exact characters. There is no rewrite
+or query instruction in this MiniLM variant. The fresh worker produced eight
+token IDs and one finite 384-dimensional vector; the retained passage vectors
+were not encoded again.
+
+| Retained candidate | Physical page / PDF label | Displayed cosine | What is established |
+| --- | --- | --- | --- |
+| `TEST SOURCE PAGE TWO - no financial fact or answer.` | 2 / `1` | 0.358194 | This fixture's highest-ranked source window |
+| `TEST SOURCE PAGE ONE - original fixture only.` | 1 / `i` | 0.199773 | The other retained window, not a second answer |
+
+Inspecting candidate 1 selected chunk 2 and physical page 2, with its original
+UTF-16 source range `[0, 51)`. Inspection reads accepted artifacts: it does not
+encode another question. The standalone query attempt took 1,236.3 ms; the
+article-iframe attempt took 1,041.3 ms. Each verified 113,629,084 asset-body bytes,
+all from the verified cache in these runs. These are whole-attempt observations
+including loading, initialization, inference and cleanup, not isolated GPU time,
+a cold-start comparison, all-network measurement or a financial benchmark.
+
+The regression exercise is intentionally more useful than a green screenshot:
+
+1. Run the question and predict which physical page should lead. Compare the
+   **raw question**, **token/vector artifact**, **candidate** and **original item**.
+2. Edit the question. Only its result and receipt disappear; source, chunks and
+   passage vectors stay. Nothing is inferred until you click Run again.
+3. During a fresh query, click Clear question or Cancel work. A cancelled attempt
+   cannot publish a late result. Retained passage vectors are still reusable.
+4. Replace the PDF. Every old dependent artifact disappears before accepting the
+   replacement source—even if a previous worker finishes later.
+5. Reload, then choose the same file again. The fresh session deliberately clears
+   the browser-restored file control, preventing a stale filename from suppressing
+   the next `change` event. It does not silently reparse a document on startup.
+
+These are independent applications of CS381 dependency ownership and CS310
+asynchronous failure boundaries. Explain in English: “The question owns a new
+query artifact, but it reuses accepted passage vectors. Cancellation revokes the
+right to commit; source replacement invalidates every dependent artifact.” Then
+reproduce those outcomes yourself. Assistant-run checks are not your mastery
+evidence. Context assembly and actual generation remain separate work.
 
 ## Source and verification boundary
 

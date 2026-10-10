@@ -215,8 +215,8 @@ The browser controller increment addresses only that right-to-commit. Its
 identity is the tuple `(protocolVersion, runtimeId, operationId, documentEpoch,
 operation)`. A message also has an increasing sequence number. Before accepting
 progress or completion, the controller compares the tuple with its active
-operation and validates the message. Only an accepted event permits a future
-adapter to change the index or UI. Rejected messages leave the whole state
+operation and validates the message. Only an accepted event permits its owned
+adapter to change artifacts or UI. Rejected messages leave the whole state
 unchanged, including the last accepted sequence number.
 
 <figure class="architecture-figure" id="browser-operation-contract" aria-label="Pure operation lifecycle contract, not an executed browser RAG pipeline">
@@ -240,8 +240,12 @@ The controller cannot stop a GPU kernel. It invalidates an operation immediately
 the worker adapter must separately cancel or terminate actual work and release
 resources. Nor does acceptance prove that a result is factual. A lifecycle result
 is not a financial-answer schema, a PDF extraction receipt or genuine generation.
-Those contracts remain separate acceptance gates. The browser RAG pipeline is
-still not implemented by this controller exercise.
+Those contracts remain separate acceptance gates. The controller alone does not
+implement RAG; the later parser, chunk, passage and query adapters separately
+validate their full artifacts before committing them. The query adapter recomputes
+ranking before its atomic commit. Source replacement invalidates its dependents;
+editing or cancelling a question clears only query-owned data and retains passage
+vectors. Context assembly and generation are still disabled.
 
 Worker replacement has a second trap. Reusing `runtime-a` after briefly switching
 to `runtime-b` could recreate an old `runtime-a/op-1/epoch-0` identity. Therefore

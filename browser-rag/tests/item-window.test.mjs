@@ -5,6 +5,7 @@ import {createPageRecord} from '../pdf-source.mjs';
 import {createPdfSession} from '../pdf-session.mjs';
 import {createComputeCommandHandler} from '../compute.worker.mjs';
 import {embedInWorker,embeddingReceipt} from '../embedding-source.mjs';
+import {queryInWorker} from '../query-source.mjs';
 import {EMBEDDING_SPEC} from '../embedding-contract.mjs';
 
 const windowModule = await import('../item-window.mjs').catch(error => {
@@ -113,7 +114,9 @@ function appHarness(sources, computeOverride, {embed = embedInWorker, runtimeIdF
   for (const id of ['pdf-file', 'page-select', 'items', 'receipt', 'page-meta', 'status-title',
     'status-detail', 'cancel', 'clear', 'trace', 'items-first', 'items-previous', 'items-next', 'items-range',
     'build-chunks','chunk-select','chunk-detail','chunk-meta','chunks-previous','chunks-next',
-    'embed-chunks','embedding-detail','embedding-meta','embedding-receipt','operation-progress']) {
+    'embed-chunks','embedding-detail','embedding-meta','embedding-receipt','operation-progress',
+    'question-input','query-top-k','run-query','clear-query','question-original','question-resolved','question-encoder',
+    'candidate-results','candidate-meta','query-embedding-detail','query-embedding-meta','query-receipt']) {
     ids.set(id, new DomElement(['page-select','chunk-select'].includes(id) ? 'select' : 'div'));
   }
   const document = {getElementById: id => ids.get(id), createElement: tag => new DomElement(tag)};
@@ -128,7 +131,7 @@ function appHarness(sources, computeOverride, {embed = embedInWorker, runtimeIdF
   const executable = appText.replace(/^import .*;\r?\n/gm, '')
     .replaceAll('import.meta.url', JSON.stringify(new URL('../pdf-app.mjs', import.meta.url).href));
   const run = new Function('document', 'window', 'Worker', 'pdfjs', 'extractPdf',
-    'createPdfSession', 'getItemWindow', 'JSON', 'chunkInWorker', 'embedInWorker', executable);
+    'createPdfSession', 'getItemWindow', 'JSON', 'chunkInWorker', 'embedInWorker', 'queryInWorker', executable);
   const compute=computeOverride??(async(source,{identity,onProgress,chunkOptions})=>{
     const packets=[];createComputeCommandHandler(packet=>packets.push(packet))({kind:'chunk-source',identity,source,options:chunkOptions??{}});
     onProgress(packets[0].event);
@@ -137,7 +140,7 @@ function appHarness(sources, computeOverride, {embed = embedInWorker, runtimeIdF
   });
   let runtimeNumber=0;
   run(document, {addEventListener() {}}, class {}, {}, async file => sources.find(source => source.source.name === file.name),
-    options => { session = createPdfSession({...options, runtimeId: 'preview-test',runtimeIdFactory:runtimeIdFactory??(()=>`compute-test-${++runtimeNumber}`)}); return session; }, getItemWindow, checkedJson,compute,embed);
+    options => { session = createPdfSession({...options, runtimeId: 'preview-test',runtimeIdFactory:runtimeIdFactory??(()=>`compute-test-${++runtimeNumber}`)}); return session; }, getItemWindow, checkedJson,compute,embed,queryInWorker);
   return {ids, serializedItems,serializedChunks, select: name => session.select({name}), source: () => session.document(),
     chunk:options=>session.chunk(options),chunks:()=>session.chunks(),embeddings:()=>session.embeddings(),state:()=>session.snapshot(),
     rows: () => elementsOf(ids.get('items'), 'article')};

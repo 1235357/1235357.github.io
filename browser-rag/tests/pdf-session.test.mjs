@@ -10,6 +10,9 @@ import {createEmbeddingCommandHandler} from '../embedding.worker.mjs';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import {getItemWindow} from '../item-window.mjs';
+import {queryInWorker,queryResultReceipt,QueryWorkerError} from '../query-source.mjs';
+import {rankCandidates} from '../retrieval.mjs';
+import {createQueryCommandHandler} from '../query.worker.mjs';
 
 const deferred = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
 const source = name => ({status:'extracted-not-indexed',source:{name,sha256:'a'.repeat(64),size:8},parser:{version:'6.4.299'},numPages:2,pages:[]});
@@ -592,19 +595,173 @@ class AppElement{
   removeAttribute(name){if(name==='value')this.value=undefined;}
   fire(type){this.listeners.get(type)?.();}
 }
-function appHarness(){
-  const ids=new Map(),embeds=[];let session,incarnation=0;
+function appHarness(harnessOptions={}){
+  const ids=new Map(),embeds=[],queries=[];let session,incarnation=0;
   const byId=id=>{if(!ids.has(id))ids.set(id,new AppElement(id.endsWith('select')?'select':'div'));return ids.get(id);};
+  if(harnessOptions.restoredFile){byId('pdf-file').value=`C:\\fakepath\\${harnessOptions.restoredFile.name}`;byId('pdf-file').files=[harnessOptions.restoredFile];}
+  if(harnessOptions.restoredQuestion!==undefined)byId('question-input').value=harnessOptions.restoredQuestion;
   const context={document:{getElementById:byId,createElement:tag=>new AppElement(tag)},window:{addEventListener(){}},
-    URL,Worker:class{},pdfjs:{},extractPdf(){},chunkInWorker(){},embedInWorker(){},getItemWindow,EMBEDDING_SPEC,
+    URL,Worker:class{},pdfjs:{},extractPdf(){},chunkInWorker(){},embedInWorker(){},queryInWorker(){},getItemWindow,EMBEDDING_SPEC,
     createPdfSession:options=>{session=createPdfSession({...options,runtimeId:'ui-parser',runtimeIdFactory:()=>`ui-${++incarnation}`,
-      extract:async file=>extracted(file.name),compute:async(record,options)=>{
-        const packets=workerPackets(record,options.identity,chunkOptions);options.onProgress(packets[0].event);return packets[1];},
-      embed:(record,options)=>{const pending=deferred();embeds.push({record,options,...pending});return pending.promise;}});return session;}};
+      extract:harnessOptions.extract??(async file=>extracted(file.name)),compute:async(record,options)=>{
+        const packets=workerPackets(record,options.identity,harnessOptions.chunkOptions??chunkOptions);options.onProgress(packets[0].event);return packets[1];},
+      embed:(record,options)=>{const pending=deferred();embeds.push({record,options,...pending});return pending.promise;},
+      query:(record,passages,question,options)=>{const pending=deferred();queries.push({record,passages,question,options,...pending});return pending.promise;}});return session;}};
   const code=readFileSync(new URL('../pdf-app.mjs',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'')
     .replace(/import\.meta\.url/g,JSON.stringify('https://example.test/project/browser-rag/pdf-app.mjs'));
-  vm.runInNewContext(code,context);return {session,embeds,byId};
+  vm.runInNewContext(code,context);return {session,embeds,queries,byId};
 }
+const appText=node=>[node.textContent,...node.children.map(appText)].join('\n');
+const appTick=()=>new Promise(resolve=>setImmediate(resolve));
+function uiQueryPackets(task){
+  const tokens=[101,1000,102],count=task.record.counts.chunks;
+  const query={schemaVersion:1,status:'query-embedded-not-retrieved',representationId:EMBEDDING_SPEC.version,
+    representation:{...EMBEDDING_SPEC},backend:'webgpu',dtype:'fp32',counts:{totalTokens:tokens.length,dimensions:384},
+    receipt:{verifiedBytes:DOWNLOAD_BYTES,networkBytes:0,cacheBytes:DOWNLOAD_BYTES,elapsedMs:7.25},
+    tokenIds:tokens,vector:[1,...Array(383).fill(0)]};
+  const retrieval=rankCandidates(task.record,task.passages,{representationId:query.representationId,
+    representation:query.representation,vector:query.vector},{topK:task.options.topK}),artifact={query,retrieval};
+  const progress=[['download',0,DOWNLOAD_BYTES,'bytes'],['download',DOWNLOAD_BYTES,DOWNLOAD_BYTES,'bytes'],
+    ['initialize',0,null,'tokens'],['encode',0,tokens.length,'tokens'],['encode',tokens.length,tokens.length,'tokens'],
+    ['rank',0,count,'chunks'],['rank',count,count,'chunks']]
+    .map(([stage,completed,total,unit],index)=>({...task.options.identity,kind:'progress',stage,seq:index+1,
+      payload:{completed,total,unit,estimated:false}}));
+  return {progress,result:{event:{...task.options.identity,kind:'result',stage:'rank',seq:8,
+    payload:{data:queryResultReceipt(artifact)}},artifact}};
+}
+async function uiEmbedded(harnessOptions={}){
+  const harness=appHarness(harnessOptions);await harness.session.select({name:'private-ui.pdf'});await harness.session.chunk();
+  const operation=harness.session.embed();finishEmbedding(harness.embeds[0]);await operation;return harness;
+}
+async function uiFinishQuery(task){const packet=uiQueryPackets(task);packet.progress.forEach(task.options.onProgress);task.resolve(packet.result);await appTick();return packet;}
+
+test('app fresh startup clears a browser-restored file selection so the same PDF can be selected explicitly',async()=>{
+  const file={name:'selectable-test.pdf'},rawQuestion='  PRIVATE restored question  ';let parses=0;
+  const {session,queries,embeds,byId}=appHarness({restoredFile:file,restoredQuestion:rawQuestion,
+    extract:async selected=>{parses++;assert.equal(selected,file);return extracted(selected.name);}});
+  assert.equal(byId('pdf-file').value,'','an empty fresh session must release the browser-restored selection');
+  assert.equal(parses,0);assert.equal(queries.length,0);assert.equal(embeds.length,0);
+  assert.equal(session.snapshot().status,'idle');assert.equal(session.document(),null);assert.equal(session.question(),null);
+  assert.equal(byId('question-input').value,rawQuestion);assert.equal(JSON.stringify(session.snapshot()).includes('PRIVATE'),false);
+  // The browser fires change only for a changed file selection. Exercise that
+  // boundary while keeping the actual app change handler and session intact.
+  const selectedValue=`C:\\fakepath\\${file.name}`,previousValue=byId('pdf-file').value;
+  byId('pdf-file').value=selectedValue;byId('pdf-file').files=[file];
+  if(previousValue!==selectedValue)byId('pdf-file').fire('change');
+  await appTick();assert.equal(parses,1);assert.equal(session.document().source.name,file.name);
+  assert.equal(session.snapshot().status,'extracted-not-indexed');assert.equal(queries.length,0);assert.equal(embeds.length,0);
+});
+
+test('app query controls require accepted passage vectors and preserve exact captured input',async()=>{
+  const harness=appHarness(),{session,embeds,queries,byId}=harness;
+  assert.equal(byId('run-query').disabled,true,'querying requires accepted passage vectors');
+  await session.select({name:'private-ui.pdf'});await session.chunk();assert.equal(byId('run-query').disabled,true);
+  const operation=session.embed();finishEmbedding(embeds[0]);await operation;
+  assert.equal(byId('run-query').disabled,false);assert.equal(queries.length,0,'embedding does not run a query');
+  const raw='  What was FY2025 revenue?\n\tKeep this spacing.  ';
+  byId('question-input').value=raw;byId('query-top-k').value='2';byId('run-query').fire('click');
+  assert.equal(queries.length,1);assert.equal(queries[0].question,raw);assert.equal(queries[0].options.topK,2);
+  assert.equal(byId('question-input').disabled,true);assert.equal(byId('query-top-k').disabled,true);
+  assert.equal(byId('run-query').disabled,true);assert.equal(byId('clear-query').disabled,false);
+  const packet=uiQueryPackets(queries[0]);
+  for(const event of packet.progress){
+    queries[0].options.onProgress(event);assert.doesNotMatch(byId('status-detail').textContent,/parsing/);
+    if(event.stage==='initialize')assert.equal(byId('operation-progress').value,undefined);
+    else{
+      assert.equal(byId('operation-progress').value,event.payload.completed);
+      assert.equal(byId('operation-progress').max,event.payload.total);
+      assert.match(byId('status-detail').textContent,new RegExp(event.stage==='download'?'verified asset body bytes':event.stage==='encode'?'actual query tokens':'retained chunks ranked'));
+    }
+  }
+  queries[0].resolve(packet.result);await appTick();
+  for(const id of ['question-original','question-resolved','question-encoder'])assert.equal(byId(id).textContent,raw);
+  assert.equal(byId('status-title').textContent,'Query candidates; not an answer');
+  assert.equal(byId('question-input').disabled,false);assert.equal(byId('query-top-k').disabled,false);
+  assert.match(appText(byId('candidate-results')),/cosine 1\.000000/);assert.match(appText(byId('candidate-results')),/dot 1\.000000/);
+  assert.match(appText(byId('candidate-results')),/chunk norm 1\.000000/);assert.match(appText(byId('candidate-results')),/query norm 1\.000000/);
+  assert.match(appText(byId('candidate-results')),/physical page 1/);assert.match(appText(byId('candidate-results')),/PDF label "i"/);
+  assert.match(appText(byId('query-receipt')),/7\.3 ms/);assert.match(appText(byId('embedding-receipt')),/12\.5 ms/);
+  const detail=byId('query-embedding-detail'),lazy=detail.children.filter(child=>child.tag==='details');
+  assert.equal(detail.children.filter(child=>child.tag==='pre').length,0,'query tokens and full vector remain lazy');
+  assert.equal(lazy.length,2);lazy[0].open=true;lazy[0].fire('toggle');assert.match(appText(lazy[0]),/101,1000,102/);
+  lazy[1].open=true;lazy[1].fire('toggle');assert.equal(JSON.parse(lazy[1].children[1].textContent).length,384);
+  lazy.forEach(item=>{item.open=false;item.fire('toggle');assert.equal(item.children.length,1);});
+  assert.equal(embeds.length,1);assert.equal(queries.length,1,'inspection does not rerun the encoder');
+});
+
+test('app query edits and explicit clear retain accepted source passage vectors',async()=>{
+  const {session,queries,byId}=await uiEmbedded();
+  const source=session.document(),chunks=session.chunks(),passages=session.embeddings();
+  byId('question-input').value='First question';byId('query-top-k').value='5';byId('run-query').fire('click');await uiFinishQuery(queries[0]);
+  byId('question-input').value='Edited question';byId('question-input').fire('input');
+  assert.equal(session.question(),null);assert.equal(session.retrieval(),null);assert.equal(session.queryEmbedding(),null);
+  assert.equal(byId('question-input').value,'Edited question');assert.equal(byId('candidate-results').children.length,1);
+  assert.equal(byId('query-receipt').children.length,0);assert.equal(session.document(),source);
+  assert.equal(session.chunks(),chunks);assert.equal(session.embeddings(),passages);
+  byId('run-query').fire('click');await uiFinishQuery(queries[1]);
+  byId('query-top-k').value='1';byId('query-top-k').fire('input');assert.equal(session.retrieval(),null);
+  byId('run-query').fire('click');await uiFinishQuery(queries[2]);byId('clear-query').fire('click');
+  assert.equal(byId('question-input').value,'');assert.equal(session.question(),null);assert.equal(session.queryEmbedding(),null);
+  assert.equal(session.document(),source);assert.equal(session.chunks(),chunks);assert.equal(session.embeddings(),passages);
+});
+
+test('app candidate inspection selects the retained chunk and the correct source item window',async()=>{
+  const source=extracted();source.pages[0]=createPageRecord({sourceSha256:source.source.sha256,
+    parserVersion:source.parser.version,physicalPageNumber:1,pageLabel:'i',page:{view:[0,0,100,100],rotate:0,userUnit:1},textContent:{items:[]}});
+  source.pages.push(createPageRecord({sourceSha256:source.source.sha256,parserVersion:source.parser.version,
+    physicalPageNumber:2,pageLabel:'front-matter',page:{view:[0,0,100,100],rotate:0,userUnit:1},
+    textContent:{items:Array.from({length:105},()=>({str:'X',dir:'ltr',transform:[1,0,0,1,0,0],width:20,height:10,fontName:'f1',hasEOL:false}))}}));source.numPages=2;
+  const {session,queries,embeds,byId}=await uiEmbedded({extract:async()=>source,chunkOptions:{maxChunkUtf16:2,overlapUtf16:0}});
+  byId('question-input').value='X';byId('query-top-k').value='105';byId('run-query').fire('click');await uiFinishQuery(queries[0]);
+  const candidate=byId('candidate-results').children[101],button=candidate.children.find(child=>child.tag==='button');
+  assert.ok(button,'each retained candidate has an inspection action');button.fire('click');
+  assert.equal(byId('chunk-select').value,'101');assert.match(byId('chunk-meta').textContent,/Chunk 102 of/);
+  assert.ok(byId('chunk-select').children.length<=100,'candidate navigation adjusts the bounded selector window');
+  assert.equal(byId('page-select').value,'1');assert.match(byId('page-meta').textContent,/Physical page 2/);
+  assert.match(byId('items-range').textContent,/Showing items 101–105 of 105/);
+  assert.equal(byId('chunk-detail').children[0].textContent,session.chunks().chunks[101].id);
+  assert.equal(queries.length,1);assert.equal(embeds.length,1);
+});
+
+test('app guarded query refusal clears after later actions and cannot overwrite newer work',async()=>{
+  const {session,queries,byId}=await uiEmbedded();
+  byId('question-input').value=' \n ';byId('query-top-k').value='5';byId('run-query').fire('click');await appTick();
+  assert.equal(queries.length,0);assert.equal(byId('status-title').textContent,'Query did not start');
+  assert.match(byId('status-detail').textContent,/INVALID_QUERY_WORKER_CONFIG/);assert.match(byId('status-detail').textContent,/1–512/);
+  byId('question-input').value='Valid question';byId('question-input').fire('input');
+  assert.equal(byId('status-title').textContent,'Embedded; not retrieved');
+  const rejected=deferred(),realQuery=session.query;session.query=()=>rejected.promise;
+  byId('run-query').fire('click');session.query=realQuery;session.clear();rejected.reject(new Error('PRIVATE refusal detail'));await appTick();
+  assert.equal(byId('status-title').textContent,'Waiting for a PDF');assert.doesNotMatch(byId('status-detail').textContent,/PRIVATE/);
+});
+
+test('app query runtime error and cancellation preserve passages and show no candidate result',async()=>{
+  const {session,queries,byId}=await uiEmbedded(),passages=session.embeddings();
+  byId('question-input').value='Question';byId('query-top-k').value='5';byId('run-query').fire('click');
+  queries[0].reject(new QueryWorkerError('QUERY_TIMEOUT'));await appTick();
+  assert.match(byId('status-detail').textContent,/query worker exceeded/i);assert.equal(session.embeddings(),passages);
+  assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);assert.equal(byId('question-input').disabled,false);
+  byId('run-query').fire('click');byId('cancel').fire('click');queries[1].reject(new QueryWorkerError('ABORTED'));await appTick();
+  assert.equal(session.embeddings(),passages);assert.equal(session.retrieval(),null);assert.match(byId('status-detail').textContent,/passage vectors retained/i);
+});
+
+test('app explicit clear revokes an active query while retaining passage vectors and literal text stays inert',async()=>{
+  const {session,queries,embeds,byId}=await uiEmbedded(),source=session.document(),chunks=session.chunks(),passages=session.embeddings();
+  const raw='  <script>PRIVATE literal</script>\n& <img src=x>  ';
+  byId('question-input').value=raw;byId('query-top-k').value='1';byId('run-query').fire('click');await uiFinishQuery(queries[0]);
+  for(const id of ['question-original','question-resolved','question-encoder']){
+    assert.equal(byId(id).textContent,raw);assert.equal(byId(id).children.length,0);
+  }
+  assert.equal(queries.length,1);assert.equal(embeds.length,1);
+  byId('run-query').fire('click');const task=queries[1];assert.equal(byId('clear-query').disabled,false);
+  byId('clear-query').fire('click');assert.equal(task.options.signal.aborted,true);
+  assert.equal(session.document(),source);assert.equal(session.chunks(),chunks);assert.equal(session.embeddings(),passages);
+  assert.equal(session.question(),null);assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);
+  assert.equal(byId('question-input').value,'');assert.equal(byId('question-input').disabled,false);
+  assert.equal(byId('status-title').textContent,'Embedded; not retrieved');
+  const cleared=session.snapshot();task.reject(new QueryWorkerError('ABORTED'));await appTick();
+  assert.deepEqual(session.snapshot(),cleared);assert.equal(queries.length,2);assert.equal(embeds.length,1);
+});
 test('app uses explicit embed action and real operation stage progress without resetting selected chunk',async()=>{
   const {session,embeds,byId}=appHarness();
   assert.equal(byId('embed-chunks').disabled,true,'embedding needs accepted chunks');
@@ -665,4 +822,279 @@ test('embedding input and numerical output commit only the caller component valu
     if(key==='0'){vectorReads++;return vectorReads===1?1:0;}return Reflect.get(target,key,receiver);}});
   packet.progress.forEach(embeds[0].options.onProgress);embeds[0].resolve(packet.result);await operation;
   assert.equal(session.snapshot().status,'embedded-not-retrieved');assert.equal(vectorReads,1);assert.equal(session.embeddings().vectors[0][0],1);
+});
+
+const queryState=session=>({...embeddingState(session),question:session.question(),queryEmbedding:session.queryEmbedding(),retrieval:session.retrieval()});
+const fixedQueryError=code=>error=>error instanceof QueryWorkerError&&error.code===code&&!error.message.includes('PRIVATE');
+function queryPackets(task){
+  const count=task.record.counts.chunks;
+  const progress=[['download',0,DOWNLOAD_BYTES,'bytes'],['download',DOWNLOAD_BYTES,DOWNLOAD_BYTES,'bytes'],
+    ['initialize',0,null,'tokens'],['encode',0,3,'tokens'],['encode',3,3,'tokens'],['rank',0,count,'chunks'],['rank',count,count,'chunks']]
+    .map(([stage,completed,total,unit],index)=>({...task.options.identity,kind:'progress',stage,seq:index+1,
+      payload:{completed,total,unit,estimated:false}}));
+  const query={schemaVersion:1,status:'query-embedded-not-retrieved',representationId:EMBEDDING_SPEC.version,
+    representation:{...EMBEDDING_SPEC},backend:'webgpu',dtype:'fp32',tokenIds:[101,1001,102],vector:[1,...Array(383).fill(0)],
+    counts:{totalTokens:3,dimensions:384},receipt:{verifiedBytes:DOWNLOAD_BYTES,networkBytes:0,cacheBytes:DOWNLOAD_BYTES,elapsedMs:4.5}};
+  const artifact={query,retrieval:structuredClone(rankCandidates(task.record,task.passages,
+    {representationId:query.representationId,representation:query.representation,vector:query.vector},{topK:task.options.topK}))};
+  return {progress,result:{event:{...task.options.identity,kind:'result',stage:'rank',seq:8,
+    payload:{data:structuredClone(queryResultReceipt(artifact))}},artifact}};
+}
+function finishQuery(task){const packet=queryPackets(task);packet.progress.forEach(task.options.onProgress);task.resolve(packet.result);return packet.result;}
+async function queryReadySession(extra={}){
+  const queries=[];
+  const harness=await chunkedSession({query:(record,passages,question,options)=>{
+    const pending=deferred();queries.push({record,passages,question,options,...pending});return pending.promise;
+  },...extra});
+  const operation=harness.session.embed();finishEmbedding(harness.embeds[0]);await operation;
+  return {...harness,queries};
+}
+
+test('query captures the exact original question and commits owned candidates outside bounded metadata',async()=>{
+  const {session,queries}=await queryReadySession(),raw='  PRIVATE question\n<script>literal</script>  ',before=embeddingState(session);
+  assert.equal(typeof session.query,'function','accepted passages need an explicit query action');
+  const operation=session.query(raw,{topK:2}),task=queries[0];
+  assert.equal(session.question(),raw);assert.equal(task.question,raw);assert.equal(session.snapshot().status,'querying');
+  assert.equal(session.document(),before.document);assert.equal(session.chunks(),before.chunks);assert.equal(session.embeddings(),before.embeddings);
+  assert.ok(Object.isFrozen(task.record.chunks[0]));assert.ok(Object.isFrozen(task.passages.vectors[0]));
+  assert.notEqual(task.record,before.chunks);assert.notEqual(task.passages,before.embeddings);
+  assert.equal(task.options.identity.operation,'query');assert.equal(task.options.topK,2);
+  assert.deepEqual(Object.keys(task.record.chunks[0]),['id','text']);
+  const result=finishQuery(task);await operation;
+  assert.equal(session.snapshot().status,'query-candidates-only');assert.equal(session.question(),raw);
+  assert.equal(session.retrieval().returnedCount,2);assert.equal(session.retrieval().candidates[0].ordinal,0);
+  assert.equal(session.retrieval().candidates[0].score,1);assert.equal(session.retrieval().candidates[0].dotProduct,1);
+  assert.equal(session.retrieval().queryNorm,1);assert.equal(session.retrieval().candidates[0].chunkNorm,1);
+  assert.ok(Object.isFrozen(session.retrieval().candidates[0]));assert.ok(Object.isFrozen(session.queryEmbedding().vector));
+  result.artifact.query.vector[0]=0;result.artifact.retrieval.candidates[0].score=0;
+  assert.equal(session.queryEmbedding().vector[0],1);assert.equal(session.retrieval().candidates[0].score,1);
+  for(const text of ['PRIVATE','Alpha','tokenIds','vector"','candidates"','chunkId'])assert.equal(JSON.stringify(session.snapshot()).includes(text),false);
+  assert.equal(session.snapshot().lifecycle.terminal.payload.data.query.receipt.cacheBytes,DOWNLOAD_BYTES);
+  assert.equal(session.embeddings().receipt.cacheBytes,0,'historical passage receipt remains its own attempt');
+});
+
+test('query invalid input and options preserve accepted results before adapter or runtime factory effects',async()=>{
+  let incarnations=0;const {session,queries}=await queryReadySession({runtimeIdFactory:()=>`query-input-${++incarnations}`});
+  const operation=session.query('PRIVATE valid');finishQuery(queries[0]);await operation;
+  for(const [question,options]of [[null,{}],[new String('not primitive'),{}],['',{}],[' \n ',{}],['x'.repeat(4097),{}],
+    ['valid',{topK:0}],['valid',{topK:513}],['valid',{topK:1.5}],['valid',{topK:'2'}],['valid',null],['valid',{unknown:true}],
+    ['valid',{get topK(){throw new Error('PRIVATE getter');}}]]){
+    const before=queryState(session),count=incarnations;
+    await assert.rejects(session.query(question,options),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));
+    assert.deepEqual(queryState(session),before);assert.equal(incarnations,count);assert.equal(queries.length,1);
+  }
+  const accepted=session.query('x'.repeat(4096),{topK:512});assert.equal(queries.length,2);finishQuery(queries[1]);await accepted;
+  assert.equal(session.question().length,4096);assert.equal(session.retrieval().requestedTopK,512);
+});
+
+test('query absent artifacts or adapter cannot start or alter accepted state',async()=>{
+  const idle=controlledSession({query:()=>assert.fail('no artifacts')}).session;
+  assert.equal(typeof idle.query,'function');let before=queryState(idle);
+  await assert.rejects(idle.query('valid'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));assert.deepEqual(queryState(idle),before);
+  await idle.select({name:'A'});before=queryState(idle);
+  await assert.rejects(idle.query('valid'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));assert.deepEqual(queryState(idle),before);
+  const {session}=await queryReadySession({query:undefined});before=queryState(session);
+  await assert.rejects(session.query('valid'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));assert.deepEqual(queryState(session),before);
+});
+
+test('query null topK is refused before an adapter can start',async()=>{
+  for(const configured of [false,true]){
+    let starts=0;const {session}=await queryReadySession({query:()=>{starts++;throw new Error('private');},
+      ...(configured?{queryOptions:{topK:null}}:{})}),before=queryState(session);
+    await assert.rejects(session.query('question',configured?{}:{topK:null}),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));
+    assert.equal(starts,0);assert.deepEqual(queryState(session),before);
+  }
+});
+
+test('query snapshots and validates the same option keys once even when a proxy changes them',async()=>{
+  for(const configured of [false,true]){
+    let reads=0,captured;
+    const options=new Proxy({topK:1,unknown:true},{ownKeys(){return ++reads===1?['topK']:['unknown'];}});
+    const {session}=await queryReadySession({query:(source,passages,question,owned)=>{captured=owned;throw new Error('private');},
+      ...(configured?{queryOptions:options}:{})});
+    await session.query('question',configured?{}:options);
+    assert.equal(reads,1);assert.equal(captured.topK,1);assert.equal(Object.hasOwn(captured,'unknown'),false);
+  }
+  for(const configured of [false,true]){
+    let calls=0,factories=0,reads=0;
+    const options=new Proxy({topK:1,unknown:true},{ownKeys(){return ++reads===1?['unknown']:['topK'];}});
+    const {session}=await queryReadySession({query:()=>{calls++;throw new Error('private');},runtimeIdFactory:()=>`keys-${++factories}`,
+      ...(configured?{queryOptions:options}:{})}),before=queryState(session),count=factories;
+    await assert.rejects(session.query('question',configured?{}:options),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));
+    assert.equal(calls,0);assert.equal(factories,count);assert.deepEqual(queryState(session),before);assert.equal(reads,1);
+  }
+});
+
+test('query refuses a selected source digest that disagrees with the accepted chunks before mutation',async()=>{
+  let starts=0,factories=0;const {session}=await queryReadySession({query:()=>{starts++;throw new Error('private');},
+    runtimeIdFactory:()=>`source-check-${++factories}`});
+  session.document().source.sha256='b'.repeat(64);const before=queryState(session),count=factories;
+  await assert.rejects(session.query('question'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));
+  assert.equal(starts,0);assert.equal(factories,count);assert.deepEqual(queryState(session),before);
+});
+
+test('query source digest getter is captured once and cannot continue a revoked preflight',async()=>{
+  for(const action of ['clearQuery','clear']){
+    let starts=0,reads=0,factories=0;const {session}=await queryReadySession({query:()=>{starts++;throw new Error('private');},
+      runtimeIdFactory:()=>`digest-getter-${++factories}`});
+    const source=session.document(),chunks=session.chunks(),passages=session.embeddings(),count=factories;
+    Object.defineProperty(source.source,'sha256',{get(){reads++;session[action]();return 'a'.repeat(64);},enumerable:true});
+    await assert.rejects(session.query('question'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));
+    assert.equal(starts,0);assert.equal(reads,1);assert.equal(factories,count);
+    assert.equal(session.document(),action==='clear'?null:source);assert.equal(session.chunks(),action==='clear'?null:chunks);
+    assert.equal(session.embeddings(),action==='clear'?null:passages);
+  }
+});
+
+test('query preflight reads owned options once and never allows overriding identity signal or progress',async()=>{
+  let reads=0;const foreign=new AbortController(),{session,queries}=await queryReadySession({queryOptions:{
+    identity:{runtimeId:'PRIVATE'},signal:foreign.signal,onProgress:()=>assert.fail('foreign progress'),
+    get workTimeoutMs(){reads++;return 333;}}});
+  const operation=session.query('raw',{topK:1,identity:{runtimeId:'foreign'},signal:foreign.signal,onProgress:()=>assert.fail('foreign')});
+  assert.equal(reads,1);assert.equal(queries[0].options.workTimeoutMs,333);assert.equal(queries[0].options.identity.operation,'query');
+  assert.notEqual(queries[0].options.signal,foreign.signal);finishQuery(queries[0]);await operation;
+});
+
+test('query runtime reuse throw and configured-option failure leave existing candidates accepted',async()=>{
+  let next,initial=0,throwOption=false;const {session,queries}=await queryReadySession({runtimeIdFactory:()=>{
+    if(next instanceof Error)throw next;return next===undefined?(initial++?'embed-runtime':'chunk-runtime'):next;},queryOptions:{get readyTimeoutMs(){if(throwOption)throw new Error('PRIVATE');return 10;}}});
+  // queryReadySession uses an embedding runtime distinct from the chunk attempt.
+  next='query-runtime';const operation=session.query('PRIVATE valid');finishQuery(queries[0]);await operation;
+  for(const invalid of ['query-runtime','parser-owner','chunk-runtime','',null,42,'x'.repeat(257),new Error('PRIVATE')]){
+    const before=queryState(session);next=invalid;
+    await assert.rejects(session.query('other'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));assert.deepEqual(queryState(session),before);
+  }
+  next='next-valid';throwOption=true;const before=queryState(session);
+  await assert.rejects(session.query('other'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));assert.deepEqual(queryState(session),before);
+});
+
+test('query option getter and runtime factory reentry cannot run a revoked preflight',async()=>{
+  let invoke=false,session;const harness=await queryReadySession({queryOptions:{get topK(){if(invoke)session.clear();return 5;}}});
+  session=harness.session;invoke=true;
+  await assert.rejects(session.query('PRIVATE'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));
+  assert.equal(harness.queries.length,0);assert.equal(session.document(),null);assert.equal(session.snapshot().status,'idle');
+  let factoryReenter=false,owned;
+  const second=await queryReadySession({runtimeIdFactory:()=>{if(factoryReenter)owned.clearQuery();return `reenter-${crypto.randomUUID()}`;}});
+  owned=second.session;factoryReenter=true;const before=queryState(owned);
+  await assert.rejects(owned.query('PRIVATE'),fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));
+  assert.equal(second.queries.length,0);assert.equal(owned.snapshot().lifecycle.runtimeId,before.snapshot.lifecycle.runtimeId);
+});
+
+test('query startup notification reentry revokes before the old adapter runs',async()=>{
+  let session,enabled=false;const harness=await queryReadySession({onState:state=>{if(enabled&&state.status==='querying')session.clearQuery();}});
+  session=harness.session;enabled=true;const passages=session.embeddings();await session.query('PRIVATE');
+  assert.equal(harness.queries.length,0);assert.equal(session.question(),null);assert.equal(session.embeddings(),passages);
+  assert.equal(session.snapshot().lifecycle.active,null);assert.equal(session.snapshot().status,'embedded-not-retrieved');
+});
+
+test('clearQuery does not cancel or rewrite an unrelated parser chunker or passage encoder',async()=>{
+  const parse=deferred();const {session,tasks,embeds}=await queryReadySession({extract:file=>file.name==='pending'?parse.promise:extracted(file.name)});
+  for(const stage of ['chunk','embed','parse']){
+    const operation=stage==='chunk'?session.chunk():stage==='embed'?session.embed():session.select({name:'pending'});
+    const before=embeddingState(session);session.clearQuery();assert.deepEqual(embeddingState(session),before);
+    assert.equal(session.snapshot().lifecycle.active!==null,true);
+    if(stage==='chunk')settle(tasks.at(-1));else if(stage==='embed')finishEmbedding(embeds.at(-1));else parse.resolve(extracted('pending'));
+    await operation;
+  }
+});
+
+for(const action of ['cancel','clearQuery','clear','replace'])test(`query ${action} revokes before abort reentry and refuses late result`,async()=>{
+  const {session,queries}=await queryReadySession(),source=session.document(),chunks=session.chunks(),passages=session.embeddings();
+  const first=session.query('PRIVATE first'),task=queries[0];let during,reentrant;
+  task.options.signal.addEventListener('abort',()=>{during=queryState(session);reentrant=session.query('PRIVATE reentry');reentrant.catch(()=>{});session.clear();});
+  if(action==='replace')await session.select({name:'PRIVATE replacement.pdf'});else session[action]();
+  await assert.rejects(reentrant,fixedQueryError('INVALID_QUERY_WORKER_CONFIG'));
+  assert.equal(during.snapshot.lifecycle.active,null);assert.equal(during.queryEmbedding,null);assert.equal(during.retrieval,null);
+  if(['cancel','clearQuery'].includes(action)){assert.equal(session.document(),source);assert.equal(session.chunks(),chunks);assert.equal(session.embeddings(),passages);}
+  else{assert.equal(during.document,null);assert.equal(during.chunks,null);assert.equal(during.embeddings,null);}
+  const revoked=queryState(session);finishQuery(task);await first;assert.deepEqual(queryState(session),revoked);
+});
+
+test('query retry rechunk reembed replace and clear invalidate all query-dependent artifacts',async()=>{
+  const {session,queries,tasks,embeds}=await queryReadySession();let operation=session.query('first');finishQuery(queries[0]);await operation;
+  const passages=session.embeddings();operation=session.query('second');assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);
+  assert.equal(session.embeddings(),passages);finishQuery(queries[1]);await operation;
+  operation=session.embed();assert.equal(session.question(),null);assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);
+  finishEmbedding(embeds[1]);await operation;operation=session.query('third');finishQuery(queries[2]);await operation;
+  operation=session.chunk();assert.equal(session.question(),null);assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);
+  settle(tasks[1]);await operation;operation=session.embed();finishEmbedding(embeds[2]);await operation;
+  operation=session.query('fourth');finishQuery(queries[3]);await operation;
+  await session.select({name:'same-sha-new.pdf'});assert.equal(session.question(),null);assert.equal(session.retrieval(),null);assert.equal(session.embeddings(),null);
+  session.clear();assert.equal(session.question(),null);assert.equal(session.queryEmbedding(),null);assert.equal(session.document(),null);
+});
+
+test('malformed query progress does not consume strict sequence stage or pinned byte totals',async()=>{
+  const {session,queries}=await queryReadySession(),operation=session.query('PRIVATE'),task=queries[0],packet=queryPackets(task),before=queryState(session);
+  for(const mutate of [e=>{e.runtimeId='foreign';},e=>{e.operationId='op-99';},e=>{e.documentEpoch++;},e=>{e.operation='embed';},e=>{e.protocolVersion=2;},
+    e=>{e.seq=0;},e=>{e.seq=Number.MAX_SAFE_INTEGER;},e=>{e.stage='rank';},e=>{e.kind='result';},e=>{e.payload.total--;},
+    e=>{e.payload.estimated=true;},e=>{e.payload.PRIVATE='diagnostic';},e=>{e.payload.completed=1;}]){
+    const event=structuredClone(packet.progress[0]);mutate(event);task.options.onProgress(event);assert.deepEqual(queryState(session),before);
+  }
+  task.options.onProgress(packet.progress[0]);const accepted=queryState(session);task.options.onProgress(packet.progress[0]);assert.deepEqual(queryState(session),accepted);
+  const badToken=structuredClone(packet.progress[3]);badToken.payload.total=257;task.options.onProgress(badToken);assert.deepEqual(queryState(session),accepted);
+  packet.progress.slice(1).forEach(task.options.onProgress);task.resolve(packet.result);await operation;assert.equal(session.snapshot().status,'query-candidates-only');
+});
+
+for(const [name,mutate]of [
+  ['numeric score tamper',p=>{p.result.artifact.retrieval.candidates[0].score=.5;}],
+  ['candidate order',p=>{p.result.artifact.retrieval.candidates.reverse();}],
+  ['wrong source',p=>{p.result.artifact.retrieval.sourceSha256='b'.repeat(64);} ],
+  ['wrong identity',p=>{p.result.event.runtimeId='foreign';}],['wrong stage',p=>{p.result.event.stage='encode';}],
+  ['same sequence',p=>{p.result.event.seq=7;}],['private metadata',p=>{p.result.event.payload.data.PRIVATE='raw';}],
+  ['query token mismatch',p=>{p.progress[3].payload.total=4;p.progress[4].payload={completed:4,total:4,unit:'tokens',estimated:false};}],
+  ['no complete ranking',p=>{p.progress.pop();}],['query norm',p=>{p.result.artifact.query.vector[0]=0;}],
+])test(`query terminal rejects ${name} while retaining accepted passage artifacts`,async()=>{
+  const {session,queries}=await queryReadySession(),passages=session.embeddings(),chunks=session.chunks(),source=session.document();
+  const operation=session.query('PRIVATE'),packet=queryPackets(queries[0]);mutate(packet);packet.progress.forEach(queries[0].options.onProgress);
+  queries[0].resolve(packet.result);await operation;assert.equal(session.snapshot().status,'runtime-error');assert.equal(session.snapshot().error.code,'WORKER_PROTOCOL_ERROR');
+  assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);assert.equal(session.embeddings(),passages);
+  assert.equal(session.document(),source);assert.equal(session.chunks(),chunks);assert.equal(JSON.stringify(session.snapshot()).includes('PRIVATE'),false);
+});
+
+test('query progress and result getters cannot commit after synchronously clearing their owner',async()=>{
+  const {session,queries}=await queryReadySession();let operation=session.query('first'),packet=queryPackets(queries[0]);
+  Object.defineProperty(packet.progress[0].payload,'total',{get(){session.clearQuery();return DOWNLOAD_BYTES;},enumerable:true});
+  queries[0].options.onProgress(packet.progress[0]);const cleared=queryState(session);queries[0].resolve(packet.result);await operation;
+  assert.deepEqual(queryState(session),cleared);operation=session.query('second');packet=queryPackets(queries[1]);packet.progress.forEach(queries[1].options.onProgress);
+  Object.defineProperty(packet.result.artifact.query,'receipt',{get(){session.clear();return {verifiedBytes:DOWNLOAD_BYTES,networkBytes:0,cacheBytes:DOWNLOAD_BYTES,elapsedMs:4.5};},enumerable:true});
+  queries[1].resolve(packet.result);await operation;assert.equal(session.snapshot().status,'idle');assert.equal(session.document(),null);assert.equal(session.retrieval(),null);
+});
+
+test('query progress getter reentry cannot advance a stale stage past the accepted sequence',async()=>{
+  const {session,queries}=await queryReadySession(),operation=session.query('question'),task=queries[0],packet=queryPackets(task);
+  const stale=structuredClone(packet.progress[1]);stale.seq=1;
+  Object.defineProperty(stale.payload,'total',{get(){task.options.onProgress(packet.progress[0]);return DOWNLOAD_BYTES;},enumerable:true});
+  task.options.onProgress(stale);
+  assert.equal(session.snapshot().lifecycle.active.lastSeq,1);
+  assert.equal(session.snapshot().lifecycle.active.progress.completed,0);
+  const partial=structuredClone(packet.progress[1]);partial.payload.completed=1;task.options.onProgress(partial);
+  assert.equal(session.snapshot().lifecycle.active.progress.completed,1);
+  packet.progress[1].seq=3;packet.progress.slice(2).forEach(event=>event.seq++);
+  packet.result.event.seq=9;packet.progress.slice(1).forEach(task.options.onProgress);task.resolve(packet.result);await operation;
+  assert.equal(session.snapshot().status,'query-candidates-only');
+});
+
+test('query thrown-code getter reentry cannot publish a stale error and fixed errors preserve passages',async()=>{
+  const {session,queries}=await queryReadySession(),passages=session.embeddings();let operation=session.query('PRIVATE');
+  queries[0].reject({get code(){session.clearQuery();throw new Error('PRIVATE');}});await operation;
+  assert.equal(session.snapshot().status,'embedded-not-retrieved');assert.equal(session.snapshot().error,null);assert.equal(session.embeddings(),passages);
+  operation=session.query('PRIVATE');const packet=queryPackets(queries[1]);packet.progress[0].seq=Number.MAX_SAFE_INTEGER-1;queries[1].options.onProgress(packet.progress[0]);
+  queries[1].reject(new Error('PRIVATE diagnostic'));await operation;
+  assert.equal(session.snapshot().error.code,'QUERY_FAILED');assert.equal(session.snapshot().lifecycle.terminal.seq,Number.MAX_SAFE_INTEGER);
+  assert.equal(session.embeddings(),passages);assert.equal(JSON.stringify(session.snapshot()).includes('PRIVATE'),false);
+});
+
+class QuerySessionWorker extends SessionWorker{
+  postMessage(command){this.command=command;this.pending=createQueryCommandHandler(packet=>this.packets.push(packet),{
+    encode:async(question,{onProgress})=>{const packet=queryPackets({record:command.chunkArtifact,passages:command.embeddingArtifact,options:{identity:command.identity,topK:command.topK}});
+      for(const event of packet.progress.slice(0,5))onProgress(event.stage,event.payload);return packet.result.artifact.query;}})(command);}
+  ready(){this.emit({kind:'query-ready',protocolVersion:1,workerVersion:'query-v1'});}
+}
+test('real query adapter and pure worker command integrate with session through a controlled channel',async()=>{
+  const worker=new QuerySessionWorker(),{session}=await queryReadySession({query:queryInWorker,queryOptions:{workerFactory:()=>worker}});
+  const raw='  PRIVATE exact\nquestion  ',operation=session.query(raw,{topK:2});worker.ready();await worker.pending;
+  worker.packets.forEach(packet=>worker.emit(packet));await operation;
+  assert.equal(worker.command.question,raw);assert.equal(worker.terminated,1);assert.equal(session.snapshot().status,'query-candidates-only');
+  assert.equal(session.retrieval().candidates[0].score,1);assert.equal(session.queryEmbedding().counts.totalTokens,3);
+  assert.deepEqual(session.snapshot().lifecycle.terminal,worker.packets.at(-1).event);
 });
