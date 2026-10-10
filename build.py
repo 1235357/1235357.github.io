@@ -14,6 +14,7 @@ import json
 import hashlib
 
 ROOT = Path(__file__).resolve().parent
+FILE_BLOCK_BYTES = 1024 * 1024
 
 
 def render_page(title, content, *, section='SERIES', outline=''):
@@ -74,11 +75,55 @@ def guard_path(path, root):
     return path
 
 
+def file_fingerprint(path):
+    """Return actual stream length and SHA-256 without retaining file contents."""
+    count = 0
+    digest = hashlib.sha256()
+    with path.open('rb') as source:
+        while block := source.read(FILE_BLOCK_BYTES):
+            count += len(block)
+            digest.update(block)
+    return count, digest.hexdigest()
+
+
+def copy_verified_asset(source, destination, expected_bytes, expected_sha256, root, label):
+    """Verify the chunks written to a new private-stage asset; caller owns cleanup."""
+    if (type(expected_bytes) is not int or expected_bytes <= 0
+            or not isinstance(expected_sha256, str)
+            or re.fullmatch(r'[0-9a-fA-F]{64}', expected_sha256) is None):
+        raise ValueError(f'Asset metadata is invalid: {label}')
+    source = guard_path(source, root)
+    destination = guard_path(destination, root)
+    if not source.is_file():
+        raise ValueError(f'Asset missing or not a file: {label}')
+    if (source.resolve() == destination.resolve()
+            or (destination.exists() and source.samefile(destination))):
+        raise ValueError(f'Asset source and destination are the same file: {label}')
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination = guard_path(destination, root)
+    count = 0
+    digest = hashlib.sha256()
+    with source.open('rb') as reader, destination.open('xb') as writer:
+        while block := reader.read(FILE_BLOCK_BYTES):
+            if count + len(block) > expected_bytes:
+                raise ValueError(f'Asset bytes mismatch: {label}')
+            if writer.write(block) != len(block):
+                raise OSError(f'Asset write was incomplete: {label}')
+            count += len(block)
+            digest.update(block)
+        if count != expected_bytes:
+            raise ValueError(f'Asset bytes mismatch: {label}')
+        if digest.hexdigest() != expected_sha256.lower():
+            raise ValueError(f'Asset hash mismatch: {label}')
+    return count, digest.hexdigest()
+
+
 def manifest(directory, root):
+    directory = guard_path(directory, root)
     entries = {}
     for path in directory.rglob('*'):
         guard_path(path, root)
-        entries[str(path.relative_to(directory))] = path.read_bytes() if path.is_file() else None
+        entries[str(path.relative_to(directory))] = file_fingerprint(path) if path.is_file() else None
     return entries
 
 
@@ -175,9 +220,8 @@ def copy_browser_assets(root, output):
         copy(browser / name, target / name)
     for name, expected_hash in registry['moduleHashes'].items():
         source = guard_path(package / name, root)
-        if hashlib.sha256(source.read_bytes()).hexdigest() != expected_hash:
-            raise ValueError(f'PDF.js module hash mismatch: {name}')
-        copy(source, target / 'vendor' / name)
+        copy_verified_asset(source, target / 'vendor' / name, source.stat().st_size,
+                            expected_hash, root, f'PDF.js module: {name}')
     copy(package / 'LICENSE', target / 'vendor' / 'LICENSE')
     # Only runtime-resource suffixes and their license notices in these named
     # package directories. Never ship the npm tree, logs, fixtures or .env files.
@@ -259,14 +303,8 @@ def copy_embedding_assets(browser, target, root):
             source = guard_path(source, root)
             if not source.is_file():
                 raise ValueError(f'Embedding asset missing: {group}/{name}')
-            data = source.read_bytes()
-            if len(data) != entry['bytes']:
-                raise ValueError(f'Embedding asset bytes mismatch: {group}/{name}')
-            if hashlib.sha256(data).hexdigest() != entry['sha256'].lower():
-                raise ValueError(f'Embedding asset hash mismatch: {group}/{name}')
-            output = destination / name
-            output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_bytes(data)  # Ship exactly the bytes just verified.
+            copy_verified_asset(source, destination / name, entry['bytes'], entry['sha256'],
+                                root, f'Embedding asset: {group}/{name}')
     (target / 'embedding-assets.json').write_bytes(registry_bytes)
 
 
@@ -317,7 +355,8 @@ def build():
                 raise ValueError(f'Refusing unexpected stage cleanup: {stage}')
             if (stage.stat().st_dev, stage.stat().st_ino) != stage_identity:
                 raise ValueError(f'Refusing replaced stage cleanup: {stage}')
-            manifest(stage, root)  # Refuse links/junctions inside the owned stage.
+            for path in stage.rglob('*'):
+                guard_path(path, root)  # Refuse links/junctions without reading file contents.
             shutil.rmtree(stage)
 
 

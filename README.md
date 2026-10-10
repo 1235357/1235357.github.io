@@ -1196,6 +1196,114 @@ not a claim that the build has already been converted. A separate generator
 registry, verified browser streaming loader, effective generation settings and
 fresh-worker inference still follow it.
 
+#### Task 4.3a — bounded file fingerprints and verified staged copies
+
+> **For agentic workers:** Continue subagent-driven-development in this chat;
+> fresh SPEC review precedes fresh QUALITY review. Reuse this staged checkout.
+> Root owns documentation and the final local commit. This implements the
+> already-planned build prerequisite, not a change to the approved architecture.
+
+**Goal:** Prepare the static build for large model assets without retaining whole
+binary bodies in its manifest or verification copy. No generator is shipped yet.
+
+**Architecture / stack:** Python binary streams and incremental SHA-256; preserve
+the current disposable stage, path guards, HTML validation, recovery and rollback.
+Modify only `build.py`, `test_build.py`, `test_browser_assets.py`; no new module,
+registry, dependency, browser code, model copy or runtime-limit increase.
+
+**Interfaces:** `FILE_BLOCK_BYTES = 1024 * 1024`;
+`file_fingerprint(path) -> (actual_byte_count, lowercase_sha256)`;
+`copy_verified_asset(source, destination, expected_bytes, expected_sha256, root,
+label) -> (actual_byte_count, lowercase_sha256)`. The helper accepts only a
+positive non-bool integer expected length and a 64-hex digest; guard the source
+and destination before writes, reject resolved-path or existing hardlink aliases,
+create parents and recheck the destination, then create it exclusively with `xb`.
+Only private-stage destinations are used by the builder. On failure, leave
+cleanup to the existing guarded stage owner; never delete arbitrary paths.
+
+**Global constraints:** Do not alter MiniLM's 100-MiB file / 128-MiB aggregate
+browser caps. Keep all package versions, pinned hashes, named allowlists, registry
+bytes, relative manifest keys and directory `None` entries. No full-file binary
+read, accumulated block list or joined body. These changes do not prove the
+SDK/ONNX runtime can initialize a large model with bounded memory.
+
+**Review focus:** Same-length mutations must invalidate unchanged detection;
+short/overlong streams must refuse regardless of `stat`; a short/failed write
+must not become verified output; source/destination aliases and reparse paths
+must refuse without damaging the source; verification or promotion failure must
+retain the last good output and close all handles before cleanup/rename.
+
+- [x] **1. RED tests:** Add a real fixture over two 1-MiB blocks with a tail,
+  compute expected SHA independently while writing blocks, and assert manifest
+  file fingerprints, empty-file fingerprint and `None` directory entries.
+  Instrument binary reads to reject omitted/nonpositive/>1-MiB sizes; preserve
+  meaningful RED against the current whole-body implementation. Run
+  `python -m unittest test_build test_browser_assets -q`.
+- [x] **2. GREEN bounded helpers:** Implement fingerprinting with one open file
+  and one digest. For verified copies, read blocks, reject overflow before
+  writing, require each write to return the full block length, then update the
+  digest/count. At EOF require exact count and hash; return only after successful
+  close. Normalize hash case, not file bytes. For example, the loop's core is:
+
+  ```python
+  block = source_handle.read(FILE_BLOCK_BYTES)
+  if not block:
+      break
+  if count + len(block) > expected_bytes:
+      raise ValueError(f'Asset bytes mismatch: {label}')
+  if destination_handle.write(block) != len(block):
+      raise OSError(f'Asset short write: {label}')
+  digest.update(block)
+  count += len(block)
+  ```
+
+- [x] **3. Integrate without changing promotion:** Guard the manifest directory
+  before traversal; file entries call `file_fingerprint`, directories stay
+  `None`. Use the verified copier for the embedding model/runtime/notices and
+  the two pinned PDF.js modules (current guarded size plus pinned hash). Keep
+  other authored copies unchanged. Cleanup uses a guarded walk rather than a
+  discarded hash manifest, retaining root/prefix/inode checks. Do not restructure
+  the existing promotion/restore code.
+- [x] **4. Failure and regression evidence:** Verify equal multi-block output is
+  unchanged, a one-byte same-size mutation rebuilds, and successful verified
+  copies match independent fingerprints. Cover short/overlong/wrong-hash streams,
+  early/extra reader output, short/throwing writers, same path/hardlink alias,
+  reparse guards, last-good retention, promotion failure and failed restore.
+  Keep fixture snapshot and real installed-model/notices verification independent
+  and streamed; do not calculate the fingerprint oracle with the production
+  function under test. Preserve all pinned identities and module-graph tests.
+- [x] **5. Acceptance:** Fresh SPEC then QUALITY reviews; full Node and Python
+  suites, `git diff --check`, changed/unchanged real site builds with the owned
+  loopback server alive, and a streamed read of the actual downloaded Qwen file
+  matching 786,156,820 bytes / `09235a3b…1bf3296`. The last check prepares large-
+  file evidence only: it does not stage the weight or run a generator. Root
+  updates this checklist and the existing article, commits only reviewed files
+  locally, then proceeds to separate generator assets/loading/inference gates.
+
+Status: **accepted locally; independent SPEC and QUALITY reviews passed**.
+The final Python candidate has 65 passing tests;
+the complete Node suite has 1,417 passing tests. The reader-failure regression
+raises the original `OSError` after one complete block, closes both handles,
+removes only the owned stage without reading its payloads, and preserves the
+last-good output. Distinct full fixture blocks detect repeat/reorder corruption;
+the post-parent-creation reparse guard is also protected by a regression test.
+
+Root reran all 65 Python tests and 1,417 Node tests on October 10, with no
+failures, and `git diff --check` passed. The Python suite rebuilt the real
+six-article site after the authored article changed; a separate root build then
+reported it unchanged. The existing loopback server (PID 44620, created October
+9) remained running. Codex's in-app browser reloaded the generated article and
+displayed the new model-file verification section; its screenshot was saved
+outside the repository. This accepts the bounded builder and local teaching
+preview, not a model asset registry, browser generation or public publication.
+
+An October 10 root diagnostic streamed the downloaded Qwen Q4 file through
+`file_fingerprint`: 786,156,820 bytes, SHA-256
+`09235a3b1c135cd04ef570e5053b5c079e028078a2cc5f76ba6a251e91bf3296`,
+0.551 seconds, 2,106,388 bytes peak Python-traced allocations with 1-MiB reads.
+This is one local fingerprint measurement, not process RSS, browser memory,
+model initialization, GPU inference, or a latency benchmark for RAG requests.
+
 </details>
 
 </details>

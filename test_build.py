@@ -1,5 +1,11 @@
 import unittest
 import tempfile
+import hashlib
+import io
+import os
+import stat
+from contextlib import contextmanager
+from types import SimpleNamespace
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -9,8 +15,265 @@ import build
 
 
 def file_snapshot(root):
-    return {str(path.relative_to(root)): path.read_bytes()
+    return {str(path.relative_to(root)): independent_fingerprint(path)
             for path in root.rglob('*') if path.is_file()}
+
+
+def independent_fingerprint(path):
+    """Test oracle: stream independently of the build's block size and helpers."""
+    digest = hashlib.sha256()
+    count = 0
+    with path.open('rb') as stream:
+        while block := stream.read(65536):
+            count += len(block)
+            digest.update(block)
+    return count, digest.hexdigest()
+
+
+def write_multiblock_fixture(path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('wb') as stream:
+        stream.write(bytes(range(256)) * 4096)
+        stream.write(bytes(reversed(range(256))) * 4096)
+        stream.write(b'non-aligned tail\x00\xff' * 19)
+    return independent_fingerprint(path)
+
+
+def reparse_stat(details):
+    values = {name: getattr(details, name) for name in dir(details) if name.startswith('st_')}
+    values['st_file_attributes'] = values.get('st_file_attributes', 0) | stat.FILE_ATTRIBUTE_REPARSE_POINT
+    return SimpleNamespace(**values)
+
+
+class BoundedBinaryReader:
+    """Fail on full-file or oversized reads while retaining real I/O semantics."""
+    def __init__(self, stream):
+        self.stream = stream
+
+    def __enter__(self):
+        self.stream.__enter__()
+        return self
+
+    def __exit__(self, *args):
+        return self.stream.__exit__(*args)
+
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+
+    def read(self, size=-1):
+        if type(size) is not int or not 0 < size <= 1048576:
+            raise AssertionError(f'Binary reads must be bounded: {size}')
+        return self.stream.read(size)
+
+
+@contextmanager
+def bounded_binary_reads(selected=lambda path: True):
+    real_open = Path.open
+
+    def open_bounded(path, mode='r', *args, **kwargs):
+        stream = real_open(path, mode, *args, **kwargs)
+        return BoundedBinaryReader(stream) if mode == 'rb' and selected(path) else stream
+
+    with patch.object(Path, 'open', open_bounded):
+        yield
+
+
+class FileFingerprintTest(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix='rag-fingerprint-test-')
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+
+    def test_manifest_uses_length_and_digest_for_multiblock_files_and_none_for_directories(self):
+        source = self.root / 'nested' / 'large.bin'
+        expected = write_multiblock_fixture(source)
+        (self.root / 'empty.bin').touch()
+        (self.root / 'empty-directory').mkdir()
+        with bounded_binary_reads():
+            actual = build.manifest(self.root, self.root)
+        self.assertEqual(actual, {
+            'nested': None, str(Path('nested') / 'large.bin'): expected,
+            'empty.bin': (0, hashlib.sha256(b'').hexdigest()),
+            'empty-directory': None,
+        })
+
+    def test_fingerprint_counts_actual_multiblock_stream_and_accepts_empty_file(self):
+        self.assertTrue(callable(getattr(build, 'file_fingerprint', None)),
+                        'Build needs a streaming file fingerprint function')
+        source = self.root / 'large.bin'
+        expected = write_multiblock_fixture(source)
+        empty = self.root / 'empty.bin'
+        empty.touch()
+        with bounded_binary_reads():
+            self.assertEqual(build.file_fingerprint(source), expected)
+            self.assertEqual(build.file_fingerprint(empty), (0, hashlib.sha256(b'').hexdigest()))
+
+    def test_manifest_guards_empty_directory_before_walking_it(self):
+        real_lstat = Path.lstat
+
+        def reparse_directory(path, *args, **kwargs):
+            if path == self.root:
+                return reparse_stat(real_lstat(path, *args, **kwargs))
+            return real_lstat(path, *args, **kwargs)
+
+        with patch.object(Path, 'lstat', reparse_directory):
+            with self.assertRaisesRegex(ValueError, 'reparse'):
+                build.manifest(self.root, self.root)
+
+
+class VerifiedAssetCopyTest(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix='rag-verified-copy-test-')
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.source = self.root / 'source.bin'
+        self.expected = write_multiblock_fixture(self.source)
+        self.destination = self.root / '.dist-stage-test' / 'nested' / 'asset.bin'
+
+    def copy(self, size=None, digest=None, destination=None):
+        self.assertTrue(callable(getattr(build, 'copy_verified_asset', None)),
+                        'Build needs a streaming verified asset copy function')
+        return build.copy_verified_asset(
+            self.source, destination or self.destination,
+            self.expected[0] if size is None else size,
+            self.expected[1] if digest is None else digest,
+            self.root, 'fixture asset')
+
+    def test_verified_multiblock_copy_returns_fingerprint_of_exact_written_bytes(self):
+        opened = []
+        real_open = Path.open
+
+        def record_open(path, mode='r', *args, **kwargs):
+            stream = real_open(path, mode, *args, **kwargs)
+            if path in (self.source, self.destination):
+                opened.append((path, mode, stream))
+            return BoundedBinaryReader(stream) if mode == 'rb' else stream
+
+        with patch.object(Path, 'open', record_open):
+            result = self.copy(digest=self.expected[1].upper())
+        self.assertEqual(result, self.expected)
+        self.assertEqual(independent_fingerprint(self.destination), self.expected)
+        self.assertEqual([(path, mode) for path, mode, stream in opened],
+                         [(self.source, 'rb'), (self.destination, 'xb')])
+        self.assertTrue(all(stream.closed for path, mode, stream in opened))
+
+    def test_invalid_expected_metadata_refuses_before_creating_destination(self):
+        for size in (0, -1, True, 1.0, '1'):
+            with self.subTest(size=size):
+                with self.assertRaisesRegex(ValueError, 'metadata|bytes'):
+                    self.copy(size=size)
+                self.assertFalse(self.destination.exists())
+        for digest in ('z' * 64, '0' * 63, 1):
+            with self.subTest(digest=digest):
+                with self.assertRaisesRegex(ValueError, 'metadata|hash'):
+                    self.copy(digest=digest)
+                self.assertFalse(self.destination.exists())
+        with self.assertRaisesRegex(ValueError, 'metadata|hash'):
+            build.copy_verified_asset(self.source, self.destination, self.expected[0], None,
+                                      self.root, 'fixture asset')
+        self.assertFalse(self.destination.exists())
+
+    def test_existing_destination_and_source_aliases_preserve_all_existing_bytes(self):
+        self.destination.parent.mkdir(parents=True)
+        self.destination.write_bytes(b'KEEP DESTINATION')
+        with self.assertRaises(FileExistsError):
+            self.copy()
+        self.assertEqual(self.destination.read_bytes(), b'KEEP DESTINATION')
+        before = independent_fingerprint(self.source)
+        with self.assertRaisesRegex(ValueError, 'same|identical|alias'):
+            self.copy(destination=self.source)
+        with self.assertRaisesRegex(ValueError, 'same|identical|alias'):
+            self.copy(destination=self.root / 'unused' / '..' / self.source.name)
+        alias = self.root / 'hardlink.bin'
+        os.link(self.source, alias)
+        with self.assertRaisesRegex(ValueError, 'same|identical|alias'):
+            self.copy(destination=alias)
+        self.assertEqual(independent_fingerprint(self.source), before)
+        self.assertEqual(independent_fingerprint(alias), before)
+
+    def test_source_must_be_a_file_and_both_paths_must_stay_inside_root(self):
+        self.source.unlink()
+        self.source.mkdir()
+        with self.assertRaisesRegex(ValueError, 'missing|file'):
+            self.copy()
+        self.assertFalse(self.destination.exists())
+        self.source.rmdir()
+        write_multiblock_fixture(self.source)
+        outside = self.root.parent / (self.root.name + '-outside.bin')
+        with self.assertRaisesRegex(ValueError, 'escapes'):
+            self.copy(destination=outside)
+        with self.assertRaisesRegex(ValueError, 'escapes'):
+            build.copy_verified_asset(outside, self.destination, *self.expected,
+                                      self.root, 'fixture asset')
+        self.assertFalse(self.destination.exists())
+        self.assertFalse(outside.exists())
+
+    def test_reparse_source_or_destination_parent_refuses_before_writing(self):
+        self.destination.parent.mkdir(parents=True)
+        real_lstat = Path.lstat
+        for blocked in (self.source, self.destination.parent):
+            def reparse_path(path, *args, **kwargs):
+                if path == blocked:
+                    return reparse_stat(real_lstat(path, *args, **kwargs))
+                return real_lstat(path, *args, **kwargs)
+
+            with self.subTest(blocked=blocked), patch.object(Path, 'lstat', reparse_path):
+                with self.assertRaisesRegex(ValueError, 'reparse'):
+                    self.copy()
+                self.assertFalse(self.destination.exists())
+
+    def test_actual_short_overlong_and_wrong_hash_streams_are_rejected(self):
+        original = self.source.read_bytes()  # Small synthetic fixture, independent oracle above.
+        real_open = Path.open
+        cases = (('short', original[:-1], 'bytes'),
+                 ('overlong', original + b'!', 'bytes'),
+                 ('wrong hash', bytes([original[0] ^ 1]) + original[1:], 'hash'))
+        for name, actual, error in cases:
+            destination = self.destination.with_name(name + '.bin')
+
+            def different_source_stream(path, mode='r', *args, **kwargs):
+                if path == self.source and mode == 'rb':
+                    return BoundedBinaryReader(io.BytesIO(actual))
+                return real_open(path, mode, *args, **kwargs)
+
+            with self.subTest(case=name), patch.object(Path, 'open', different_source_stream):
+                with self.assertRaisesRegex(ValueError, error):
+                    self.copy(destination=destination)
+            if name == 'overlong':
+                # The third block would exceed the promised length; none of it is written.
+                self.assertTrue(destination.is_file())
+                self.assertEqual(destination.stat().st_size, 2097152)
+
+    def test_new_destination_parent_is_rechecked_for_reparse_before_opening_files(self):
+        real_mkdir = Path.mkdir
+        real_lstat = Path.lstat
+        real_open = Path.open
+        parent_created = False
+
+        def create_reparse_parent(path, *args, **kwargs):
+            nonlocal parent_created
+            result = real_mkdir(path, *args, **kwargs)
+            if path == self.destination.parent:
+                parent_created = True
+            return result
+
+        def newly_reparse_parent(path, *args, **kwargs):
+            details = real_lstat(path, *args, **kwargs)
+            return reparse_stat(details) if parent_created and path == self.destination.parent else details
+
+        def refuse_file_open(path, mode='r', *args, **kwargs):
+            if path in (self.source, self.destination) and mode in ('rb', 'xb'):
+                raise AssertionError('Reparse refusal must happen before either file is opened')
+            return real_open(path, mode, *args, **kwargs)
+
+        with patch.object(Path, 'mkdir', create_reparse_parent), \
+                patch.object(Path, 'lstat', newly_reparse_parent), \
+                patch.object(Path, 'open', refuse_file_open):
+            with self.assertRaisesRegex(ValueError, 'reparse'):
+                self.copy()
+        self.assertTrue(parent_created)
+        self.assertFalse(self.destination.exists())
+        self.assertEqual(independent_fingerprint(self.source), self.expected)
 
 
 class FreshBuildTest(unittest.TestCase):
@@ -78,6 +341,36 @@ class FreshBuildTest(unittest.TestCase):
         self.assertEqual(result['status'], 'unchanged')
         self.assertIsNone(result['recovery_path'])
         self.assertFalse((self.root / '.build-recovery').exists())
+
+    def test_multiblock_unchanged_bytes_and_same_size_change_control_promotion(self):
+        figure = self.root / 'figures' / 'large.png'
+        write_multiblock_fixture(figure)
+        with bounded_binary_reads():
+            build.build()
+            result = build.build()
+        self.assertEqual(result['status'], 'unchanged')
+        self.assertIsNone(result['recovery_path'])
+        self.assertFalse((self.root / '.build-recovery').exists())
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+        before = file_snapshot(self.root / 'dist')
+        with figure.open('r+b') as stream:
+            stream.seek(1048576 + 7)
+            stream.write(b'!')
+        with bounded_binary_reads():
+            changed = build.build()
+        self.assertEqual(changed['status'], 'built')
+        self.assertEqual(file_snapshot(changed['recovery_path']), before)
+        self.assertEqual(independent_fingerprint(self.root / 'dist' / 'figures' / figure.name),
+                         independent_fingerprint(figure))
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+    def test_empty_directory_changes_are_not_treated_as_unchanged_output(self):
+        build.build()
+        (self.root / 'dist' / 'obsolete-empty-directory').mkdir()
+        result = build.build()
+        self.assertEqual(result['status'], 'built')
+        self.assertTrue((result['recovery_path'] / 'obsolete-empty-directory').is_dir())
+        self.assertFalse((self.root / 'dist' / 'obsolete-empty-directory').exists())
 
     def test_failed_promotion_restores_previous_output(self):
         build.build()

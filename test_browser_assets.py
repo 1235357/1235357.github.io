@@ -1,5 +1,6 @@
 """Synthetic filesystem tests, not real parser/worker acceptance."""
 import hashlib
+import io
 import json
 import re
 import subprocess
@@ -347,6 +348,49 @@ class BrowserAssetsTest(unittest.TestCase):
             build.build()
         self.assertFalse((self.root / 'dist').exists())
 
+    def test_paired_pdf_modules_are_verified_and_copied_with_bounded_reads(self):
+        source = self.package / 'build' / 'pdf.worker.mjs'
+        expected = fixtures.write_multiblock_fixture(source)
+        self.registry['moduleHashes']['build/pdf.worker.mjs'] = expected[1]
+        (self.browser / 'pdf-assets.json').write_text(json.dumps(self.registry))
+        with fixtures.bounded_binary_reads(lambda path: path.name in ('pdf.mjs', 'pdf.worker.mjs')):
+            build.build()
+        target = self.root / 'dist' / 'browser-rag' / 'vendor' / 'build' / source.name
+        self.assertEqual(fixtures.independent_fingerprint(target), expected)
+
+    def test_pdf_module_hash_binds_the_bytes_written_before_source_changes(self):
+        source = self.package / 'build' / 'pdf.worker.mjs'
+        expected = fixtures.independent_fingerprint(source)
+        replacement = b'CHANGED AFTER VERIFIED READ'
+        real_open = Path.open
+
+        class MutatingReader:
+            def __init__(reader, stream):
+                reader.stream = stream
+
+            def __enter__(reader):
+                reader.stream.__enter__()
+                return reader
+
+            def read(reader, *args):
+                return reader.stream.read(*args)
+
+            def __exit__(reader, *args):
+                result = reader.stream.__exit__(*args)
+                with real_open(source, 'wb') as changed:
+                    changed.write(replacement)
+                return result
+
+        def mutate_after_read(path, mode='r', *args, **kwargs):
+            stream = real_open(path, mode, *args, **kwargs)
+            return MutatingReader(stream) if path == source and mode == 'rb' else stream
+
+        with patch.object(Path, 'open', mutate_after_read):
+            build.build()
+        target = self.root / 'dist' / 'browser-rag' / 'vendor' / 'build' / source.name
+        self.assertEqual(fixtures.independent_fingerprint(target), expected)
+        self.assertEqual(source.read_bytes(), replacement)
+
 
 MODEL_ID = 'Xenova/all-MiniLM-L6-v2'
 MODEL_REVISION = '751bff37182d3f1213fa05d7196b954e230abad9'
@@ -590,6 +634,146 @@ class EmbeddingAssetsTest(unittest.TestCase):
         self.assertIsNone(result['recovery_path'])
         self.assertFalse((self.root / '.build-recovery').exists())
 
+    def test_multiblock_embedding_assets_use_bounded_reads_and_remain_unchanged(self):
+        source = self.models / 'onnx' / 'model.onnx'
+        expected = fixtures.write_multiblock_fixture(source)
+        self.embedding_registry['modelFiles']['onnx/model.onnx'] = {
+            'bytes': expected[0], 'sha256': expected[1],
+        }
+        self.write_registry()
+        with fixtures.bounded_binary_reads(lambda path: path.name == 'model.onnx'):
+            build.build()
+            result = build.build()
+        target = self.root / 'dist' / 'browser-rag' / 'models' / MODEL_REVISION / MODEL_ID / 'onnx' / source.name
+        self.assertEqual(fixtures.independent_fingerprint(target), expected)
+        self.assertEqual(result['status'], 'unchanged')
+        self.assertIsNone(result['recovery_path'])
+        self.assertFalse((self.root / '.build-recovery').exists())
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+    def test_actual_embedding_stream_mismatches_refuse_before_promotion(self):
+        source = self.models / 'onnx' / 'model.onnx'
+        expected = fixtures.write_multiblock_fixture(source)
+        self.embedding_registry['modelFiles']['onnx/model.onnx'] = {
+            'bytes': expected[0], 'sha256': expected[1],
+        }
+        self.write_registry()
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        original = source.read_bytes()  # Synthetic fixture only; the oracle streamed it independently.
+        real_open = Path.open
+        for name, actual, error in (
+            ('short', original[:-1], 'bytes'),
+            ('overlong', original + b'!', 'bytes'),
+            ('same size wrong hash', bytes([original[0] ^ 1]) + original[1:], 'hash'),
+        ):
+            def changed_stream(path, mode='r', *args, **kwargs):
+                if path == source and mode == 'rb':
+                    return fixtures.BoundedBinaryReader(io.BytesIO(actual))
+                return real_open(path, mode, *args, **kwargs)
+
+            with self.subTest(case=name), patch.object(Path, 'open', changed_stream):
+                with self.assertRaisesRegex(ValueError, error):
+                    build.build()
+            self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+            self.assertFalse((self.root / '.build-recovery').exists())
+            self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+            self.assertEqual(fixtures.independent_fingerprint(source), expected)
+
+    def test_throwing_asset_reader_closes_handles_and_preserves_previous_output_without_payload_cleanup_reads(self):
+        source = self.models / 'onnx' / 'model.onnx'
+        expected = fixtures.write_multiblock_fixture(source)
+        self.embedding_registry['modelFiles']['onnx/model.onnx'] = {
+            'bytes': expected[0], 'sha256': expected[1],
+        }
+        self.write_registry()
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        failure = OSError('simulated asset read failure after first block')
+        handles = {}
+        real_open = Path.open
+
+        class ThrowingReader(fixtures.BoundedBinaryReader):
+            def __init__(reader, stream):
+                super().__init__(stream)
+                reader.first_block_read = False
+
+            def read(reader, size=-1):
+                if reader.first_block_read:
+                    self.assertEqual(handles['writer'].tell(), 1048576,
+                                     'The reader fault must follow one complete written block')
+                    raise failure
+                block = super().read(size)
+                reader.first_block_read = True
+                return block
+
+        def failing_source_reader(path, mode='r', *args, **kwargs):
+            in_stage = any(part.startswith('.dist-stage-') for part in path.parts)
+            if in_stage and mode == 'rb':
+                raise AssertionError('Failed-stage cleanup must not read payload bytes')
+            stream = real_open(path, mode, *args, **kwargs)
+            if path == source and mode == 'rb':
+                handles['reader'] = stream
+                return ThrowingReader(stream)
+            if in_stage and path.name == 'model.onnx' and mode == 'xb':
+                handles['writer'] = stream
+            return stream
+
+        with patch.object(Path, 'open', failing_source_reader):
+            with self.assertRaises(OSError) as captured:
+                build.build()
+        self.assertIs(captured.exception, failure)
+        self.assertEqual(set(handles), {'reader', 'writer'})
+        self.assertTrue(handles['reader'].closed)
+        self.assertTrue(handles['writer'].closed)
+        self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+        self.assertEqual(fixtures.independent_fingerprint(source), expected)
+        self.assertFalse((self.root / '.build-recovery').exists())
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+    def test_short_or_throwing_asset_writer_preserves_previous_output_and_cleans_stage(self):
+        source = self.models / 'onnx' / 'model.onnx'
+        expected = fixtures.write_multiblock_fixture(source)
+        self.embedding_registry['modelFiles']['onnx/model.onnx'] = {
+            'bytes': expected[0], 'sha256': expected[1],
+        }
+        self.write_registry()
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        real_open = Path.open
+
+        class FailingWriter:
+            def __init__(writer, stream, failure):
+                writer.stream = stream
+                writer.failure = failure
+
+            def __enter__(writer):
+                writer.stream.__enter__()
+                return writer
+
+            def __exit__(writer, *args):
+                return writer.stream.__exit__(*args)
+
+            def write(writer, block):
+                if writer.failure == 'short':
+                    return writer.stream.write(block[:-1])
+                writer.stream.write(block[:7])
+                raise OSError('simulated asset writer failure')
+
+        for failure in ('short', 'throwing'):
+            def failing_stage_writer(path, mode='r', *args, **kwargs):
+                stream = real_open(path, mode, *args, **kwargs)
+                if mode == 'xb' and path.name == 'model.onnx':
+                    return FailingWriter(stream, failure)
+                return stream
+
+            with self.subTest(failure=failure), patch.object(Path, 'open', failing_stage_writer):
+                with self.assertRaises(OSError):
+                    build.build()
+            self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+            self.assertFalse((self.root / '.build-recovery').exists())
+            self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
     def test_failed_embedding_promotion_restores_previous_output(self):
         build.build()
         before = fixtures.file_snapshot(self.root / 'dist')
@@ -662,8 +846,10 @@ class RealEmbeddingRegistryTest(unittest.TestCase):
             for name, (size, digest) in expected.items():
                 with self.subTest(group=group, name=name):
                     self.assertEqual(registry[group][name], {'bytes': size, 'sha256': digest})
-                    self.assertEqual(metadata((directory / name).read_bytes()), registry[group][name])
+                    actual_size, actual_digest = fixtures.independent_fingerprint(directory / name)
+                    self.assertEqual({'bytes': actual_size, 'sha256': actual_digest}, registry[group][name])
         self.assertEqual(set(registry['noticeFiles']), set(NOTICE_SOURCES))
         for name, relative_source in NOTICE_SOURCES.items():
             with self.subTest(notice=name):
-                self.assertEqual(metadata((browser / relative_source).read_bytes()), registry['noticeFiles'][name])
+                actual_size, actual_digest = fixtures.independent_fingerprint(browser / relative_source)
+                self.assertEqual({'bytes': actual_size, 'sha256': actual_digest}, registry['noticeFiles'][name])

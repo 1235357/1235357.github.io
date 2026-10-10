@@ -192,6 +192,39 @@ is financially supported. Reading these results is not evidence that you have
 performed that exercise. Weight loading, actual browser inference, output
 inspection, citation release and independent financial evaluation remain open.
 
+### Verifying a model file is not loading a model
+
+A browser generator first needs an exact model revision and its matching
+tokenizer, configuration and runtime. A completed download establishes that
+bytes arrived; it does not establish that those bytes match the pinned model,
+that the runtime can load them, or that a generated answer is supported.
+
+The local static builder now hashes binary files in 1-MiB reads and verifies the
+same blocks it writes into a private stage. Its manifest retains byte counts
+and digests instead of full file bodies. This matters when preparing a
+786,156,820-byte Q4 weight: reading the whole weight merely to compare two
+builds would make build memory scale with asset size. A local fingerprint-only
+diagnostic took 0.551 seconds and recorded 2,106,388 bytes of peak Python-traced
+allocations. Those measurements describe that operation on this machine, not
+the browser's RAM or GPU allocation and not model-initialization acceptance.
+
+Verification and copying must operate on the same bytes. Checking one file
+read and then copying a second read leaves room for the source to change
+between them. Here each written block contributes to the digest and byte
+count; an overlong stream is rejected before its extra block is written, and
+short input, a failed write or a wrong digest rejects the stage. A permanent
+test fails a read after one complete block and verifies that both handles
+close, the failed stage is removed without rereading its payloads, and the
+previous working preview stays intact.
+
+This connects CS310's resource-management concerns with CS381's separation of
+responsibilities. The copier establishes asset identity, the stage owner
+performs guarded cleanup, and the promotion code preserves the last working
+output. None of these components should rename an asset check as successful
+inference. In particular, the selected SDK still reads model bytes into a
+full buffer for initialization. Bounded build reads do not remove that separate
+browser/runtime memory cost.
+
 ## Explain the observed failure without exaggeration
 
 A prior local Qwen2.5-0.5B-Instruct run reached generation but omitted the required
