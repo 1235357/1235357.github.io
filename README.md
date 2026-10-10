@@ -2449,6 +2449,57 @@ response before native-worker/model acceptance. No launch method below proves
 cross-session uptime.
 
 <details>
+<summary>File-control recovery follow-up — local regression, October 9</summary>
+
+The live blog replay recovered after Clear/reselect and then completed native
+PDF/chunk/embedding/query work. A controlled index/Back traversal also returned
+an empty file control and allowed explicit reselection. Neither establishes the
+cause of the initial stale-selection symptom or earlier whole-tab crashes.
+
+A read-only VM probe identified a separate concrete code gap: `pagehide` clears
+the session but leaves the file control, and module initialization cannot cover a
+restore without module re-execution. The bounded repair in `pdf-app.mjs` and
+behavioral tests in the existing `pdf-session.test.mjs` follow this sequence:
+
+1. Capture/dispatch window events in the DOM harness; setting the simulated file
+   control to an empty value also empties its `files`, as the native control does.
+2. Observe RED for `pagehide` → `pageshow` on the same DOM/module and restoration
+   after initialization. Without explicit reselection, parsing must remain idle.
+3. Clear the file control after `pagehide` revokes session state. On `pageshow`,
+   release a stale control only when there is no source and no active operation.
+   Keep the initialization reset. Never auto-parse or clear literal question text.
+4. Verify `pageshow` preserves an accepted complete session and an active parser;
+   prove the same-file explicit choice starts exactly one new parse after repair.
+5. Independent SPEC then QUALITY review, whole tests, static build and real IAB
+   reload/reselect/navigation regression. Browser restoration ordering and
+   unexplained whole-tab crashes remain separate evidence limits.
+
+Status: local code accepted by independent SPEC then QUALITY review. Root
+independently observed **103/106 passing with three intended failures** before
+the production change, then **106/106 passing** after it. The complete Node
+suite passed **1209/1209**, and both Python static-build suites passed **47/47**;
+the latter also promoted changed output while the existing root-cwd preview
+remained alive. In the rebuilt article's actual IAB iframe, the original
+1,002-byte two-page fixture completed native parsing/chunking and real MiniLM
+FP32/WebGPU passage encoding and query ranking. The eight-token question
+returned physical page 2 first (cosine 0.358194), then physical page 1
+(0.199773). Inspecting candidate 1 selected the retained second page/chunk.
+Normal navigation to the series index followed by Back returned an idle lab
+with an empty file control; explicit selection of that same fixture started
+parsing again. This traversal does not tell us whether IAB used bfcache, and
+neither these live observations nor controlled tests identify the original
+whole-tab crash cause. Browser restoration of the question control is also
+not promised; the handlers themselves do not erase it.
+
+The official [MDN `pageshow` contract](https://developer.mozilla.org/en-US/docs/Web/API/Window/pageshow_event)
+includes initial load and history restoration, including bfcache. This explains
+why initialization alone is not the entire lifecycle boundary; it does not
+establish the actual ordering of file restoration in Codex IAB. The guard must
+preserve accepted artifacts and an active parser rather than reset every show.
+
+</details>
+
+<details>
 <summary>Dated process-lifetime investigation: observations, not an uptime claim</summary>
 
 On October 8 the previously started process

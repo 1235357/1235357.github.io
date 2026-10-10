@@ -593,23 +593,35 @@ class AppElement{
   replaceChildren(...children){this.children=[];if(this.tag==='select')this.value='';this.append(...children);}
   addEventListener(type,listener){this.listeners.set(type,listener);}
   removeAttribute(name){if(name==='value')this.value=undefined;}
-  fire(type){this.listeners.get(type)?.();}
+  fire(type,event){this.listeners.get(type)?.(event);}
+}
+class AppFileInput extends AppElement{
+  constructor(){super('input');this.files=[];}
+  get value(){return this.fileValue;}
+  set value(value){this.fileValue=String(value);if(value==='')this.files=[];}
 }
 function appHarness(harnessOptions={}){
-  const ids=new Map(),embeds=[],queries=[];let session,incarnation=0;
-  const byId=id=>{if(!ids.has(id))ids.set(id,new AppElement(id.endsWith('select')?'select':'div'));return ids.get(id);};
-  if(harnessOptions.restoredFile){byId('pdf-file').value=`C:\\fakepath\\${harnessOptions.restoredFile.name}`;byId('pdf-file').files=[harnessOptions.restoredFile];}
+  const ids=new Map(),extracts=[],computes=[],embeds=[],queries=[],windowListeners=new Map();let session,incarnation=0;
+  const byId=id=>{if(!ids.has(id))ids.set(id,id==='pdf-file'?new AppFileInput():new AppElement(id.endsWith('select')?'select':'div'));return ids.get(id);};
+  // These helpers model the restoration/chooser boundary. Only an explicit
+  // changed selection emits change; setting the file control to '' clears files.
+  const restoreFile=file=>{byId('pdf-file').value=`C:\\fakepath\\${file.name}`;byId('pdf-file').files=[file];};
+  const chooseFile=file=>{const previous=byId('pdf-file').value;restoreFile(file);if(previous!==byId('pdf-file').value)byId('pdf-file').fire('change');};
+  const dispatchWindow=(type,event={})=>{for(const listener of windowListeners.get(type)??[])listener({type,...event});};
+  if(harnessOptions.restoredFile)restoreFile(harnessOptions.restoredFile);
   if(harnessOptions.restoredQuestion!==undefined)byId('question-input').value=harnessOptions.restoredQuestion;
-  const context={document:{getElementById:byId,createElement:tag=>new AppElement(tag)},window:{addEventListener(){}},
+  const context={document:{getElementById:byId,createElement:tag=>new AppElement(tag)},window:{addEventListener(type,listener){
+      if(!windowListeners.has(type))windowListeners.set(type,new Set());windowListeners.get(type).add(listener);}},
     URL,Worker:class{},pdfjs:{},extractPdf(){},chunkInWorker(){},embedInWorker(){},queryInWorker(){},getItemWindow,EMBEDDING_SPEC,
     createPdfSession:options=>{session=createPdfSession({...options,runtimeId:'ui-parser',runtimeIdFactory:()=>`ui-${++incarnation}`,
-      extract:harnessOptions.extract??(async file=>extracted(file.name)),compute:async(record,options)=>{
+      extract:(file,options)=>{extracts.push({file,options});return (harnessOptions.extract??(async selected=>extracted(selected.name)))(file,options);},compute:async(record,options)=>{
+        computes.push({record,options});
         const packets=workerPackets(record,options.identity,harnessOptions.chunkOptions??chunkOptions);options.onProgress(packets[0].event);return packets[1];},
       embed:(record,options)=>{const pending=deferred();embeds.push({record,options,...pending});return pending.promise;},
       query:(record,passages,question,options)=>{const pending=deferred();queries.push({record,passages,question,options,...pending});return pending.promise;}});return session;}};
   const code=readFileSync(new URL('../pdf-app.mjs',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'')
     .replace(/import\.meta\.url/g,JSON.stringify('https://example.test/project/browser-rag/pdf-app.mjs'));
-  vm.runInNewContext(code,context);return {session,embeds,queries,byId};
+  vm.runInNewContext(code,context);return {session,extracts,computes,embeds,queries,byId,restoreFile,chooseFile,dispatchWindow};
 }
 const appText=node=>[node.textContent,...node.children.map(appText)].join('\n');
 const appTick=()=>new Promise(resolve=>setImmediate(resolve));
@@ -637,19 +649,116 @@ async function uiFinishQuery(task){const packet=uiQueryPackets(task);packet.prog
 
 test('app fresh startup clears a browser-restored file selection so the same PDF can be selected explicitly',async()=>{
   const file={name:'selectable-test.pdf'},rawQuestion='  PRIVATE restored question  ';let parses=0;
-  const {session,queries,embeds,byId}=appHarness({restoredFile:file,restoredQuestion:rawQuestion,
+  const {session,queries,embeds,byId,chooseFile}=appHarness({restoredFile:file,restoredQuestion:rawQuestion,
     extract:async selected=>{parses++;assert.equal(selected,file);return extracted(selected.name);}});
   assert.equal(byId('pdf-file').value,'','an empty fresh session must release the browser-restored selection');
+  assert.deepEqual(byId('pdf-file').files,[]);
   assert.equal(parses,0);assert.equal(queries.length,0);assert.equal(embeds.length,0);
   assert.equal(session.snapshot().status,'idle');assert.equal(session.document(),null);assert.equal(session.question(),null);
   assert.equal(byId('question-input').value,rawQuestion);assert.equal(JSON.stringify(session.snapshot()).includes('PRIVATE'),false);
   // The browser fires change only for a changed file selection. Exercise that
   // boundary while keeping the actual app change handler and session intact.
-  const selectedValue=`C:\\fakepath\\${file.name}`,previousValue=byId('pdf-file').value;
-  byId('pdf-file').value=selectedValue;byId('pdf-file').files=[file];
-  if(previousValue!==selectedValue)byId('pdf-file').fire('change');
+  chooseFile(file);
   await appTick();assert.equal(parses,1);assert.equal(session.document().source.name,file.name);
   assert.equal(session.snapshot().status,'extracted-not-indexed');assert.equal(queries.length,0);assert.equal(embeds.length,0);
+});
+
+test('app pagehide releases the same-DOM file selection and pageshow waits for an explicit same-file choice',async()=>{
+  const file={name:'same-DOM.pdf'},rawQuestion='  PRIVATE question kept in the control  ';
+  const {session,extracts,computes,embeds,queries,byId,chooseFile,dispatchWindow}=appHarness();
+  chooseFile(file);await appTick();await session.chunk();
+  const embedding=session.embed();finishEmbedding(embeds[0]);await embedding;
+  byId('question-input').value=rawQuestion;byId('query-top-k').value='1';byId('run-query').fire('click');await uiFinishQuery(queries[0]);
+  assert.equal(session.snapshot().status,'query-candidates-only');
+  assert.ok(session.document());assert.ok(session.chunks());assert.ok(session.embeddings());
+  assert.ok(session.queryEmbedding());assert.ok(session.retrieval());
+
+  dispatchWindow('pagehide',{persisted:true});
+  const cleared=session.snapshot();
+  assert.equal(cleared.status,'idle');assert.equal(cleared.lifecycle.active,null);
+  assert.equal(session.document(),null);assert.equal(session.chunks(),null);assert.equal(session.embeddings(),null);
+  assert.equal(session.question(),null);assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);
+  assert.equal(byId('pdf-file').value,'','leaving must release the selected file in the retained DOM');
+  assert.deepEqual(byId('pdf-file').files,[]);
+  dispatchWindow('pageshow',{persisted:true});await appTick();
+  assert.deepEqual(session.snapshot(),cleared,'showing an empty retained session must not advance its epoch');
+  assert.equal(byId('pdf-file').value,'');assert.deepEqual(byId('pdf-file').files,[]);
+  assert.equal(byId('question-input').value,rawQuestion);
+  assert.deepEqual([extracts.length,computes.length,embeds.length,queries.length],[1,1,1,1],'lifecycle events do not parse or run compute');
+
+  chooseFile(file);await appTick();
+  assert.equal(extracts.length,2,'reselecting the released same file starts exactly one additional parse');
+  assert.equal(session.document().source.name,file.name);assert.equal(session.snapshot().status,'extracted-not-indexed');
+  assert.deepEqual(byId('pdf-file').files,[file]);
+  assert.deepEqual([computes.length,embeds.length,queries.length],[1,1,1]);
+});
+
+test('app pageshow clears a file restored after fresh initialization without parsing or erasing literal question text',async()=>{
+  const file={name:'late-restored.pdf'},rawQuestion='  <script>PRIVATE restored literal</script>\n& <img src=x>  ';
+  const {session,extracts,computes,embeds,queries,byId,restoreFile,chooseFile,dispatchWindow}=appHarness({restoredQuestion:rawQuestion});
+  assert.equal(byId('pdf-file').value,'');assert.deepEqual(byId('pdf-file').files,[]);
+  const idle=session.snapshot();restoreFile(file);
+  assert.equal(byId('pdf-file').value,`C:\\fakepath\\${file.name}`);assert.deepEqual(byId('pdf-file').files,[file]);
+  dispatchWindow('pageshow',{persisted:false});await appTick();
+  assert.equal(byId('pdf-file').value,'','pageshow releases restoration that arrived after module initialization');
+  assert.deepEqual(byId('pdf-file').files,[]);assert.deepEqual(session.snapshot(),idle);
+  assert.equal(session.document(),null);assert.equal(session.question(),null);assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);
+  assert.equal(byId('question-input').value,rawQuestion);assert.equal(JSON.stringify(session.snapshot()).includes('PRIVATE'),false);
+  assert.deepEqual([extracts.length,computes.length,embeds.length,queries.length],[0,0,0,0]);
+  chooseFile(file);await appTick();
+  assert.equal(extracts.length,1);assert.equal(session.document().source.name,file.name);
+  assert.equal(byId('question-input').value,rawQuestion);assert.deepEqual([computes.length,embeds.length,queries.length],[0,0,0]);
+});
+
+test('app pageshow preserves accepted source chunks passage vectors query candidates and file selection',async()=>{
+  const file={name:'accepted-before-show.pdf'},rawQuestion='  PRIVATE accepted question\n  ';
+  const {session,extracts,computes,embeds,queries,byId,chooseFile,dispatchWindow}=appHarness();
+  chooseFile(file);await appTick();await session.chunk();
+  const embedding=session.embed();finishEmbedding(embeds[0]);await embedding;
+  byId('question-input').value=rawQuestion;byId('query-top-k').value='1';byId('run-query').fire('click');await uiFinishQuery(queries[0]);
+  const before=session.snapshot(),accepted={source:session.document(),chunks:session.chunks(),passages:session.embeddings(),
+    question:session.question(),query:session.queryEmbedding(),candidates:session.retrieval()},files=byId('pdf-file').files;
+  assert.equal(before.status,'query-candidates-only');assert.equal(before.lifecycle.active,null);
+  assert.ok(accepted.source);assert.ok(accepted.chunks);assert.ok(accepted.passages);assert.ok(accepted.query);assert.ok(accepted.candidates);
+  for(const persisted of [false,true]){
+    dispatchWindow('pageshow',{persisted});await appTick();
+    assert.deepEqual(session.snapshot(),before);
+    assert.equal(session.document(),accepted.source);assert.equal(session.chunks(),accepted.chunks);assert.equal(session.embeddings(),accepted.passages);
+    assert.equal(session.question(),accepted.question);assert.equal(session.queryEmbedding(),accepted.query);assert.equal(session.retrieval(),accepted.candidates);
+    assert.equal(byId('pdf-file').value,`C:\\fakepath\\${file.name}`);assert.equal(byId('pdf-file').files,files);
+    assert.equal(byId('question-input').value,rawQuestion);
+    assert.deepEqual([extracts.length,computes.length,embeds.length,queries.length],[1,1,1,1]);
+  }
+});
+
+test('app pageshow preserves a selected file and its deferred active parser when no source is accepted yet',async()=>{
+  const file={name:'still-parsing.pdf'},pending=deferred();
+  const {session,extracts,computes,embeds,queries,byId,chooseFile,dispatchWindow}=appHarness({extract:()=>pending.promise});
+  chooseFile(file);const before=session.snapshot(),files=byId('pdf-file').files;
+  assert.equal(before.status,'parsing');assert.ok(before.lifecycle.active);assert.equal(session.document(),null);assert.equal(extracts.length,1);
+  for(const persisted of [false,true]){
+    dispatchWindow('pageshow',{persisted});await appTick();
+    assert.deepEqual(session.snapshot(),before);assert.equal(extracts[0].options.signal.aborted,false);
+    assert.equal(byId('pdf-file').value,`C:\\fakepath\\${file.name}`);assert.equal(byId('pdf-file').files,files);
+    assert.deepEqual([extracts.length,computes.length,embeds.length,queries.length],[1,0,0,0]);
+  }
+  const record=extracted(file.name);pending.resolve(record);await appTick();
+  assert.equal(session.document(),record);assert.equal(session.snapshot().status,'extracted-not-indexed');assert.equal(session.snapshot().lifecycle.active,null);
+  assert.deepEqual([extracts.length,computes.length,embeds.length,queries.length],[1,0,0,0]);
+});
+
+test('app pagehide revokes an active parser and late completion cannot restore the cleared session or selection',async()=>{
+  const file={name:'leaving-during-parse.pdf'},pending=deferred();
+  const {session,extracts,computes,embeds,queries,byId,chooseFile,dispatchWindow}=appHarness({extract:()=>pending.promise});
+  chooseFile(file);assert.equal(session.snapshot().status,'parsing');assert.equal(extracts.length,1);
+  dispatchWindow('pagehide',{persisted:true});const cleared=session.snapshot();
+  assert.equal(extracts[0].options.signal.aborted,true);assert.equal(cleared.status,'idle');assert.equal(cleared.lifecycle.active,null);
+  assert.equal(byId('pdf-file').value,'');assert.deepEqual(byId('pdf-file').files,[]);
+  dispatchWindow('pageshow',{persisted:true});pending.resolve(extracted(file.name));await appTick();
+  assert.deepEqual(session.snapshot(),cleared);assert.equal(session.document(),null);assert.equal(session.chunks(),null);assert.equal(session.embeddings(),null);
+  assert.equal(session.question(),null);assert.equal(session.queryEmbedding(),null);assert.equal(session.retrieval(),null);
+  assert.equal(byId('pdf-file').value,'');assert.deepEqual(byId('pdf-file').files,[]);
+  assert.deepEqual([extracts.length,computes.length,embeds.length,queries.length],[1,0,0,0]);
 });
 
 test('app query controls require accepted passage vectors and preserve exact captured input',async()=>{

@@ -272,7 +272,10 @@ byId('clear-query').addEventListener('click',()=>{beginUiAction();session.clearQ
 byId('chunk-select').addEventListener('change',()=>{beginUiAction();showChunk();});
 byId('chunks-previous').addEventListener('click',()=>{beginUiAction();chunkWindowIndex--;showChunkWindow();});
 byId('chunks-next').addEventListener('click',()=>{beginUiAction();chunkWindowIndex++;showChunkWindow();});
-window.addEventListener('pagehide',()=>{beginUiAction();session.clear();});
+window.addEventListener('pagehide',()=>{beginUiAction();session.clear();fileInput.value='';});
+window.addEventListener('pageshow',()=>{
+  if(session.document()===null&&session.snapshot().lifecycle.active===null)fileInput.value='';
+});
 // A reload creates an empty session, even if browser form restoration retained
 // a previous file. Release that selection so choosing the same PDF emits change.
 fileInput.value='';

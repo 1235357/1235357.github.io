@@ -522,6 +522,39 @@ right to commit; source replacement invalidates every dependent artifact.” The
 reproduce those outcomes yourself. Assistant-run checks are not your mastery
 evidence. Context assembly and actual generation remain separate work.
 
+<details>
+<summary>Recovery lesson: a filename is not an accepted document</summary>
+
+A browser can restore a file control while the new application session contains
+no source. Choosing the same path can then leave no changed selection for the
+parser to observe. The control's filename and the session's accepted source are
+different state; neither should stand in for the other.
+
+The October 9 repair releases the file control after `pagehide` has revoked
+session state. A guarded `pageshow` also releases it when there is neither an
+accepted document nor an active operation. That `pageshow` handler preserves
+accepted artifacts and active parsing. Leaving the page intentionally invalidates
+the session; neither handler starts work automatically or erases the literal
+question control. [MDN documents `pageshow`](https://developer.mozilla.org/en-US/docs/Web/API/Window/pageshow_event)
+for initial load and history restoration, including bfcache; it does not establish
+IAB's actual file-restoration ordering.
+
+Three controlled regressions failed before the production change and passed
+after it. Independent specification and quality reviews passed. The rebuilt
+article iframe also completed native PDF/chunk work and real GPU encoding/query
+ranking; normal index navigation and Back returned an empty idle selection,
+and explicit same-file choice started parsing again. This does not prove that
+history used bfcache or identify the earlier whole-tab crash cause.
+
+Your exercise: run a query, navigate to the series index, return and inspect the
+current state before clicking anything. If the source is absent, explicitly
+choose the PDF again. Explain: “A restored file input is not proof that the
+current session has an accepted source. Recovery should restore a valid action
+boundary, not silently execute the user's document.” Keep your own observation;
+this agent-run regression is scaffolding, not your personal mastery evidence.
+
+</details>
+
 ## Source and verification boundary
 
 Implementation inspected: `src/nvidia_rag/service.py`, with composition and
