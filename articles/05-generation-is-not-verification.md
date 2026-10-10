@@ -146,11 +146,51 @@ embedding. Session ownership and financial evaluation remain separate checks.
 Passing a programming test is not evidence that the learner has completed this
 exercise or mastered it.
 
-The following step must render the pinned model's full chat template and count
-its actual token IDs, including instructions, evidence and generation markers.
-UTF-16 ranges locate JavaScript text; they are not the generator's token budget.
-Any future context reduction must be explicit and recounted. For now, neither
-this record nor the existing generator contract is a generated answer.
+### From evidence units to an exact prompt
+
+The locally implemented `prepareGenerationPrompt` makes that next boundary
+explicit. Its independent specification and code-quality reviews have passed
+for local prompt preparation; the module is not enabled or packaged in the browser demo.
+It revalidates the original provenance input, then creates a model-facing JSON
+record containing the unchanged question and every selected whole quote, with
+its citation, rank, document, page and text-window identity. The full inspection
+record separately retains the scores, vectors, receipts and source-item mapping.
+Removing those trace-only fields from the model payload is not shortening the
+quotes or silently dropping evidence to fit a token budget.
+
+The two messages have fixed roles: system instructions, followed by the JSON
+data. Angle characters in the JSON are escaped losslessly before the SDK renders
+the pinned Qwen chat template. For example, a source string containing a literal
+`<|im_start|>` becomes JSON data containing `\u003c|im_start|\u003e`; parsing
+that JSON recovers the original string. This prevents that literal spelling from
+becoming a role delimiter in this template. It does **not** establish resistance
+to ordinary-language prompt injection, nor does asking for JSON guarantee that
+the model will return the required structure.
+
+The adapter requires the SDK's exact full rendered template and tokenizes that
+whole string with truncation disabled. System text, JSON metadata, quotation
+text, role markers and the assistant prefix all count. It accepts the copied
+token IDs only if input length plus reserved output fits the configured window.
+UTF-16 offsets locate JavaScript text; they are not token counts. An over-budget
+prompt fails instead of hiding a shorter quotation behind a successful status.
+
+A local Node diagnostic used the actual downloaded, SHA-256-checked Qwen
+tokenizer pair and the installed SDK with two **synthetic** source paragraphs
+and synthetic retrieval vectors. Its 1,745-UTF-16 prompt encoded to **489 input
+tokens**. Reserving **128 output tokens** accepted a **617-token** window and
+refused a **616-token** window. The two quotes and raw question survived exactly,
+including Unicode, whitespace and marker spellings; the tokenizer saw only the
+intended three role starts and two role ends. This is a concrete tokenizer and
+budget observation, not an NVIDIA evaluation or a generated answer. The result
+is still named `prompt-prepared-not-generated`, with `generationMode: not-run`.
+
+For your own learning check, first explain why source ordinal and retrieval rank
+are different, then follow one complete quote into the JSON and back. Predict
+which extra text contributes tokens before running the tokenizer. Finally,
+explain why a correct budget receipt cannot prove that the future model's answer
+is financially supported. Reading these results is not evidence that you have
+performed that exercise. Weight loading, actual browser inference, output
+inspection, citation release and independent financial evaluation remain open.
 
 ## Explain the observed failure without exaggeration
 
