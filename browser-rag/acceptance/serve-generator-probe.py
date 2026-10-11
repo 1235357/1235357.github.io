@@ -1,7 +1,8 @@
 """Serve the C3 diagnostic locally, after verifying its fixed asset pins.
 
 This is an offline acceptance tool, separate from the static site build. It
-exposes five authored diagnostics, the generation contract and shared native core, five
+exposes five authored diagnostics, the generation contract, shared native core
+and its bounded receipt snapshot helper, five
 verified ignored-cache model files, and guarded regular files under ``dist``.
 It does not run a model or publish the diagnostic.
 """
@@ -29,7 +30,7 @@ MODEL_PREFIX = f'/browser-rag/models/{REVISION}/{MODEL_ID}/'
 ACCEPTANCE_PREFIX = '/browser-rag/acceptance/'
 DIAGNOSTICS = frozenset(('generator-probe.html', 'generator-probe.mjs',
     'generator-probe.worker.mjs', 'generator-probe-runtime.mjs', 'generator-probe-assets.json'))
-SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs'))
+SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs', 'receipt-snapshot.mjs'))
 
 # These pins are deliberately independent of the editable JSON manifest.
 # Tiny fixture descriptors may exercise verify_file/verify_stream, but cannot

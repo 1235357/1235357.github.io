@@ -2233,6 +2233,168 @@ The financial Generate control remains disabled. Fresh Worker/session ownership,
 native selected-PDF generation, independent gold/judge/human evaluation and the
 remaining full-product gates below are still required.
 
+##### C4.5a complete financial receipt boundary implementation plan
+
+> **For agentic workers:** use the already approved same-chat
+> subagent-driven development flow: TDD implementation, independent SPEC,
+> then independent QUALITY. This is one prerequisite within the full browser
+> financial pipeline, not a replacement for its Worker, UI and evaluation gates.
+
+**Goal:** Revalidate and detach the complete variable-length native receipt
+against the canonical prompt derived from the supplied original eight-field
+provenance input and captured generation options before Worker transport.
+
+**Architecture:** Reuse the existing native receipt copier and factor the pure
+prompt-body derivation shared with actual paired-tokenizer preparation. The new
+copiers check complete context/body/frame/settings and native metadata without
+calling a fake tokenizer, loading a model or asserting financial truth. A
+trusted native producer must still establish actual paired tokenization,
+generation and decoding; a pure receipt cannot authenticate those executions.
+The assembled context is a projection: this check revalidates against original
+input but is not an injective identity seal over every unselected source/vector
+value. The later session must separately own the exact input attempt.
+
+**Files:** modify `browser-rag/generator-native-core.mjs`,
+`browser-rag/generator-contract.mjs` only to expose the existing canonical
+preflight copier without duplicating its validation,
+`browser-rag/prompt-contract.mjs` and `browser-rag/financial-generator-runtime.mjs`;
+create `browser-rag/financial-generator-contract.mjs` and
+`browser-rag/tests/financial-generator-contract.test.mjs`. The independent
+QUALITY pass reproduced natural shared-node rereads and changing `ownKeys`
+acceptance. Add one small `browser-rag/receipt-snapshot.mjs` schema-directed
+reader, shared only within each complete copy call, to repair that requested
+capture-once behavior. Extend the existing
+prompt/native/runtime tests when needed. Do not modify protocol, session, UI,
+private-server routes, public build allowlists, model pins or token ceilings in
+this task, except for adding the new helper's exact dependency route to the
+existing private C3 diagnostic. The root observed its new static import returning
+HTTP 404 while `SOURCE_MODULES` still named only the original two authored
+modules. Modify `browser-rag/acceptance/serve-generator-probe.py` and its existing
+Python tests to allow only `receipt-snapshot.mjs`, then verify finite import
+closure, GET/HEAD byte identity and unknown/private-financial route refusal.
+No wildcard or public build promotion is allowed. Do not move the small native
+runtime input owner merely to create
+another abstraction. Record progress in this existing README.
+
+```js
+// Guard first, then reuse the canonical native projection. No C3 32/8 policy.
+copyNativeGeneratorReceipt(value, acceptedPreflight, maxDecodedUtf16 = 16384)
+copyGenerationPreflight(value) // Existing canonical validation, now reusable.
+// Rebuild expected context/model input/messages/ChatML from original input;
+// validate the supplied frame and canonical settings without tokenizing.
+copyPreparedGenerationPrompt(value, originalContextInput, options = {})
+// Exact complete native envelope, including the complete prepared prompt.
+copyFinancialNativeReceipt(value, originalContextInput, options = {})
+```
+
+- [x] **RED before production edits:** dynamically import the new boundary
+  with the existing absent-export assertion pattern; observe the expected
+  missing export failure. Build fixtures through real PDF page, chunk,
+  embedding/query and ranking contracts. Use declared tokenizer/SDK doubles
+  only to produce synthetic receipts, never as evidence of actual inference.
+- [x] **Native guard GREEN:** capture plain exact native fields once. Bound
+  the configured decoded cap to 1–16,384 before reading caller data. Validate
+  the supplied preflight canonically, then bound generated array length to
+  1–maxNewTokens before keys, entries, iteration or spreading. Reuse the
+  existing private copier with owned canonical inputs. Preserve EOS and length
+  as raw uninspected outcomes; reject empty/incomplete/interior EOS/wrong
+  prefix, unknown keys, altered pins/settings/bytes/stages/cleanup and unsafe
+  reflection failures. Only fixed private-safe ProbeError messages may escape.
+- [x] **Prompt body and frame GREEN:** share one pure complete body builder
+  between actual `prepareGenerationPrompt` and its receipt copier. Keep actual
+  SDK `apply_chat_template` comparison and tokenizer invocation unchanged.
+  Require exactly the existing prompt receipt fields and pinned identities.
+  Compare complete derived context, model input, two messages and rendered
+  ChatML without trimming, clipping, repair, fake tokenization or normalization.
+  Validate dense bounded numeric IDs, all-one same-length mask and full
+  canonical preflight against the caller options. Detach and deep-freeze
+  canonical values, not caller inputs; the pure result remains `not-run`.
+- [x] **Financial envelope GREEN:** require exactly the native fields plus
+  `preparedPrompt`, `outputInspection:'not-run'` and
+  `financialCorrectness:'unestablished'`. Copy the prepared prompt first and
+  use its canonical preflight for the shared native boundary. Preserve all
+  native fields, complete decoded text, full IDs, source segments, settings,
+  byte receipts, ordered stages and confirmed cleanup. Keep
+  `native-generation-complete-uninspected` / `native-run`; do not inspect JSON
+  here or upgrade to a financially correct answer. Export fixed safe
+  `FinancialGeneratorReceiptError` failures without raw causes or private data.
+  Have `runFinancialGenerator` return through this complete boundary using its
+  already owned original input and options; preserve preparation error codes.
+- [x] **Adversarial RED/GREEN:** reject independently changed raw question,
+  selected quote/source locator/topK, tokenizer identity, message/frame text,
+  token/mask/preflight/nested setting, native prompt IDs/generated IDs/sequence,
+  termination label, pins/bytes/stage ordering and disposal claims. Check
+  Unicode/whitespace and 16,384-unit text retention, 2,048 combined token budget,
+  post-copy mutation isolation and unfrozen callers. Getter/Proxy failures must
+  not leak text. Huge generated arrays must refuse before an iterator/index
+  getter; ignored PDF geometry must remain unread. Test a consistent synthetic
+  invented financial answer retaining unestablished truth and not-run output
+  inspection. Existing C3 greeting behavior and full financial preparation
+  tests must remain unchanged.
+- [x] **QUALITY repair RED/GREEN:** observe the six reproduced failures before
+  repair. Capture one key list and validate both its size and membership from
+  that same observation. Cache raw nodes' bounded fields/array length/entries
+  within a fresh per-call schema reader, then recheck every later role against
+  owned snapshots. Cover prepared IDs/preflight IDs, native generated/inspection
+  IDs, shared context representations and cross prepared/native/preflight aliases.
+  Reused snapshots must not bypass a stricter length/type role; cycles or unsafe
+  reflection still fail privately. Public copier signatures stay unchanged;
+  explicit internal delegations may share only a module-owned guarded reader,
+  never arbitrary injected read functions or process-global memo state. The
+  old C3/private validators and actual paired-tokenizer path remain unchanged.
+- [x] **Verify and accept locally:** run focused tests, all Node tests, all
+  Python tests, six-article build and diff checks. Read actual changes, then
+  obtain independent SPEC approval followed by QUALITY approval before a root
+  local commit. No browser financial inference, trusted-worker execution,
+  accuracy benchmark or full-goal completion may be inferred from these tests.
+- [x] **Private dependency repair:** first reproduce the missing helper route
+  in a failing test, add that exact authored module to the private allowlist,
+  and verify the actual C3 static import closure. Keep the financial modules
+  and unknown paths unserved. Only the root may restart the previously owned
+  loopback diagnostic after freshly verifying its PID/command identity; then
+  compare GET body length/SHA with HEAD and the local helper file. This restores
+  diagnostic delivery, not financial inference or public release.
+
+```powershell
+& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test --test-reporter=spec browser-rag/tests/financial-generator-contract.test.mjs browser-rag/tests/financial-generator-runtime.test.mjs browser-rag/tests/prompt-contract.test.mjs browser-rag/tests/generator-probe.test.mjs
+& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test --test-reporter=tap 'browser-rag/tests/*.test.mjs'
+& 'C:\ProgramData\anaconda3\python.exe' -u -m unittest discover
+& 'C:\ProgramData\anaconda3\python.exe' build.py
+git diff --check
+```
+
+C4.5a accepted locally on October 11 after repaired independent SPEC followed
+by QUALITY approval. The root verified 2,234 Node tests (0 failures,
+2,195.1748 ms), all 128 Python tests (27.103 s), the six-article build and diff
+checks. The shared-node repair had six observed RED failures; the exact private
+dependency route had three RED tests with six assertion/subtest failures before
+repair. The helper's live GET and HEAD both returned 200 and 4,572 bytes; GET
+SHA-256 matched `receipt-snapshot.mjs`, and financial/unknown/double-slash source
+routes remained 404. The root verified and restarted only its owned loopback
+diagnostic; the current listener is PID 98372, not the retired PID 47188.
+
+A fresh Codex in-app-browser C3 regression loaded the repaired module closure
+and generated the same complete eight-token greeting in 26,034.799999952316 ms.
+The receipt confirmed eight prepared assets / 815,725,938 verified cache bytes,
+zero preparation body network bytes, five SDK reads / 793,197,262 verified bytes,
+the eight native stages and successful resource cleanup. Its raw termination
+was `length`; the fixed prompt did not fulfill the requested small-test mention.
+This is a single warm diagnostic observation, not financial generation,
+token-level GPU profiling, answer quality or a latency/throughput benchmark.
+The complete record is in the existing
+`browser-rag/acceptance/qwen-native-runs-2026-10-11.json`. The public financial
+Generate control is still disabled and no GitHub publication occurred.
+
+After C4.5a, the next required transport is one fresh native Worker/SDK realm
+per exact financial command with ready/identity/sequence/stage/byte/deadline
+validation and captured channel methods. Its full receipt is a sibling artifact,
+not the compact controller payload. The subsequent session generation operation
+must capture the accepted query owner before `begin` clears the query terminal,
+revoke on edits/cancel/replacement/pagehide, and reject stale completion before
+visible commit. Only then can the private standalone and blog demo exercise
+the genuine selected PDF → complete paired prompt → native financial output →
+C4.4 inspection → source navigation path. Those gates remain unimplemented here.
+
 ##### Remaining C4 integration gates
 
 C4.2 accepted locally on October 11 after independent SPEC then QUALITY. The

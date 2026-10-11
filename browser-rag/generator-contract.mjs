@@ -169,6 +169,12 @@ function acceptPreflight(value) {
   }
 }
 
+// Reuse the same complete canonical validation at receipt boundaries. This
+// owns metadata and IDs only; it establishes neither tokenization nor a run.
+export function copyGenerationPreflight(value) {
+  return acceptPreflight(value);
+}
+
 // SDK adapters may later unwrap tensors into full-sequence arrays. This pure
 // check establishes token shape/prefix/termination only. A 'not-run' receipt
 // establishes no model invocation, decoded answer, tokenizer-byte acceptance,

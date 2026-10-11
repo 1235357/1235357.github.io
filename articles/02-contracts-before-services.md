@@ -289,6 +289,46 @@ depth, value-count and UTF-8 JSON-size limits bound what may enter controller
 state. PDF buffers and model tensors belong elsewhere. These are explicit local
 design choices, not measured browser memory limits or performance results.
 
+### Copying a message does not validate or freeze it
+
+The [MDN structured-clone reference](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm),
+read in the Codex in-app browser on October 11, explains that Worker messages use
+structured cloning. Function objects and DOM nodes cannot be cloned, and property
+descriptors, accessors and the prototype chain are not preserved. Consequently,
+freezing a plain record before sending it does not establish that its received
+copy is frozen. This transport behavior is not our application's schema,
+provenance policy or financial review.
+
+Apply that distinction to a proposed financial-generation reply. The receiver
+must validate its complete permitted shape, token reservation, effective model
+settings, source-derived prompt and cleanup records, then construct its own
+detached values. A successful message delivery is not permission to display an
+arbitrary object. Likewise, copying a consistent token frame cannot prove that
+the real paired tokenizer encoded the displayed text, or that the decoded answer
+matches those generated IDs. Actual native execution needs separate evidence.
+The complete financial receipt boundary is now implemented and locally reviewed.
+Its tests cover canonical shape, shared-node snapshots and mutation isolation;
+they do not establish native financial execution. Its future transport and
+session integration are not established here.
+
+There is also a subtler identity issue. The original provenance input has eight
+fields, but its assembled prompt context deliberately omits some values, such as
+passage token IDs and the passage embedding's cache/network receipt. Two valid
+inputs can therefore produce the same displayed context. Revalidating an input
+against that projection does not make the projection a byte-for-byte identity
+seal. The later asynchronous generation operation must retain its exact owned
+input and check its current attempt separately; a prompt copier must not claim
+to replace that lifecycle check.
+
+For your CS381 explanation, separate three responsibilities in full sentences:
+the browser transports a supported object representation; the application
+contract validates and owns the received values; the session decides whether
+the attempt may still commit. Predict what happens if a valid-looking reply
+arrives after the user selects another PDF. Then explain why both a correct
+schema and a correct source snapshot are insufficient without the current
+operation identity. This is a design exercise, not an assertion that financial
+generation has already been enabled.
+
 **October 7 execution receipt:** the three controller increments were implemented
 with independent specification and quality reviews. The first increment retained
 6 tests; replacement/cancellation expanded it to 15. Before the final validation

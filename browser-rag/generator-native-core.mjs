@@ -1,5 +1,6 @@
 import { prepareVerifiedAssetCache } from './verified-cache.mjs';
 import { GENERATION_SPEC, preflightGeneration, inspectGeneratedSequence } from './generator-contract.mjs';
+import { createReceiptSnapshot, requireReceiptSnapshot } from './receipt-snapshot.mjs';
 
 export const PROBE_MODEL = 'onnx-community/Qwen2.5-0.5B-Instruct';
 export const PROBE_REVISION = '22942cb7d7ba4cc81bb4673549ca4d4614469b5e';
@@ -137,6 +138,45 @@ function copyNativeReceipt(value, preflight, maxDecodedUtf16) {
       cachePreparation:Object.freeze({...prep}),sdkReads:Object.freeze({...reads}),elapsedMs:value.elapsedMs,
       stages:Object.freeze(stages),cleanup:Object.freeze({...cleanup})});
   } catch(error) {if(error instanceof ProbeError)throw error;fail('INVALID_GENERATION_OUTPUT');}
+}
+
+const NATIVE_RECEIPT_KEYS=['schemaVersion','status','generationMode','modelId','revision','device','dtype',
+  'promptTokenIds','generatedTokenIds','text','preflight','inspection','cachePreparation','sdkReads','elapsedMs','stages','cleanup'];
+
+// Detach the complete variable-length native receipt before transport. This
+// validates shape/pins/termination/cleanup; it does not authenticate invocation
+// or establish the relationship of decoded text to IDs or financial truth.
+export function copyNativeGeneratorReceipt(value,acceptedPreflight,maxDecodedUtf16=16384) {
+  return copyNativeGeneratorReceiptWithSnapshot(value,acceptedPreflight,maxDecodedUtf16,createReceiptSnapshot());
+}
+
+// Trusted internal delegation shares bounded observations across the complete
+// financial envelope. Old C3 private validation and native execution stay as is.
+export function copyNativeGeneratorReceiptWithSnapshot(value,acceptedPreflight,maxDecodedUtf16,snapshot) {
+  if(!integer(maxDecodedUtf16,1,16384))fail('INVALID_PROBE_CONFIG');
+  try {
+    requireReceiptSnapshot(snapshot);
+    const captured={...snapshot.record(value,NATIVE_RECEIPT_KEYS)};
+    const preflight=snapshot.preflight(acceptedPreflight);
+    const supplied=snapshot.preflight(captured.preflight);
+    if(!sameCanonical(supplied,preflight))fail('INVALID_GENERATION_OUTPUT');
+    captured.preflight=preflight;
+    captured.promptTokenIds=snapshot.ids(captured.promptTokenIds,preflight.inputTokens,preflight.inputTokens);
+    captured.generatedTokenIds=snapshot.ids(captured.generatedTokenIds,1,preflight.maxNewTokens);
+    const checked=inspectGeneratedSequence([...preflight.promptTokenIds,...captured.generatedTokenIds],preflight);
+    if(!snapshot.matches(captured.inspection,checked))fail('INVALID_GENERATION_OUTPUT');
+    captured.inspection=checked;
+    captured.cachePreparation=snapshot.record(captured.cachePreparation,['assets','verifiedBytes','networkBytes','cacheBytes']);
+    captured.sdkReads=snapshot.record(captured.sdkReads,['reads','verifiedBytes']);
+    captured.cleanup=snapshot.record(captured.cleanup,['inputsDisposed','resultDisposed','modelDisposed','cacheClosed','devicesDestroyed']);
+    const rawStages=snapshot.array(captured.stages,PROBE_STAGES.length,PROBE_STAGES.length);
+    const stages=[];
+    for(let index=0;index<PROBE_STAGES.length;index++)stages.push(snapshot.record(rawStages[index],['stage','elapsedMs']));
+    captured.stages=stages;
+    // The private validator sees only owned arrays and records. Its existing
+    // C3/native lifecycle callers keep their current behavior.
+    return copyNativeReceipt(captured,preflight,maxDecodedUtf16);
+  } catch {fail('INVALID_GENERATION_OUTPUT');}
 }
 
 function dependencies(options) {

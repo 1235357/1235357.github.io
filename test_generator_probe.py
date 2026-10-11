@@ -5,6 +5,8 @@ import io
 import json
 import os
 from pathlib import Path
+import posixpath
+import re
 import shutil
 import tempfile
 import types
@@ -35,7 +37,7 @@ RUNTIME_FILES = {
 }
 DIAGNOSTICS = frozenset(('generator-probe.html', 'generator-probe.mjs',
     'generator-probe.worker.mjs', 'generator-probe-runtime.mjs', 'generator-probe-assets.json'))
-SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs'))
+SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs', 'receipt-snapshot.mjs'))
 
 
 def pinned_manifest():
@@ -158,6 +160,14 @@ class ConfigurationTest(ProbeFixture):
             with self.assertRaisesRegex(SystemExit, 'startup refused'):
                 probe.main([])
 
+    def test_missing_receipt_snapshot_refuses_startup_before_binding(self):
+        (self.browser / 'receipt-snapshot.mjs').unlink()
+        with patch.object(probe, 'REPOSITORY_ROOT', self.root), \
+                patch.object(probe, 'verify_file', return_value=None), \
+                patch.object(probe, 'HTTPServer', side_effect=AssertionError('bound without static dependency')):
+            with self.assertRaisesRegex(SystemExit, 'startup refused'):
+                probe.main([])
+
     def test_startup_rejects_runtime_registry_drift(self):
         self.write(self.browser / 'embedding-assets.json', b'{"runtimeFiles": {}}')
         with self.assertRaisesRegex(ValueError, 'runtime|registry|pins'):
@@ -244,7 +254,8 @@ class RoutingTest(ProbeFixture):
                                  self.browser / name)
 
     def test_unknown_source_modules_and_cache_paths_are_not_exposed(self):
-        for name in ('financial-generator-runtime.mjs', 'private.mjs', 'private.json',
+        for name in ('financial-generator-runtime.mjs', 'financial-generator-contract.mjs',
+                     'prompt-contract.mjs', 'private.mjs', 'private.json',
                      '.model-cache/private.onnx'):
             self.write(self.browser / name, b'private source module')
             with self.subTest(name=name), self.assertRaises((ValueError, FileNotFoundError)):
@@ -301,9 +312,9 @@ class MemoryConnection:
 
 
 class HandlerTest(ProbeFixture):
-    def request(self, method, target, client='127.0.0.1'):
+    def request(self, method, target, client='127.0.0.1', repository_root=None):
         connection = MemoryConnection(f'{method} {target} HTTP/1.0\r\nHost: localhost\r\n\r\n'.encode('ascii'))
-        server = types.SimpleNamespace(repository_root=self.root, server_name='localhost', server_port=8766)
+        server = types.SimpleNamespace(repository_root=repository_root or self.root, server_name='localhost', server_port=8766)
         class QuietHandler(probe.ProbeRequestHandler):
             def log_message(self, format, *args):
                 pass
@@ -333,6 +344,79 @@ class HandlerTest(ProbeFixture):
                 self.assertEqual(headers['Content-Type'], 'application/javascript')
                 self.assertEqual(headers['Cache-Control'], 'no-store')
                 self.assertEqual(body, data if method == 'GET' else b'')
+
+    def test_get_and_head_receipt_snapshot_serve_exact_local_bytes_and_sha(self):
+        data = (ROOT / 'browser-rag' / 'receipt-snapshot.mjs').read_bytes()
+        expected_sha = hashlib.sha256(data).hexdigest()
+        self.write(self.browser / 'receipt-snapshot.mjs', data)
+        for repository_root in (self.root, ROOT):
+            for method in ('GET', 'HEAD'):
+                with self.subTest(repository_root=repository_root, method=method):
+                    status, headers, body = self.request(method, '/browser-rag/receipt-snapshot.mjs',
+                                                         repository_root=repository_root)
+                    self.assertEqual(status, 200)
+                    self.assertEqual(headers['Content-Length'], str(len(data)))
+                    self.assertEqual(headers['Content-Type'], 'application/javascript')
+                    self.assertEqual(headers['Cache-Control'], 'no-store')
+                    self.assertEqual(headers['X-Content-Type-Options'], 'nosniff')
+                    self.assertEqual(body, data if method == 'GET' else b'')
+                    if method == 'GET':
+                        self.assertEqual(hashlib.sha256(body).hexdigest(), expected_sha)
+
+    def test_native_probe_static_module_closure_is_served_from_actual_authored_entry(self):
+        # Follow the actual page module, its literal native Worker entry and
+        # static import/export graph. Dynamic pinned SDK/model loading is a
+        # separate acceptance boundary; this executes no JavaScript or sockets.
+        html = (ROOT / 'browser-rag' / 'acceptance' / 'generator-probe.html').read_text(encoding='utf-8')
+        entries = re.findall(r'<script\s+type="module"\s+src="([^"]+)"', html)
+        self.assertEqual(entries, ['./generator-probe.mjs'])
+        pending = [posixpath.normpath('/browser-rag/acceptance/' + name) for name in entries]
+        static_module = re.compile(r'^\s*(?:import|export)\s+(?:[^;]*?\s+from\s+)?[\'"]([^\'"]+)[\'"]\s*;', re.MULTILINE)
+        native_worker = re.compile(r'new\s+Worker\s*\(\s*new\s+URL\s*\(\s*[\'"]([^\'"]+)[\'"]\s*,\s*import\.meta\.url')
+        visited = set()
+        while pending:
+            target = pending.pop()
+            if target in visited:
+                continue
+            visited.add(target)
+            with self.subTest(target=target):
+                status, headers, body = self.request('GET', target, repository_root=ROOT)
+                self.assertEqual(status, 200)
+                path = probe.resolve_request(ROOT, target)
+                data = path.read_bytes()
+                self.assertEqual(headers['Content-Length'], str(len(data)))
+                self.assertEqual(headers['Content-Type'], 'application/javascript')
+                self.assertEqual(body, data)
+                self.assertEqual(hashlib.sha256(body).hexdigest(), hashlib.sha256(data).hexdigest())
+                source = data.decode('utf-8')
+                for name in static_module.findall(source) + native_worker.findall(source):
+                    self.assertTrue(name.startswith('./') or name.startswith('../'), name)
+                    pending.append(posixpath.normpath(posixpath.join(posixpath.dirname(target), name)))
+        self.assertIn('/browser-rag/acceptance/generator-probe.worker.mjs', visited)
+        self.assertIn('/browser-rag/receipt-snapshot.mjs', visited)
+        self.assertIn('/browser-rag/generator-native-core.mjs', visited)
+        self.assertIn('/browser-rag/generator-contract.mjs', visited)
+        self.assertFalse((ROOT / 'dist' / 'browser-rag' / 'receipt-snapshot.mjs').exists())
+
+    def test_private_financial_modules_and_snapshot_aliases_remain_404(self):
+        for name in ('financial-generator-runtime.mjs', 'financial-generator-contract.mjs',
+                     'prompt-contract.mjs', 'receipt-snapshot-private.mjs', 'private.mjs',
+                     '.model-cache/private.onnx'):
+            self.write(self.browser / name, b'PRIVATE source bytes')
+            for repository_root in (self.root, ROOT):
+                for method in ('GET', 'HEAD'):
+                    with self.subTest(name=name, method=method, repository_root=repository_root):
+                        status, headers, body = self.request(method, '/browser-rag/' + name,
+                                                             repository_root=repository_root)
+                        self.assertEqual(status, 404)
+                        self.assertNotIn(b'PRIVATE source bytes', body)
+        for target in ('/browser-rag/receipt-snapshot.mjs?cache=1', '/browser-rag/receipt-snapshot.mjs#fragment',
+                       '/browser-rag/%72eceipt-snapshot.mjs', '/browser-rag/./receipt-snapshot.mjs',
+                       '/browser-rag//receipt-snapshot.mjs', '/browser-rag/receipt-snapshot.mjs/',
+                       '/browser-rag/receipt-snapshot.mjs.bak'):
+            with self.subTest(target=target):
+                status, headers, body = self.request('GET', target)
+                self.assertEqual(status, 404)
 
     def test_head_has_get_length_and_mime_with_no_body(self):
         data = b'\x00asm fixture'

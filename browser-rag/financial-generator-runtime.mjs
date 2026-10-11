@@ -3,6 +3,7 @@ import { copyValidatedSource } from './compute-source.mjs';
 import { prepareGenerationPrompt, PromptError } from './prompt-contract.mjs';
 import { preflightGeneration } from './generator-contract.mjs';
 import { runNativeGenerator } from './generator-native-core.mjs';
+import { copyFinancialNativeReceipt } from './financial-generator-contract.mjs';
 
 export const FINANCIAL_MAX_DECODED_UTF16 = 16384;
 const INPUT_KEYS = ['source','chunkArtifact','embeddingArtifact','question','queryResult','topK','queryDownloadTotal','queryMetadata'];
@@ -55,5 +56,5 @@ export async function runFinancialGenerator(contextInput,generationOptions={},ru
       } catch(error) {preparationError=error;throw error;}
     },runtimeOptions,FINANCIAL_MAX_DECODED_UTF16);
   } catch(error) {throw preparationError??error;}
-  return Object.freeze({...native,preparedPrompt,outputInspection:'not-run',financialCorrectness:'unestablished'});
+  return copyFinancialNativeReceipt({...native,preparedPrompt,outputInspection:'not-run',financialCorrectness:'unestablished'},snapshot,options);
 }

@@ -1,5 +1,6 @@
 import { assembleProvenanceContext } from './context-contract.mjs';
 import { GENERATION_SPEC, GenerationContractError, preflightGeneration } from './generator-contract.mjs';
+import { createReceiptSnapshot, requireReceiptSnapshot } from './receipt-snapshot.mjs';
 
 // Pinned prompt identity only. This does not establish tokenizer asset integrity,
 // model execution, prompt injection resistance or financial answer correctness.
@@ -87,23 +88,66 @@ function snapshotFrame(value) {
   } catch { fail('INVALID_PROMPT_FRAME'); }
 }
 
-// The original eight-field provenance input must be revalidated here. This is
-// synchronous preparation only; the supplied tokenizer is not a model runner.
-export function prepareGenerationPrompt(contextInput, tokenizer, options = {}) {
-  const captured = preflight([0], options);
-  const generationOptions = { contextWindowTokens: captured.contextWindowTokens, maxNewTokens: captured.maxNewTokens };
+function promptBody(contextInput) {
   let context;
   try { context = assembleProvenanceContext(contextInput); }
   catch { fail('INVALID_PROMPT_INPUT'); }
   let modelInput, data;
   try {
     modelInput = projectModelInput(context);
-    // Escaping data angles losslessly neutralizes literal ChatML markers in
-    // data. Ordinary prose remains untrusted and resistance is not established.
+    // Stringify only the owned canonical projection, never a caller receipt.
     data = JSON.stringify(modelInput).replaceAll('<', '\\u003c').replaceAll('>', '\\u003e');
   } catch { fail('PROMPT_FAILED'); }
   if (data.length > PROMPT_SPEC.maxPromptUtf16) fail('PROMPT_INPUT_LIMIT');
   const messages = freeze([{ role: 'system', content: PROMPT_SPEC.system }, { role: 'user', content: data }]);
+  const renderedPrompt = '<|im_start|>system\n' + PROMPT_SPEC.system + '<|im_end|>\n'
+    + '<|im_start|>user\n' + data + '<|im_end|>\n<|im_start|>assistant\n';
+  return { context, modelInput, messages, renderedPrompt };
+}
+const PREPARED_KEYS = ['schemaVersion','status','generationMode','context','modelInput','messages',
+  'renderedPrompt','tokenizer','tokenIds','attentionMask','preflight'];
+function tokenizerIdentity() {
+  return { modelId: PROMPT_SPEC.modelId, revision: PROMPT_SPEC.revision,
+    libraryVersion: PROMPT_SPEC.libraryVersion, configSha256: PROMPT_SPEC.configSha256 };
+}
+
+// Revalidate the complete prepared body against the original eight-field
+// provenance and captured options. This pure copier cannot establish actual
+// text-to-IDs tokenization, model invocation or an original-input identity seal:
+// provenance assembly is a noninjective projection, owned by a later session.
+export function copyPreparedGenerationPrompt(value,originalContextInput,options={}) {
+  return copyPreparedGenerationPromptWithSnapshot(value,originalContextInput,options,createReceiptSnapshot());
+}
+
+// Trusted internal delegation shares one reader with the complete envelope.
+// The public copier always creates a fresh reader; there is no global cache.
+export function copyPreparedGenerationPromptWithSnapshot(value,originalContextInput,options,snapshot) {
+  try {requireReceiptSnapshot(snapshot);} catch {fail('INVALID_PROMPT_FRAME');}
+  const capturedOptions = preflight([0], options);
+  const body = promptBody(originalContextInput);
+  if (body.renderedPrompt.length > PROMPT_SPEC.maxPromptUtf16) fail('PROMPT_INPUT_LIMIT');
+  try {
+    const captured = snapshot.record(value,PREPARED_KEYS);
+    const size=snapshot.length(captured.tokenIds,0,GENERATION_SPEC.maxDeviceWindowTokens);
+    const maskSize=snapshot.length(captured.attentionMask,0,GENERATION_SPEC.maxDeviceWindowTokens);
+    if(size!==maskSize)fail('INVALID_PROMPT_FRAME');
+    const frame={ids:snapshot.ids(captured.tokenIds,1,GENERATION_SPEC.maxDeviceWindowTokens),
+      mask:snapshot.mask(captured.attentionMask,size)};
+    const accepted = preflight(frame.ids, {contextWindowTokens:capturedOptions.contextWindowTokens,
+      maxNewTokens:capturedOptions.maxNewTokens});
+    const expected = {schemaVersion:1,status:'prompt-prepared-not-generated',generationMode:'not-run',
+      ...body,tokenizer:tokenizerIdentity(),tokenIds:accepted.promptTokenIds,attentionMask:frame.mask,preflight:accepted};
+    if (!snapshot.matches(value, expected)) fail('INVALID_PROMPT_FRAME');
+    return freeze(expected);
+  } catch { fail('INVALID_PROMPT_FRAME'); }
+}
+
+// The original eight-field provenance input must be revalidated here. This is
+// synchronous preparation only; the supplied tokenizer is not a model runner.
+export function prepareGenerationPrompt(contextInput, tokenizer, options = {}) {
+  const captured = preflight([0], options);
+  const generationOptions = { contextWindowTokens: captured.contextWindowTokens, maxNewTokens: captured.maxNewTokens };
+  const {context,modelInput,messages,renderedPrompt:expected} = promptBody(contextInput);
   let applyChat;
   try {
     if (typeof tokenizer !== 'function') fail('INVALID_PROMPT_TOKENIZER');
@@ -120,8 +164,6 @@ export function prepareGenerationPrompt(contextInput, tokenizer, options = {}) {
   if (renderedPrompt.length > PROMPT_SPEC.maxPromptUtf16) fail('PROMPT_INPUT_LIMIT');
   // Compare the SDK result to the pinned no-tools template; never substitute a
   // manual renderer when the SDK fails or produces a different conversation.
-  const expected = '<|im_start|>system\n' + PROMPT_SPEC.system + '<|im_end|>\n'
-    + '<|im_start|>user\n' + data + '<|im_end|>\n<|im_start|>assistant\n';
   if (renderedPrompt !== expected) fail('INVALID_PROMPT_TOKENIZER');
   let sdkFrame;
   try {
@@ -134,7 +176,6 @@ export function prepareGenerationPrompt(contextInput, tokenizer, options = {}) {
   const accepted = preflight(frame.ids, generationOptions);
   return freeze({ schemaVersion: 1, status: 'prompt-prepared-not-generated', generationMode: 'not-run',
     context, modelInput, messages, renderedPrompt,
-    tokenizer: { modelId: PROMPT_SPEC.modelId, revision: PROMPT_SPEC.revision,
-      libraryVersion: PROMPT_SPEC.libraryVersion, configSha256: PROMPT_SPEC.configSha256 },
+    tokenizer: tokenizerIdentity(),
     tokenIds: accepted.promptTokenIds, attentionMask: frame.mask, preflight: accepted });
 }

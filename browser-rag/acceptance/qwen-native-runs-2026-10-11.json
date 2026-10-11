@@ -87,6 +87,30 @@
         {"stage": "cleanup", "elapsedMs": 27394.400000035763}
       ],
       "cleanup": {"inputsDisposed": 2, "resultDisposed": true, "modelDisposed": true, "cacheClosed": true, "devicesDestroyed": 1}
+    },
+    {
+      "kind": "receipt-snapshot-C4.5a-static-closure-regression",
+      "helperSha256": "af50e9a3e65b221743677eb0ec8e7ab7a6366de4b74000334cf370de81e48316",
+      "privateDelivery": {"getStatus": 200, "headStatus": 200, "bodyBytes": 4572, "bodyMatchesAuthoredSha256": true, "unknownFinancialAndDoubleSlashStatus": 404},
+      "uiTerminal": "Local generation completed",
+      "output": "Hello! It's nice to meet you",
+      "generatedTokenIds": [9707, 0, 1084, 594, 6419, 311, 3367, 498],
+      "termination": "length",
+      "pureContractGenerationMode": "not-run",
+      "cachePreparation": {"assets": 8, "verifiedBytes": 815725938, "networkBytes": 0, "cacheBytes": 815725938},
+      "sdkReads": {"reads": 5, "verifiedBytes": 793197262},
+      "elapsedMs": 26034.799999952316,
+      "stages": [
+        {"stage": "adapter", "elapsedMs": 0},
+        {"stage": "assets", "elapsedMs": 49.299999952316284},
+        {"stage": "sdk", "elapsedMs": 9794.699999988079},
+        {"stage": "tokenizer", "elapsedMs": 9851.199999988079},
+        {"stage": "model", "elapsedMs": 10152},
+        {"stage": "generate", "elapsedMs": 23489.099999964237},
+        {"stage": "reads", "elapsedMs": 26021.299999952316},
+        {"stage": "cleanup", "elapsedMs": 26021.399999976158}
+      ],
+      "cleanup": {"inputsDisposed": 2, "resultDisposed": true, "modelDisposed": true, "cacheClosed": true, "devicesDestroyed": 1}
     }
   ],
   "interpretation": {

@@ -303,10 +303,19 @@ test('the full rendered UTF-16 limit accepts its exact boundary and refuses the 
   assert.equal(result.renderedPrompt.length, SPEC.maxPromptUtf16);
   assert.equal(result.modelInput.evidence.length, 400);
   assert.deepEqual(JSON.parse(result.messages[1].content), result.modelInput);
+  assert.deepEqual(promptModule.copyPreparedGenerationPrompt(result,input),result);
   input.source.source.name += 'x'; input.chunkArtifact.source.name = input.source.source.name;
   const refused = tokenizerDouble({ ids: [5] });
   assert.throws(() => prepare(input, refused.tokenizer), fixedPrompt('PROMPT_INPUT_LIMIT'));
   assert.equal(refused.calls.apply.length, 1); assert.equal(refused.calls.tokenize.length, 0);
+  // An otherwise canonical body one unit over the cap cannot be accepted by
+  // the pure copier merely because no SDK renderer/tokenizer is invoked there.
+  const over = structuredClone(result);
+  over.context = assembleProvenanceContext(input); over.modelInput = projection(over.context);
+  over.messages[1].content = JSON.stringify(over.modelInput).replaceAll('<','\\u003c').replaceAll('>','\\u003e');
+  over.renderedPrompt = render(over.messages);
+  assert.equal(over.renderedPrompt.length,SPEC.maxPromptUtf16+1);
+  assert.throws(()=>promptModule.copyPreparedGenerationPrompt(over,input),fixedPrompt('PROMPT_INPUT_LIMIT'));
 });
 
 for (const frame of [null, undefined, true, [], new Map(), Promise.resolve({ input_ids: [5], attention_mask: [1] }),
