@@ -187,6 +187,11 @@ function copyArtifact(artifact, source, requestedConfig, receipt) {
 // Public two-argument provenance boundary uses global output caps and the
 // artifact's validated declared settings. Worker validation keeps the caller's
 // requested settings, reduced output budgets and terminal count equality.
+export function copyValidatedSource(source) {
+  try { return projectSource(source); }
+  catch { fail('INVALID_SOURCE'); }
+}
+
 export function copyValidatedChunkArtifact(source, artifact) {
   try { source = projectSource(source); }
   catch { fail('INVALID_SOURCE'); }

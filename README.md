@@ -2035,6 +2035,110 @@ const onInspect = unit => {
 & 'C:\ProgramData\anaconda3\python.exe' build.py
 ```
 
+##### C4.3 shared native execution and complete financial prompt
+
+**Goal:** Replace the fixed greeting-only execution frame with an additional
+real financial generation path, without duplicating the reviewed native
+loader, silently changing generation settings, or weakening the C3 diagnostic.
+This is runtime integration within the approved C4 architecture, not a new
+model, a browser fallback, or a public release.
+
+Both runtime entry points are worker-internal primitives: exactly one attempt
+per fresh owned native Worker/SDK realm. The imported SDK environment is a
+singleton within its realm, so overlapping calls or sequential retries may
+not reuse it. Injectable test dependencies do not make these functions a
+concurrent main-thread API. The later financial transport must retain the
+existing fresh-worker/one-command ownership discipline.
+
+**Files:** create `browser-rag/generator-native-core.mjs` and
+`browser-rag/financial-generator-runtime.mjs`; refactor only the existing
+`acceptance/generator-probe-runtime.mjs` facade; add focused native financial
+runtime tests. Export the existing bounded source projection from
+`compute-source.mjs` rather than clone ignored extractor/geometry extras.
+A shared test fixture may be extracted from the existing probe
+test if needed, with its original assertions retained. Preserve private C3
+delivery in `acceptance/serve-generator-probe.py` and `test_generator_probe.py`:
+only the exact authored `generator-contract.mjs` and newly shared
+`generator-native-core.mjs` source routes are allowed, and both must exist
+before the server binds. README remains root-owned. Do not change the public
+static allowlist or UI/session/protocol yet; no general source/cache directory
+may become browser-accessible through the private server.
+
+- [x] **RED variable native frame:** invoke the financial runtime with the
+  real parser/chunker/embedding/ranker provenance contracts, a controlled SDK
+  tokenizer and model, and reserved output. Assert complete question/evidence
+  projection, paired-template validation, all prompt IDs and all-one mask,
+  tensors shaped `[1, inputTokens]`, all canonical effective SDK settings,
+  generated-only decoding, exact prefix validation, and actual cleanup.
+  Cover at least two different prompt lengths and non-default output budgets.
+- [x] **RED refusal and ownership of inputs:** malformed provenance, caller
+  mutation during an awaited asset/tokenizer operation, template mismatch,
+  exact input-plus-output overflow, bad tensor type/shape/prefix, unknown IDs,
+  empty/incomplete output, overlong decoded text, device failure, abort and
+  late resource resolution must retain canonical failures. Overflow must fail
+  before model graph creation. A length-terminated result is only a raw
+  generation diagnostic, never an accepted financial draft.
+- [x] **GREEN one execution core:** extract the existing adapter proxy,
+  strict model/runtime pins, cache/SDK configuration, stage/byte guards,
+  cancellation scope and finally/late resource cleanup into
+  `generator-native-core.mjs`. Keep identical C3 public exports through its
+  facade. The core accepts a trusted local frame-preparation callback after
+  the actual paired tokenizer loads; canonically validate its full frame
+  and settings before model creation. Bound the result tensor using that
+  preflight rather than the historical 32/40 greeting sizes.
+- [x] **GREEN C3 compatibility:** the greeting facade still checks its exact
+  32 IDs, 40/8 budget, smoke status and 1,024-unit decoded bound. Its existing
+  byte/stage/receipt/resource regressions must all remain meaningful and pass;
+  no relaxed test expectation or changed asset pin may hide a regression.
+- [x] **GREEN financial facade:** expose
+  `runFinancialGenerator(contextInput, generationOptions = {}, runtimeOptions = {})`.
+  Validate and own a detached snapshot of the original eight provenance
+  fields before the first asynchronous native operation. With the actual
+  loaded tokenizer call `prepareGenerationPrompt` on that snapshot, retain
+  its complete immutable artifact, and run its exact variable frame through
+  the shared core. Keep the unchanged 2,048-token ceiling and 1–512 reservation.
+  Return a distinct bounded immutable receipt with the full prompt, generated
+  suffix, decoded text, preflight/inspection, cache/read receipts, stages and
+  confirmed cleanup. Its output-inspection and financial-quality states remain
+  explicitly unestablished; contract `generationMode: not-run` fields are not
+  rewritten to pretend they performed inference.
+- [x] **Verify:** new cases must demonstrate meaningful RED then GREEN.
+  Run focused probe/financial/prompt/generation tests and all Node/Python tests.
+  Independent SPEC then QUALITY precede a root local commit. Stub SDK tests
+  establish adapter correctness only, not a native GPU or financial answer.
+- [x] **Private delivery regression:** missing shared core prevents startup;
+  exact GET and HEAD deliver that same authored module, unknown source/cache
+  paths remain refused, and the five diagnostic files plus five model pins
+  remain unchanged. Root then restarts only the owned private diagnostic
+  server after review and reruns the actual native C3 probe in Codex IAB.
+
+C4.3 accepted locally on October 11 after independent SPEC and QUALITY,
+including the clarified fresh-worker precondition. Root freshly ran all
+1,984 Node tests (0 failures, 1,525.6505 ms), all 124 Python tests (24.736 s),
+the unchanged six-article build and whitespace checks. SPEC independently
+recreated baseline RED: the same 44 financial tests failed without the new
+entry points, four private-route assertions failed without core delivery,
+and removing only bounded source projection broke the ignored-getter test.
+These are fresh regression reconstructions, not a replay of the original
+chronological TDD session.
+
+The reviewed private server was restarted; exact core GET/HEAD returned 200
+and the body matched its authored SHA-256. Unknown source/cache routes stayed
+404. An actual fresh C3 IAB Worker used the shared core, generated eight IDs
+and displayed `Hello! It's nice to meet you`; the native receipt confirms
+all expected disposal, 815,725,938 verified asset-body bytes from warm cache,
+five sealed SDK reads and 27,411.1000 ms total. This fixed prompt ended by
+length, so it remains a diagnostic rather than an accepted financial draft.
+The dated private receipt is retained in
+`browser-rag/acceptance/qwen-native-runs-2026-10-11.json`, outside `dist`.
+Financial native browser execution, output inspection, UI/session integration,
+independent gold/judge evaluation and public delivery are still open.
+
+```powershell
+& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test --test-reporter=spec browser-rag/tests/financial-generator-runtime.test.mjs browser-rag/tests/generator-probe.test.mjs browser-rag/tests/prompt-contract.test.mjs browser-rag/tests/generator-contract.test.mjs
+& 'C:\ProgramData\anaconda3\python.exe' -u -m unittest discover
+```
+
 ##### Remaining C4 integration gates
 
 C4.2 accepted locally on October 11 after independent SPEC then QUALITY. The

@@ -1,7 +1,7 @@
 """Serve the C3 diagnostic locally, after verifying its fixed asset pins.
 
 This is an offline acceptance tool, separate from the static site build. It
-exposes five authored diagnostics, the current generation contract, five
+exposes five authored diagnostics, the generation contract and shared native core, five
 verified ignored-cache model files, and guarded regular files under ``dist``.
 It does not run a model or publish the diagnostic.
 """
@@ -29,6 +29,7 @@ MODEL_PREFIX = f'/browser-rag/models/{REVISION}/{MODEL_ID}/'
 ACCEPTANCE_PREFIX = '/browser-rag/acceptance/'
 DIAGNOSTICS = frozenset(('generator-probe.html', 'generator-probe.mjs',
     'generator-probe.worker.mjs', 'generator-probe-runtime.mjs', 'generator-probe-assets.json'))
+SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs'))
 
 # These pins are deliberately independent of the editable JSON manifest.
 # Tiny fixture descriptors may exercise verify_file/verify_stream, but cannot
@@ -165,7 +166,8 @@ def verify_startup(repository_root):
         path = guard_path(root / 'browser-rag' / 'acceptance' / name, root)
         if not path.is_file():
             raise ValueError('authored diagnostic is missing or not a regular file')
-    resolve_request(root, '/browser-rag/generator-contract.mjs')
+    for name in sorted(SOURCE_MODULES):
+        resolve_request(root, f'/browser-rag/{name}')
     resolve_request(root, '/')
     read_manifest(root)
     embedding = _read_registry(root / 'browser-rag' / 'embedding-assets.json', root)
@@ -196,8 +198,9 @@ def resolve_request(repository_root, target):
         if name not in DIAGNOSTICS:
             raise FileNotFoundError('unknown diagnostic route')
         path, allowed_root = root / 'browser-rag' / 'acceptance' / name, root
-    elif target == '/browser-rag/generator-contract.mjs':
-        path, allowed_root = root / 'browser-rag' / 'generator-contract.mjs', root
+    elif target in {f'/browser-rag/{name}' for name in SOURCE_MODULES}:
+        name = target[len('/browser-rag/'):]
+        path, allowed_root = root / 'browser-rag' / name, root
     elif target.startswith('/browser-rag/models/'):
         name = target[len(MODEL_PREFIX):] if target.startswith(MODEL_PREFIX) else None
         if name not in MODEL_FILES:

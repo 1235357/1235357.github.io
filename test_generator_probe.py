@@ -35,6 +35,7 @@ RUNTIME_FILES = {
 }
 DIAGNOSTICS = frozenset(('generator-probe.html', 'generator-probe.mjs',
     'generator-probe.worker.mjs', 'generator-probe-runtime.mjs', 'generator-probe-assets.json'))
+SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs'))
 
 
 def pinned_manifest():
@@ -58,7 +59,8 @@ class ProbeFixture(unittest.TestCase):
         self.write(self.dist / 'index.html', b'<html>local draft</html>')
         for name in DIAGNOSTICS:
             self.write(self.acceptance / name, b'authored diagnostic')
-        self.write(self.browser / 'generator-contract.mjs', b'authored contract')
+        for name in SOURCE_MODULES:
+            self.write(self.browser / name, b'authored module')
         for name in MODEL_FILES:
             self.write(self.browser / '.model-cache' / REVISION / name, b'tiny route fixture')
         self.write_manifest(pinned_manifest())
@@ -148,6 +150,14 @@ class ConfigurationTest(ProbeFixture):
         with self.assertRaisesRegex(ValueError, 'missing|file'):
             probe.verify_startup(self.root)
 
+    def test_missing_native_core_refuses_startup_before_binding(self):
+        (self.browser / 'generator-native-core.mjs').unlink()
+        with patch.object(probe, 'REPOSITORY_ROOT', self.root), \
+                patch.object(probe, 'verify_file', return_value=None), \
+                patch.object(probe, 'HTTPServer', side_effect=AssertionError('bound without native core')):
+            with self.assertRaisesRegex(SystemExit, 'startup refused'):
+                probe.main([])
+
     def test_startup_rejects_runtime_registry_drift(self):
         self.write(self.browser / 'embedding-assets.json', b'{"runtimeFiles": {}}')
         with self.assertRaisesRegex(ValueError, 'runtime|registry|pins'):
@@ -227,8 +237,18 @@ class RoutingTest(ProbeFixture):
             with self.subTest(name=name):
                 self.assertEqual(probe.resolve_request(self.root, f'/browser-rag/acceptance/{name}'),
                                  self.acceptance / name)
-        self.assertEqual(probe.resolve_request(self.root, '/browser-rag/generator-contract.mjs'),
-                         self.browser / 'generator-contract.mjs')
+        self.assertEqual(getattr(probe, 'SOURCE_MODULES', None), SOURCE_MODULES)
+        for name in SOURCE_MODULES:
+            with self.subTest(name=name):
+                self.assertEqual(probe.resolve_request(self.root, f'/browser-rag/{name}'),
+                                 self.browser / name)
+
+    def test_unknown_source_modules_and_cache_paths_are_not_exposed(self):
+        for name in ('financial-generator-runtime.mjs', 'private.mjs', 'private.json',
+                     '.model-cache/private.onnx'):
+            self.write(self.browser / name, b'private source module')
+            with self.subTest(name=name), self.assertRaises((ValueError, FileNotFoundError)):
+                probe.resolve_request(self.root, f'/browser-rag/{name}')
 
     def test_model_urls_resolve_only_to_five_exact_pinned_cache_files(self):
         for name in MODEL_FILES:
@@ -301,6 +321,18 @@ class HandlerTest(ProbeFixture):
         self.assertEqual(headers['Content-Length'], str(len(data)))
         self.assertEqual(headers['Content-Type'], 'application/javascript')
         self.assertEqual(body, data)
+
+    def test_get_and_head_native_core_read_the_same_exact_authored_file(self):
+        data = b'export const nativeCore = "fixture, not a model run";\n'
+        self.write(self.browser / 'generator-native-core.mjs', data)
+        for method in ('GET', 'HEAD'):
+            with self.subTest(method=method):
+                status, headers, body = self.request(method, '/browser-rag/generator-native-core.mjs')
+                self.assertEqual(status, 200)
+                self.assertEqual(headers['Content-Length'], str(len(data)))
+                self.assertEqual(headers['Content-Type'], 'application/javascript')
+                self.assertEqual(headers['Cache-Control'], 'no-store')
+                self.assertEqual(body, data if method == 'GET' else b'')
 
     def test_head_has_get_length_and_mime_with_no_body(self):
         data = b'\x00asm fixture'
