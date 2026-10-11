@@ -4,7 +4,7 @@ tags: [rag, generation, evidence]
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-10
+updated: 2026-10-11
 source_type: implementation-and-course-review
 ---
 
@@ -12,8 +12,9 @@ source_type: implementation-and-course-review
 
 The classroom baseline is evidence-only: generation is disabled. Generator code
 paths exist, but this chapter does not demonstrate an accepted generated-answer
-MVP. The recorded Qwen run is a rejected-output diagnostic, not a successful
-financial answer. Running a generator does not itself verify a retrieved passage.
+MVP. The earlier Python Qwen run is a rejected-output diagnostic, not a successful
+financial answer. The later private browser runs below generate a fixed greeting,
+not a financial answer. Running a generator does not itself verify a retrieved passage.
 This chapter reviews the inspected prompt, validator and local model adapter in
 `src/nvidia_rag/generation.py`. Other helper branches still need separate review.
 
@@ -189,8 +190,9 @@ are different, then follow one complete quote into the JSON and back. Predict
 which extra text contributes tokens before running the tokenizer. Finally,
 explain why a correct budget receipt cannot prove that the future model's answer
 is financially supported. Reading these results is not evidence that you have
-performed that exercise. Weight loading, actual browser inference, output
-inspection, citation release and independent financial evaluation remain open.
+performed that exercise. Execution of this provenance-bearing financial prompt,
+its output/source validation, citation release and independent financial
+evaluation remain open; the small greeting runs below do not satisfy those gates.
 
 ### Verifying a model file is not loading a model
 
@@ -297,8 +299,8 @@ The cache adapter now owns and awaits writes, then verifies cached bytes again
 when the SDK reads them. Source inspection and an actual SDK probe found that
 Transformers.js swallows a rejected custom-cache match and can then fetch the
 local URL. Its closed adapter must deny unexpected files without allowing that
-fallback. The adapter has passed its independent Node/SDK reviews, while real
-Qwen WebGPU inference remains a separate gate. Generation remains disabled in
+fallback. The adapter's independent Node/SDK reviews did not establish native
+Qwen inference. The later small browser runs are recorded below; generation remains disabled in
 the current financial browser UI.
 
 ### A cache write and an SDK read are separate obligations
@@ -329,12 +331,62 @@ For your exercise, predict what happens if the digest succeeds but `Cache.put`
 rejects, and why the SDK's swallowed lookup exception requires a deliberately
 errored body. Then explain why a completed cache receipt is not model inference.
 
-The next actual-runtime experiment uses a native browser Worker and a separate
+The private actual-runtime experiment uses a native browser Worker and a separate
 32-input-token, eight-output-token Qwen fixture before the financial prompt.
 The [pinned SDK's WebGPU guide](https://huggingface.co/docs/transformers.js/v3.8.1/guides/webgpu)
 shows the explicit device selection. Selecting a device is only configuration;
-our experiment must observe real loading, generation, output bounds and cleanup.
+the accepted runs below record loading, generation, output bounds and cleanup.
 It does not increase the financial context limit or establish answer accuracy.
+
+### Two real browser runs before the financial prompt
+
+On October 11, the private diagnostic actually loaded the pinned Qwen model
+and called generation in a fresh native Worker through the reviewed WebGPU
+adapter. It used the real tokenizer's fixed 32 input IDs and an eight-new-token
+limit. Both accepted runs produced `Hello! It's nice to meet you`, with generated
+IDs `[9707, 0, 1084, 594, 6419, 311, 3367, 498]`. The sequence stopped at its
+length limit, not EOS. It did not reach the requested mention of a small test,
+so this observation demonstrates local runtime integration, not complete
+instruction fulfillment, a financial answer or a quality score.
+
+The cold preparation read and verified 815,725,938 asset-body bytes. The next
+accepted run read that same amount from native CacheStorage and recorded zero
+asset-preparation network bytes. Each SDK then separately consumed five verified
+model files totaling 793,197,262 bytes. Runtime JavaScript and WebAssembly were
+also requested by the page; their transport is outside those preparation and
+SDK-body receipts. Calling the warm run "zero network traffic" would be wrong.
+
+The observed whole diagnostic durations were about 30.77 seconds cold and
+25.71 seconds warm. Those durations include asset checking, SDK/tokenizer/model
+initialization, generation and cleanup. They are two runs on this computer,
+not a p95 latency, time-to-first-token measurement, throughput benchmark or
+cross-device reproducibility result. Inspect the stage entries before deciding
+which operation to optimize; cache reuse does not keep a model resident when
+every explicit Run deliberately owns a new Worker.
+
+After each accepted run, the receipt confirmed two input tensors and one result
+tensor disposed, awaited model disposal, cache closure and one owned device
+destroyed. A separate Cancel action instead showed `ABORTED` and
+`worker-terminated; native disposal unconfirmed`, with no accepted output.
+Returning to the page allowed a new explicit run. The mounted-module regression
+also covers BFCache restoration, but the actual navigation returned a Ready
+page, so that navigation is not proof that BFCache was used.
+
+This is a useful CS381 contract exercise. An independent review found that a
+valid but different 80/16 preflight could previously cross the result boundary
+and be silently replaced with 40/8 in the displayed receipt. The adapter now
+compares the entire incoming preflight with its fixed canonical policy before
+accepting the output inspection. Explain why an internally consistent result
+is still wrong when it belongs to a different approved operation.
+
+For your CS310 learning check, explain why verifying a cache entry differs from
+loading the model, and why a cached model file differs from a resident model
+session. For the LLM connection, decode the eight returned IDs and explain what
+the length stop leaves unfinished. The next integration still needs the exact
+selected-PDF context, a deliberately larger token budget, source-linked output
+validation and separately evaluated financial predictions. The current
+financial inspector's Generate button remains disabled; this greeting does not
+replace that missing end-to-end behavior.
 
 ## Explain the observed failure without exaggeration
 

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local generator diagnostic · Financial RAG</title>
+  <link rel="stylesheet" href="../inspector.css">
+  <style>
+    .probe-output{white-space:pre-wrap;overflow-wrap:anywhere;border-left:2px solid var(--accent);padding:16px;background:var(--bg);font:22px/1.5 Georgia,serif;min-height:120px}
+    .probe-prompt{padding:14px;background:var(--bg);border-left:2px solid var(--warm);white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.7 Consolas,monospace}
+    .probe-actions button:first-child{background:var(--accent);color:var(--bg);font-weight:600}
+    .probe-receipt{max-height:620px;overflow:auto;padding:14px;background:var(--bg)}
+    .lead{max-width:850px}.probe-meta{border-top:1px solid var(--line);padding-top:20px;margin-top:24px}
+  </style>
+  <script type="module" src="./generator-probe.mjs"></script>
+</head>
+<body>
+  <header><a href="../inspector.html">Financial RAG / inspector</a><span>PRIVATE LOCAL DIAGNOSTIC · C3</span></header>
+  <main>
+    <div class="lead">
+      <p class="eyebrow">A SMALL, OBSERVABLE GENERATION GATE</p>
+      <h1>Can this browser generate locally?</h1>
+      <p>One fixed prompt, 32 input tokens, and at most 8 new tokens. Run creates a fresh module worker and asks the pinned Qwen model to generate with WebGPU.</p>
+    </div>
+    <div class="workspace">
+      <section class="panel" aria-labelledby="input-title">
+        <p class="eyebrow">01 / FIXED INPUT</p><h2 id="input-title">A very small local test</h2>
+        <div class="probe-prompt">system: You are a helpful assistant.
+
+user: Say hello briefly and mention this is a very small local test.</div>
+        <div class="buttons probe-actions"><button id="run-probe" type="button">Run local diagnostic</button><button id="cancel-probe" type="button" disabled>Cancel</button></div>
+        <div class="status-block" role="status" aria-live="polite"><p id="probe-status">Ready</p><p id="probe-detail">A fresh worker starts only when you press Run.</p><progress id="probe-progress" aria-label="Current asset bytes received" hidden></progress></div>
+        <p class="hint">Cache preparation verifies eight pinned local assets. SDK model reads use the sealed cache. Runtime JavaScript and WebAssembly loading are a separate boundary; these receipts describe verified bodies, not all browser traffic.</p>
+        <dl class="receipt probe-meta"><dt>Model</dt><dd id="probe-model"></dd><dt>Revision</dt><dd id="probe-revision"></dd><dt>Policy</dt><dd>WebGPU · q4 · greedy · 40 total tokens</dd><dt>Deadline</dt><dd>10 seconds to ready · 300 seconds to finish</dd></dl>
+        <details><summary>Exact 32 input token IDs</summary><pre id="probe-ids"></pre></details>
+      </section>
+      <section class="panel" aria-labelledby="output-title">
+        <p class="eyebrow">02 / GENERATED OUTPUT</p><h2 id="output-title">The runtime receipt</h2>
+        <div id="probe-output" class="probe-output" aria-live="polite">Awaiting generation.</div>
+        <p class="hint">This fixed greeting checks the local model integration. The financial prompt, document context, answer quality, and public release have their own later gates. The nested pure contract retains <code>generationMode: not-run</code>; the separate runtime receipt records this diagnostic invocation.</p>
+        <details open><summary>Pinned assets, SDK reads, elapsed stages and cleanup</summary><pre id="probe-receipt" class="probe-receipt">This attempt has no accepted runtime receipt.</pre></details>
+      </section>
+    </div>
+  </main>
+  <footer><span>Reader-owned local inference / engineering acceptance</span><span>Cancellation terminates the worker; it cannot prove native disposal.</span></footer>
+</body>
+</html>

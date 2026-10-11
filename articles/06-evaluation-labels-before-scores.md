@@ -3,7 +3,7 @@ title: Labels before scores
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-07
+updated: 2026-10-11
 source_type: implementation-and-course-review
 tags: [rag, evaluation, evidence]
 ---
@@ -13,7 +13,7 @@ tags: [rag, evaluation, evidence]
 ## Separate the questions an evaluation asks
 
 [Anyscale's evaluation guide](https://docs.anyscale.com/rag/evaluation), read
-2026-10-04, recommends assessing retrieval and generation separately. Retrieval
+2026-10-04 and rechecked in the in-app browser on 2026-10-11, recommends assessing retrieval and generation separately. Retrieval
 metrics require labeled relevant items; generation correctness needs verified
 reference answers. Faithfulness measures support from context, whereas relevance
 asks whether the answer addresses the question. Automated judges need calibration

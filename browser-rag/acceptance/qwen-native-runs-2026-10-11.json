@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "scope": "Root-observed Codex in-app-browser private local generation diagnostic; not financial RAG acceptance or a benchmark",
+  "date": "2026-10-11",
+  "timezone": "America/Chicago",
+  "url": "http://127.0.0.1:8766/browser-rag/acceptance/generator-probe.html",
+  "modelId": "onnx-community/Qwen2.5-0.5B-Instruct",
+  "revision": "22942cb7d7ba4cc81bb4673549ca4d4614469b5e",
+  "device": "webgpu",
+  "dtype": "q4",
+  "inputTokens": 32,
+  "maxNewTokens": 8,
+  "contextWindowTokens": 40,
+  "runs": [
+    {
+      "kind": "cold-preparation",
+      "uiTerminal": "Local generation completed",
+      "output": "Hello! It's nice to meet you",
+      "generatedTokenIds": [9707, 0, 1084, 594, 6419, 311, 3367, 498],
+      "termination": "length",
+      "pureContractGenerationMode": "not-run",
+      "cachePreparation": {"assets": 8, "verifiedBytes": 815725938, "networkBytes": 815725938, "cacheBytes": 0},
+      "sdkReads": {"reads": 5, "verifiedBytes": 793197262},
+      "elapsedMs": 30772.899999976158,
+      "stages": [
+        {"stage": "adapter", "elapsedMs": 0},
+        {"stage": "assets", "elapsedMs": 44.10000002384186},
+        {"stage": "sdk", "elapsedMs": 10578.600000023842},
+        {"stage": "tokenizer", "elapsedMs": 10625.300000011921},
+        {"stage": "model", "elapsedMs": 10918},
+        {"stage": "generate", "elapsedMs": 26349.69999998808},
+        {"stage": "reads", "elapsedMs": 30751.600000023842},
+        {"stage": "cleanup", "elapsedMs": 30751.69999998808}
+      ],
+      "cleanup": {"inputsDisposed": 2, "resultDisposed": true, "modelDisposed": true, "cacheClosed": true, "devicesDestroyed": 1}
+    },
+    {
+      "kind": "explicit-cancellation",
+      "uiTerminal": "Cancelled",
+      "output": "No accepted output for this attempt.",
+      "code": "ABORTED",
+      "cleanup": "worker-terminated; native disposal unconfirmed"
+    },
+    {
+      "kind": "warm-preparation-after-navigation-back",
+      "navigationObservation": "Returned page displayed Ready, not a demonstrated BFCache restore; explicit Run remained usable",
+      "uiTerminal": "Local generation completed",
+      "output": "Hello! It's nice to meet you",
+      "generatedTokenIds": [9707, 0, 1084, 594, 6419, 311, 3367, 498],
+      "termination": "length",
+      "pureContractGenerationMode": "not-run",
+      "cachePreparation": {"assets": 8, "verifiedBytes": 815725938, "networkBytes": 0, "cacheBytes": 815725938},
+      "sdkReads": {"reads": 5, "verifiedBytes": 793197262},
+      "elapsedMs": 25711.19999998808,
+      "stages": [
+        {"stage": "adapter", "elapsedMs": 0.09999996423721313},
+        {"stage": "assets", "elapsedMs": 30.80000001192093},
+        {"stage": "sdk", "elapsedMs": 9321.199999988079},
+        {"stage": "tokenizer", "elapsedMs": 9371.399999976158},
+        {"stage": "model", "elapsedMs": 9649.599999964237},
+        {"stage": "generate", "elapsedMs": 22599.19999998808},
+        {"stage": "reads", "elapsedMs": 25694.899999976158},
+        {"stage": "cleanup", "elapsedMs": 25695.099999964237}
+      ],
+      "cleanup": {"inputsDisposed": 2, "resultDisposed": true, "modelDisposed": true, "cacheClosed": true, "devicesDestroyed": 1}
+    }
+  ],
+  "interpretation": {
+    "runtimeExecutionObserved": true,
+    "allKernelsProfiledAsGpuOnly": false,
+    "financialContextUsed": false,
+    "financialAnswerQualityEstablished": false,
+    "completePromptInstructionFulfillmentEstablished": false,
+    "wholeBrowserNetworkAudit": false,
+    "publicRelease": false,
+    "note": "The fixed greeting stopped at eight new tokens and did not mention the requested small test. Warm preparation avoids asset-body transport, not necessarily runtime JS/WASM requests. These are two observations with fresh workers, not repeated latency/throughput or cross-device reproducibility measurements."
+  }
+}

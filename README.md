@@ -622,11 +622,11 @@ The original RAG demo was not changed or restarted by these checks.
 
 ## Presentation direction — one live walkthrough, two learning surfaces
 
-The earlier objective retired the long PPT and old Obsidian expansion as primary
-deliverables. The latest personalization instruction supersedes the Obsidian
-portion: retain the staged technical blog and reusable repository for the external
-portfolio, and restore the personal vault as a visual Excalidraw learning surface.
-That is a requested migration, not a completed one. Preserve historical files;
+The active objective retires the long PPT and old Obsidian expansion as primary
+deliverables. An earlier personalization instruction requested an Excalidraw
+vault migration, but the October 11 replacement no longer retains that mandate.
+The current direction is the staged technical blog and reusable repository for
+the external portfolio; no vault migration is being undertaken. Preserve historical files;
 do not delete them or recommend presenting the entire 49-slide deck. The technical
 blog holds deep explanations; a live walkthrough starts with the question and
 honest answer/outcome status, then one core architecture diagram and only the
@@ -1702,14 +1702,15 @@ reads: two new serial cases now use one prepared store for three installed
 sealed-cache-bypass fault controls both failed before restoration. Independent
 rechecks passed 113 focused tests and all 1,831 Node tests; root also freshly
 reran both suites successfully. Root's fresh complete
-85-test Python run passed in 25.768 seconds. The adapter source SHA-256 is
+85-test Python run passed in 23.399 seconds. The adapter source SHA-256 is
 `3d88ffb6c24d1227163ac4238f47747da773484b61df65b86df147816659feaf`.
 This accepts Node/SDK/cache-contract and static packaging behavior, not native
 browser CacheStorage, Qwen model initialization or generation.
 The six-article local rebuild succeeded, delivered cache bytes exactly match
 the source, and the real IAB screenshot is `rag-cache-boundary-oct11.jpg`.
-The local checkpoint includes the next C3 execution plan; C3 has not yet passed
-review or actual-browser acceptance. No GitHub publication is performed.
+That C2 checkpoint included the then-unexecuted C3 plan. The later October 11
+C3 acceptance below records its independent reviews and real browser runs.
+No GitHub publication is performed.
 
 **Private model staging, October 11:** The five downloaded Qwen files are now
 under the existing ignored `.model-cache/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/`
@@ -1753,7 +1754,7 @@ Separate a small pure handler/runtime file only if the Worker exceeds a focused
 single responsibility. Do not change the default model-copy build, MiniLM caps,
 PDF/retrieval artifacts, dependency versions or public UI activation.
 
-- [ ] **C3.1 / RED exact local delivery:** Test GET/HEAD and Content-Length for
+- [x] **C3.1 / RED exact local delivery:** Test GET/HEAD and Content-Length for
   the five named model routes, diagnostic resources and accepted static files;
   refuse traversal, percent-encoded escapes, unknown model files, directories,
   query/fragment-bearing requests and a non-loopback bind. Model paths map only
@@ -1773,7 +1774,7 @@ PDF/retrieval artifacts, dependency versions or public UI activation.
   build does not deliver it. Other existing modules/vendor resources come from
   `dist`. No directory listing, broad source mount, external request or upload.
 
-- [ ] **C3.2 / RED owned Worker and actual loader:** The Worker accepts one fixed
+- [x] **C3.2 / RED owned Worker and actual loader:** The Worker accepts one fixed
   `{kind:'qwen-smoke',version:1}` command. Prepare the five model assets through
   C2 with fixed primary URLs and exact HF revision aliases; preserve all five
   byte/hash pins recorded above. Also verify the three runtime files against
@@ -1833,7 +1834,7 @@ PDF/retrieval artifacts, dependency versions or public UI activation.
   unchanged inside its report; the separate runtime receipt establishes the
   actual invocation. Await C2 `finishReads` before success.
 
-- [ ] **C3.3 / RED terminal ownership and UI:** Run/Cancel controls, fixed input
+- [x] **C3.3 / RED terminal ownership and UI:** Run/Cancel controls, fixed input
   and output token panels, pinned identity, cache preparation/SDK-read receipts,
   stage elapsed times and cleanup state. Use existing dark visual tokens and
   readable two-column layout; no new diagram without Archify/editable sources.
@@ -1848,7 +1849,7 @@ PDF/retrieval artifacts, dependency versions or public UI activation.
   Parent termination is a reachable resource boundary, not proof of a disposed
   model when the SDK has not returned. Do not delete persisted valid caches.
 
-- [ ] **C3.4 / review and actual acceptance:** Native lifecycle/loader unit tests
+- [x] **C3.4 / review and actual acceptance:** Native lifecycle/loader unit tests
   use meaningful importable-stub REDs and fault controls, not a fake model run
   claimed as GPU acceptance. Test malformed packets, cancel/timeout/late results,
   wrong token IDs/output prefix/shape, cache/load/generation failures, and owned
@@ -1860,6 +1861,28 @@ PDF/retrieval artifacts, dependency versions or public UI activation.
   evidence rather than silently changing backend. Record a screenshot and real
   receipts in the existing chapter/README. No public release, financial-quality
   result, throughput claim, source-permission claim or whole-goal completion.
+
+**October 11 C3 acceptance:** Independent SPEC and QUALITY passed after fixes
+for exact 40/8 receipt-policy equality, actual C2 byte-progress delivery, all
+five model-route GET/HEAD checks and restored-page Run ownership. Root freshly
+ran 1,892 Node tests (zero failures/skips) and 117 Python tests (final rerun: 22.655 seconds).
+The focused independent rechecks passed 61 Node and 32 Python tests. Startup
+verified all real pins before root bound `127.0.0.1:8766`; port 8765 remained on
+its original process. In Codex IAB, root observed a cold success, explicit
+cancellation, navigation back and a warm success with a new native Worker.
+Both successes generated the same eight IDs and greeting, stopped at length,
+and confirmed input/result/model/cache/device cleanup. Cold/warm elapsed times
+were 30,772.90 / 25,711.20 ms. Warm preparation verified 815,725,938 cached bytes
+and zero preparation network bytes; both SDK read receipts verified five model
+files totaling 793,197,262 bytes. Runtime JS/WASM still had separate transport.
+The exact observed projections and limitations are recorded in
+`browser-rag/acceptance/qwen-native-runs-2026-10-11.json`; it is an audit record,
+not a served diagnostic route or model asset. The cancelled attempt had no
+accepted output and explicitly left native disposal unconfirmed. Actual back
+navigation returned a Ready page; only the offline mounted-module regression
+establishes the BFCache-specific path. These observations accept the private
+small generation prerequisite, not financial generation, answer completeness,
+quality, performance SLOs, redistribution permission or the complete objective.
 
 **Next after a real successful probe:** Integrate the existing provenance prompt
 with selected-PDF context and deliberate larger token budgets. The end state
