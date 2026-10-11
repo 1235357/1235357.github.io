@@ -2579,7 +2579,7 @@ session.generationProgress();           // null or last bounded stage/byte detai
 ({status: 'refused', artifact: null, error: {code: safeCode, message: safeMessage}});
 ```
 
-- [ ] **Unavailable/default and preflight RED then GREEN:** add a small fixed
+- [x] **Unavailable/default and preflight RED then GREEN:** add a small fixed
   local `GenerationSessionError` with unavailable/invalid/failed session codes.
   An absent adapter, absent accepted query, active work or recursive generation
   refuses without loading financial modules or changing accepted state. Reserve
@@ -2590,7 +2590,7 @@ session.generationProgress();           // null or last bounded stage/byte detai
   await, options getters, complete input copy and runtime factory. Invalid
   settings, import failure, reused runtime ID or a throwing factory preserve the
   prior accepted outcome. Revocation during preflight prevents adapter startup.
-- [ ] **Separate query authority RED then GREEN:** a private predicate checks
+- [x] **Separate query authority RED then GREEN:** a private predicate checks
   accepted-query token/revision/document epoch plus current source/chunks/
   embeddings/question/query/retrieval references. The query owner is installed
   only after a rank result has been validated and accepted; its original terminal
@@ -2599,7 +2599,7 @@ session.generationProgress();           // null or last bounded stage/byte detai
   replacing runtime/beginning generation. Retain raw question whitespace,
   original topK/query metadata/full vectors. Never pass `session.context()` or
   compact rank metadata as the full input, and add no public `contextInput()`.
-- [ ] **Settings and fresh attempt RED then GREEN:** snapshot known own option
+- [x] **Settings and fresh attempt RED then GREEN:** snapshot known own option
   keys/values once; reject unknown keys before reading their values. Merge partial
   constructor and call generation settings before canonical defaults so overriding
   maxNewTokens does not reset a configured context window. Canonicalize via
@@ -2618,7 +2618,7 @@ session.generationProgress();           // null or last bounded stage/byte detai
     onProgress: ownedProgressHandler,
   });
   ```
-- [ ] **Owned progress RED then GREEN:** each callback is exact `{event, detail}`;
+- [x] **Owned progress RED then GREEN:** each callback is exact `{event, detail}`;
   snapshot headers/payload/detail once. Reject reentrant callback traversal.
   Validate complete identity, exact contiguous sequence and the 4096 packet cap,
   then all primitive stage/unit/detail correspondence before guard mutation.
@@ -2628,7 +2628,7 @@ session.generationProgress();           // null or last bounded stage/byte detai
   that attempt with a fixed protocol error, revokes before abort and publishes no
   artifact; stale progress is ignored before reading its private fields. Do not
   let a swallowed bad callback later produce a successful result.
-- [ ] **Full result and inspection RED then GREEN:** snapshot exact terminal
+- [x] **Full result and inspection RED then GREEN:** snapshot exact terminal
   `{event, artifact}` and identity/sequence. Copy the entire native receipt against
   the same owned eight fields/settings, assert every observed stage/byte read, and
   compare exact recomputed compact metadata. Recheck ownership after accessor-
@@ -2655,7 +2655,7 @@ session.generationProgress();           // null or last bounded stage/byte detai
   unestablished. The async method returns void, never a stale artifact after
   subscriber reentry. A throwing subscriber is normalized without private text;
   it must not strand work or leave a falsely accepted visible generation outcome.
-- [ ] **Invalidation/retry RED then GREEN:** generation cancel revokes its token
+- [x] **Invalidation/retry RED then GREEN:** generation cancel revokes its token
   and outputs before abort listeners, retains source/chunks/passages/query/context
   and permits a fresh runtime retry. `clearQuery()` revokes generation preflight
   or active generation and clears query/context/generation while preserving source,
@@ -2667,7 +2667,7 @@ session.generationProgress();           // null or last bounded stage/byte detai
   successful context reassembly clears generation outcome/error and returns to
   `context-not-generated`; failure preserves the prior state. Keep the existing
   post-notification context ownership check.
-- [ ] **Adversarial/full verification:** use the real session parser/chunker/
+- [x] **Adversarial/full verification:** use the real session parser/chunker/
   ranker harness and its pinned query download total, not the smaller unrelated
   `inputOf()` fixture. Produce controlled native-shaped traces with the production
   command handler and declared synthetic run. Test exact eight-field detachment,
@@ -2680,6 +2680,124 @@ session.generationProgress();           // null or last bounded stage/byte detai
   session ownership/validation only; private standalone/blog UI, actual paired
   financial model run, source navigation and financial quality still require
   their own subsequent native browser evidence.
+
+C4.6 is locally accepted after independent SPEC followed by independent QUALITY
+on October 11. The root reran 2,522 Node tests with no failures (2,588.114 ms),
+all 128 Python tests (25.920 s), and the six-article build; whitespace checks
+passed. Independent adversarial probes first exposed mutable error-message
+disclosure, a throwing code getter stranding active work, and a reentrant getter
+resurrecting cleared state. The repaired path observes only a guarded code while
+the attempt is owned, rechecks ownership, and creates a fresh canonical error;
+it never reads the incoming message. The original three probes and regression
+tests now pass. These are session and synthetic receipt observations, not a
+native financial model run, UI acceptance, answer accuracy or public release.
+The private UI and exact financial module routes are still the next task.
+
+##### C4.7 private financial UI and exact delivery implementation plan
+
+> **For agentic workers:** use the approved same-chat TDD flow, independent
+> SPEC then independent QUALITY. Implement only after C4.6 session acceptance.
+> Root owns documentation, local commits and actual Codex IAB acceptance.
+
+**Goal:** Run the reader's selected PDF/query through the actual paired financial
+generator in both the standalone inspector and the embedded blog inspector,
+showing the original output and its separate source-linked inspection.
+
+**Architecture:** Keep one application and one HTML layout. Turn `pdf-app.mjs`
+into an explicit `mountPdfApp(options = {})` composition with per-mount state.
+The ordinary `pdf-entry.mjs` calls it without generation. The loopback private
+server maps that exact entry URL to an excluded `pdf-private-entry.mjs`, which
+imports `generateFinancialInWorker` and configures the same application. No global
+feature flag, runtime URL switch or second copied inspector is used. A presentation
+only `generation-view.mjs` follows the existing context-view ownership pattern.
+
+**Tech stack:** Existing PDF.js, MiniLM/WebGPU and Qwen/Transformers.js paired
+runtime; session-owned module Worker; textContent-only DOM; existing loopback
+Python verification server. Public distribution and native inference remain
+separate gates.
+
+**Files:** modify `pdf-app.mjs`, `inspector.html`, `inspector.css`, `build.py`,
+`test_browser_assets.py`, `acceptance/serve-generator-probe.py` and
+`test_generator_probe.py`; create `pdf-entry.mjs`, `pdf-private-entry.mjs`,
+`generation-view.mjs`, a focused `tests/generation-view.test.mjs` and
+`tests/pdf-app.test.mjs` for mounting/action lifecycle behavior. Do not change
+the accepted session, runtime, model pins, prompt/output grammar or source data.
+All named browser files are under `browser-rag/` unless already root-level.
+
+- [ ] **Composition RED then GREEN:** replace the inspector's external module
+  entry with `pdf-entry.mjs`. Public entry imports `mountPdfApp` and calls it once
+  with no generation adapter. Private entry imports the same application and
+  `generateFinancialInWorker`, then calls `mountPdfApp({generate:
+  generateFinancialInWorker})`. Capture known configuration before mounting;
+  unknown configuration must fail before leaving partially attached controls.
+  Put existing session, render state and listeners inside the mount. Refuse a
+  duplicate mount of the same root without replacing the live session. Keep
+  clear/pagehide revocation and same-file chooser recovery. Public build ships
+  only the ordinary entry and shared presentation module, never the private entry
+  or financial runtime closure. Tests inspect the delivered entry bytes, module
+  closure and default disabled Generate markup; actual private mounting needs IAB.
+- [ ] **Output view RED then GREEN:** create `createGenerationView({document,
+  root,isCurrent,onInspect})` with `render(rawReceipt,inspection)`. Its callbacks
+  must check that both artifacts still belong to the current source/query/attempt
+  before navigation or lazy detail preparation. Show the captured question first,
+  then an explicitly unverified draft or model disposition, then citations and
+  optional details. A refused inspection shows its safe reason and the complete
+  raw native output separately, never an accepted-answer card. Render strings via
+  textContent, not HTML/Markdown evaluation. Test malicious HTML-looking output,
+  refusal without draft, source/citation identity and stale callbacks using real
+  contract-shaped frozen artifacts and a declared DOM test double.
+- [ ] **Notebook detail RED then GREEN:** keep lazy access to the entire
+  `preparedPrompt.renderedPrompt`, messages/model input, prompt/generated token
+  IDs, attention mask, preflight settings, decoded text, complete native receipt
+  and exact citation bindings. Collapsing or preview windows change presentation,
+  not stored evidence or model input. `onInspect` resolves the accepted citation
+  binding to its retained chunk/page using the same existing source navigation;
+  it must not reretrieve or rerun inference. Preserve the two-column workspace,
+  readable narrow-screen stacking, keyboard focus and live status. Source offsets
+  remain parser text offsets, not PDF byte offsets or verified table structure.
+  After native completion, update the application header, source receipt stage
+  and context captions so retained context is not described as an application
+  that has never generated. The pure context/inspection artifact's `not-run`
+  field still describes that artifact, not the separate native execution receipt.
+- [ ] **Actions/progress RED then GREEN:** private Generate becomes enabled only
+  for an accepted retrieval and explicitly assembled context with no active
+  operation. The session itself remains capable of generating directly from its
+  original accepted query; this UI order is an inspection/teaching choice, not a
+  different provenance input contract. Call `session.generate()`
+  explicitly; no model starts during mount, parsing, retrieval or a toggle.
+  Include generating, unverified-financial-draft and financial-output-refused
+  titles without changing the public no-adapter boundary. Ready/initialization
+  and elapsed-stage events are indeterminate. For measured prepare/consume detail
+  show current asset index, received body bytes, verified body bytes and pinned
+  total separately; do not label received bytes as verified, or sum repeated SDK
+  reads into a once-only download percentage. State the 815,725,938 pinned file
+  bodies before explicit generation; this is not GPU memory or complete network
+  traffic. Fixed errors preserve retained query/context for cancel/retry. Editing,
+  replacement, clear, requery and pagehide clear visible generation. UI-only
+  preflight refusal has its own action nonce and cannot overwrite a newer action.
+- [ ] **Exact private routes RED then GREEN:** on 8766 only, resolve exactly
+  `/browser-rag/pdf-entry.mjs` to the authored `pdf-private-entry.mjs`. Keep its
+  direct URL unavailable and preserve guarded-dist fallback. Add only seven
+  authored financial source modules to existing three: `financial-generation-input.mjs`,
+  `financial-generation-source.mjs`, `financial-generation.worker.mjs`,
+  `financial-generator-runtime.mjs`, `financial-generator-contract.mjs`,
+  `prompt-contract.mjs`, `financial-output-contract.mjs`. Check ordinary static
+  imports, literal session dynamic imports and Worker URLs reach the intended
+  same-origin exact routes. Startup must verify private entry/modules and the
+  unchanged fixed model/runtime pins before binding. GET/HEAD must serve exact
+  authored bytes with correct MIME/length; reject query aliases, traversal,
+  reparse points and missing files. No directory/wildcard/source-root serving.
+- [ ] **Acceptance and release boundary:** focused/full Node, all Python,
+  six-article build, private dependency-route checks and diff checks precede SPEC
+  then QUALITY. Root then revalidates the exact owned listener before restarting
+  it, without touching unrelated processes. Use Codex IAB only to select the local
+  financial PDF, build/embed/query, generate, inspect complete prompt/raw output
+  and cited source, cancel/retry/edit/clear, and repeat in the article iframe.
+  Save screenshots and an exact source/model/settings/receipt record. A valid
+  JSON answer still needs financial source review; a length/format refusal must
+  remain visible as refusal, not be relabeled an MVP success. Do not enable the
+  public entry, ship private model modules, alter figures to imply completion or
+  publish until the native path, rights and separate acceptance gates permit it.
 
 ##### Remaining C4 integration gates
 

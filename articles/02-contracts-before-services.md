@@ -406,6 +406,34 @@ prediction, reproduction and explanation turn this scaffold into interview evide
 4. Explain why constant readiness and a single timing header are weak operational
    evidence. Design a dependency check and latency experiment on paper first.
 
+### Error types need value ownership too
+
+The generation-session review found a different way to lose the commit boundary.
+The session recognized `FinancialGenerationWorkerError` by its class and forwarded
+its code and message into the inspection and lifecycle error. An independent
+synthetic adapter probe changed that error's writable message to private fixture
+text. The session then exposed the text in its snapshot. Sharing an error class
+did not make the object's current values trusted or immutable.
+
+Two related probes made the code getter throw and the message getter clear the
+session. In the earlier implementation, revocation happened before those reads,
+so an exception could strand an active controller and a reentrant clear could be
+overwritten by the rest of failure handling. The repaired path observes only the
+code inside a guarded read while the attempt remains owned, rechecks that owner,
+and constructs a fresh error from fixed permitted messages before committing.
+It never reads the adapter's message. Non-string codes are ignored without asking
+an arbitrary object to convert itself into a property key.
+
+These are directly exercised JavaScript contract failures with declared synthetic
+adapters, not an observed leak from a user's financial document or a model run.
+For a CS381 explanation, distinguish recognizing an interface from validating
+and owning its values. For a CS310 explanation, follow both the response boundary
+and the failure boundary: an internal dependency's error is not automatically a
+safe client-facing error. Predict why an error accessor that cancels attempt A
+must not overwrite a newly started B, then reproduce the named adapter-error
+tests. The tests check application behavior; explaining that behavior yourself
+is a separate learning step.
+
 ## Scoped regression evidence
 
 On 2026-10-04 the checkout's existing virtual environment ran:
@@ -566,7 +594,7 @@ request separately; one successful response is not evidence for every boundary.
 ## Production requirements are a separate acceptance layer
 
 The [Anyscale production guide](https://docs.anyscale.com/rag/production-scalability)
-was reread on October 7. It covers CPU/GPU ingestion stages, separation of compute
+was reread in Codex IAB on October 11. It covers CPU/GPU ingestion stages, separation of compute
 and storage, serving optimization, several cache layers, vector-store selection
 and continuous quality monitoring. Its semantic-cache warning is especially
 relevant here: similar questions with different years or scopes may require
@@ -589,6 +617,26 @@ similarity is not acceptable evidence of correctness. FY2024 and FY2025 queries
 can be close in representation while requiring different source columns. An
 identical-prompt cache and a reusable passage-embedding artifact are also
 different concepts; neither implies a distributed prefix cache exists.
+
+The browser's verified model-asset cache is a fourth, narrower concept. A cache
+hit means that the pinned file bodies can be read and checked locally. It does
+not mean that a model session or its attention key/value state survived the last
+attempt. Our current fresh-Worker policy intentionally discards the previous SDK
+instance and its owned device. A subsequent attempt can reuse verified file bodies
+while still spending time on model construction, prompt prefill and decoding.
+The native receipt's cached-byte count therefore cannot be renamed a prefix-cache
+hit rate or a measure of saved GPU computation.
+
+Time to first token needs an observation of the first output token, not just the
+time at which a completed sequence returns. The current financial runtime records
+ordered stage boundaries and whole-attempt elapsed time; it has not established
+per-token streaming or a TTFT benchmark. Likewise, the pinned quantized model's
+file size is not its complete GPU memory requirement. Runtime buffers, the input
+length and attention state contribute to resource use. Before using either cache
+or quantization as a performance claim, keep the source, prompt, model revision,
+settings and workload fixed, then measure the actual resource and latency boundary.
+This connects CS310's cost of repeated data access with CS381's distinction between
+an interface contract and the quality measurements that justify its design.
 
 The current prompt places the question before quoted evidence. Even if a future
 serving engine supports prefix caching, that ordering may reduce reuse of later
