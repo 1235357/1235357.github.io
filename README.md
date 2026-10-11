@@ -2,7 +2,7 @@
 
 A technical blog with an executable browser lab for financial-document retrieval. Choose a PDF, ask a question, and inspect the source and computation behind the result. A separate explicit-field comparator binds a Net income source-cell candidate to native PDF table geometry. The companion Python API is a different runtime and integration surface.
 
-**Release status:** published at [1235357.github.io](https://1235357.github.io/). The [execution-contract article](https://1235357.github.io/07-operational-receipts.html) includes the browser lab. Runtime commit `a47a89e` passed the [Pages build, Windows contracts and deployment workflow](https://github.com/1235357/1235357.github.io/actions/runs/38162427872). Actual HTTPS PDF parsing, chunking and one explicit six-month source-cell candidate were observed. Public model preparation exceeded its cold-download deadline; public embedding, retrieval and generation acceptance remain pending. Local native generation receipts remain separate evidence. Publication does not establish independent financial correctness.
+**Release status:** published at [1235357.github.io](https://1235357.github.io/). The [execution-contract article](https://1235357.github.io/07-operational-receipts.html) includes the browser lab. Runtime commit `5a673bc` passed the [Pages build, Windows contracts and deployment workflow](https://github.com/1235357/1235357.github.io/actions/runs/38165566626), adding explicit static-file preparation after the two preserved cold-download timeouts. Actual HTTPS PDF parsing, chunking and one explicit six-month source-cell candidate were observed on the preceding runtime. Public preparation and model-path acceptance remain pending. Local native generation receipts remain separate evidence. Publication does not establish independent financial correctness.
 
 ## Start locally
 
@@ -29,7 +29,7 @@ python build.py
 
 ## What the reader can inspect
 
-The preparation control described below is the local next increment after the deployed `a47a89e` baseline. Its independent review, full CI and actual public native acceptance must be recorded separately before updating the current deployment identity.
+The preparation control passed independent source review and full local/CI checks. Its actual public native receipt and subsequent model results have separate acceptance gates.
 
 - PDF.js parsing preserves physical page numbers, displayed PDF labels, source identity and exact original item text/spans.
 - Page-window chunking keeps original UTF-16 source fragments separate from presentation separators.

@@ -514,7 +514,7 @@ not exposed them.
 
 The site and reviewed browser profile are now published on
 [GitHub Pages](https://1235357.github.io/07-operational-receipts.html). The
-[runtime release workflow](https://github.com/1235357/1235357.github.io/actions/runs/38162427872)
+[runtime release workflow](https://github.com/1235357/1235357.github.io/actions/runs/38165566626)
 passed its Linux build, Windows contracts and deployment jobs. The public lab
 composes the generator and source-cell comparator explicitly; the private
 diagnostic server and complete acceptance archives are outside the deployed tree.
@@ -557,6 +557,12 @@ survive cancellation, and the browser may later evict them. Every model action
 still verifies its cache bodies, with the original 120-second encoder/query and
 300-second generation limits. Asset bytes are distinct from browser heap, GPU
 allocation and live KV state.
+
+The preparation increment passed the clean Linux/Windows contracts and deployed
+at runtime commit `5a673bc`. Actual public cancellation removed the pending
+preparation result and re-enabled an explicit retry. Its complete public cache
+receipt and subsequent model path are still separate acceptance work; a
+successful deployment or partial byte counter does not close them.
 
 Public GPU acceptance, independent financial gold, calibrated judging and load
 measurements remain open. These preserved failures let a reader examine a real

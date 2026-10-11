@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "workflowRun": 38165566626,
+  "workflowURL": "https://github.com/1235357/1235357.github.io/actions/runs/38165566626",
+  "runtimeCommit": "5a673bc76b5f984fc93182ebc01efc83f0cbcccf",
+  "jobResults": {
+    "build": "success",
+    "windows-contracts": "success",
+    "deploy": "success"
+  },
+  "manifestBytes": 55100,
+  "manifestSHA256": "60874dea94d1a0ee768d4e62f39e007bf2ab2b3c11ab315879ade923236748fc",
+  "archiveSHA256": "5cbe1c7b312d5b8823f7242ace5c2e610839ff478ae5af85fe1508cc588b474a",
+  "artifactSummary": {
+    "fileCount": 309,
+    "totalBytes": 918459894,
+    "verifiedPinnedAssetCount": 16
+  },
+  "localProductionModuleEquality": {
+    "browser-rag/asset-preparation-source.mjs": true,
+    "browser-rag/asset-preparation.worker.mjs": true,
+    "browser-rag/asset-preparation-view.mjs": true,
+    "browser-rag/pdf-app.mjs": true,
+    "browser-rag/embedding-runtime.mjs": true,
+    "browser-rag/generator-native-core.mjs": true
+  },
+  "scope": "Actual staticCI+deployment acceptance; publicnativepreparation/modelacceptance remainsseparate"
+}
