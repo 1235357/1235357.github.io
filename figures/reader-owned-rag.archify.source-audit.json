@@ -1,0 +1,978 @@
+{
+  "schemaVersion": 1,
+  "status": "committed-source-and-artifact-reviewed",
+  "figure": "reader-owned-rag",
+  "diagramType": "architecture",
+  "scope": "October 11 responsibility overview; source entailment and deterministic pair checks only",
+  "repository": {
+    "url": "https://github.com/1235357/1235357.github.io.git",
+    "provider": "github",
+    "link_mode": "web",
+    "revision": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7"
+  },
+  "sourceReadPolicy": "Every source range is read through git show at the pinned revision; dirty working-tree bodies are never attributed to that commit.",
+  "specification": {
+    "path": "figures/reader-owned-rag.archify.json",
+    "sha256": "aa3c118045ed1d57af9a906fd3a5023851a09278a82d62fe44a66d65a6108a18",
+    "bytes": 7900
+  },
+  "artifact": {
+    "path": "figures/reader-owned-rag.archify.html",
+    "sha256": "ab342793394b3dadf3d81f6610d5cd9909eb2624443745c48de206df53b4a452",
+    "bytes": 783348
+  },
+  "deliveryReceipt": {
+    "path": "figures/reader-owned-rag.archify.delivery.json",
+    "receiptId": "423bbe2b-a025-456a-9753-d4fbba684be4"
+  },
+  "strictCheck": {
+    "path": "figures/reader-owned-rag.archify.strict-check.json",
+    "checksPassed": 9,
+    "errors": 0,
+    "warnings": 0
+  },
+  "components": [
+    {
+      "id": "session",
+      "label": "Owned reader session",
+      "references": [
+        {
+          "path": "browser-rag/pdf-public-entry.mjs",
+          "line": 1,
+          "end_line": 8,
+          "blobObject": "d3468bc40bf7636ab6e041c82f988cbd49ff854e",
+          "fileBytes": 588,
+          "fileSha256": "fb17d9f29320922c1cf15b39965e9af092e0be48a73e0197f2c5a06ae7398fd2",
+          "lineCount": 8,
+          "rangeBytes": 588,
+          "rangeSha256": "fb17d9f29320922c1cf15b39965e9af092e0be48a73e0197f2c5a06ae7398fd2",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-public-entry.mjs#L1-L8",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 85,
+          "end_line": 120,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 2383,
+          "rangeSha256": "3450e89ab4b5fe69b47010fa46339724197d8fc312ba5eda83776b1f9d7aed3d",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L85-L120",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-app.mjs",
+          "line": 424,
+          "end_line": 451,
+          "blobObject": "6e089d8612a8da15ed9fc37a43dc15a9ecf54dd8",
+          "fileBytes": 49053,
+          "fileSha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3",
+          "lineCount": 533,
+          "rangeBytes": 2200,
+          "rangeSha256": "e4e877de4b9ee395e799a6d73c6b79d828b960cba329b17b351e544a22c13b8f",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L424-L451",
+          "workingTreeDiffersFromPinnedBlob": true
+        }
+      ]
+    },
+    {
+      "id": "parser",
+      "label": "PDF parser + records",
+      "references": [
+        {
+          "path": "browser-rag/pdf-source.mjs",
+          "line": 125,
+          "end_line": 242,
+          "blobObject": "f56c0a6db15a05a0f6f9ac3871dce772b1ebe3d8",
+          "fileBytes": 14167,
+          "fileSha256": "080edeceeefdae7ec7b9b0445e242d4d858b2460faa199ece0a24aaa2e317547",
+          "lineCount": 250,
+          "rangeBytes": 7439,
+          "rangeSha256": "5d96bd6614c857c32880ab7fd50920347d492abce193aa5ab3b5e0e8321992c9",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-source.mjs#L125-L242",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/pdf-app.mjs",
+          "line": 393,
+          "end_line": 423,
+          "blobObject": "6e089d8612a8da15ed9fc37a43dc15a9ecf54dd8",
+          "fileBytes": 49053,
+          "fileSha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3",
+          "lineCount": 533,
+          "rangeBytes": 2061,
+          "rangeSha256": "e950b979b9b30ecd107f27367273bff69051daf23aa8a7c1f03cf419526847f5",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L393-L423",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-worker-preparation.mjs",
+          "line": 43,
+          "end_line": 84,
+          "blobObject": "5473da79a7aba763eaa4212982b598a08f78551f",
+          "fileBytes": 6758,
+          "fileSha256": "04218ec71804efdfff1aed8d12fea630ffcc5e1e02a813f3cadee3a72994f932",
+          "lineCount": 101,
+          "rangeBytes": 2728,
+          "rangeSha256": "e177587579646c6ad74a1abeb5a16df0e55499977d805e6c65d7386e6d3e35e2",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-worker-preparation.mjs#L43-L84",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "lookup",
+      "label": "Source-cell lookup",
+      "references": [
+        {
+          "path": "browser-rag/pdf-app.mjs",
+          "line": 441,
+          "end_line": 451,
+          "blobObject": "6e089d8612a8da15ed9fc37a43dc15a9ecf54dd8",
+          "fileBytes": 49053,
+          "fileSha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3",
+          "lineCount": 533,
+          "rangeBytes": 621,
+          "rangeSha256": "1d4a44c843c584aa32318d523970a611fed9a5bea65f9d488ef8e9e969c238c5",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L441-L451",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/financial-table-contract.mjs",
+          "line": 29,
+          "end_line": 119,
+          "blobObject": "5c3c24ec67946780a559f6ea85b04a18ef14d9f3",
+          "fileBytes": 10979,
+          "fileSha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db",
+          "lineCount": 124,
+          "rangeBytes": 8268,
+          "rangeSha256": "22f10a6b7f77ea802ca08501313a3bcac526ac79c22189a7e30f261fb6e2e340",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-table-contract.mjs#L29-L119",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/financial-lookup-view.mjs",
+          "line": 52,
+          "end_line": 89,
+          "blobObject": "843a1184440207c9d0eaef251a611e64bc4d1af1",
+          "fileBytes": 9868,
+          "fileSha256": "393cb13b3ceb40430e3f6e656bfbb26d6ff552918c7868906aa4d2cfb2bac705",
+          "lineCount": 89,
+          "rangeBytes": 4320,
+          "rangeSha256": "93d080d474e627eadd38ccf4bf0fcad10dae262928d74ca3abe4cc34feb2982e",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-lookup-view.mjs#L52-L89",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "retrieval",
+      "label": "Chunks + retrieval",
+      "references": [
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 334,
+          "end_line": 423,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 6088,
+          "rangeSha256": "ee0ce6d55c420a13115e77d319f6fd3f0bf2468acd58fb458377e20d0432bcc8",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L334-L423",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 424,
+          "end_line": 528,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 6578,
+          "rangeSha256": "9216fa85b097ab144ed9d9752bcbf0aabf6ed923f37d4ee75ce12516a33deea7",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L424-L528",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/query.worker.mjs",
+          "line": 1,
+          "end_line": 72,
+          "blobObject": "9314b2da8182d0c9a26f83ad712b3e7a4b6cc283",
+          "fileBytes": 4671,
+          "fileSha256": "d1749504ff3e994cf0c0debafc9b956ab0cc6cdcd99c2f3bf016bae55f0aa24f",
+          "lineCount": 81,
+          "rangeBytes": 4277,
+          "rangeSha256": "11e03417a5062cbc4bde78d2bc7858c51daae670f21940fd06fa644302503a56",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/query.worker.mjs#L1-L72",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "preparation",
+      "label": "Assets + preparation",
+      "references": [
+        {
+          "path": "browser-rag/asset-preparation.worker.mjs",
+          "line": 17,
+          "end_line": 44,
+          "blobObject": "32e5b131468d1c6bfb74b168f32f4d3132f11c52",
+          "fileBytes": 5067,
+          "fileSha256": "ee725266a607139b39f867391a74bc7497ba5beebf3f4706f5f77c1169550203",
+          "lineCount": 58,
+          "rangeBytes": 2715,
+          "rangeSha256": "addc608cbbc9b860cb3a70f9eef40a759778c4ad4fab9434441e43f917fce7a6",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/asset-preparation.worker.mjs#L17-L44",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/embedding-runtime.mjs",
+          "line": 209,
+          "end_line": 255,
+          "blobObject": "511c2f75e7562426922309d0168773a23ac2027e",
+          "fileBytes": 27080,
+          "fileSha256": "0fed5c9f1ff4b88fc5ee69b5fef548c3aba65525939e3ca69b15949f02f6aea9",
+          "lineCount": 457,
+          "rangeBytes": 2884,
+          "rangeSha256": "b26e6bdc9d9284d2f510ecaf5b2abcf75cd4df16e0703a73b852e9575d82cb39",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/embedding-runtime.mjs#L209-L255",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/generator-native-core.mjs",
+          "line": 232,
+          "end_line": 250,
+          "blobObject": "fa933840de64dbf04558e16e24c162e4f03fd8d7",
+          "fileBytes": 30221,
+          "fileSha256": "dc568f2bb6cbd2f5500a9fec174b56e2aed9a606eb8d516671980f29b1adf0f8",
+          "lineCount": 377,
+          "rangeBytes": 1382,
+          "rangeSha256": "3f79019cf156eab30536b15baf2f844b2f687f008084a4b7ce9f5b9033850a3c",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/generator-native-core.mjs#L232-L250",
+          "workingTreeDiffersFromPinnedBlob": true
+        }
+      ]
+    },
+    {
+      "id": "generation",
+      "label": "Context + Qwen",
+      "references": [
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 133,
+          "end_line": 151,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 1030,
+          "rangeSha256": "b06cef1f56283521e52b7bbfef3922ec278512be7f25d2bb811490ab5bd7eaba",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L133-L151",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 181,
+          "end_line": 228,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 3768,
+          "rangeSha256": "0a37e5f86bbd195676314fdc0dcd8a9c8d43509d9ce9064d4aed3e52071b1575",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L181-L228",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/financial-generation.worker.mjs",
+          "line": 1,
+          "end_line": 100,
+          "blobObject": "fab58c095fcaa5780ded2a4097ab63863e891737",
+          "fileBytes": 6535,
+          "fileSha256": "dde0f5b5e027cf4281717ea8b20c412f6aa94aacfd5349e3083921b33c361bc8",
+          "lineCount": 100,
+          "rangeBytes": 6535,
+          "rangeSha256": "dde0f5b5e027cf4281717ea8b20c412f6aa94aacfd5349e3083921b33c361bc8",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-generation.worker.mjs#L1-L100",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "assets",
+      "label": "Pinned HTTP assets",
+      "references": [
+        {
+          "path": "browser-rag/asset-preparation-transport.mjs",
+          "line": 1,
+          "end_line": 87,
+          "blobObject": "08f1b9d985b8b439532f86791ac636ba157d80a8",
+          "fileBytes": 12309,
+          "fileSha256": "5015b1feee091097e498465bc7d0acc4d2951c302360d30e835e5587704ff02c",
+          "lineCount": 147,
+          "rangeBytes": 7591,
+          "rangeSha256": "d02d058454ead46307bc3d7825d5557bf21c926b1146ace46e0faac3c6d09fac",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/asset-preparation-transport.mjs#L1-L87",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/asset-preparation.worker.mjs",
+          "line": 32,
+          "end_line": 37,
+          "blobObject": "32e5b131468d1c6bfb74b168f32f4d3132f11c52",
+          "fileBytes": 5067,
+          "fileSha256": "ee725266a607139b39f867391a74bc7497ba5beebf3f4706f5f77c1169550203",
+          "lineCount": 58,
+          "rangeBytes": 692,
+          "rangeSha256": "4636c3d3d175c7ab42ffa34a5d88a2c2b915c6e936b8d22e5af7bb11bc727c8d",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/asset-preparation.worker.mjs#L32-L37",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-worker-preparation.mjs",
+          "line": 26,
+          "end_line": 36,
+          "blobObject": "5473da79a7aba763eaa4212982b598a08f78551f",
+          "fileBytes": 6758,
+          "fileSha256": "04218ec71804efdfff1aed8d12fea630ffcc5e1e02a813f3cadee3a72994f932",
+          "lineCount": 101,
+          "rangeBytes": 885,
+          "rangeSha256": "dacb55279fa3ea67b74a2ee4d83b565beb943f7895216b6ebf7dbeef51b6c240",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-worker-preparation.mjs#L26-L36",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "inspection",
+      "label": "Raw output + gate",
+      "references": [
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 295,
+          "end_line": 329,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 2447,
+          "rangeSha256": "007e1b33c100dceac2ef17f37547acf17226674e8086c78c83db8cc0b0cf9c1b",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L295-L329",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/financial-output-contract.mjs",
+          "line": 111,
+          "end_line": 158,
+          "blobObject": "d89a77bbb4ca255a81f1aa3c88a8aae61bc9d082",
+          "fileBytes": 7825,
+          "fileSha256": "9fec00232a9842c1ce0495a3877be9372b210a4de43d13d311ca43dc51a10a7c",
+          "lineCount": 164,
+          "rangeBytes": 2547,
+          "rangeSha256": "a360bfc3bec05082d51bae360829f235312e104e7d35cabfe187b32ea84c807b",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-output-contract.mjs#L111-L158",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/pdf-app.mjs",
+          "line": 300,
+          "end_line": 365,
+          "blobObject": "6e089d8612a8da15ed9fc37a43dc15a9ecf54dd8",
+          "fileBytes": 49053,
+          "fileSha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3",
+          "lineCount": 533,
+          "rangeBytes": 8748,
+          "rangeSha256": "f48755b807a82d9434d3ce615a409bb4af3ff08472b026a9403f797622efa42d",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L300-L365",
+          "workingTreeDiffersFromPinnedBlob": true
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "select",
+      "claim": "The file control calls the session; the owned selection invokes extraction and commits only its accepted parser result.",
+      "references": [
+        {
+          "path": "browser-rag/pdf-app.mjs",
+          "line": 453,
+          "end_line": 455,
+          "blobObject": "6e089d8612a8da15ed9fc37a43dc15a9ecf54dd8",
+          "fileBytes": 49053,
+          "fileSha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3",
+          "lineCount": 533,
+          "rangeBytes": 310,
+          "rangeSha256": "10dbf0fe2fcda2c87ce4fd385180f5313021d4976b65d54b8bf5472ee46b5ad3",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L453-L455",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 530,
+          "end_line": 548,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 1088,
+          "rangeSha256": "83e13ef9d81301e36e1579f8a4eb012cd54fa7a872fb8c40552a284b9a95e9da",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L530-L548",
+          "workingTreeDiffersFromPinnedBlob": true
+        }
+      ]
+    },
+    {
+      "id": "source-retrieval",
+      "claim": "The session supplies its accepted parser source to chunk computation, then forwards the frozen chunk projection and passage vectors to separate embedding/query adapters. This is mediated lineage, not a direct parser-worker channel.",
+      "references": [
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 491,
+          "end_line": 519,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 1987,
+          "rangeSha256": "c7a49289ae4722f15b8427ce6d718132a9d819e6ff2770e5be6485ed03206f53",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L491-L519",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 424,
+          "end_line": 481,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 3660,
+          "rangeSha256": "b96dba0e08e6230320fd6133e3cfc8f10dd5fd9d82cedce099f537c624927830",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L424-L481",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 334,
+          "end_line": 412,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 5493,
+          "rangeSha256": "e3a36aa7db49e7ba70291c24d39a1d67bbabf3694919e31d3c27ffbebb1fd102",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L334-L412",
+          "workingTreeDiffersFromPinnedBlob": true
+        }
+      ]
+    },
+    {
+      "id": "source-lookup",
+      "claim": "The app forwards the owned source and epoch to the configured lookup view, which captures that owner and copies the full native geometry snapshot before computing a candidate.",
+      "references": [
+        {
+          "path": "browser-rag/pdf-app.mjs",
+          "line": 89,
+          "end_line": 89,
+          "blobObject": "6e089d8612a8da15ed9fc37a43dc15a9ecf54dd8",
+          "fileBytes": 49053,
+          "fileSha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3",
+          "lineCount": 533,
+          "rangeBytes": 199,
+          "rangeSha256": "79d31a7f427af54b3baef94ba14c17d7598c9dcd6db9e06cfcfb9b4ab977478e",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L89-L89",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/financial-lookup-view.mjs",
+          "line": 48,
+          "end_line": 74,
+          "blobObject": "843a1184440207c9d0eaef251a611e64bc4d1af1",
+          "fileBytes": 9868,
+          "fileSha256": "393cb13b3ceb40430e3f6e656bfbb26d6ff552918c7868906aa4d2cfb2bac705",
+          "lineCount": 89,
+          "rangeBytes": 3519,
+          "rangeSha256": "514cab7e7fd789f5fbf7d0d3a25a251b8047332d81d0cbabd08bc7f469030269",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-lookup-view.mjs#L48-L74",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/financial-table-contract.mjs",
+          "line": 48,
+          "end_line": 55,
+          "blobObject": "5c3c24ec67946780a559f6ea85b04a18ef14d9f3",
+          "fileBytes": 10979,
+          "fileSha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db",
+          "lineCount": 124,
+          "rangeBytes": 707,
+          "rangeSha256": "7938c67412a79bc07b790a3bca507c2b0525cd39ebfd463ff153e1ba2bd3996f",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-table-contract.mjs#L48-L55",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "explicit-lookup",
+      "claim": "The reader chooses six explicit fields and clicks Run; the pure comparator restricts supported metric, duration, literal date, unit and currency glyph. It does not parse natural-language intent.",
+      "references": [
+        {
+          "path": "browser-rag/financial-lookup-view.mjs",
+          "line": 24,
+          "end_line": 51,
+          "blobObject": "843a1184440207c9d0eaef251a611e64bc4d1af1",
+          "fileBytes": 9868,
+          "fileSha256": "393cb13b3ceb40430e3f6e656bfbb26d6ff552918c7868906aa4d2cfb2bac705",
+          "lineCount": 89,
+          "rangeBytes": 3281,
+          "rangeSha256": "f81714e2069788b3a784de9013054763f3f0857f0d82dbb604924394f7b651d7",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-lookup-view.mjs#L24-L51",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/financial-table-contract.mjs",
+          "line": 29,
+          "end_line": 40,
+          "blobObject": "5c3c24ec67946780a559f6ea85b04a18ef14d9f3",
+          "fileBytes": 10979,
+          "fileSha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db",
+          "lineCount": 124,
+          "rangeBytes": 990,
+          "rangeSha256": "ce0f3a15f24d9011e551bac2baef487a2ad77a6bbd80eaf828b6d632f34a946f",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-table-contract.mjs#L29-L40",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "context-generation",
+      "claim": "Context assembly is separately triggered from an accepted retrieval; the generation adapter receives the retained canonical eight-field input under a fresh owned attempt. The UI requires explicit context assembly before its Generate control.",
+      "references": [
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 133,
+          "end_line": 151,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 1030,
+          "rangeSha256": "b06cef1f56283521e52b7bbfef3922ec278512be7f25d2bb811490ab5bd7eaba",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L133-L151",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 181,
+          "end_line": 228,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 3768,
+          "rangeSha256": "0a37e5f86bbd195676314fdc0dcd8a9c8d43509d9ce9064d4aed3e52071b1575",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L181-L228",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-app.mjs",
+          "line": 317,
+          "end_line": 321,
+          "blobObject": "6e089d8612a8da15ed9fc37a43dc15a9ecf54dd8",
+          "fileBytes": 49053,
+          "fileSha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3",
+          "lineCount": 533,
+          "rangeBytes": 387,
+          "rangeSha256": "dda8ace8e01bd585424d9709941d56625fd029bb5a6be743ae774f5c739fa51a",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L317-L321",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/pdf-app.mjs",
+          "line": 369,
+          "end_line": 376,
+          "blobObject": "6e089d8612a8da15ed9fc37a43dc15a9ecf54dd8",
+          "fileBytes": 49053,
+          "fileSha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3",
+          "lineCount": 533,
+          "rangeBytes": 638,
+          "rangeSha256": "bf417b3fe79cc2bb88bc50de550e083965e5ebd9f8d684602c747f85646aae75",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L369-L376",
+          "workingTreeDiffersFromPinnedBlob": true
+        }
+      ]
+    },
+    {
+      "id": "generation-inspection",
+      "claim": "A completed cleanup-stage native receipt is validated, then inspected for EOS, JSON shape and selected citation identity. The atomic result is either an unverified draft or an output refusal, with financial truth unestablished.",
+      "references": [
+        {
+          "path": "browser-rag/financial-generation.worker.mjs",
+          "line": 59,
+          "end_line": 82,
+          "blobObject": "fab58c095fcaa5780ded2a4097ab63863e891737",
+          "fileBytes": 6535,
+          "fileSha256": "dde0f5b5e027cf4281717ea8b20c412f6aa94aacfd5349e3083921b33c361bc8",
+          "lineCount": 100,
+          "rangeBytes": 1910,
+          "rangeSha256": "171c3b47552e35701c3538460093710f2ce7b7db505b8687bde2d3744bf03d07",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-generation.worker.mjs#L59-L82",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/pdf-session.mjs",
+          "line": 295,
+          "end_line": 329,
+          "blobObject": "67532b23b6ba9a875da54d61232cff9e23b03a77",
+          "fileBytes": 35567,
+          "fileSha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b",
+          "lineCount": 558,
+          "rangeBytes": 2447,
+          "rangeSha256": "007e1b33c100dceac2ef17f37547acf17226674e8086c78c83db8cc0b0cf9c1b",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L295-L329",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/financial-output-contract.mjs",
+          "line": 129,
+          "end_line": 158,
+          "blobObject": "d89a77bbb4ca255a81f1aa3c88a8aae61bc9d082",
+          "fileBytes": 7825,
+          "fileSha256": "9fec00232a9842c1ce0495a3877be9372b210a4de43d13d311ca43dc51a10a7c",
+          "lineCount": 164,
+          "rangeBytes": 1884,
+          "rangeSha256": "e5f6c4a52d27dbb91d1378b776a3a0953974dfadea23759c2cdc98f1a41a9fb3",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-output-contract.mjs#L129-L158",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "retrieval-assets",
+      "claim": "Embedding/query runtime loaders verify exact cache or fetched bodies for their own attempt; optional preparation writes the same advisory cache. Native attempts do not invoke the optional preparation worker.",
+      "references": [
+        {
+          "path": "browser-rag/embedding-runtime.mjs",
+          "line": 209,
+          "end_line": 255,
+          "blobObject": "511c2f75e7562426922309d0168773a23ac2027e",
+          "fileBytes": 27080,
+          "fileSha256": "0fed5c9f1ff4b88fc5ee69b5fef548c3aba65525939e3ca69b15949f02f6aea9",
+          "lineCount": 457,
+          "rangeBytes": 2884,
+          "rangeSha256": "b26e6bdc9d9284d2f510ecaf5b2abcf75cd4df16e0703a73b852e9575d82cb39",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/embedding-runtime.mjs#L209-L255",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/embedding-runtime.mjs",
+          "line": 369,
+          "end_line": 397,
+          "blobObject": "511c2f75e7562426922309d0168773a23ac2027e",
+          "fileBytes": 27080,
+          "fileSha256": "0fed5c9f1ff4b88fc5ee69b5fef548c3aba65525939e3ca69b15949f02f6aea9",
+          "lineCount": 457,
+          "rangeBytes": 2252,
+          "rangeSha256": "4202fa21b64eb19856256bdc8782bd245cfbeb867b2190f8343b2a571f20a845",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/embedding-runtime.mjs#L369-L397",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/query.worker.mjs",
+          "line": 40,
+          "end_line": 52,
+          "blobObject": "9314b2da8182d0c9a26f83ad712b3e7a4b6cc283",
+          "fileBytes": 4671,
+          "fileSha256": "d1749504ff3e994cf0c0debafc9b956ab0cc6cdcd99c2f3bf016bae55f0aa24f",
+          "lineCount": 81,
+          "rangeBytes": 951,
+          "rangeSha256": "75b2c45b53625114cce8861fafd21447007781df7469b974749abf1c317b9a83",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/query.worker.mjs#L40-L52",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    },
+    {
+      "id": "generation-assets",
+      "claim": "Native generation prepares its sealed cache, reads the full pinned WASM body during SDK loading and configures a local-only model/SDK path; explicit static preparation is a separate GPU-free call.",
+      "references": [
+        {
+          "path": "browser-rag/generator-native-core.mjs",
+          "line": 232,
+          "end_line": 250,
+          "blobObject": "fa933840de64dbf04558e16e24c162e4f03fd8d7",
+          "fileBytes": 30221,
+          "fileSha256": "dc568f2bb6cbd2f5500a9fec174b56e2aed9a606eb8d516671980f29b1adf0f8",
+          "lineCount": 377,
+          "rangeBytes": 1382,
+          "rangeSha256": "3f79019cf156eab30536b15baf2f844b2f687f008084a4b7ce9f5b9033850a3c",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/generator-native-core.mjs#L232-L250",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/generator-native-core.mjs",
+          "line": 328,
+          "end_line": 354,
+          "blobObject": "fa933840de64dbf04558e16e24c162e4f03fd8d7",
+          "fileBytes": 30221,
+          "fileSha256": "dc568f2bb6cbd2f5500a9fec174b56e2aed9a606eb8d516671980f29b1adf0f8",
+          "lineCount": 377,
+          "rangeBytes": 3019,
+          "rangeSha256": "9d8bd806510c5d13d4ca03790a90ca6d8cb4e84c6bb9fd9ed971ae3bc6bc2dd6",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/generator-native-core.mjs#L328-L354",
+          "workingTreeDiffersFromPinnedBlob": true
+        }
+      ]
+    },
+    {
+      "id": "asset-fetch",
+      "claim": "The preparation transport preserves logical site keys and defaults to site. Its explicit HF route maps only the five immutable model bodies; registries and three runtime bodies pass through on site. PDF script preflight is a separate same-origin static fetch before native readiness.",
+      "references": [
+        {
+          "path": "browser-rag/asset-preparation-view.mjs",
+          "line": 10,
+          "end_line": 13,
+          "blobObject": "5c7864001b36c13faae4d23e1196d643142f18e8",
+          "fileBytes": 9722,
+          "fileSha256": "fcc1488e8aa157640a92a9f30a656a87d23d6bef19c93f7ac645716731700c3f",
+          "lineCount": 75,
+          "rangeBytes": 732,
+          "rangeSha256": "69c69b061cc7896cae78e77b84fca090a7f1c6022d7591ba230b3d69744972cf",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/asset-preparation-view.mjs#L10-L13",
+          "workingTreeDiffersFromPinnedBlob": true
+        },
+        {
+          "path": "browser-rag/asset-preparation-transport.mjs",
+          "line": 28,
+          "end_line": 40,
+          "blobObject": "08f1b9d985b8b439532f86791ac636ba157d80a8",
+          "fileBytes": 12309,
+          "fileSha256": "5015b1feee091097e498465bc7d0acc4d2951c302360d30e835e5587704ff02c",
+          "lineCount": 147,
+          "rangeBytes": 1057,
+          "rangeSha256": "c4b9751cba86493b1e2eb207d5bee956e1a15848fa97f6da258faf1f2612ad91",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/asset-preparation-transport.mjs#L28-L40",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/asset-preparation-transport.mjs",
+          "line": 111,
+          "end_line": 140,
+          "blobObject": "08f1b9d985b8b439532f86791ac636ba157d80a8",
+          "fileBytes": 12309,
+          "fileSha256": "5015b1feee091097e498465bc7d0acc4d2951c302360d30e835e5587704ff02c",
+          "lineCount": 147,
+          "rangeBytes": 2474,
+          "rangeSha256": "484c5d72b8fd1dc159d1c35a39b954bd83d5c0f4da1f4bd729de79e409d5de37",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/asset-preparation-transport.mjs#L111-L140",
+          "workingTreeDiffersFromPinnedBlob": false
+        },
+        {
+          "path": "browser-rag/pdf-worker-preparation.mjs",
+          "line": 68,
+          "end_line": 83,
+          "blobObject": "5473da79a7aba763eaa4212982b598a08f78551f",
+          "fileBytes": 6758,
+          "fileSha256": "04218ec71804efdfff1aed8d12fea630ffcc5e1e02a813f3cadee3a72994f932",
+          "lineCount": 101,
+          "rangeBytes": 1276,
+          "rangeSha256": "61dc399f8f9e05b16bd9e1ce6d9f0de43ad758eef0748223d52d40058ae725f1",
+          "rangeSerialization": "Exact inclusive committed lines with original line endings",
+          "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-worker-preparation.mjs#L68-L83",
+          "workingTreeDiffersFromPinnedBlob": false
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "components": 8,
+    "relationships": 9,
+    "authoredSourceReferences": 24,
+    "uniqueCommittedSourceFilesIncludingSemanticAudit": 15
+  },
+  "semanticReview": {
+    "reviewer": "Codex figure-finish subagent",
+    "status": "no blocker in the reviewed overview scope",
+    "boundary": "Owned browser actors are inside the reader region; HTTP asset hosts remain outside. Edges are responsibilities or mediated data lineage, not direct worker channels.",
+    "generationAndLookup": "A completed generation raw receipt and a six-field source-cell candidate remain separate. Neither claims financial truth, normalized USD or a human verdict.",
+    "preparationAndExecution": "Static size/SHA/cache preparation is separate from native worker/model readiness. Later attempts verify their own bodies; HTTP cache reuse is advisory.",
+    "wasmOwnership": "Runtime code creates an additional owned ArrayBuffer from the pinned 21,596,019-byte body; no zero-copy or speed claim is made.",
+    "browserAcceptance": "not established by this source/artifact audit",
+    "financialAcceptance": "not established",
+    "humanVerdict": null
+  },
+  "rendererAudit": {
+    "packageVersion": "3.0.1",
+    "regularFilesCompared": 67,
+    "differencesFromInstalledStock": [
+      {
+        "path": "assets/template.html",
+        "stock": {
+          "bytes": 727976,
+          "sha256": "b0b550d644b77cad401bbc4b21375919ef01db45d235122a0ee42b732cb34233"
+        },
+        "adapted": {
+          "bytes": 743209,
+          "sha256": "f89d659166f6531b5d3cd60a25d42e398761fb1fed62a73d8f6824641911ca0f"
+        }
+      },
+      {
+        "path": "renderers/architecture/labels.mjs",
+        "stock": {
+          "bytes": 10645,
+          "sha256": "7cf5bb20c3039f49683fe81a461110c42de0a006a58c867c47fdd3089a58bbbc"
+        },
+        "adapted": {
+          "bytes": 10645,
+          "sha256": "35923161ef9f91b86e69c1834c00a2b42f9aaddd31f3931e4390df8ab7b402c8"
+        }
+      },
+      {
+        "path": "renderers/architecture/render-architecture.mjs",
+        "stock": {
+          "bytes": 47714,
+          "sha256": "3831899e2e12cedd2e8225285fc9e50e8cd032f036fac87264b0bd5ddc60fda6"
+        },
+        "adapted": {
+          "bytes": 47752,
+          "sha256": "aef91d2a17f68f79e3ad34697ee13d5be01be3c41dd9d8533c7b8cd3a0147112"
+        }
+      },
+      {
+        "path": "renderers/sequence/render-sequence.mjs",
+        "stock": {
+          "bytes": 25503,
+          "sha256": "46ed05a34655fbe6c421586366aa81480bca893233d61b9391e21afc667f15a1"
+        },
+        "adapted": {
+          "bytes": 26085,
+          "sha256": "b8efa91452217d07f32e921b79fc33c5b60a15d9cb8cbc5ac747a1c4ca18fefa"
+        }
+      }
+    ],
+    "activeChanges": "Architecture font sizes and matching label plate geometry; figure-specific dark preference; scoped intrinsic-height width-first reading.",
+    "inheritedUnrelatedDifference": "The private task-local copy also retains the earlier sequence renderer readability changes. That sequence renderer is not selected for this architecture artifact; its bytes are disclosed rather than claimed unchanged.",
+    "schemasCheckerRepositoryVerifier": "All compared schemas, deterministic checker, CLI and committed-source verifier match installed stock bytes exactly.",
+    "globalSkillMutation": false
+  },
+  "browserReview": {
+    "automatedExternalBrowserGate": "not-run under user-required Codex IAB-only workflow",
+    "manualCodexIAB": "Root recorded default-dark desktop reading by scrolling and source-passport interaction; this subagent checked the companion identities, not the screenshots.",
+    "receipt": {
+      "path": "docs/acceptance-2026-10-11/reader-owned-rag-iab-visual.json",
+      "bytes": 2263,
+      "sha256": "717ef3a502bfbd2897c62eae3128ec6635252e703031b36e23265d05f2575281"
+    },
+    "scope": "Actual Codex IAB default-desktop local visual and source-passport interaction; candidate file hashes, not an independent HTTP-body hash or mobile/export/runtime acceptance"
+  },
+  "historicalFigures": {
+    "policy": "Existing architecture JSON/HTML pairs remain byte-for-byte unchanged; article 01 labels its October 9 topology as a preserved historical checkpoint.",
+    "newFigureReplacesHistoricalBytes": false,
+    "verifiedUnchangedFiles": [
+      {
+        "path": "figures/browser-native.archify.html",
+        "bytes": 759324,
+        "sha256": "c1896f5bc114d3501721cdeead726b85dc7d7e66a46b4099c131fb154dde8913"
+      },
+      {
+        "path": "figures/browser-native.archify.json",
+        "bytes": 4869,
+        "sha256": "fe11f58ec415464237e739c712955bdb8864f4983cbdc9dc3af5c115d80765f1"
+      },
+      {
+        "path": "figures/browser-operation.archify.html",
+        "bytes": 760506,
+        "sha256": "e0bddbde2779ab9780a873a67cd9990f7f10ead61a67c2851a35e0e9d07fa92b"
+      },
+      {
+        "path": "figures/browser-operation.archify.json",
+        "bytes": 4157,
+        "sha256": "d826477953130715f1611f3b775fa012a596c944dd34e22f17afec1eaba26e45"
+      },
+      {
+        "path": "figures/owned-generation.archify.html",
+        "bytes": 776436,
+        "sha256": "dfe2307b29d40a6685479f207b96e2f7f4610c56ea79000a41e0c31bc13157a0"
+      },
+      {
+        "path": "figures/owned-generation.archify.json",
+        "bytes": 7971,
+        "sha256": "d652b53bae541e58efb6c27de4fb409f7bd182c7cf8df6b14c41b89fa2073be0"
+      },
+      {
+        "path": "figures/table-cell-selection.archify.html",
+        "bytes": 772954,
+        "sha256": "145a5a0323ec5f9ea71eeed1722cfd184910b592b3c41c87b0ed2285a06e97f5"
+      },
+      {
+        "path": "figures/table-cell-selection.archify.json",
+        "bytes": 7112,
+        "sha256": "7fe7e3cb4db700805fc207f3cdba96349d9c76d21681ac6de36975223fbe40bf"
+      },
+      {
+        "path": "figures/two-lifecycles.archify.html",
+        "bytes": 752726,
+        "sha256": "84febc4dbfdc20fdcedf23302d067897d7e9ff4118cd2ca6584593c1a3e0c00e"
+      },
+      {
+        "path": "figures/two-lifecycles.archify.json",
+        "bytes": 2396,
+        "sha256": "27924cfdd7cbf81693a7ef1a7af9889bd697ff6e34db1e98ce03e4d4b99ec21c"
+      }
+    ]
+  },
+  "portability": "All archive references are repository-relative or fixed credential-free source links. The native delivery sidecar preserves Archify's required local path fields and is excluded from Pages distribution."
+}

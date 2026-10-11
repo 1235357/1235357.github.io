@@ -170,7 +170,7 @@ class BrowserAssetsTest(unittest.TestCase):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs'):
+        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs'):
             if name.endswith('.mjs'):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
@@ -263,9 +263,10 @@ class BrowserAssetsTest(unittest.TestCase):
         worker_graph = static_mjs_graph(output, 'embedding.worker.mjs')
         self.assertEqual(worker_graph, {
             'embedding.worker.mjs': {'./embedding-runtime.mjs', './embedding-source.mjs',
-                                     './worker-console.mjs'},
-            'embedding-runtime.mjs': {'./embedding-contract.mjs'},
-            'embedding-source.mjs': {'./embedding-contract.mjs'},
+                                     './worker-console.mjs', './runtime-failure-contract.mjs'},
+            'embedding-runtime.mjs': {'./embedding-contract.mjs', './runtime-failure-contract.mjs'},
+            'embedding-source.mjs': {'./embedding-contract.mjs', './runtime-failure-contract.mjs'},
+            'runtime-failure-contract.mjs': set(),
             'embedding-contract.mjs': set(),
             'worker-console.mjs': {'./embedding-source.mjs'},
         })
@@ -349,10 +350,11 @@ class BrowserAssetsTest(unittest.TestCase):
             'query.worker.mjs': {'./query-source.mjs', './embedding-runtime.mjs',
                                  './retrieval.mjs', './worker-console.mjs'},
             'query-source.mjs': {'./embedding-source.mjs', './embedding-contract.mjs',
-                                 './retrieval.mjs'},
+                                 './retrieval.mjs', './runtime-failure-contract.mjs'},
             'retrieval.mjs': {'./embedding-source.mjs', './embedding-contract.mjs'},
-            'embedding-source.mjs': {'./embedding-contract.mjs'},
-            'embedding-runtime.mjs': {'./embedding-contract.mjs'},
+            'embedding-source.mjs': {'./embedding-contract.mjs', './runtime-failure-contract.mjs'},
+            'embedding-runtime.mjs': {'./embedding-contract.mjs', './runtime-failure-contract.mjs'},
+            'runtime-failure-contract.mjs': set(),
             'embedding-contract.mjs': set(),
             'worker-console.mjs': {'./embedding-source.mjs'},
         })

@@ -48,6 +48,15 @@ const deferred = () => {
   const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
   return { promise, resolve, reject };
 };
+for(const [boundary,phase,code]of [['open','cache-open','ASSET_CACHE_ERROR'],['match','cache-match','ASSET_CACHE_ERROR'],['fetch','asset-fetch','ASSET_CACHE_ERROR'],['put','asset-verify-and-store','ASSET_CACHE_ERROR'],['short','asset-verify-and-store','ASSET_INTEGRITY_ERROR'],['corrupt','asset-verify-and-store','ASSET_INTEGRITY_ERROR']])test(`verified cache diagnostic records ${boundary} at actual owned obligation`,async()=>{
+  const f=storageFixture(),seen=[];
+  if(boundary==='open')f.cacheStorage.open=()=>{throw Error('PRIVATE storage');};
+  if(boundary==='match')f.cache.match=()=>{throw Error('PRIVATE match');};
+  if(boundary==='put')f.cache.put=()=>{throw Error('PRIVATE quota');};
+  const fetch=async()=>{if(boundary==='fetch')throw Error('PRIVATE pre-header');return new Response(boundary==='short'?bytes.subarray(0,bytes.length-1):boundary==='corrupt'?new Uint8Array(bytes.length):bytes);};
+  await assert.rejects(prepareVerifiedAssetCache(plan(),options(f,{fetch,onDiagnostic:value=>seen.push(value)})),canonical(code));
+  assert.equal(seen.at(-1).phase,phase);assert.equal(seen.at(-1).allowedCode,code);assert.equal(seen.at(-1).assetIndex,boundary==='open'?null:0);assert.doesNotMatch(JSON.stringify(seen),/PRIVATE|quota|header/);
+});
 async function timely(promise) {
   let timer;
   try {

@@ -1,0 +1,900 @@
+{
+  "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/page-parser-order-v1/m512/o64/p2/u16-448-857",
+  "physicalPageNumber": 2,
+  "pageLabel": "4",
+  "startUtf16": 448,
+  "endUtf16": 857,
+  "text": "ealized gain\n \n23\n \n22\n \n20\n \n8\nReclassification adjustments for net realized loss included in net\nincome\n \n(8)\n \n(12)\n \n(13)\n \n(23)\nNet change in unrealized gain (loss)\n \n15\n \n10\n \n7\n \n(15)\nOther comprehensive income (loss), net of tax\n \n165\n \n(1)\n \n29\n \n(8)\nTotal comprehensive income\n \n$\n \n16,764\n \n$\n \n6,187\n \n$\n \n31,509\n \n$\n \n8,224\nSee accompanying Notes to Condensed Consolidated Financial Statements.\n4",
+  "segments": [
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i48/u16-0-29",
+      "itemIndex": 48,
+      "startUtf16": 17,
+      "endUtf16": 29,
+      "quote": "ealized gain",
+      "chunkStartUtf16": 0,
+      "chunkEndUtf16": 12
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 12,
+      "chunkEndUtf16": 13
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i49/u16-0-1",
+      "itemIndex": 49,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 13,
+      "chunkEndUtf16": 14
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 14,
+      "chunkEndUtf16": 15
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i50/u16-0-2",
+      "itemIndex": 50,
+      "startUtf16": 0,
+      "endUtf16": 2,
+      "quote": "23",
+      "chunkStartUtf16": 15,
+      "chunkEndUtf16": 17
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 17,
+      "chunkEndUtf16": 18
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i51/u16-0-1",
+      "itemIndex": 51,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 18,
+      "chunkEndUtf16": 19
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 19,
+      "chunkEndUtf16": 20
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i52/u16-0-2",
+      "itemIndex": 52,
+      "startUtf16": 0,
+      "endUtf16": 2,
+      "quote": "22",
+      "chunkStartUtf16": 20,
+      "chunkEndUtf16": 22
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 22,
+      "chunkEndUtf16": 23
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i53/u16-0-1",
+      "itemIndex": 53,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 23,
+      "chunkEndUtf16": 24
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 24,
+      "chunkEndUtf16": 25
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i54/u16-0-2",
+      "itemIndex": 54,
+      "startUtf16": 0,
+      "endUtf16": 2,
+      "quote": "20",
+      "chunkStartUtf16": 25,
+      "chunkEndUtf16": 27
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 27,
+      "chunkEndUtf16": 28
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i55/u16-0-1",
+      "itemIndex": 55,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 28,
+      "chunkEndUtf16": 29
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 29,
+      "chunkEndUtf16": 30
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i56/u16-0-1",
+      "itemIndex": 56,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "8",
+      "chunkStartUtf16": 30,
+      "chunkEndUtf16": 31
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 31,
+      "chunkEndUtf16": 32
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i58/u16-0-66",
+      "itemIndex": 58,
+      "startUtf16": 0,
+      "endUtf16": 66,
+      "quote": "Reclassification adjustments for net realized loss included in net",
+      "chunkStartUtf16": 32,
+      "chunkEndUtf16": 98
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 98,
+      "chunkEndUtf16": 99
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i59/u16-0-6",
+      "itemIndex": 59,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "income",
+      "chunkStartUtf16": 99,
+      "chunkEndUtf16": 105
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 105,
+      "chunkEndUtf16": 106
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i60/u16-0-1",
+      "itemIndex": 60,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 106,
+      "chunkEndUtf16": 107
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 107,
+      "chunkEndUtf16": 108
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i61/u16-0-3",
+      "itemIndex": 61,
+      "startUtf16": 0,
+      "endUtf16": 3,
+      "quote": "(8)",
+      "chunkStartUtf16": 108,
+      "chunkEndUtf16": 111
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 111,
+      "chunkEndUtf16": 112
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i62/u16-0-1",
+      "itemIndex": 62,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 112,
+      "chunkEndUtf16": 113
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 113,
+      "chunkEndUtf16": 114
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i63/u16-0-4",
+      "itemIndex": 63,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "(12)",
+      "chunkStartUtf16": 114,
+      "chunkEndUtf16": 118
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 118,
+      "chunkEndUtf16": 119
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i64/u16-0-1",
+      "itemIndex": 64,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 119,
+      "chunkEndUtf16": 120
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 120,
+      "chunkEndUtf16": 121
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i65/u16-0-4",
+      "itemIndex": 65,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "(13)",
+      "chunkStartUtf16": 121,
+      "chunkEndUtf16": 125
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 125,
+      "chunkEndUtf16": 126
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i66/u16-0-1",
+      "itemIndex": 66,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 126,
+      "chunkEndUtf16": 127
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 127,
+      "chunkEndUtf16": 128
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i67/u16-0-4",
+      "itemIndex": 67,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "(23)",
+      "chunkStartUtf16": 128,
+      "chunkEndUtf16": 132
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 132,
+      "chunkEndUtf16": 133
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i68/u16-0-36",
+      "itemIndex": 68,
+      "startUtf16": 0,
+      "endUtf16": 36,
+      "quote": "Net change in unrealized gain (loss)",
+      "chunkStartUtf16": 133,
+      "chunkEndUtf16": 169
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 169,
+      "chunkEndUtf16": 170
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i69/u16-0-1",
+      "itemIndex": 69,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 170,
+      "chunkEndUtf16": 171
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 171,
+      "chunkEndUtf16": 172
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i70/u16-0-2",
+      "itemIndex": 70,
+      "startUtf16": 0,
+      "endUtf16": 2,
+      "quote": "15",
+      "chunkStartUtf16": 172,
+      "chunkEndUtf16": 174
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 174,
+      "chunkEndUtf16": 175
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i71/u16-0-1",
+      "itemIndex": 71,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 175,
+      "chunkEndUtf16": 176
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 176,
+      "chunkEndUtf16": 177
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i72/u16-0-2",
+      "itemIndex": 72,
+      "startUtf16": 0,
+      "endUtf16": 2,
+      "quote": "10",
+      "chunkStartUtf16": 177,
+      "chunkEndUtf16": 179
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 179,
+      "chunkEndUtf16": 180
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i73/u16-0-1",
+      "itemIndex": 73,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 180,
+      "chunkEndUtf16": 181
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 181,
+      "chunkEndUtf16": 182
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i74/u16-0-1",
+      "itemIndex": 74,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "7",
+      "chunkStartUtf16": 182,
+      "chunkEndUtf16": 183
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 183,
+      "chunkEndUtf16": 184
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i75/u16-0-1",
+      "itemIndex": 75,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 184,
+      "chunkEndUtf16": 185
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 185,
+      "chunkEndUtf16": 186
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i76/u16-0-4",
+      "itemIndex": 76,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "(15)",
+      "chunkStartUtf16": 186,
+      "chunkEndUtf16": 190
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 190,
+      "chunkEndUtf16": 191
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i77/u16-0-45",
+      "itemIndex": 77,
+      "startUtf16": 0,
+      "endUtf16": 45,
+      "quote": "Other comprehensive income (loss), net of tax",
+      "chunkStartUtf16": 191,
+      "chunkEndUtf16": 236
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 236,
+      "chunkEndUtf16": 237
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i78/u16-0-1",
+      "itemIndex": 78,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 237,
+      "chunkEndUtf16": 238
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 238,
+      "chunkEndUtf16": 239
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i79/u16-0-3",
+      "itemIndex": 79,
+      "startUtf16": 0,
+      "endUtf16": 3,
+      "quote": "165",
+      "chunkStartUtf16": 239,
+      "chunkEndUtf16": 242
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 242,
+      "chunkEndUtf16": 243
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i80/u16-0-1",
+      "itemIndex": 80,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 243,
+      "chunkEndUtf16": 244
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 244,
+      "chunkEndUtf16": 245
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i81/u16-0-3",
+      "itemIndex": 81,
+      "startUtf16": 0,
+      "endUtf16": 3,
+      "quote": "(1)",
+      "chunkStartUtf16": 245,
+      "chunkEndUtf16": 248
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 248,
+      "chunkEndUtf16": 249
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i82/u16-0-1",
+      "itemIndex": 82,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 249,
+      "chunkEndUtf16": 250
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 250,
+      "chunkEndUtf16": 251
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i83/u16-0-2",
+      "itemIndex": 83,
+      "startUtf16": 0,
+      "endUtf16": 2,
+      "quote": "29",
+      "chunkStartUtf16": 251,
+      "chunkEndUtf16": 253
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 253,
+      "chunkEndUtf16": 254
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i84/u16-0-1",
+      "itemIndex": 84,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 254,
+      "chunkEndUtf16": 255
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 255,
+      "chunkEndUtf16": 256
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i85/u16-0-3",
+      "itemIndex": 85,
+      "startUtf16": 0,
+      "endUtf16": 3,
+      "quote": "(8)",
+      "chunkStartUtf16": 256,
+      "chunkEndUtf16": 259
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 259,
+      "chunkEndUtf16": 260
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i86/u16-0-26",
+      "itemIndex": 86,
+      "startUtf16": 0,
+      "endUtf16": 26,
+      "quote": "Total comprehensive income",
+      "chunkStartUtf16": 260,
+      "chunkEndUtf16": 286
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 286,
+      "chunkEndUtf16": 287
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i87/u16-0-1",
+      "itemIndex": 87,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 287,
+      "chunkEndUtf16": 288
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 288,
+      "chunkEndUtf16": 289
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i88/u16-0-1",
+      "itemIndex": 88,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 289,
+      "chunkEndUtf16": 290
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 290,
+      "chunkEndUtf16": 291
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i89/u16-0-1",
+      "itemIndex": 89,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 291,
+      "chunkEndUtf16": 292
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 292,
+      "chunkEndUtf16": 293
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i90/u16-0-6",
+      "itemIndex": 90,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "16,764",
+      "chunkStartUtf16": 293,
+      "chunkEndUtf16": 299
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 299,
+      "chunkEndUtf16": 300
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i91/u16-0-1",
+      "itemIndex": 91,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 300,
+      "chunkEndUtf16": 301
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 301,
+      "chunkEndUtf16": 302
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i92/u16-0-1",
+      "itemIndex": 92,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 302,
+      "chunkEndUtf16": 303
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 303,
+      "chunkEndUtf16": 304
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i93/u16-0-1",
+      "itemIndex": 93,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 304,
+      "chunkEndUtf16": 305
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 305,
+      "chunkEndUtf16": 306
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i94/u16-0-5",
+      "itemIndex": 94,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "6,187",
+      "chunkStartUtf16": 306,
+      "chunkEndUtf16": 311
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 311,
+      "chunkEndUtf16": 312
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i95/u16-0-1",
+      "itemIndex": 95,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 312,
+      "chunkEndUtf16": 313
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 313,
+      "chunkEndUtf16": 314
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i96/u16-0-1",
+      "itemIndex": 96,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 314,
+      "chunkEndUtf16": 315
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 315,
+      "chunkEndUtf16": 316
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i97/u16-0-1",
+      "itemIndex": 97,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 316,
+      "chunkEndUtf16": 317
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 317,
+      "chunkEndUtf16": 318
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i98/u16-0-6",
+      "itemIndex": 98,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "31,509",
+      "chunkStartUtf16": 318,
+      "chunkEndUtf16": 324
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 324,
+      "chunkEndUtf16": 325
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i99/u16-0-1",
+      "itemIndex": 99,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 325,
+      "chunkEndUtf16": 326
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 326,
+      "chunkEndUtf16": 327
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i100/u16-0-1",
+      "itemIndex": 100,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 327,
+      "chunkEndUtf16": 328
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 328,
+      "chunkEndUtf16": 329
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i101/u16-0-1",
+      "itemIndex": 101,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 329,
+      "chunkEndUtf16": 330
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 330,
+      "chunkEndUtf16": 331
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i102/u16-0-5",
+      "itemIndex": 102,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "8,224",
+      "chunkStartUtf16": 331,
+      "chunkEndUtf16": 336
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 336,
+      "chunkEndUtf16": 337
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i104/u16-0-70",
+      "itemIndex": 104,
+      "startUtf16": 0,
+      "endUtf16": 70,
+      "quote": "See accompanying Notes to Condensed Consolidated Financial Statements.",
+      "chunkStartUtf16": 337,
+      "chunkEndUtf16": 407
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 407,
+      "chunkEndUtf16": 408
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i105/u16-0-1",
+      "itemIndex": 105,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "4",
+      "chunkStartUtf16": 408,
+      "chunkEndUtf16": 409
+    }
+  ]
+}

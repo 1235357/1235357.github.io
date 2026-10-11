@@ -228,7 +228,8 @@ those costs. Multiple boxes in a diagram do not prove microservices exist.
 These are independent applications of course concepts. The inspected CS381
 grounded-lookup and CS310 service-boundary exercises are assistant-created
 practice scaffolds, not graded course submissions or professor-provided RAG code.
-Original course-source alignment still needs fuller review before publication.
+The later [course-source review](07-operational-receipts.html#turn-coursework-into-an-explanation-and-a-drill)
+ties these exercises to inspected course pages without reproducing private slides.
 
 ## Bind the offline artifact to the online reader
 
@@ -298,31 +299,34 @@ Completion means your prediction, execution, source check and explanation agree;
 an assistant-run demonstration is scaffolding, not your personal implementation
 evidence. The next article examines how API contracts preserve this distinction.
 
-## Browser-native RAG is a separate approved design
+## Historical browser topology — October 9
 
-The second figure is intentionally labelled **PLANNED / NOT IMPLEMENTED**.
-It describes the agreed next variant; rendering this diagram does not run a
-browser model or validate privacy, memory use, latency or answer quality.
+The second figure preserves the October 9 design checkpoint, intentionally
+labelled **PLANNED / NOT IMPLEMENTED**. Its target topology is historical;
+the [current responsibility overview](07-operational-receipts.html#the-readers-browser-owns-the-work)
+explains the implemented composition and its separate acceptance gates.
+Rendering either diagram does not run a browser model or validate privacy,
+memory use, latency or answer quality.
 The Python API remains independent and must not secretly answer browser-native
 requests. A diagram iframe below is only the architecture viewer, not the
-future embedded RAG demo.
+embedded RAG demo. The actual lab below uses its host's current build profile.
 
-As of October 9, the operation controller is implemented and tested,
+At the October 9 checkpoint, the operation controller was implemented and tested,
 including stale-message rejection, cancellation and worker-incarnation identity.
-The selected-PDF adapter now uses a native parsing worker and has passed the
+The selected-PDF adapter used a native parsing worker and had passed the
 bounded original-fixture browser checks described below. A separate native
 computation worker builds source-linked page windows on an explicit button click.
 Those stages, explicit MiniLM passage encoding and question-to-source ranking
-have bounded native-browser receipts. The figure remains the full target topology,
-not a live status diagram: the implemented retrieval slice does not establish
+had bounded native-browser receipts. The preserved figure remains that target topology,
+not a live status diagram: that retrieval checkpoint did not establish
 context assembly, generation, sample permission or independent financial quality.
 The [commit-boundary lesson](02-contracts-before-services.html#browser-work-has-a-commit-boundary-too)
-explains result ownership; the full RAG figure remains planned.
+explains result ownership; article 07 records the later implemented responsibilities.
 
-<figure class="architecture-figure" id="browser-architecture" aria-label="Approved browser-native design, not implemented">
-<div class="figure-heading"><span class="figure-status planned">02 / APPROVED DESIGN · NOT IMPLEMENTED</span><h3>The reader's device owns the computation.</h3><p>Main thread: interaction. PDF worker: text and page identity. Computation worker: embedding, ranking, context and actual generation. External hosts supply reviewed assets, not answers.</p></div>
-<iframe src="figures/browser-native.archify.html?theme=dark" title="Planned browser-native RAG — not an implemented runtime" loading="lazy"></iframe>
-<figcaption>Figure 2 · Approved design only. <a href="figures/browser-native.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/browser-native.archify.json">Editable JSON</a>. Local PDF selection and permission-reviewed samples are separate entrances; sample availability still requires permission acceptance. The parser-to-compute arrow is logical data lineage: page/spans return through PDF.js's main-thread proxy before being forwarded to the computation worker, not a direct worker channel.</figcaption>
+<figure class="architecture-figure" id="browser-architecture" aria-label="October 9 planned browser-native topology, preserved history">
+<div class="figure-heading"><span class="figure-status planned">02 / OCTOBER 9 DESIGN HISTORY</span><h3>The reader's device owns the computation.</h3><p>This preserved target diagram separates main-thread interaction, PDF parsing and model computation. Read the current implementation overview in article 07 before using it to describe today's entry.</p></div>
+<iframe src="figures/browser-native.archify.html?theme=dark" title="Historical October 9 planned browser-native topology" loading="lazy"></iframe>
+<figcaption>Figure 2 · Historical approved design, with its original figure bytes retained. <a href="figures/browser-native.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/browser-native.archify.json">Editable JSON</a> · <a href="07-operational-receipts.html#the-readers-browser-owns-the-work">Current responsibilities ↗</a>. Local PDF selection and permission-reviewed samples are separate entrances; no NVIDIA sample mode is delivered. The parser-to-compute arrow is logical data lineage: page/spans return through PDF.js's main-thread proxy before being forwarded to the computation worker, not a direct worker channel.</figcaption>
 </figure>
 
 In CS381 terms, the parser, retriever and generator are replaceable interfaces
@@ -338,14 +342,18 @@ Read the diagram critically: downloaded model assets can be cached, while
 document/index persistence remains opt-in. A citation-format check does not
 establish the right fiscal period, metric, column, amount or unit. Actual
 browser execution, source-checked predictions, cold/warm network inspection and
-device-specific performance evidence must precede any release claim.
+device-specific performance evidence are separate from static publication.
 
 ## First browser increment: inspect before indexing
 
-<figure class="architecture-figure" id="browser-source-lab" aria-label="Interactive local PDF extraction lab, not a complete RAG runtime">
-<div class="figure-heading"><span class="figure-status">03 / QUESTION-TO-CONTEXT LAB · NOT GENERATED</span><h3>Choose bytes. Ask. Inspect the source.</h3><p>This is an actual application entry point, not a diagram. Parse the selected file, build chunks, explicitly encode passages, run your exact question, then assemble its complete provenance context. Inspect candidates, source fragments, token IDs, vectors and citation identities separately.</p></div>
-<iframe src="browser-rag/inspector.html" title="Local question-to-source inspector — candidates, not generated answers" loading="lazy"></iframe>
-<figcaption>“Extracted; not indexed” → “Chunked; not embedded” → “Embedded; not retrieved” → “Query candidates; not an answer” → “Context assembled; not generated”, each after its own explicit accepted action. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection and model download are explicit; no PDF upload endpoint is implemented. Context assembly preserves all selected evidence and the exact question. NVIDIA sample mode and generation remain unavailable. Browser acceptance is recorded separately from unit tests.</figcaption>
+The parser's `Extracted; not indexed` state commits the selected source records.
+Build chunks is a separate explicit action; neither stage creates vectors or an
+answer. The later encoder, query, context and generation retain their own gates.
+
+<figure class="architecture-figure" id="browser-source-lab" aria-label="Current embedded browser lab, capabilities selected by build profile">
+<div class="figure-heading"><span class="figure-status">03 / EMBEDDED LAB · BUILD PROFILE</span><h3>Choose bytes. Ask. Inspect the source.</h3><p>This is the actual lab entry. Parse the selected file, build chunks, explicitly encode passages, retrieve your question and assemble its complete provenance context. The public build also enables explicit native generation and the separate six-field Net income lookup. Inspect the source, computation and complete receipt behind any outcome.</p></div>
+<iframe src="browser-rag/inspector.html" title="Browser RAG lab — sourced candidates, explicit generation and separate lookup" loading="lazy"></iframe>
+<figcaption>Each pipeline action commits its own accepted artifact; context is not an answer. A native generation result is separately inspected as an unverified draft or refusal. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a> · <a href="07-operational-receipts.html">Current execution contracts ↗</a>. This iframe inherits its host's build profile: public generation/lookup are configured, ordinary development generation remains OFF. File selection and model downloads are explicit; no selected-PDF upload endpoint or NVIDIA sample mode is implemented. Native public execution and financial correctness need their own acceptance evidence.</figcaption>
 </figure>
 
 <details><summary>What was actually checked in Codex IAB on October 7?</summary>
@@ -629,8 +637,9 @@ generated with Archify from the linked JSON sources. Their composition and
 artifact provenance checks are separate from manual Codex in-app browser review.
 Archify's external-Chromium browser checker was not run because this workflow
 permits only the Codex in-app browser. The companion PlantUML renderer and draw.io
-import remain unverified. Independent financial evaluation and public release
-are unfinished. Archify and its embedded font retain their bundled
+import remain unverified. Independent financial evaluation remains unfinished;
+the [current chapter](07-operational-receipts.html) separates later static publication
+from native runtime observations. Archify and its embedded font retain their bundled
 [MIT notice](figures/ARCHIFY-LICENSE.txt),
 [third-party notices](figures/ARCHIFY-THIRD-PARTY-NOTICES.txt), and
 [SIL font license](figures/JetBrainsMono-OFL.txt).

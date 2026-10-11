@@ -1,0 +1,1460 @@
+{
+  "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/page-parser-order-v1/m512/o64/p1/u16-896-1377",
+  "physicalPageNumber": 1,
+  "pageLabel": "3",
+  "startUtf16": 896,
+  "endUtf16": 1377,
+  "text": "x\n \n19,214\n \n6,981\n \n36,493\n \n9,190\nIncome tax expense\n \n2,615\n \n793\n \n5,013\n \n958\nNet income\n \n$\n \n16,599\n \n$\n \n6,188\n \n$\n \n31,480\n \n$\n \n8,232\nNet income per share:\nBasic\n \n$\n \n0.68\n \n$\n \n0.25\n \n$\n \n1.28\n \n$\n \n0.33\nDiluted\n \n$\n \n0.67\n \n$\n \n0.25\n \n$\n \n1.27\n \n$\n \n0.33\nWeighted average shares used in per share computation:\nBasic\n \n24,578\n \n24,729\n \n24,599\n \n24,716\nDiluted\n \n24,848\n \n24,994\n \n24,869\n \n24,948\nSee accompanying Notes to Condensed Consolidated Financial Statements.\n3",
+  "segments": [
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i141/u16-0-24",
+      "itemIndex": 141,
+      "startUtf16": 23,
+      "endUtf16": 24,
+      "quote": "x",
+      "chunkStartUtf16": 0,
+      "chunkEndUtf16": 1
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 1,
+      "chunkEndUtf16": 2
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i142/u16-0-1",
+      "itemIndex": 142,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 2,
+      "chunkEndUtf16": 3
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 3,
+      "chunkEndUtf16": 4
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i143/u16-0-6",
+      "itemIndex": 143,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "19,214",
+      "chunkStartUtf16": 4,
+      "chunkEndUtf16": 10
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 10,
+      "chunkEndUtf16": 11
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i144/u16-0-1",
+      "itemIndex": 144,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 11,
+      "chunkEndUtf16": 12
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 12,
+      "chunkEndUtf16": 13
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i145/u16-0-5",
+      "itemIndex": 145,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "6,981",
+      "chunkStartUtf16": 13,
+      "chunkEndUtf16": 18
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 18,
+      "chunkEndUtf16": 19
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i146/u16-0-1",
+      "itemIndex": 146,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 19,
+      "chunkEndUtf16": 20
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 20,
+      "chunkEndUtf16": 21
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i147/u16-0-6",
+      "itemIndex": 147,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "36,493",
+      "chunkStartUtf16": 21,
+      "chunkEndUtf16": 27
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 27,
+      "chunkEndUtf16": 28
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i148/u16-0-1",
+      "itemIndex": 148,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 28,
+      "chunkEndUtf16": 29
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 29,
+      "chunkEndUtf16": 30
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i149/u16-0-5",
+      "itemIndex": 149,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "9,190",
+      "chunkStartUtf16": 30,
+      "chunkEndUtf16": 35
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 35,
+      "chunkEndUtf16": 36
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i151/u16-0-18",
+      "itemIndex": 151,
+      "startUtf16": 0,
+      "endUtf16": 18,
+      "quote": "Income tax expense",
+      "chunkStartUtf16": 36,
+      "chunkEndUtf16": 54
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 54,
+      "chunkEndUtf16": 55
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i152/u16-0-1",
+      "itemIndex": 152,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 55,
+      "chunkEndUtf16": 56
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 56,
+      "chunkEndUtf16": 57
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i153/u16-0-5",
+      "itemIndex": 153,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "2,615",
+      "chunkStartUtf16": 57,
+      "chunkEndUtf16": 62
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 62,
+      "chunkEndUtf16": 63
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i154/u16-0-1",
+      "itemIndex": 154,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 63,
+      "chunkEndUtf16": 64
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 64,
+      "chunkEndUtf16": 65
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i155/u16-0-3",
+      "itemIndex": 155,
+      "startUtf16": 0,
+      "endUtf16": 3,
+      "quote": "793",
+      "chunkStartUtf16": 65,
+      "chunkEndUtf16": 68
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 68,
+      "chunkEndUtf16": 69
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i156/u16-0-1",
+      "itemIndex": 156,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 69,
+      "chunkEndUtf16": 70
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 70,
+      "chunkEndUtf16": 71
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i157/u16-0-5",
+      "itemIndex": 157,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "5,013",
+      "chunkStartUtf16": 71,
+      "chunkEndUtf16": 76
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 76,
+      "chunkEndUtf16": 77
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i158/u16-0-1",
+      "itemIndex": 158,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 77,
+      "chunkEndUtf16": 78
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 78,
+      "chunkEndUtf16": 79
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i159/u16-0-3",
+      "itemIndex": 159,
+      "startUtf16": 0,
+      "endUtf16": 3,
+      "quote": "958",
+      "chunkStartUtf16": 79,
+      "chunkEndUtf16": 82
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 82,
+      "chunkEndUtf16": 83
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i161/u16-0-10",
+      "itemIndex": 161,
+      "startUtf16": 0,
+      "endUtf16": 10,
+      "quote": "Net income",
+      "chunkStartUtf16": 83,
+      "chunkEndUtf16": 93
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 93,
+      "chunkEndUtf16": 94
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i162/u16-0-1",
+      "itemIndex": 162,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 94,
+      "chunkEndUtf16": 95
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 95,
+      "chunkEndUtf16": 96
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i163/u16-0-1",
+      "itemIndex": 163,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 96,
+      "chunkEndUtf16": 97
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 97,
+      "chunkEndUtf16": 98
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i164/u16-0-1",
+      "itemIndex": 164,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 98,
+      "chunkEndUtf16": 99
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 99,
+      "chunkEndUtf16": 100
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i165/u16-0-6",
+      "itemIndex": 165,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "16,599",
+      "chunkStartUtf16": 100,
+      "chunkEndUtf16": 106
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 106,
+      "chunkEndUtf16": 107
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i166/u16-0-1",
+      "itemIndex": 166,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 107,
+      "chunkEndUtf16": 108
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 108,
+      "chunkEndUtf16": 109
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i167/u16-0-1",
+      "itemIndex": 167,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 109,
+      "chunkEndUtf16": 110
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 110,
+      "chunkEndUtf16": 111
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i168/u16-0-1",
+      "itemIndex": 168,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 111,
+      "chunkEndUtf16": 112
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 112,
+      "chunkEndUtf16": 113
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i169/u16-0-5",
+      "itemIndex": 169,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "6,188",
+      "chunkStartUtf16": 113,
+      "chunkEndUtf16": 118
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 118,
+      "chunkEndUtf16": 119
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i170/u16-0-1",
+      "itemIndex": 170,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 119,
+      "chunkEndUtf16": 120
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 120,
+      "chunkEndUtf16": 121
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i171/u16-0-1",
+      "itemIndex": 171,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 121,
+      "chunkEndUtf16": 122
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 122,
+      "chunkEndUtf16": 123
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i172/u16-0-1",
+      "itemIndex": 172,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 123,
+      "chunkEndUtf16": 124
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 124,
+      "chunkEndUtf16": 125
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i173/u16-0-6",
+      "itemIndex": 173,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "31,480",
+      "chunkStartUtf16": 125,
+      "chunkEndUtf16": 131
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 131,
+      "chunkEndUtf16": 132
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i174/u16-0-1",
+      "itemIndex": 174,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 132,
+      "chunkEndUtf16": 133
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 133,
+      "chunkEndUtf16": 134
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i175/u16-0-1",
+      "itemIndex": 175,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 134,
+      "chunkEndUtf16": 135
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 135,
+      "chunkEndUtf16": 136
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i176/u16-0-1",
+      "itemIndex": 176,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 136,
+      "chunkEndUtf16": 137
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 137,
+      "chunkEndUtf16": 138
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i177/u16-0-5",
+      "itemIndex": 177,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "8,232",
+      "chunkStartUtf16": 138,
+      "chunkEndUtf16": 143
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 143,
+      "chunkEndUtf16": 144
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i179/u16-0-21",
+      "itemIndex": 179,
+      "startUtf16": 0,
+      "endUtf16": 21,
+      "quote": "Net income per share:",
+      "chunkStartUtf16": 144,
+      "chunkEndUtf16": 165
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 165,
+      "chunkEndUtf16": 166
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i180/u16-0-5",
+      "itemIndex": 180,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "Basic",
+      "chunkStartUtf16": 166,
+      "chunkEndUtf16": 171
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 171,
+      "chunkEndUtf16": 172
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i181/u16-0-1",
+      "itemIndex": 181,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 172,
+      "chunkEndUtf16": 173
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 173,
+      "chunkEndUtf16": 174
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i182/u16-0-1",
+      "itemIndex": 182,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 174,
+      "chunkEndUtf16": 175
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 175,
+      "chunkEndUtf16": 176
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i183/u16-0-1",
+      "itemIndex": 183,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 176,
+      "chunkEndUtf16": 177
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 177,
+      "chunkEndUtf16": 178
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i184/u16-0-4",
+      "itemIndex": 184,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "0.68",
+      "chunkStartUtf16": 178,
+      "chunkEndUtf16": 182
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 182,
+      "chunkEndUtf16": 183
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i185/u16-0-1",
+      "itemIndex": 185,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 183,
+      "chunkEndUtf16": 184
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 184,
+      "chunkEndUtf16": 185
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i186/u16-0-1",
+      "itemIndex": 186,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 185,
+      "chunkEndUtf16": 186
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 186,
+      "chunkEndUtf16": 187
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i187/u16-0-1",
+      "itemIndex": 187,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 187,
+      "chunkEndUtf16": 188
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 188,
+      "chunkEndUtf16": 189
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i188/u16-0-4",
+      "itemIndex": 188,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "0.25",
+      "chunkStartUtf16": 189,
+      "chunkEndUtf16": 193
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 193,
+      "chunkEndUtf16": 194
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i189/u16-0-1",
+      "itemIndex": 189,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 194,
+      "chunkEndUtf16": 195
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 195,
+      "chunkEndUtf16": 196
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i190/u16-0-1",
+      "itemIndex": 190,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 196,
+      "chunkEndUtf16": 197
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 197,
+      "chunkEndUtf16": 198
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i191/u16-0-1",
+      "itemIndex": 191,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 198,
+      "chunkEndUtf16": 199
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 199,
+      "chunkEndUtf16": 200
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i192/u16-0-4",
+      "itemIndex": 192,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "1.28",
+      "chunkStartUtf16": 200,
+      "chunkEndUtf16": 204
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 204,
+      "chunkEndUtf16": 205
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i193/u16-0-1",
+      "itemIndex": 193,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 205,
+      "chunkEndUtf16": 206
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 206,
+      "chunkEndUtf16": 207
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i194/u16-0-1",
+      "itemIndex": 194,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 207,
+      "chunkEndUtf16": 208
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 208,
+      "chunkEndUtf16": 209
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i195/u16-0-1",
+      "itemIndex": 195,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 209,
+      "chunkEndUtf16": 210
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 210,
+      "chunkEndUtf16": 211
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i196/u16-0-4",
+      "itemIndex": 196,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "0.33",
+      "chunkStartUtf16": 211,
+      "chunkEndUtf16": 215
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 215,
+      "chunkEndUtf16": 216
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i198/u16-0-7",
+      "itemIndex": 198,
+      "startUtf16": 0,
+      "endUtf16": 7,
+      "quote": "Diluted",
+      "chunkStartUtf16": 216,
+      "chunkEndUtf16": 223
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 223,
+      "chunkEndUtf16": 224
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i199/u16-0-1",
+      "itemIndex": 199,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 224,
+      "chunkEndUtf16": 225
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 225,
+      "chunkEndUtf16": 226
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i200/u16-0-1",
+      "itemIndex": 200,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 226,
+      "chunkEndUtf16": 227
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 227,
+      "chunkEndUtf16": 228
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i201/u16-0-1",
+      "itemIndex": 201,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 228,
+      "chunkEndUtf16": 229
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 229,
+      "chunkEndUtf16": 230
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i202/u16-0-4",
+      "itemIndex": 202,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "0.67",
+      "chunkStartUtf16": 230,
+      "chunkEndUtf16": 234
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 234,
+      "chunkEndUtf16": 235
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i203/u16-0-1",
+      "itemIndex": 203,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 235,
+      "chunkEndUtf16": 236
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 236,
+      "chunkEndUtf16": 237
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i204/u16-0-1",
+      "itemIndex": 204,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 237,
+      "chunkEndUtf16": 238
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 238,
+      "chunkEndUtf16": 239
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i205/u16-0-1",
+      "itemIndex": 205,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 239,
+      "chunkEndUtf16": 240
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 240,
+      "chunkEndUtf16": 241
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i206/u16-0-4",
+      "itemIndex": 206,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "0.25",
+      "chunkStartUtf16": 241,
+      "chunkEndUtf16": 245
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 245,
+      "chunkEndUtf16": 246
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i207/u16-0-1",
+      "itemIndex": 207,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 246,
+      "chunkEndUtf16": 247
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 247,
+      "chunkEndUtf16": 248
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i208/u16-0-1",
+      "itemIndex": 208,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 248,
+      "chunkEndUtf16": 249
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 249,
+      "chunkEndUtf16": 250
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i209/u16-0-1",
+      "itemIndex": 209,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 250,
+      "chunkEndUtf16": 251
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 251,
+      "chunkEndUtf16": 252
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i210/u16-0-4",
+      "itemIndex": 210,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "1.27",
+      "chunkStartUtf16": 252,
+      "chunkEndUtf16": 256
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 256,
+      "chunkEndUtf16": 257
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i211/u16-0-1",
+      "itemIndex": 211,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 257,
+      "chunkEndUtf16": 258
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 258,
+      "chunkEndUtf16": 259
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i212/u16-0-1",
+      "itemIndex": 212,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 259,
+      "chunkEndUtf16": 260
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 260,
+      "chunkEndUtf16": 261
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i213/u16-0-1",
+      "itemIndex": 213,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 261,
+      "chunkEndUtf16": 262
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 262,
+      "chunkEndUtf16": 263
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i214/u16-0-4",
+      "itemIndex": 214,
+      "startUtf16": 0,
+      "endUtf16": 4,
+      "quote": "0.33",
+      "chunkStartUtf16": 263,
+      "chunkEndUtf16": 267
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 267,
+      "chunkEndUtf16": 268
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i216/u16-0-54",
+      "itemIndex": 216,
+      "startUtf16": 0,
+      "endUtf16": 54,
+      "quote": "Weighted average shares used in per share computation:",
+      "chunkStartUtf16": 268,
+      "chunkEndUtf16": 322
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 322,
+      "chunkEndUtf16": 323
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i217/u16-0-5",
+      "itemIndex": 217,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "Basic",
+      "chunkStartUtf16": 323,
+      "chunkEndUtf16": 328
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 328,
+      "chunkEndUtf16": 329
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i218/u16-0-1",
+      "itemIndex": 218,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 329,
+      "chunkEndUtf16": 330
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 330,
+      "chunkEndUtf16": 331
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i219/u16-0-6",
+      "itemIndex": 219,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "24,578",
+      "chunkStartUtf16": 331,
+      "chunkEndUtf16": 337
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 337,
+      "chunkEndUtf16": 338
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i220/u16-0-1",
+      "itemIndex": 220,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 338,
+      "chunkEndUtf16": 339
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 339,
+      "chunkEndUtf16": 340
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i221/u16-0-6",
+      "itemIndex": 221,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "24,729",
+      "chunkStartUtf16": 340,
+      "chunkEndUtf16": 346
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 346,
+      "chunkEndUtf16": 347
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i222/u16-0-1",
+      "itemIndex": 222,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 347,
+      "chunkEndUtf16": 348
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 348,
+      "chunkEndUtf16": 349
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i223/u16-0-6",
+      "itemIndex": 223,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "24,599",
+      "chunkStartUtf16": 349,
+      "chunkEndUtf16": 355
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 355,
+      "chunkEndUtf16": 356
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i224/u16-0-1",
+      "itemIndex": 224,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 356,
+      "chunkEndUtf16": 357
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 357,
+      "chunkEndUtf16": 358
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i225/u16-0-6",
+      "itemIndex": 225,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "24,716",
+      "chunkStartUtf16": 358,
+      "chunkEndUtf16": 364
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 364,
+      "chunkEndUtf16": 365
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i227/u16-0-7",
+      "itemIndex": 227,
+      "startUtf16": 0,
+      "endUtf16": 7,
+      "quote": "Diluted",
+      "chunkStartUtf16": 365,
+      "chunkEndUtf16": 372
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 372,
+      "chunkEndUtf16": 373
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i228/u16-0-1",
+      "itemIndex": 228,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 373,
+      "chunkEndUtf16": 374
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 374,
+      "chunkEndUtf16": 375
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i229/u16-0-6",
+      "itemIndex": 229,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "24,848",
+      "chunkStartUtf16": 375,
+      "chunkEndUtf16": 381
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 381,
+      "chunkEndUtf16": 382
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i230/u16-0-1",
+      "itemIndex": 230,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 382,
+      "chunkEndUtf16": 383
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 383,
+      "chunkEndUtf16": 384
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i231/u16-0-6",
+      "itemIndex": 231,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "24,994",
+      "chunkStartUtf16": 384,
+      "chunkEndUtf16": 390
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 390,
+      "chunkEndUtf16": 391
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i232/u16-0-1",
+      "itemIndex": 232,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 391,
+      "chunkEndUtf16": 392
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 392,
+      "chunkEndUtf16": 393
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i233/u16-0-6",
+      "itemIndex": 233,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "24,869",
+      "chunkStartUtf16": 393,
+      "chunkEndUtf16": 399
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 399,
+      "chunkEndUtf16": 400
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i234/u16-0-1",
+      "itemIndex": 234,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 400,
+      "chunkEndUtf16": 401
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 401,
+      "chunkEndUtf16": 402
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i235/u16-0-6",
+      "itemIndex": 235,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "24,948",
+      "chunkStartUtf16": 402,
+      "chunkEndUtf16": 408
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 408,
+      "chunkEndUtf16": 409
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i237/u16-0-70",
+      "itemIndex": 237,
+      "startUtf16": 0,
+      "endUtf16": 70,
+      "quote": "See accompanying Notes to Condensed Consolidated Financial Statements.",
+      "chunkStartUtf16": 409,
+      "chunkEndUtf16": 479
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 479,
+      "chunkEndUtf16": 480
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i238/u16-0-1",
+      "itemIndex": 238,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "3",
+      "chunkStartUtf16": 480,
+      "chunkEndUtf16": 481
+    }
+  ]
+}

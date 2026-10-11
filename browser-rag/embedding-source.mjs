@@ -1,4 +1,5 @@
 import { EMBEDDING_SPEC, acceptEmbeddingVectors } from './embedding-contract.mjs';
+import {copyWorkerFailure,createRuntimeFailure,ownData} from './runtime-failure-contract.mjs';
 
 const MESSAGES = Object.freeze({
   INVALID_EMBEDDING_CONFIG: 'The embedding configuration is invalid.',
@@ -95,7 +96,7 @@ export function projectEmbeddingInput(artifact) {
 export function isEmbeddingCommand(command) {
   try {
     const value = command?.chunkArtifact;
-    return exact(command, ['kind', 'identity', 'chunkArtifact']) && command.kind === 'embed-chunks'
+    return exact(command, ['kind', 'workerVersion', 'identity', 'chunkArtifact']) && ownData(command,'workerVersion')==='embedding-v2' && command.kind === 'embed-chunks'
       && isEmbeddingIdentity(command.identity)
       && exact(value, ['schemaVersion', 'status', 'source', 'counts', 'chunks'])
       && exact(value.source, ['sha256']) && exact(value.counts, ['chunks'])
@@ -248,7 +249,8 @@ export async function embedInWorker(chunkArtifact, options = {}) {
   if (aborted) fail('ABORTED');
   const source = projectEmbeddingInput(chunkArtifact);
   return new Promise((resolve, reject) => {
-    let worker, settled = false, ready = false, lastSeq = 0, readyTimer, workTimer;
+    let worker, settled = false, ready = false, commandPosted=false, lastSeq = 0, readyTimer, workTimer;
+    const constructed=performance.now();
     const stages = createEmbeddingStageGuard(source.counts.chunks), listeners = new Map();
     const onAbort = () => finish(new EmbeddingWorkerError('ABORTED'));
     function cleanup() {
@@ -259,9 +261,11 @@ export async function embedInWorker(chunkArtifact, options = {}) {
         try { worker.terminate(); } catch { /* native diagnostics never cross this boundary */ }
       }
     }
-    function finish(error, result) {
+    function finish(error, result, failureOrigin='channel-validation', workerFailure=null) {
       if (settled) return;
-      settled = true; cleanup(); // Revoke commit permission BEFORE terminate hooks.
+      settled = true; // Revoke commit permission BEFORE diagnostics and terminate hooks.
+      if(error&&error.code!=='ABORTED')try{error.diagnostic=createRuntimeFailure(ownedIdentity,{failureOrigin,readyObserved:ready,commandPosted,lastSeq,elapsedMs:performance.now()-constructed,allowedCode:error.code},workerFailure);}catch{}
+      cleanup();
       if (error) reject(error); else resolve(result);
     }
     const protocolError = () => finish(new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR'));
@@ -271,30 +275,36 @@ export async function embedInWorker(chunkArtifact, options = {}) {
         const packet = message.data;
         if (!ready) {
           if (!exact(packet, ['kind', 'protocolVersion', 'workerVersion']) || packet.kind !== 'embedding-ready'
-              || packet.protocolVersion !== 1 || packet.workerVersion !== 'embedding-v1') fail('WORKER_PROTOCOL_ERROR');
+               || packet.protocolVersion !== 1 || ownData(packet,'workerVersion') !== 'embedding-v2') fail('WORKER_PROTOCOL_ERROR');
+          if(settled)return;
           ready = true; clearTimeout(readyTimer);
-          workTimer = setTimeout(() => finish(new EmbeddingWorkerError('EMBEDDING_TIMEOUT')), workTimeoutMs);
-          worker.postMessage({ kind: 'embed-chunks', identity: ownedIdentity, chunkArtifact: source }); return;
+          workTimer = setTimeout(() => finish(new EmbeddingWorkerError('EMBEDDING_TIMEOUT'),undefined,'client-operation-deadline'), workTimeoutMs);
+          worker.postMessage({ kind: 'embed-chunks', workerVersion:'embedding-v2', identity: ownedIdentity, chunkArtifact: source });if(!settled)commandPosted=true;return;
         }
+        if(ownData(packet,'workerVersion')!=='embedding-v2')fail('WORKER_PROTOCOL_ERROR');
         const rawEvent = packet?.event;
         if (!exact(rawEvent, EVENT_KEYS)) fail('WORKER_PROTOCOL_ERROR');
         const event = copyFields(rawEvent, EVENT_KEYS);
         if (!same(event, ownedIdentity, IDENTITY_KEYS) || !positive(event.seq) || event.seq <= lastSeq) fail('WORKER_PROTOCOL_ERROR');
         const eventCopy = (payload) => freeze({ ...ownedIdentity, kind: event.kind, stage: event.stage, seq: event.seq, payload });
         if (event.kind === 'progress') {
-          if (!exact(packet, ['event']) || event.seq === Number.MAX_SAFE_INTEGER) fail('WORKER_PROTOCOL_ERROR');
+          if (!exact(packet, ['workerVersion','event']) || event.seq === Number.MAX_SAFE_INTEGER) fail('WORKER_PROTOCOL_ERROR');
           const payload = stages.accept(event.stage, event.payload); lastSeq = event.seq;
+          if(settled)return;
           onProgress?.(eventCopy(payload));
         } else if (event.kind === 'error') {
-          if (!exact(packet, ['event']) || event.stage !== stages.stage || !exact(event.payload, ['code', 'message'])) fail('WORKER_PROTOCOL_ERROR');
+          if (!exact(packet, ['workerVersion','event']) || event.stage !== stages.stage || !exact(event.payload, ['code', 'message','workerFailure'])) fail('WORKER_PROTOCOL_ERROR');
           const payload = copyFields(event.payload, ['code', 'message']);
+          const workerFailure=copyWorkerFailure(ownData(event.payload,'workerFailure'),'encoder-initializer');
           if (typeof payload.code !== 'string' || !Object.hasOwn(MESSAGES, payload.code)
               || payload.message !== MESSAGES[payload.code]) fail('WORKER_PROTOCOL_ERROR');
-          lastSeq = event.seq; finish(new EmbeddingWorkerError(payload.code));
+          if(settled)return;
+          lastSeq = event.seq; finish(new EmbeddingWorkerError(payload.code),undefined,'worker-reported-error',workerFailure);
         } else if (event.kind === 'result') {
-          if (!exact(packet, ['event', 'artifact']) || event.stage !== 'encode' || !exact(event.payload, ['data'])) fail('WORKER_PROTOCOL_ERROR');
+          if (!exact(packet, ['workerVersion','event', 'artifact']) || event.stage !== 'encode' || !exact(event.payload, ['data'])) fail('WORKER_PROTOCOL_ERROR');
           stages.assertComplete();
           const artifact = copyEmbeddingArtifact(packet.artifact, source, stages.downloadTotal, event.payload.data);
+          if(settled)return;
           lastSeq = event.seq; finish(null, freeze({ event: eventCopy({ data: embeddingReceipt(artifact) }), artifact }));
         } else fail('WORKER_PROTOCOL_ERROR');
       } catch { protocolError(); }
@@ -305,12 +315,12 @@ export async function embedInWorker(chunkArtifact, options = {}) {
         finish(new EmbeddingWorkerError('WORKER_UNAVAILABLE')); return;
       }
       listeners.set('message', receive);
-      listeners.set('error', () => finish(new EmbeddingWorkerError('EMBEDDING_FAILED')));
+      listeners.set('error', () => finish(new EmbeddingWorkerError('EMBEDDING_FAILED'),undefined,'native-worker-error'));
       listeners.set('messageerror', protocolError);
       for (const [type, listener] of listeners) worker.addEventListener(type, listener);
       signal?.addEventListener('abort', onAbort, { once: true });
       if (signal?.aborted) { onAbort(); return; }
-      readyTimer = setTimeout(() => finish(new EmbeddingWorkerError('EMBEDDING_TIMEOUT')), readyTimeoutMs);
+      readyTimer = setTimeout(() => finish(new EmbeddingWorkerError('EMBEDDING_TIMEOUT'),undefined,'client-readiness-deadline'), readyTimeoutMs);
     } catch { finish(new EmbeddingWorkerError('WORKER_UNAVAILABLE')); }
   });
 }

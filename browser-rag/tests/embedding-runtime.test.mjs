@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import { webcrypto } from 'node:crypto';
-import { EmbeddingRuntimeError, encodeChunks, encodeQuery } from '../embedding-runtime.mjs';
+import { EmbeddingRuntimeError, encodeChunks, encodeQuery, prepareEmbeddingAssets } from '../embedding-runtime.mjs';
 import { EMBEDDING_SPEC } from '../embedding-contract.mjs';
 import {WASM_FILE,WASM_PIN,wasmBytes} from './wasm-runtime-fixture.mjs';
 import { Tensor as LibraryTensor, mean_pooling as libraryMeanPooling }
@@ -19,6 +20,47 @@ const artifact = (texts = ['First chunk.']) => ({ schemaVersion: 1,
   counts: { chunks: texts.length }, chunks: texts.map((text, i) => ({ id: `chunk-${i}`, text })) });
 const options = overrides => ({ baseURL: BASE, crypto: webcrypto, cacheStorage: undefined,
   now: () => 10, ...overrides });
+// The first public 650-byte model metadata body only; no model/cache download.
+const preparationConfig=new TextEncoder().encode(`{
+  "_name_or_path": "sentence-transformers/all-MiniLM-L6-v2",
+  "architectures": [
+    "BertModel"
+  ],
+  "attention_probs_dropout_prob": 0.1,
+  "classifier_dropout": null,
+  "gradient_checkpointing": false,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.1,
+  "hidden_size": 384,
+  "initializer_range": 0.02,
+  "intermediate_size": 1536,
+  "layer_norm_eps": 1e-12,
+  "max_position_embeddings": 512,
+  "model_type": "bert",
+  "num_attention_heads": 12,
+  "num_hidden_layers": 6,
+  "pad_token_id": 0,
+  "position_embedding_type": "absolute",
+  "transformers_version": "4.29.2",
+  "type_vocab_size": 2,
+  "use_cache": true,
+  "vocab_size": 30522
+}
+`);
+test('preparation cache-open cancellation retains ABORTED at its actual boundary',async()=>{
+  const registry=readFileSync(new URL('../embedding-assets.json',import.meta.url)),controller=new AbortController(),seen=[];
+  const pending=prepareEmbeddingAssets(options({signal:controller.signal,fetch:async()=>new Response(registry),cacheStorage:{open(){controller.abort();return new Promise(()=>{});}},onDiagnostic:value=>seen.push(value)}));
+  await assert.rejects(pending,safeError('ABORTED'));assert.equal(seen.at(-1).phase,'cache-open');assert.equal(seen.at(-1).allowedCode,'ABORTED');
+});
+for(const [boundary,code]of [['cache-open','ASSET_CACHE_ERROR'],['cache-match','ASSET_CACHE_ERROR'],['asset-fetch','ASSET_INTEGRITY_ERROR'],['short','ASSET_INTEGRITY_ERROR'],['corrupt','ASSET_INTEGRITY_ERROR'],['put','ASSET_CACHE_ERROR']])test(`preparation diagnostic observes actual ${boundary} refusal without model bodies`,async()=>{
+  const registry=readFileSync(new URL('../embedding-assets.json',import.meta.url)),config=preparationConfig,seen=[];
+  const cache={match(){if(boundary==='cache-match')throw Error('PRIVATE URL');return undefined;},put(_url,response){if(boundary==='put')throw Error('PRIVATE quota');return response.body.cancel();}};
+  const fetch=async url=>{if(url.endsWith('/embedding-assets.json'))return new Response(registry);if(boundary==='asset-fetch')throw Error('PRIVATE preheader');
+    return new Response(boundary==='short'?config.subarray(0,config.length-1):boundary==='corrupt'?new Uint8Array(config.length):config);};
+  await assert.rejects(prepareEmbeddingAssets(options({fetch,cacheStorage:{open(){if(boundary==='cache-open')throw Error('PRIVATE storage');return cache;}},onDiagnostic:value=>seen.push(value)})),error=>error instanceof EmbeddingRuntimeError);
+  assert.equal(seen.at(-1).phase,['short','corrupt','put'].includes(boundary)?'asset-verify-and-store':boundary);assert.equal(seen.at(-1).allowedCode,code);
+  assert.equal(seen.at(-1).assetIndex,boundary==='cache-open'?null:0);assert.doesNotMatch(JSON.stringify(seen),/PRIVATE|quota|URL/);
+});
 
 test('runtime errors expose only fixed safe codes and fixed messages', () => {
   for (const code of CODES) {
@@ -501,6 +543,18 @@ test('verified encoder WASM reaches the SDK before loading and avoids a second f
   const result=await encodeChunks(artifact(),f.opts);
   assert.equal(wasmFetches,1);assert.equal(result.receipt.verifiedBytes,f.total);
   assert.equal(f.modelDisposals,1);assert.equal(f.hardware.calls.filter(value=>value==='destroy').length,1);
+});
+for(const phase of ['sdk-import','sdk-configure','tokenizer-load','input-preflight','model-load','model-handle-validate'])test(`initializer diagnostic retains actual ${phase} application boundary`,async()=>{
+  const f=await encoderFixture(),seen=[];f.opts.onDiagnostic=value=>seen.push(value);
+  if(phase==='sdk-import')f.opts.importer=async()=>{throw Error('PRIVATE signed URL');};
+  if(phase==='sdk-configure')f.library.env=new Proxy({}, {get(){throw Error('PRIVATE Proxy');}});
+  if(phase==='tokenizer-load')f.library.AutoTokenizer.from_pretrained=async()=>{throw Error('PRIVATE tokenizer');};
+  if(phase==='input-preflight')f.library.AutoTokenizer.from_pretrained=async()=>()=>({input_ids:[101,102],attention_mask:[1],token_type_ids:[0,0]});
+  if(phase==='model-load')f.library.AutoModel.from_pretrained=async()=>{throw Error('PRIVATE model');};
+  if(phase==='model-handle-validate')f.library.AutoModel.from_pretrained=async()=>({});
+  const error=await encodeChunks(artifact(),f.opts).catch(value=>value);assert.ok(error instanceof EmbeddingRuntimeError);
+  assert.equal(error.workerFailure.phase,phase);assert.equal(seen.at(-1).phase,phase);assert.equal(error.workerFailure.assetIndex,null);
+  assert.doesNotMatch(JSON.stringify(error.workerFailure),/PRIVATE|signed|Proxy|https/);
 });
 
 test('controlled SDK negative control detects a missing binary and its second WASM fetch',async()=>{

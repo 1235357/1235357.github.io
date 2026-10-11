@@ -5,7 +5,26 @@ import { EMBEDDING_SPEC } from '../embedding-contract.mjs';
 // A missing implementation is an explicit behavioral assertion, not an import
 // loader error, during the first RED run.
 const module = await import('../embedding-source.mjs').catch(() => ({}));
-const READY = { kind: 'embedding-ready', protocolVersion: 1, workerVersion: 'embedding-v1' };
+test('diagnostic embedding ready deadline reports its own branch without worker attribution',async()=>{
+  const {pending}=start({readyTimeoutMs:5});const error=await pending.catch(value=>value);
+  assert.equal(error.diagnostic.safeError.failureOrigin,'client-readiness-deadline');assert.equal(error.diagnostic.safeError.commandPosted,false);
+});
+test('diagnostic embedding model packet is owned and retains original outer safe code',async()=>{
+  const {worker,pending}=start();worker.emit('message',{kind:'embedding-ready',protocolVersion:1,workerVersion:'embedding-v2'});
+  worker.emit('message',{workerVersion:'embedding-v2',event:event('error','download',1,{code:'EMBEDDING_LOAD_FAILED',message:'The local embedding encoder could not be loaded.',workerFailure:{component:'encoder-initializer',phase:'model-load',assetIndex:null,allowedCode:'EMBEDDING_LOAD_FAILED'}})});
+  const error=await pending.catch(value=>value);assert.equal(error.code,'EMBEDDING_LOAD_FAILED');assert.equal(error.diagnostic.safeError.phase,'model-load');
+  assert.equal(error.diagnostic.safeError.lastSeq,1);assert.equal(error.diagnostic.identity.runtimeId,identity().runtimeId);
+});
+test('diagnostic embedding v2 refuses a legacy active ready packet',async()=>{
+  const {worker,pending}=start({workTimeoutMs:5});worker.emit('message',{kind:'embedding-ready',protocolVersion:1,workerVersion:'embedding-v1'});
+  await assert.rejects(pending,code('WORKER_PROTOCOL_ERROR'));assert.equal(worker.sent.length,0);
+});
+test('embedding readiness descriptor reentry revokes permission before any native command',async()=>{
+  const controller=new AbortController(),{worker,pending}=start({signal:controller.signal});
+  worker.emit('message',{kind:'embedding-ready',get protocolVersion(){controller.abort();return 1;},workerVersion:'embedding-v2'});
+  const error=await pending.catch(value=>value);assert.equal(error.code,'ABORTED');assert.equal(error.diagnostic,undefined);assert.equal(worker.sent.length,0);clean(worker);
+});
+const READY = { kind: 'embedding-ready', protocolVersion: 1, workerVersion: 'embedding-v2' };
 const HASH = 'a'.repeat(64);
 const identity = () => ({ protocolVersion: 1, runtimeId: 'embedding-test', operationId: 'op-1', documentEpoch: 2, operation: 'embed' });
 const input = () => ({ schemaVersion: 1, status: 'chunked-not-embedded', source: { sha256: HASH, name: 'PRIVATE_FILENAME.pdf' }, counts: { chunks: 2 },
@@ -22,8 +41,8 @@ function metadata(value) {
   return Object.fromEntries(['sourceSha256', 'representationId', 'status', 'backend', 'dtype', 'counts', 'receipt'].map(key => [key, structuredClone(value[key])]));
 }
 const event = (kind, stage, seq, payload, id = identity()) => ({ ...id, kind, stage, seq, payload });
-const progress = (stage, seq, completed, total, unit = stage === 'download' ? 'bytes' : 'chunks') => ({ event: event('progress', stage, seq, { completed, total, unit, estimated: false }) });
-function result(value = artifact(), seq = 6) { return { event: event('result', 'encode', seq, { data: metadata(value) }), artifact: value }; }
+const progress = (stage, seq, completed, total, unit = stage === 'download' ? 'bytes' : 'chunks') => ({ workerVersion:'embedding-v2',event: event('progress', stage, seq, { completed, total, unit, estimated: false }) });
+function result(value = artifact(), seq = 6) { return { workerVersion:'embedding-v2',event: event('result', 'encode', seq, { data: metadata(value) }), artifact: value }; }
 const code = expected => error => error?.name === 'EmbeddingWorkerError' && error.code === expected && !error.message.includes('PRIVATE');
 class ControlledWorker {
   listeners = new Map(); sent = []; terminated = 0; captured; onTerminate;
@@ -60,7 +79,7 @@ test('input is synchronously projected, copied, bounded and stripped of unrelate
   const { worker, pending } = start({}, source);
   source.source.sha256 = 'b'.repeat(64); source.chunks[0].text = 'CHANGED'; source.chunks[0].id = 'CHANGED';
   worker.ready();
-  assert.deepEqual(worker.sent[0], { kind: 'embed-chunks', identity: identity(), chunkArtifact: {
+  assert.deepEqual(worker.sent[0], { kind: 'embed-chunks', workerVersion:'embedding-v2',identity: identity(), chunkArtifact: {
     schemaVersion: 1, status: 'chunked-not-embedded', source: { sha256: HASH }, counts: { chunks: 2 },
     chunks: input().chunks } });
   worker.stages(); worker.emit('message', result()); await pending; clean(worker);
@@ -270,7 +289,7 @@ for (const [stage, prefix] of [
   ['encode', [progress('download', 1, 0, 100), progress('download', 2, 100, 100), progress('initialize', 3, 0, null), progress('encode', 4, 0, 2)]],
 ]) test(`a canonical runtime error can terminate during ${stage}`, async () => {
   const { worker, pending } = start(); worker.ready(); prefix.forEach(packet => worker.emit('message', packet));
-  worker.emit('message', { event: event('error', stage, prefix.length + 1, { code: 'GPU_DEVICE_LOST', message: 'The WebGPU device was lost.' }) });
+  worker.emit('message', { workerVersion:'embedding-v2',event: event('error', stage, prefix.length + 1, { code: 'GPU_DEVICE_LOST', message: 'The WebGPU device was lost.',workerFailure:{component:'encoder-initializer',phase:'unknown',assetIndex:null,allowedCode:'GPU_DEVICE_LOST'} }) });
   await assert.rejects(pending, code('GPU_DEVICE_LOST')); clean(worker);
 });
 test('error cannot claim a stage not yet accepted', async () => { const { worker, pending } = start(); worker.ready(); worker.emit('message', { event: event('error', 'encode', 1, { code: 'GPU_DEVICE_LOST', message: 'The WebGPU device was lost.' }) }); await assert.rejects(pending, code('WORKER_PROTOCOL_ERROR')); clean(worker); });
@@ -327,7 +346,7 @@ test('result cannot contain extra metadata, even when full artifact is otherwise
 });
 test('error follows latest accepted download progress, not its error code', async () => {
   const { worker, pending } = start(); worker.ready(); worker.emit('message', progress('download', 1, 0, 100));
-  worker.emit('message', { event: event('error', 'download', 2, { code: 'ENCODER_INPUT_LIMIT', message: 'The encoder input is invalid or exceeds its token budget.' }) });
+  worker.emit('message', { workerVersion:'embedding-v2',event: event('error', 'download', 2, { code: 'ENCODER_INPUT_LIMIT', message: 'The encoder input is invalid or exceeds its token budget.',workerFailure:{component:'encoder-initializer',phase:'unknown',assetIndex:null,allowedCode:'ENCODER_INPUT_LIMIT'} }) });
   await assert.rejects(pending, code('ENCODER_INPUT_LIMIT')); clean(worker);
 });
 test('callback-triggered cancellation forbids all captured later packets', async () => {
@@ -419,8 +438,9 @@ for (const key of ['kind', 'stage', 'seq']) {
 
 test('received error settles with only its validated canonical code snapshot', async () => {
   const { worker, pending } = start(); worker.ready(); let reads = 0;
-  worker.emit('message', { event: event('error', 'download', 1, {
+  worker.emit('message', { workerVersion:'embedding-v2',event: event('error', 'download', 1, {
     get code() { return ++reads === 1 ? 'GPU_DEVICE_LOST' : 'ABORTED'; }, message: 'The WebGPU device was lost.',
+    workerFailure:{component:'encoder-initializer',phase:'unknown',assetIndex:null,allowedCode:'GPU_DEVICE_LOST'},
   }) });
   await assert.rejects(pending, code('GPU_DEVICE_LOST')); assert.equal(reads, 1); clean(worker);
 });

@@ -1,4 +1,5 @@
 import {prepareAssetsInWorker,AssetPreparationError,copyPreparationReceipt,copyPreparationProgress,copyPreparationFailure} from './asset-preparation-source.mjs';
+import {copyRuntimeFailure,ownData} from './runtime-failure-contract.mjs';
 
 // Optional configured presentation. Its worker receives static profile/identity
 // only; source is retained here solely to revoke stale UI permission.
@@ -45,8 +46,9 @@ export function createAssetPreparationView({document,root,prepare=prepareAssetsI
     const task=Object.freeze({owner:ownedOwner,attempt:id,controller,transport:transport.value});current=task;disclosure.replaceChildren();progress.hidden=false;progress.removeAttribute('value');controls();
     status.textContent=`Preparing ${profile} static assets via ${task.transport==='huggingface'?'Hugging Face':'this site'}. Fixed 30-minute deadline; waiting for a fresh worker.`;
     void(async()=>{
+      let identity;
       try{
-        const identity=Object.freeze({protocolVersion:1,runtimeId:runtimeIdFactory(),operationId:`op-${++counter}`,documentEpoch:ownedOwner.documentEpoch,operation:'prepare-assets'});
+        identity=Object.freeze({protocolVersion:1,runtimeId:runtimeIdFactory(),operationId:`op-${++counter}`,documentEpoch:ownedOwner.documentEpoch,operation:'prepare-assets'});
         const raw=await prepare(profile,{transport:task.transport,identity,signal:controller.signal,onProgress:value=>{
           if(!owns(task))return;
           value=copyPreparationProgress(value,profile);if(!owns(task))return;
@@ -59,10 +61,16 @@ export function createAssetPreparationView({document,root,prepare=prepareAssetsI
         status.textContent=`${profile==='encoder'?'Encoder':'Generator'} static cache verification complete · ${receipt.verifiedBytes.toLocaleString()} body bytes · ${(receipt.elapsedMs/1000).toFixed(1)} seconds of preparation. Model loading and inference have not run.`;
         disclose('Complete static asset preparation receipt',receipt);
       }catch(error){
-        if(!owns(task))return;let safe=error instanceof AssetPreparationError?error:new AssetPreparationError(),diagnostic=null;
+        if(!owns(task))return;let safe=new AssetPreparationError(),diagnostic=null,boundary=null;
+        try{if(error instanceof AssetPreparationError)safe=error;}catch{}
+        if(!owns(task))return;
+        const rawBoundary=ownData(error,'diagnostic');if(!owns(task))return;
+        try{if(rawBoundary!==null)boundary=copyRuntimeFailure(rawBoundary,identity);}catch{}
+        if(!owns(task))return;
         try{diagnostic=copyPreparationFailure({code:safe.code,message:safe.message,transportFailure:safe.transportFailure},profile,task.transport).transportFailure;}catch{safe=new AssetPreparationError();}
         if(!owns(task))return;current=null;progress.hidden=true;disclosure.replaceChildren();controls();status.textContent=`${safe.code} · ${safe.message} Previously completed verified cache entries may remain; no complete preparation receipt was committed.`;
         if(diagnostic)disclose('Incomplete transport observation · no verified asset receipt',{schemaVersion:2,status:'incomplete-transport-observation-not-verified',profile,transport:task.transport,code:safe.code,transportFailure:diagnostic});
+        if(boundary)disclose('Inspect current preparation failure boundary · no success receipt',boundary);
       }
     })();
   }

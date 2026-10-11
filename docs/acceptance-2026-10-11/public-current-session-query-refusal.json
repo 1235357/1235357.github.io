@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-11T21:48:34.583Z",
+  "startedAt": "2026-10-11T21:46:34.074Z",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "deployedCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+  "scope": "Actual fresh-session public query refusal after accepted passage vectors; readiness-versus-work branch and failure cause are unestablished from the shared code",
+  "title": "No new result committed",
+  "detail": "The query worker exceeded its readiness/work budget. Source, chunks and passage vectors are retained.",
+  "queryReceipt": "Query attempt receipt\n        This receipt belongs to the accepted question attempt. Verified, fetched and cached body bytes and elapsed time are separate from the historical passage receipt. Elapsed time includes loading, initialization, encoding and cleanup, rather than isolated GPU time.\n      ",
+  "trace": "{\n  \"runtimeId\": \"2acd16be-83cc-4061-99a8-d5c78b76c8ff\",\n  \"documentEpoch\": 1,\n  \"active\": null,\n  \"terminal\": {\n    \"protocolVersion\": 1,\n    \"runtimeId\": \"2acd16be-83cc-4061-99a8-d5c78b76c8ff\",\n    \"operationId\": \"op-1\",\n    \"documentEpoch\": 1,\n    \"operation\": \"query\",\n    \"kind\": \"error\",\n    \"stage\": \"download\",\n    \"seq\": 1,\n    \"payload\": {\n      \"code\": \"QUERY_TIMEOUT\",\n      \"message\": \"The query worker exceeded its time budget.\"\n    }\n  }\n}",
+  "passageReceipt": "Historical accepted passage receiptRepresentationminiLM-fp32-mean-l2-webgpu-v1Backendwebgpu · fp32Verified body113,629,084 bytesFetched body0 bytesCached body113,629,084 bytesAttempt elapsed92214.1 ms\n        Verified, fetched and cached counts describe asset body bytes, not all network traffic. Attempt elapsed includes loading, initialization, encoding and disposal; it is not isolated GPU time. A WebGPU provider does not prove every operator ran on the GPU; mean pooling runs in JavaScript on the CPU.\n      "
+}

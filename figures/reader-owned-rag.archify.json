@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Reader-owned RAG: current responsibilities",
+    "output": "figures/reader-owned-rag.archify.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "animation": "none",
+    "legend": {"mode": "hidden"},
+    "repository": {
+      "url": "https://github.com/1235357/1235357.github.io.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7"
+    }
+  },
+  "components": [
+    {
+      "id": "session", "type": "frontend", "label": "Owned reader session",
+      "sublabel": "Actions; stale work revoked", "pos": [40, 45], "size": [235, 88],
+      "sources": [{"path": "browser-rag/pdf-public-entry.mjs", "line": 1, "end_line": 8}, {"path": "browser-rag/pdf-session.mjs", "line": 85, "end_line": 120}, {"path": "browser-rag/pdf-app.mjs", "line": 424, "end_line": 451}]
+    },
+    {
+      "id": "parser", "type": "backend", "label": "PDF parser + records",
+      "sublabel": "Native text + geometry", "pos": [470, 45], "size": [235, 88],
+      "sources": [{"path": "browser-rag/pdf-source.mjs", "line": 125, "end_line": 242}, {"path": "browser-rag/pdf-app.mjs", "line": 393, "end_line": 423}, {"path": "browser-rag/pdf-worker-preparation.mjs", "line": 43, "end_line": 84}]
+    },
+    {
+      "id": "lookup", "type": "backend", "label": "Source-cell lookup",
+      "sublabel": "Six fields; bind or refuse", "pos": [40, 260], "size": [235, 88],
+      "sources": [{"path": "browser-rag/pdf-app.mjs", "line": 441, "end_line": 451}, {"path": "browser-rag/financial-table-contract.mjs", "line": 29, "end_line": 119}, {"path": "browser-rag/financial-lookup-view.mjs", "line": 52, "end_line": 89}]
+    },
+    {
+      "id": "retrieval", "type": "backend", "label": "Chunks + retrieval",
+      "sublabel": "MiniLM workers; cosine rank", "pos": [470, 260], "size": [235, 88],
+      "sources": [{"path": "browser-rag/pdf-session.mjs", "line": 334, "end_line": 423}, {"path": "browser-rag/pdf-session.mjs", "line": 424, "end_line": 528}, {"path": "browser-rag/query.worker.mjs", "line": 1, "end_line": 72}]
+    },
+    {
+      "id": "preparation", "type": "backend", "label": "Assets + preparation",
+      "sublabel": "Optional worker; shared cache", "pos": [40, 480], "size": [235, 88],
+      "sources": [{"path": "browser-rag/asset-preparation.worker.mjs", "line": 17, "end_line": 44}, {"path": "browser-rag/embedding-runtime.mjs", "line": 209, "end_line": 255}, {"path": "browser-rag/generator-native-core.mjs", "line": 232, "end_line": 250}]
+    },
+    {
+      "id": "generation", "type": "backend", "label": "Context + Qwen",
+      "sublabel": "Evidence; fresh GPU worker", "pos": [470, 480], "size": [235, 88],
+      "sources": [{"path": "browser-rag/pdf-session.mjs", "line": 133, "end_line": 151}, {"path": "browser-rag/pdf-session.mjs", "line": 181, "end_line": 228}, {"path": "browser-rag/financial-generation.worker.mjs", "line": 1, "end_line": 100}]
+    },
+    {
+      "id": "assets", "type": "cloud", "label": "Pinned HTTP assets",
+      "sublabel": "Site; explicit HF preparation", "pos": [40, 895], "size": [235, 88],
+      "sources": [{"path": "browser-rag/asset-preparation-transport.mjs", "line": 1, "end_line": 87}, {"path": "browser-rag/asset-preparation.worker.mjs", "line": 32, "end_line": 37}, {"path": "browser-rag/pdf-worker-preparation.mjs", "line": 26, "end_line": 36}]
+    },
+    {
+      "id": "inspection", "type": "security", "label": "Raw output + gate",
+      "sublabel": "Draft/refusal; unadjudicated", "pos": [470, 725], "size": [235, 88],
+      "sources": [{"path": "browser-rag/pdf-session.mjs", "line": 295, "end_line": 329}, {"path": "browser-rag/financial-output-contract.mjs", "line": 111, "end_line": 158}, {"path": "browser-rag/pdf-app.mjs", "line": 300, "end_line": 365}]
+    }
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "Reader's browser · owned source and attempts", "wraps": ["session", "parser", "lookup", "retrieval", "preparation", "generation", "inspection"], "pad": 28}
+  ],
+  "connections": [
+    {"id": "select", "from": "session", "to": "parser", "label": "Select PDF", "variant": "emphasis"},
+    {"id": "source-retrieval", "from": "parser", "to": "retrieval", "label": "Via session", "variant": "emphasis"},
+    {"id": "source-lookup", "from": "parser", "to": "lookup", "label": "Owned snapshot", "variant": "dashed"},
+    {"id": "explicit-lookup", "from": "session", "to": "lookup", "label": "Explicit fields", "variant": "dashed"},
+    {"id": "context-generation", "from": "retrieval", "to": "generation", "label": "Assemble; then Generate", "variant": "emphasis"},
+    {"id": "generation-inspection", "from": "generation", "to": "inspection", "label": "Raw + receipt", "variant": "emphasis"},
+    {"id": "retrieval-assets", "from": "retrieval", "to": "preparation", "label": "Own verified reads", "variant": "security"},
+    {"id": "generation-assets", "from": "generation", "to": "preparation", "label": "Own verified reads", "variant": "security"},
+    {"id": "asset-fetch", "from": "preparation", "to": "assets", "label": "Fetch pinned files", "variant": "security"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "One source owner; several responsibilities", "items": [
+      "The public entry composes the UI/session, parser, preparation, geometry and lookup factories. Selection, edits, cancel, clear and replacement revoke stale commits. Arrows summarize owned data/operation relationships, not direct worker-to-worker channels.",
+      "Parser records return through PDF.js's main-thread proxy. The session forwards source-linked chunks, vectors and candidates. Context assembly preserves the exact accepted question and complete selected evidence before a separate explicit Generate action."]},
+    {"dot": "violet", "title": "Two outcomes remain independent", "items": [
+      "A completed Qwen attempt produces a complete raw receipt. EOS, JSON shape and selected citation identity decide whether the UI shows an unverified draft or a refusal; those gates do not adjudicate financial truth.",
+      "The six-field comparator binds a supported Net income cell to frozen native parser records. Unsupported or ambiguous requests refuse. It neither parses natural-language intent nor changes Qwen output; currency normalization stays unset."]},
+    {"dot": "amber", "title": "Prepared bytes are not executable readiness", "items": [
+      "Explicit preparation uses a separate worker without a PDF, question or model invocation. Site is the default; explicit HF prepares only five immutable model files. The three inference runtime files and SDK imports remain on site, with unchanged logical cache keys and pins.",
+      "Native attempts verify inside their own workers/runtime loaders and read shared cache bodies; they do not invoke the optional preparation worker. Owned WASM reuse retains an additional 21,596,019-byte ArrayBuffer; it is not zero-copy. Public PDF selection separately verifies its script within 120 seconds before unchanged 10-second native readiness. Ordinary HTTP cache reuse is advisory."]},
+    {"dot": "slate", "title": "Current source architecture; separate acceptance gates", "items": [
+      "This October 11, 2026 implementation overview is pinned to source commit 7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7. It shows browser responsibilities; runtime observations, financial-quality evaluation and human verdicts have separate evidence.",
+      "The separately packaged AGPL Python API is not called by this browser and is not hosted by GitHub Pages. Its injected service and package/HTTP acceptance have their own scope.",
+      "The editable specification, rendered figure and committed-source references are checked together. Those artifact checks describe this architecture; native execution and financial acceptance remain separate gates."]}
+  ]
+}

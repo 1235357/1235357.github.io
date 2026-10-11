@@ -1,0 +1,18 @@
+{
+  "observedAt": "2026-10-11T21:41:25.006Z",
+  "startedAt": "2026-10-11T21:40:12.565Z",
+  "url": "http://127.0.0.1:8765/browser-rag/inspector.html",
+  "deployedCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+  "scope": "Actual localhost current release native execution; public release native acceptance and financial truth remain separate",
+  "title": "UNVERIFIED financial draft",
+  "detail": "1745 actual prompt tokens · 33 generated token IDs · eos termination. Native execution is committed; output shape and citation identity accepted, financial correctness unestablished.",
+  "nativeRaw": {
+    "bytes": 266940,
+    "sha256": "2b43483c769f464d9fde3ef4f41f4c92d007e59fa124becd87fcf9e212bcb6c8"
+  },
+  "original8": {
+    "bytes": 393283,
+    "sha256": "a3747d805a44cd455ddc1e68599f8dbedb3111a67c58d47a53e903e2bac376e3"
+  },
+  "trace": "{\n  \"runtimeId\": \"4bebd655-1ace-4424-ad8f-0ca4e2857eff\",\n  \"documentEpoch\": 1,\n  \"active\": null,\n  \"terminal\": {\n    \"protocolVersion\": 1,\n    \"runtimeId\": \"4bebd655-1ace-4424-ad8f-0ca4e2857eff\",\n    \"operationId\": \"op-1\",\n    \"documentEpoch\": 1,\n    \"operation\": \"generate\",\n    \"kind\": \"result\",\n    \"stage\": \"cleanup\",\n    \"seq\": 241,\n    \"payload\": {\n      \"data\": {\n        \"schemaVersion\": 1,\n        \"status\": \"native-generation-complete-uninspected\",\n        \"generationMode\": \"native-run\",\n        \"modelId\": \"onnx-community/Qwen2.5-0.5B-Instruct\",\n        \"revision\": \"22942cb7d7ba4cc81bb4673549ca4d4614469b5e\",\n        \"device\": \"webgpu\",\n        \"dtype\": \"q4\",\n        \"counts\": {\n          \"inputTokens\": 1745,\n          \"generatedTokens\": 33\n        },\n        \"termination\": \"eos\",\n        \"cachePreparation\": {\n          \"assets\": 8,\n          \"verifiedBytes\": 815725938,\n          \"networkBytes\": 815725938,\n          \"cacheBytes\": 0\n        },\n        \"sdkReads\": {\n          \"reads\": 6,\n          \"verifiedBytes\": 814793281\n        },\n        \"elapsedMs\": 48873.80000001192,\n        \"stages\": [\n          {\n            \"stage\": \"adapter\",\n            \"elapsedMs\": 0\n          },\n          {\n            \"stage\": \"assets\",\n            \"elapsedMs\": 41.10000002384186\n          },\n          {\n            \"stage\": \"sdk\",\n            \"elapsedMs\": 11435.100000023842\n          },\n          {\n            \"stage\": \"tokenizer\",\n            \"elapsedMs\": 11710.600000023842\n          },\n          {\n            \"stage\": \"model\",\n            \"elapsedMs\": 11988\n          },\n          {\n            \"stage\": \"generate\",\n            \"elapsedMs\": 28866.100000023842\n          },\n          {\n            \"stage\": \"reads\",\n            \"elapsedMs\": 48855.30000001192\n          },\n          {\n            \"stage\": \"cleanup\",\n            \"elapsedMs\": 48855.40000003576\n          }\n        ],\n        \"cleanup\": {\n          \"inputsDisposed\": 2,\n          \"resultDisposed\": true,\n          \"modelDisposed\": true,\n          \"cacheClosed\": true,\n          \"devicesDestroyed\": 1\n        },\n        \"outputInspection\": \"not-run\",\n        \"financialCorrectness\": \"unestablished\"\n      }\n    }\n  }\n}"
+}

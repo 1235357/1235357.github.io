@@ -1,0 +1,14 @@
+{
+  "observedAt": "2026-10-11T21:43:59.212Z",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "deployedCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+  "scope": "Fresh resumed-session actual public parser/chunk acceptance; static receipt does not establish subsequently executed native Worker bytes",
+  "receipt": "Filelocal-nvidia-fy2025-q2-original-pages-3-4.pdfBytes74085SHA-2568e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428ParserPDF.js 6.4.299Parse workernativeComputenative · owned module workerPages2Epoch1Stagechunked; not embeddedStatic parser script receipt · HTTP cache advisory{\n  \"schemaVersion\": 1,\n  \"status\": \"static-pdf-worker-body-verified\",\n  \"parserVersion\": \"6.4.299\",\n  \"url\": \"https://1235357.github.io/browser-rag/vendor/build/pdf.worker.mjs\",\n  \"bytes\": 2229713,\n  \"sha256\": \"07ceb740d746e5d9012fcf9f27d5c7dea09f7d2f5e74f5c8109e5787551a2333\",\n  \"elapsedMs\": 96398.19999998808,\n  \"cacheScope\": \"browser-http-cache-advisory\"\n}",
+  "title": "Chunked; not embedded",
+  "detail": "5 chunks · 2426 output UTF-16 units · 687 mapping fragments. No vectors or generated answer.",
+  "trace": "{\n  \"runtimeId\": \"218b825a-1175-4df1-a3ee-7702516e074e\",\n  \"documentEpoch\": 1,\n  \"active\": null,\n  \"terminal\": {\n    \"protocolVersion\": 1,\n    \"runtimeId\": \"218b825a-1175-4df1-a3ee-7702516e074e\",\n    \"operationId\": \"op-1\",\n    \"documentEpoch\": 1,\n    \"operation\": \"ingest\",\n    \"kind\": \"result\",\n    \"stage\": \"index\",\n    \"seq\": 2,\n    \"payload\": {\n      \"data\": {\n        \"sourceSha256\": \"8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428\",\n        \"parserVersion\": \"6.4.299\",\n        \"pageCount\": 2,\n        \"status\": \"chunked-not-embedded\",\n        \"chunkerVersion\": \"page-parser-order-v1\",\n        \"counts\": {\n          \"chunks\": 5,\n          \"outputUtf16\": 2426,\n          \"fragments\": 687\n        }\n      }\n    }\n  }\n}",
+  "geometry": {
+    "bytes": 231358,
+    "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d"
+  }
+}

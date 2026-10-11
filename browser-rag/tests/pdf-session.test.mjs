@@ -16,6 +16,7 @@ import {createQueryCommandHandler} from '../query.worker.mjs';
 import {createContextView} from '../context-view.mjs';
 import {createGenerationView} from '../generation-view.mjs';
 import {ContextError} from '../context-contract.mjs';
+import {createRuntimeFailure} from '../runtime-failure-contract.mjs';
 
 const deferred = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
 const source = name => ({status:'extracted-not-indexed',source:{name,sha256:'a'.repeat(64),size:8},parser:{version:'6.4.299'},numPages:2,pages:[]});
@@ -578,7 +579,7 @@ class EmbeddingSessionWorker extends SessionWorker{
     encode:async(input,{onProgress})=>{const task={record:input,options:{identity:command.identity}};
       for(const event of embeddingPackets(task).progress)onProgress(event.stage,event.payload);
       return embeddedArtifact(input);}})(command);}
-  ready(){this.emit({kind:'embedding-ready',protocolVersion:1,workerVersion:'embedding-v1'});}
+  ready(){this.emit({kind:'embedding-ready',protocolVersion:1,workerVersion:'embedding-v2'});}
 }
 test('real embedding adapter and command handler integrate with the session through a controlled channel',async()=>{
   const worker=new EmbeddingSessionWorker(),{session}=await chunkedSession({embed:embedInWorker,embeddingOptions:{workerFactory:()=>worker}});
@@ -965,6 +966,33 @@ async function queryReadySession(extra={}){
   const operation=harness.session.embed();finishEmbedding(harness.embeds[0]);await operation;
   return {...harness,queries};
 }
+function nativeFailure(task,query=false){const error=query?new QueryWorkerError('QUERY_FAILED'):new EmbeddingWorkerError('EMBEDDING_LOAD_FAILED');
+  error.diagnostic=createRuntimeFailure(task.options.identity,{failureOrigin:'native-worker-error',readyObserved:true,commandPosted:true,lastSeq:0,elapsedMs:4,allowedCode:error.code});return error;}
+test('embed adapter diagnostic is retained as an owned sibling while controller error stays code/message',async()=>{
+  const {session,embeds}=await chunkedSession(),operation=session.embed();embeds[0].reject(nativeFailure(embeds[0]));await operation;
+  assert.deepEqual(Object.keys(session.snapshot().lifecycle.terminal.payload),['code','message']);
+  const failure=session.embeddingFailure();assert.equal(failure.diagnostic.safeError.failureOrigin,'native-worker-error');
+  assert.deepEqual(failure.terminal,session.snapshot().lifecycle.terminal);assert.ok(Object.isFrozen(failure));
+  session.clearQuery();assert.equal(session.embeddingFailure(),null);
+});
+test('query adapter diagnostic binds the revision after its failed query is discarded',async()=>{
+  const {session,queries}=await queryReadySession(),operation=session.query('question');queries[0].reject(nativeFailure(queries[0],true));await operation;
+  const failure=session.queryFailure();assert.equal(failure.diagnostic.safeError.component,'query-client');
+  assert.deepEqual(failure.terminal,session.snapshot().lifecycle.terminal);assert.equal(session.embeddings(),failure.embeddings);
+  session.cancel();assert.equal(session.queryFailure(),null);
+});
+test('foreign or older adapter diagnostic cannot survive a current owned failure',async()=>{
+  for(const foreign of [true,false]){const {session,embeds}=await chunkedSession(),operation=session.embed(),task=embeds[0];
+    const error=nativeFailure(task);if(foreign)error.diagnostic={...error.diagnostic,identity:{...task.options.identity,runtimeId:'foreign'}};
+    else{task.options.onProgress({...task.options.identity,kind:'progress',stage:'download',seq:1,payload:{completed:0,total:DOWNLOAD_BYTES,unit:'bytes',estimated:false}});}
+    task.reject(error);await operation;assert.equal(session.embeddingFailure(),null);assert.equal(session.snapshot().status,'runtime-error');}
+});
+test('diagnostic getter is never read and a descriptor trap that clears the owner cannot commit',async()=>{
+  for(const reenter of [false,true]){const {session,embeds}=await chunkedSession(),operation=session.embed(),task=embeds[0];let reads=0;
+    const error=nativeFailure(task);if(reenter)task.reject(new Proxy(error,{getOwnPropertyDescriptor(target,key){if(key==='diagnostic')session.clear();return Reflect.getOwnPropertyDescriptor(target,key);}}));
+    else{Object.defineProperty(error,'diagnostic',{enumerable:true,get(){reads++;throw Error('PRIVATE');}});task.reject(error);}
+    await operation;assert.equal(reads,0);assert.equal(session.embeddingFailure(),null);if(reenter)assert.equal(session.snapshot().status,'idle');}
+});
 
 test('query captures the exact original question and commits owned candidates outside bounded metadata',async()=>{
   const {session,queries}=await queryReadySession(),raw='  PRIVATE question\n<script>literal</script>  ',before=embeddingState(session);

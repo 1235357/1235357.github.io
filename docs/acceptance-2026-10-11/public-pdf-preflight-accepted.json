@@ -1,0 +1,27 @@
+{
+  "observedAt": "2026-10-11T20:47:57.056Z",
+  "deployedCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "scope": "Actual public native selection accepted after static preflight; CDP fetch-body identity is separate from later Worker-executed bytes; no network-cause or latency claim",
+  "title": "Extracted; not indexed",
+  "detail": "Actual parser records below. No embedding index or generated answer exists.",
+  "receipt": "",
+  "nativeRequests": [
+    {
+      "sequence": 1219,
+      "requestId": "99260.262",
+      "type": "Fetch"
+    },
+    {
+      "sequence": 1493,
+      "requestId": "ECB004C1CF854A38822E87970BF33690",
+      "type": "Script"
+    }
+  ],
+  "truncated": false,
+  "hasMore": false,
+  "staticFetchBody": {
+    "bytes": 2229713,
+    "sha256": "07ceb740d746e5d9012fcf9f27d5c7dea09f7d2f5e74f5c8109e5787551a2333"
+  }
+}

@@ -1,0 +1,948 @@
+{
+  "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/page-parser-order-v1/m512/o64/p1/u16-0-512",
+  "physicalPageNumber": 1,
+  "pageLabel": "3",
+  "startUtf16": 0,
+  "endUtf16": 512,
+  "text": "Part I. Financial Information\nItem 1.\n \nFinancial Statements (Unaudited)\nNVIDIA Corporation and Subsidiaries\nCondensed Consolidated Statements of Income\n(In millions, except per share data)\n(Unaudited)\nThree Months Ended\n \nSix Months Ended\nJul 28, 2024\n \nJul 30, 2023\n \nJul 28, 2024\n \nJul 30, 2023\nRevenue\n \n$\n \n30,040\n \n$\n \n13,507\n \n$\n \n56,084\n \n$\n \n20,699\nCost of revenue\n \n7,466\n \n4,045\n \n13,105\n \n6,589\nGross profit\n \n22,574\n \n9,462\n \n42,979\n \n14,110\nOperating expenses\nResearch and development\n \n3,090\n \n2,0",
+  "segments": [
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i0/u16-0-29",
+      "itemIndex": 0,
+      "startUtf16": 0,
+      "endUtf16": 29,
+      "quote": "Part I. Financial Information",
+      "chunkStartUtf16": 0,
+      "chunkEndUtf16": 29
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 29,
+      "chunkEndUtf16": 30
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i1/u16-0-7",
+      "itemIndex": 1,
+      "startUtf16": 0,
+      "endUtf16": 7,
+      "quote": "Item 1.",
+      "chunkStartUtf16": 30,
+      "chunkEndUtf16": 37
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 37,
+      "chunkEndUtf16": 38
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i2/u16-0-1",
+      "itemIndex": 2,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 38,
+      "chunkEndUtf16": 39
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 39,
+      "chunkEndUtf16": 40
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i3/u16-0-32",
+      "itemIndex": 3,
+      "startUtf16": 0,
+      "endUtf16": 32,
+      "quote": "Financial Statements (Unaudited)",
+      "chunkStartUtf16": 40,
+      "chunkEndUtf16": 72
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 72,
+      "chunkEndUtf16": 73
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i5/u16-0-35",
+      "itemIndex": 5,
+      "startUtf16": 0,
+      "endUtf16": 35,
+      "quote": "NVIDIA Corporation and Subsidiaries",
+      "chunkStartUtf16": 73,
+      "chunkEndUtf16": 108
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 108,
+      "chunkEndUtf16": 109
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i6/u16-0-43",
+      "itemIndex": 6,
+      "startUtf16": 0,
+      "endUtf16": 43,
+      "quote": "Condensed Consolidated Statements of Income",
+      "chunkStartUtf16": 109,
+      "chunkEndUtf16": 152
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 152,
+      "chunkEndUtf16": 153
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i7/u16-0-36",
+      "itemIndex": 7,
+      "startUtf16": 0,
+      "endUtf16": 36,
+      "quote": "(In millions, except per share data)",
+      "chunkStartUtf16": 153,
+      "chunkEndUtf16": 189
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 189,
+      "chunkEndUtf16": 190
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i8/u16-0-11",
+      "itemIndex": 8,
+      "startUtf16": 0,
+      "endUtf16": 11,
+      "quote": "(Unaudited)",
+      "chunkStartUtf16": 190,
+      "chunkEndUtf16": 201
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 201,
+      "chunkEndUtf16": 202
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i10/u16-0-18",
+      "itemIndex": 10,
+      "startUtf16": 0,
+      "endUtf16": 18,
+      "quote": "Three Months Ended",
+      "chunkStartUtf16": 202,
+      "chunkEndUtf16": 220
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 220,
+      "chunkEndUtf16": 221
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i11/u16-0-1",
+      "itemIndex": 11,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 221,
+      "chunkEndUtf16": 222
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 222,
+      "chunkEndUtf16": 223
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i12/u16-0-16",
+      "itemIndex": 12,
+      "startUtf16": 0,
+      "endUtf16": 16,
+      "quote": "Six Months Ended",
+      "chunkStartUtf16": 223,
+      "chunkEndUtf16": 239
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 239,
+      "chunkEndUtf16": 240
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i14/u16-0-12",
+      "itemIndex": 14,
+      "startUtf16": 0,
+      "endUtf16": 12,
+      "quote": "Jul 28, 2024",
+      "chunkStartUtf16": 240,
+      "chunkEndUtf16": 252
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 252,
+      "chunkEndUtf16": 253
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i15/u16-0-1",
+      "itemIndex": 15,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 253,
+      "chunkEndUtf16": 254
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 254,
+      "chunkEndUtf16": 255
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i16/u16-0-12",
+      "itemIndex": 16,
+      "startUtf16": 0,
+      "endUtf16": 12,
+      "quote": "Jul 30, 2023",
+      "chunkStartUtf16": 255,
+      "chunkEndUtf16": 267
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 267,
+      "chunkEndUtf16": 268
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i17/u16-0-1",
+      "itemIndex": 17,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 268,
+      "chunkEndUtf16": 269
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 269,
+      "chunkEndUtf16": 270
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i18/u16-0-12",
+      "itemIndex": 18,
+      "startUtf16": 0,
+      "endUtf16": 12,
+      "quote": "Jul 28, 2024",
+      "chunkStartUtf16": 270,
+      "chunkEndUtf16": 282
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 282,
+      "chunkEndUtf16": 283
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i19/u16-0-1",
+      "itemIndex": 19,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 283,
+      "chunkEndUtf16": 284
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 284,
+      "chunkEndUtf16": 285
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i20/u16-0-12",
+      "itemIndex": 20,
+      "startUtf16": 0,
+      "endUtf16": 12,
+      "quote": "Jul 30, 2023",
+      "chunkStartUtf16": 285,
+      "chunkEndUtf16": 297
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 297,
+      "chunkEndUtf16": 298
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i22/u16-0-7",
+      "itemIndex": 22,
+      "startUtf16": 0,
+      "endUtf16": 7,
+      "quote": "Revenue",
+      "chunkStartUtf16": 298,
+      "chunkEndUtf16": 305
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 305,
+      "chunkEndUtf16": 306
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i23/u16-0-1",
+      "itemIndex": 23,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 306,
+      "chunkEndUtf16": 307
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 307,
+      "chunkEndUtf16": 308
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i24/u16-0-1",
+      "itemIndex": 24,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 308,
+      "chunkEndUtf16": 309
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 309,
+      "chunkEndUtf16": 310
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i25/u16-0-1",
+      "itemIndex": 25,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 310,
+      "chunkEndUtf16": 311
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 311,
+      "chunkEndUtf16": 312
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i26/u16-0-6",
+      "itemIndex": 26,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "30,040",
+      "chunkStartUtf16": 312,
+      "chunkEndUtf16": 318
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 318,
+      "chunkEndUtf16": 319
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i27/u16-0-1",
+      "itemIndex": 27,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 319,
+      "chunkEndUtf16": 320
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 320,
+      "chunkEndUtf16": 321
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i28/u16-0-1",
+      "itemIndex": 28,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 321,
+      "chunkEndUtf16": 322
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 322,
+      "chunkEndUtf16": 323
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i29/u16-0-1",
+      "itemIndex": 29,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 323,
+      "chunkEndUtf16": 324
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 324,
+      "chunkEndUtf16": 325
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i30/u16-0-6",
+      "itemIndex": 30,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "13,507",
+      "chunkStartUtf16": 325,
+      "chunkEndUtf16": 331
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 331,
+      "chunkEndUtf16": 332
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i31/u16-0-1",
+      "itemIndex": 31,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 332,
+      "chunkEndUtf16": 333
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 333,
+      "chunkEndUtf16": 334
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i32/u16-0-1",
+      "itemIndex": 32,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 334,
+      "chunkEndUtf16": 335
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 335,
+      "chunkEndUtf16": 336
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i33/u16-0-1",
+      "itemIndex": 33,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 336,
+      "chunkEndUtf16": 337
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 337,
+      "chunkEndUtf16": 338
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i34/u16-0-6",
+      "itemIndex": 34,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "56,084",
+      "chunkStartUtf16": 338,
+      "chunkEndUtf16": 344
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 344,
+      "chunkEndUtf16": 345
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i35/u16-0-1",
+      "itemIndex": 35,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 345,
+      "chunkEndUtf16": 346
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 346,
+      "chunkEndUtf16": 347
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i36/u16-0-1",
+      "itemIndex": 36,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": "$",
+      "chunkStartUtf16": 347,
+      "chunkEndUtf16": 348
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 348,
+      "chunkEndUtf16": 349
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i37/u16-0-1",
+      "itemIndex": 37,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 349,
+      "chunkEndUtf16": 350
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 350,
+      "chunkEndUtf16": 351
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i38/u16-0-6",
+      "itemIndex": 38,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "20,699",
+      "chunkStartUtf16": 351,
+      "chunkEndUtf16": 357
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 357,
+      "chunkEndUtf16": 358
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i40/u16-0-15",
+      "itemIndex": 40,
+      "startUtf16": 0,
+      "endUtf16": 15,
+      "quote": "Cost of revenue",
+      "chunkStartUtf16": 358,
+      "chunkEndUtf16": 373
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 373,
+      "chunkEndUtf16": 374
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i41/u16-0-1",
+      "itemIndex": 41,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 374,
+      "chunkEndUtf16": 375
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 375,
+      "chunkEndUtf16": 376
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i42/u16-0-5",
+      "itemIndex": 42,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "7,466",
+      "chunkStartUtf16": 376,
+      "chunkEndUtf16": 381
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 381,
+      "chunkEndUtf16": 382
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i43/u16-0-1",
+      "itemIndex": 43,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 382,
+      "chunkEndUtf16": 383
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 383,
+      "chunkEndUtf16": 384
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i44/u16-0-5",
+      "itemIndex": 44,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "4,045",
+      "chunkStartUtf16": 384,
+      "chunkEndUtf16": 389
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 389,
+      "chunkEndUtf16": 390
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i45/u16-0-1",
+      "itemIndex": 45,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 390,
+      "chunkEndUtf16": 391
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 391,
+      "chunkEndUtf16": 392
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i46/u16-0-6",
+      "itemIndex": 46,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "13,105",
+      "chunkStartUtf16": 392,
+      "chunkEndUtf16": 398
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 398,
+      "chunkEndUtf16": 399
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i47/u16-0-1",
+      "itemIndex": 47,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 399,
+      "chunkEndUtf16": 400
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 400,
+      "chunkEndUtf16": 401
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i48/u16-0-5",
+      "itemIndex": 48,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "6,589",
+      "chunkStartUtf16": 401,
+      "chunkEndUtf16": 406
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 406,
+      "chunkEndUtf16": 407
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i50/u16-0-12",
+      "itemIndex": 50,
+      "startUtf16": 0,
+      "endUtf16": 12,
+      "quote": "Gross profit",
+      "chunkStartUtf16": 407,
+      "chunkEndUtf16": 419
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 419,
+      "chunkEndUtf16": 420
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i51/u16-0-1",
+      "itemIndex": 51,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 420,
+      "chunkEndUtf16": 421
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 421,
+      "chunkEndUtf16": 422
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i52/u16-0-6",
+      "itemIndex": 52,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "22,574",
+      "chunkStartUtf16": 422,
+      "chunkEndUtf16": 428
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 428,
+      "chunkEndUtf16": 429
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i53/u16-0-1",
+      "itemIndex": 53,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 429,
+      "chunkEndUtf16": 430
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 430,
+      "chunkEndUtf16": 431
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i54/u16-0-5",
+      "itemIndex": 54,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "9,462",
+      "chunkStartUtf16": 431,
+      "chunkEndUtf16": 436
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 436,
+      "chunkEndUtf16": 437
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i55/u16-0-1",
+      "itemIndex": 55,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 437,
+      "chunkEndUtf16": 438
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 438,
+      "chunkEndUtf16": 439
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i56/u16-0-6",
+      "itemIndex": 56,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "42,979",
+      "chunkStartUtf16": 439,
+      "chunkEndUtf16": 445
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 445,
+      "chunkEndUtf16": 446
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i57/u16-0-1",
+      "itemIndex": 57,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 446,
+      "chunkEndUtf16": 447
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 447,
+      "chunkEndUtf16": 448
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i58/u16-0-6",
+      "itemIndex": 58,
+      "startUtf16": 0,
+      "endUtf16": 6,
+      "quote": "14,110",
+      "chunkStartUtf16": 448,
+      "chunkEndUtf16": 454
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 454,
+      "chunkEndUtf16": 455
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i60/u16-0-18",
+      "itemIndex": 60,
+      "startUtf16": 0,
+      "endUtf16": 18,
+      "quote": "Operating expenses",
+      "chunkStartUtf16": 455,
+      "chunkEndUtf16": 473
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 473,
+      "chunkEndUtf16": 474
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i62/u16-0-24",
+      "itemIndex": 62,
+      "startUtf16": 0,
+      "endUtf16": 24,
+      "quote": "Research and development",
+      "chunkStartUtf16": 474,
+      "chunkEndUtf16": 498
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 498,
+      "chunkEndUtf16": 499
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i63/u16-0-1",
+      "itemIndex": 63,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 499,
+      "chunkEndUtf16": 500
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 500,
+      "chunkEndUtf16": 501
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i64/u16-0-5",
+      "itemIndex": 64,
+      "startUtf16": 0,
+      "endUtf16": 5,
+      "quote": "3,090",
+      "chunkStartUtf16": 501,
+      "chunkEndUtf16": 506
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 506,
+      "chunkEndUtf16": 507
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i65/u16-0-1",
+      "itemIndex": 65,
+      "startUtf16": 0,
+      "endUtf16": 1,
+      "quote": " ",
+      "chunkStartUtf16": 507,
+      "chunkEndUtf16": 508
+    },
+    {
+      "kind": "presentation",
+      "text": "\n",
+      "chunkStartUtf16": 508,
+      "chunkEndUtf16": 509
+    },
+    {
+      "kind": "source",
+      "sourceSpanId": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p1/i66/u16-0-5",
+      "itemIndex": 66,
+      "startUtf16": 0,
+      "endUtf16": 3,
+      "quote": "2,0",
+      "chunkStartUtf16": 509,
+      "chunkEndUtf16": 512
+    }
+  ]
+}

@@ -91,8 +91,23 @@ const GENERATION_IDENTITY_KEYS=['protocolVersion','runtimeId','operationId','doc
 const sameGenerationAttempt=(identity,event)=>event!==null&&event!==undefined
   &&GENERATION_IDENTITY_KEYS.every(key=>identity[key]===event[key]);
 let uiActionNonce=0,embeddingRefusal=false,queryRefusal=false,contextRefusal=false,generationRefusal=false;
+let failureDisclosureOwner=null;
+const failureHost=document.createElement('div');failureHost.id='runtime-failure-detail';failureHost.hidden=true;
+function revokeFailureDisclosure(){failureDisclosureOwner=null;failureHost.replaceChildren();failureHost.hidden=true;}
+function renderFailureDisclosure(){
+  revokeFailureDisclosure();const failure=session.queryFailure()??session.embeddingFailure();if(failure===null)return;
+  const nonce=uiActionNonce,source=session.document(),chunks=session.chunks(),terminal=failure.terminal;
+  const detail=element('details'),summary=element('summary','Inspect current runtime failure boundary · no success receipt');detail.append(summary);
+  const owner={failure,nonce,source,chunks,terminal};failureDisclosureOwner=owner;failureHost.hidden=false;failureHost.append(detail);
+  detail.addEventListener('toggle',()=>{detail.replaceChildren(summary);
+    if(!detail.open||failureDisclosureOwner!==owner||uiActionNonce!==nonce||source!==session.document()||chunks!==session.chunks()
+      ||terminal!==failure.terminal||(session.queryFailure()??session.embeddingFailure())!==failure)return;
+    detail.append(element('pre',JSON.stringify(failure.diagnostic,null,2)));
+  });
+}
 let lastOperation=null,cancelledOperation=null;
-function beginUiAction(){preparationView?.revoke();uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal||generationRefusal)render(session.snapshot());return uiActionNonce;}
+function beginUiAction(){revokeFailureDisclosure();preparationView?.revoke();uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal||generationRefusal)render(session.snapshot());return uiActionNonce;}
+for(const type of ['input','change'])preparationHost?.addEventListener(type,event=>{if(event.target?.id==='asset-preparation-transport')beginUiAction();});
 function currentGeneration(raw,inspection){
   const terminal=session.snapshot().lifecycle.terminal;
   return generationOwner!==null&&generationOwner.raw===raw&&generationOwner.inspection===inspection
@@ -159,7 +174,7 @@ function showQuery(){
     list.append(element('dt',key),element('dd',value));
 }
 function showEmbedding(){
-  const target=byId('embedding-detail'),meta=byId('embedding-meta');target.replaceChildren();
+  const target=byId('embedding-detail'),meta=byId('embedding-meta');target.replaceChildren(failureHost);
   const artifact=session.embeddings(),index=Number(byId('chunk-select').value);
   if(!artifact){meta.textContent='No vectors committed. Embed accepted chunks to inspect actual encoder output.';return;}
   const vector=artifact.vectors[index],ids=artifact.tokenIds[index];if(!vector)return;
@@ -365,6 +380,7 @@ function render(state){
   byId('generation-meta').textContent=raw?`Complete native receipt accepted at cleanup · ${inspection.status} · financial support unestablished.`:generate?'Native generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer; its pinned model/runtime bodies total 815.73 MB (777.94 MiB). A first run downloads uncached assets to this device.':'Generation remains disabled in the ordinary entry. No generation adapter is configured.';
   geometryView?.render({source,documentEpoch:state.lifecycle.documentEpoch,active:Boolean(active),cancelled:state.status==='cancelled'});
   renderLookup(state);
+  renderFailureDisclosure();
 }
 function captureGenerationInput(input,settings,workerOptions){
   // The session supplies its detached, deeply frozen canonical eight-field

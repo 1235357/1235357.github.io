@@ -2,6 +2,7 @@ import { encodeChunks, EmbeddingRuntimeError } from './embedding-runtime.mjs';
 import { EmbeddingWorkerError, isEmbeddingCommand, isEmbeddingIdentity, projectEmbeddingInput,
   createEmbeddingStageGuard, copyEmbeddingArtifact, embeddingReceipt } from './embedding-source.mjs';
 import { suppressWorkerConsole } from './worker-console.mjs';
+import {copyWorkerFailure,createWorkerFailureTracker,diagnosticCode,ownData} from './runtime-failure-contract.mjs';
 
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value)
   && [Object.prototype, null].includes(Object.getPrototypeOf(value));
@@ -37,12 +38,12 @@ export function createEmbeddingCommandHandler(send, options = {}) {
       // progress packet that leaves no possible strictly-increasing terminal.
       if (seq >= Number.MAX_SAFE_INTEGER - 1) throw new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR');
       const accepted = stages.accept(stage, payload);
-      emit({ event: Object.freeze({ ...identity, kind: 'progress', stage, seq: ++seq, payload: accepted }) });
+      emit({ workerVersion:'embedding-v2',event: Object.freeze({ ...identity, kind: 'progress', stage, seq: ++seq, payload: accepted }) });
     }
     function terminal(kind, payload, artifact) {
       if (seq >= Number.MAX_SAFE_INTEGER) throw new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR');
       const event = Object.freeze({ ...identity, kind, stage: stages.stage, seq: ++seq, payload });
-      emit(artifact === undefined ? { event } : { event, artifact });
+      emit(artifact === undefined ? { workerVersion:'embedding-v2',event } : { workerVersion:'embedding-v2',event, artifact });
     }
     return (async () => {
       try {
@@ -53,10 +54,12 @@ export function createEmbeddingCommandHandler(send, options = {}) {
       } catch (error) {
         let code = 'EMBEDDING_FAILED';
         try {
-          if (error instanceof EmbeddingRuntimeError || error instanceof EmbeddingWorkerError) code = error.code;
+          if (error instanceof EmbeddingRuntimeError || error instanceof EmbeddingWorkerError) code = diagnosticCode(error,'encoder-client','EMBEDDING_FAILED');
         } catch { /* hostile diagnostics cannot escape error normalization */ }
         const safe = new EmbeddingWorkerError(code);
-        terminal('error', Object.freeze({ code: safe.code, message: safe.message }));
+        let workerFailure;try{workerFailure=copyWorkerFailure(ownData(error,'workerFailure'),'encoder-initializer');}
+        catch{workerFailure=createWorkerFailureTracker('encoder-initializer').failure(diagnosticCode(safe,'encoder-initializer','EMBEDDING_FAILED'));}
+        terminal('error', Object.freeze({ code: safe.code, message: safe.message,workerFailure }));
       }
       return true;
     })();
@@ -77,5 +80,5 @@ if (typeof WorkerGlobalScope !== 'undefined' && globalThis instanceof WorkerGlob
       pending.catch(() => globalThis.setTimeout(safeChannelFailure, 0));
     } catch { safeChannelFailure(); }
   });
-  globalThis.postMessage({ kind: 'embedding-ready', protocolVersion: 1, workerVersion: 'embedding-v1' });
+  globalThis.postMessage({ kind: 'embedding-ready', protocolVersion: 1, workerVersion: 'embedding-v2' });
 }

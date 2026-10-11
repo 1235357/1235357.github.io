@@ -1,0 +1,11 @@
+{
+  "observedAt": "2026-10-11T20:53:20.730Z",
+  "startedAt": "2026-10-11T20:50:27.985Z",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "deployedCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+  "scope": "Actual explicit HF preparation retry terminal; no complete receipt or physical response observation; failure cause and request/response progress are unestablished",
+  "profile": "generator",
+  "transport": "huggingface",
+  "status": "ASSET_PREPARATION_FAILED · Static asset preparation failed. No complete preparation receipt was committed. Previously completed verified cache entries may remain; no complete preparation receipt was committed.",
+  "receiptText": ""
+}

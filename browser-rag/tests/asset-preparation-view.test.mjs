@@ -5,7 +5,14 @@ import {dom,nodes,byTag,deferred,act} from './pdf-app-dom-fixture.mjs';
 import {receipt,progress} from './asset-preparation-fixture.mjs';
 import {AssetPreparationError} from '../asset-preparation-source.mjs';
 import {preparationTransportPlan,validatePreparationPhysicalMetadata} from '../asset-preparation-transport.mjs';
+import {createRuntimeFailure} from '../runtime-failure-contract.mjs';
 const setup=prepare=>{const d=dom(),view=createAssetPreparationView({document:d.document,root:d.root,prepare,runtimeIdFactory:()=> 'prep-view'});view.render({source:null,documentEpoch:0,active:false});return {...d,view,get:id=>nodes(d.root).find(node=>node.id===id)};};
+test('current preparation failure lazily discloses only its owned diagnostic and revokes on transport edit',async()=>{
+  const d=setup(async(_profile,options)=>{const error=new AssetPreparationError('ASSET_PREPARATION_TIMEOUT');error.diagnostic=createRuntimeFailure(options.identity,{failureOrigin:'client-readiness-deadline',readyObserved:false,commandPosted:false,lastSeq:0,elapsedMs:8,allowedCode:error.code});throw error;});
+  await act(d.get('prepare-generator'));const detail=byTag(d.get('asset-preparation-receipt'),'details').find(value=>value.textContent.includes('failure boundary'));assert.ok(detail);assert.equal(byTag(detail,'pre').length,0);
+  detail.open=true;await act(detail,'toggle');assert.equal(JSON.parse(byTag(detail,'pre')[0].textContent).safeError.readyObserved,false);
+  d.get('asset-preparation-transport').value='huggingface';await act(d.get('asset-preparation-transport'),'input');await act(detail,'toggle');assert.equal(byTag(detail,'pre').length,0);
+});
 test('mount performs no preparation; explicit profile action sends identity only and lazily discloses exact receipt',async()=>{
   let calls=0,forwarded;const d=setup(async(profile,options)=>{calls++;forwarded={profile,options};options.onProgress(progress(profile,650));options.onProgress(progress(profile,receipt(profile).verifiedBytes));return receipt(profile);});
   assert.equal(calls,0);assert.match(d.root.textContent,/113.63 MB/);assert.match(d.root.textContent,/815.73 MB/);assert.match(d.root.textContent,/30-minute/);

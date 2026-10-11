@@ -1,4 +1,5 @@
 import { EMBEDDING_SPEC, validateTokenIds, acceptEmbeddingVectors } from './embedding-contract.mjs';
+import {createWorkerFailureTracker,diagnosticCode} from './runtime-failure-contract.mjs';
 
 const MESSAGES = Object.freeze({
   INVALID_EMBEDDING_CONFIG: 'The embedding configuration is invalid.',
@@ -44,7 +45,7 @@ function projectChunks(artifact) {
 
 function dependencies(options) {
   try {
-    const keys = ['baseURL', 'gpu', 'fetch', 'cacheStorage', 'crypto', 'importer', 'now', 'signal', 'onProgress'];
+    const keys = ['baseURL', 'gpu', 'fetch', 'cacheStorage', 'crypto', 'importer', 'now', 'signal', 'onProgress', 'onDiagnostic'];
     if (!record(options) || Reflect.ownKeys(options).some(key => !keys.includes(key))) fail('INVALID_EMBEDDING_CONFIG');
     const own = (key, defaultValue) => Object.hasOwn(options, key) ? options[key] : defaultValue();
     const base = new URL(own('baseURL', () => new URL('./', import.meta.url)));
@@ -60,11 +61,12 @@ function dependencies(options) {
         return typeof fetch === 'function' ? fetch.bind(globalThis) : fetch;
       }), cacheStorage: own('cacheStorage', () => globalThis.caches),
       crypto: own('crypto', () => globalThis.crypto), importer: own('importer', () => url => import(url)),
-      now: own('now', () => () => globalThis.performance.now()), signal: options.signal, onProgress: options.onProgress };
+       now: own('now', () => () => globalThis.performance.now()), signal: options.signal, onProgress: options.onProgress, onDiagnostic: options.onDiagnostic };
     if (typeof config.fetch !== 'function' || typeof config.importer !== 'function' || typeof config.now !== 'function'
       || typeof config.crypto?.subtle?.digest !== 'function'
       || (config.cacheStorage != null && typeof config.cacheStorage.open !== 'function')
-      || (config.onProgress !== undefined && typeof config.onProgress !== 'function')
+       || (config.onProgress !== undefined && typeof config.onProgress !== 'function')
+       || (config.onDiagnostic !== undefined && typeof config.onDiagnostic !== 'function')
       || (config.signal !== undefined && (typeof config.signal?.aborted !== 'boolean'
         || typeof config.signal.addEventListener !== 'function' || typeof config.signal.removeEventListener !== 'function'))) {
       fail('INVALID_EMBEDDING_CONFIG');
@@ -194,13 +196,14 @@ async function readBytes(response, url, limit, exact, scope) {
   }
 }
 
-async function verifyAssets(config, scope, fixedPreparation = false) {
+async function verifyAssets(config, scope, fixedPreparation = false, diagnostic) {
   const registryURL = new URL('embedding-assets.json', config.baseURL).href;
   const request = url => scope.wait(() => config.fetch(url, { redirect: 'error', credentials: 'omit', signal: scope.signal }),
     'ASSET_INTEGRITY_ERROR', response => response?.body?.cancel());
-  const bytes = await readBytes(await request(registryURL), registryURL, 32768, false, scope);
+  diagnostic?.enter('registry-request');const response=await request(registryURL);
+  diagnostic?.enter('registry-read');const bytes = await readBytes(response, registryURL, 32768, false, scope);
   let registry;
-  try { registry = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); }
+  diagnostic?.enter('registry-validate');try { registry = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); }
   catch { fail('ASSET_INTEGRITY_ERROR'); }
   const { assets, total } = assetPlan(registry, config.baseURL);
   if (fixedPreparation) for (const asset of assets) {
@@ -209,7 +212,7 @@ async function verifyAssets(config, scope, fixedPreparation = false) {
     const fixed = EMBEDDING_PREPARATION_PINS[name];
     if (!fixed || asset.bytes !== fixed.bytes || asset.sha256 !== fixed.sha256) fail('ASSET_INTEGRITY_ERROR');
   }
-  const cache = config.cacheStorage == null ? null : await scope.wait(() => config.cacheStorage.open(
+  diagnostic?.enter('cache-open');const cache = config.cacheStorage == null ? null : await scope.wait(() => config.cacheStorage.open(
     `financial-rag-embedding-${EMBEDDING_SPEC.revision}-v1`), 'ASSET_INTEGRITY_ERROR');
   if (config.cacheStorage != null && (!cache || typeof cache.match !== 'function' || typeof cache.put !== 'function')) {
     fail('ASSET_INTEGRITY_ERROR');
@@ -217,17 +220,20 @@ async function verifyAssets(config, scope, fixedPreparation = false) {
   const verified = new Map(), receipt = { verifiedBytes: 0, networkBytes: 0, cacheBytes: 0 };
   const progress = () => scope.emit('download', { completed: receipt.verifiedBytes, total, unit: 'bytes', estimated: false });
   progress();
-  for (const asset of assets) {
+  for (const [index,asset] of assets.entries()) {
+    diagnostic?.enter('cache-match',index);
     let response = cache ? await scope.wait(() => cache.match(asset.url), 'ASSET_INTEGRITY_ERROR',
       value => value?.body?.cancel()) : undefined;
     const cached = response !== undefined && response !== null;
-    if (!cached) response = await request(asset.url);
+    if (!cached) {diagnostic?.enter('asset-fetch',index);response = await request(asset.url);}
+    diagnostic?.enter('asset-verify-and-store',index);
     const buffer = await readBytes(response, asset.url, asset.bytes, true, scope);
     const hash = await scope.wait(() => config.crypto.subtle.digest('SHA-256', buffer), 'ASSET_INTEGRITY_ERROR');
     const actual = [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, '0')).join('');
     if (actual !== asset.sha256) fail('ASSET_INTEGRITY_ERROR');
     const accepted = new Response(buffer);
-    if (cache && !cached) await scope.wait(() => cache.put(asset.url, accepted.clone()), 'ASSET_INTEGRITY_ERROR');
+    if (cache && !cached) try{await scope.wait(() => cache.put(asset.url, accepted.clone()), 'ASSET_INTEGRITY_ERROR');}
+      catch(error){diagnostic?.failure('ASSET_CACHE_ERROR');throw error;}
     verified.set(asset.url, accepted);
     receipt.verifiedBytes += buffer.length; receipt[cached ? 'cacheBytes' : 'networkBytes'] += buffer.length;
     progress();
@@ -239,16 +245,20 @@ async function verifyAssets(config, scope, fixedPreparation = false) {
 // Persistent cache bodies remain advisory: every later operation verifies again.
 export async function prepareEmbeddingAssets(options = {}) {
   if (!record(options) || Reflect.ownKeys(options).some(key =>
-    !['baseURL', 'fetch', 'cacheStorage', 'crypto', 'now', 'signal', 'onProgress'].includes(key))) {
+    !['baseURL', 'fetch', 'cacheStorage', 'crypto', 'now', 'signal', 'onProgress', 'onDiagnostic'].includes(key))) {
     fail('INVALID_EMBEDDING_CONFIG');
   }
   const config = dependencies({ ...options, gpu: null, importer: () => { fail('EMBEDDING_LOAD_FAILED'); } });
   if (config.cacheStorage == null) fail('ASSET_INTEGRITY_ERROR');
-  const scope = lifecycle(config); let prepared;
+  const scope = lifecycle(config),diagnostic=createWorkerFailureTracker('preparation-loader',config.onDiagnostic); let prepared;
   try {
-    prepared = await verifyAssets(config, scope, true); scope.check();
+    prepared = await verifyAssets(config, scope, true,diagnostic); scope.check();
     return Object.freeze({ assets: prepared.assetPins.length, ...prepared.receipt,
       assetPins: Object.freeze(prepared.assetPins) });
+  } catch(error){
+    const current=diagnostic.snapshot(),captured=diagnosticCode(error,'preparation-loader','ASSET_PREPARATION_FAILED');diagnostic.failure(captured==='ABORTED'?captured:current.allowedCode!=='ASSET_PREPARATION_FAILED'?current.allowedCode:
+      ['cache-open','cache-match'].includes(current.phase)?'ASSET_CACHE_ERROR':diagnosticCode(error,'preparation-loader','ASSET_PREPARATION_FAILED'));
+    throw error;
   } finally {
     if (prepared) { for (const response of prepared.verified.values()) quiet(() => response.body?.cancel()); prepared.verified.clear(); }
     scope.close();
@@ -340,7 +350,7 @@ export async function encodeQuery(question, options = {}) {
 // inference, pooling and resource lifetime. Only their progress units differ.
 async function encodeTextRows(texts, options, unit) {
   const config = dependencies(options);
-  const scope = lifecycle(config), released = new WeakSet(); let device, model, closed = false;
+  const scope = lifecycle(config), released = new WeakSet(),diagnostic=createWorkerFailureTracker('encoder-initializer',config.onDiagnostic); let device, model, closed = false;
   const releaseDevice = value => {
     if (value && typeof value.destroy === 'function' && !released.has(value)) {
       released.add(value); quiet(() => value.destroy());
@@ -374,7 +384,7 @@ async function encodeTextRows(texts, options, unit) {
     const wasmBinary=await scope.wait(()=>Response.prototype.arrayBuffer.call(Response.prototype.clone.call(wasmResponse)),'ASSET_INTEGRITY_ERROR');
     if(!(wasmBinary instanceof ArrayBuffer)||wasmBinary.byteLength!==wasmPin.bytes)fail('ASSET_INTEGRITY_ERROR');
     scope.check();
-    const library = await scope.wait(() => config.importer(new URL('vendor/transformers/transformers.min.js', config.baseURL).href),
+    diagnostic.enter('sdk-import');const library = await scope.wait(() => config.importer(new URL('vendor/transformers/transformers.min.js', config.baseURL).href),
       'EMBEDDING_LOAD_FAILED');
     // This operation owns a fresh worker/library instance. The pinned ORT JSEP
     // backend consumes env.webgpu.adapter, creates its own device with required
@@ -392,11 +402,11 @@ async function encodeTextRows(texts, options, unit) {
       const value = Reflect.get(target, key, target);
       return typeof value === 'function' ? value.bind(target) : value;
     } });
-    configureLibrary(library, config, ownedAdapter, assets.verified, wasmBinary);
+    diagnostic.enter('sdk-configure');configureLibrary(library, config, ownedAdapter, assets.verified, wasmBinary);
     const settings = { revision: EMBEDDING_SPEC.revision, local_files_only: true };
-    const tokenizer = await scope.wait(() => library.AutoTokenizer.from_pretrained(EMBEDDING_SPEC.modelId, settings), 'EMBEDDING_LOAD_FAILED');
+    diagnostic.enter('tokenizer-load');const tokenizer = await scope.wait(() => library.AutoTokenizer.from_pretrained(EMBEDDING_SPEC.modelId, settings), 'EMBEDDING_LOAD_FAILED');
     if (typeof tokenizer !== 'function') fail('EMBEDDING_LOAD_FAILED');
-    const frames = []; let totalTokens = 0;
+    diagnostic.enter('input-preflight');const frames = []; let totalTokens = 0;
     for (const text of texts) {
       const frame = tokenFrame(await scope.wait(() => tokenizer(text, {
         padding: false, truncation: false, add_special_tokens: true, return_tensor: false,
@@ -405,10 +415,11 @@ async function encodeTextRows(texts, options, unit) {
       if (totalTokens > EMBEDDING_SPEC.maxTotalTokens) fail('ENCODER_INPUT_LIMIT');
       frames.push(frame);
     }
-    model = await scope.wait(() => library.AutoModel.from_pretrained(EMBEDDING_SPEC.modelId, {
+    diagnostic.enter('model-load');model = await scope.wait(() => library.AutoModel.from_pretrained(EMBEDDING_SPEC.modelId, {
       ...settings, device: 'webgpu', dtype: 'fp32',
     }), 'EMBEDDING_LOAD_FAILED', releaseModel);
-    if (typeof model !== 'function' || typeof model.dispose !== 'function') fail('EMBEDDING_LOAD_FAILED');
+    diagnostic.enter('model-handle-validate');if (typeof model !== 'function' || typeof model.dispose !== 'function') fail('EMBEDDING_LOAD_FAILED');
+    diagnostic.enter('unknown');
     const rows = [], total = unit === 'tokens' ? totalTokens : frames.length;
     let completed = 0;
     scope.emit('encode', { completed, total, unit, estimated: false });
@@ -445,7 +456,8 @@ async function encodeTextRows(texts, options, unit) {
       // These are verified asset-body reads, excluding registry/HTTP overhead
       // and any later SDK transport. They are not a browser traffic capture.
       receipt: Object.freeze({ ...assets.receipt, elapsedMs }) };
-  } catch (error) { if (error instanceof EmbeddingRuntimeError) throw error; fail('EMBEDDING_FAILED'); }
+  } catch (error) {let safe;try{safe=error instanceof EmbeddingRuntimeError?error:new EmbeddingRuntimeError('EMBEDDING_FAILED');}catch{safe=new EmbeddingRuntimeError('EMBEDDING_FAILED');}
+    throw diagnostic.attach(safe,diagnosticCode(safe,'encoder-initializer','EMBEDDING_FAILED'));}
   finally {
     closed = true;
     if (model && !released.has(model)) {

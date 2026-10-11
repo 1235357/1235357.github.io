@@ -1,6 +1,7 @@
 import { prepareVerifiedAssetCache } from './verified-cache.mjs';
 import { GENERATION_SPEC, preflightGeneration, inspectGeneratedSequence } from './generator-contract.mjs';
 import { createReceiptSnapshot, requireReceiptSnapshot } from './receipt-snapshot.mjs';
+import {createWorkerFailureTracker,diagnosticCode} from './runtime-failure-contract.mjs';
 
 export const PROBE_MODEL = 'onnx-community/Qwen2.5-0.5B-Instruct';
 export const PROBE_REVISION = '22942cb7d7ba4cc81bb4673549ca4d4614469b5e';
@@ -212,18 +213,19 @@ function lifecycle(config) {
     close(){closed=true;config.signal?.removeEventListener('abort',aborted);},
   };
 }
-async function readRegistry(config,scope) {
+async function readRegistry(config,scope,diagnostic) {
   const url=new URL('acceptance/generator-probe-assets.json',config.baseURL).href;
   let reader,response,finished=false;
   try {
-    response=await scope.wait(()=>config.fetch(url,{redirect:'error',credentials:'omit',signal:scope.signal}),'ASSET_INTEGRITY_ERROR',value=>value?.body?.cancel());
+    diagnostic?.enter('registry-request');response=await scope.wait(()=>config.fetch(url,{redirect:'error',credentials:'omit',signal:scope.signal}),'ASSET_INTEGRITY_ERROR',value=>value?.body?.cancel());
+    diagnostic?.enter('registry-read');
     if(!(response instanceof Response)||!response.ok||response.redirected||(response.url&&response.url!==url)||!response.body) fail('ASSET_INTEGRITY_ERROR');
     const length=response.headers.get('content-length');
     if(length!==null&&(!/^\d+$/.test(length)||Number(length)>32768)) fail('ASSET_INTEGRITY_ERROR');
     reader=response.body.getReader();const bytes=new Uint8Array(32768);let count=0;
     for(;;){const part=await scope.wait(()=>reader.read(),'ASSET_INTEGRITY_ERROR');if(part.done)break;
       if(!(part.value instanceof Uint8Array)||part.value.byteLength>32768-count)fail('ASSET_INTEGRITY_ERROR');bytes.set(part.value,count);count+=part.value.byteLength;}
-    const registry=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes.subarray(0,count)));
+    diagnostic?.enter('registry-validate');const registry=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes.subarray(0,count)));
     finished=true;return generatorAssetPlan(registry,config.baseURL);
   } catch(error){if(error instanceof ProbeError)throw error;fail('ASSET_INTEGRITY_ERROR');}
   finally {if(!finished)quiet(()=>reader?reader.cancel():response?.body?.cancel());quiet(()=>reader?.releaseLock());}
@@ -233,12 +235,14 @@ async function readRegistry(config,scope) {
 // generation clock, requests a GPU adapter/device or imports the SDK.
 export async function prepareGeneratorAssets(options={}) {
   if(!record(options)||Reflect.ownKeys(options).some(key=>
-    !['baseURL','fetch','cacheStorage','signal','onProgress'].includes(key)))fail('INVALID_PROBE_CONFIG');
-  const config=dependencies({...options,gpu:Object.freeze({}),importer:()=>{fail('MODEL_LOAD_FAILED');}}),scope=lifecycle(config);
+    !['baseURL','fetch','cacheStorage','signal','onProgress','onDiagnostic'].includes(key)))fail('INVALID_PROBE_CONFIG');
+  const {onDiagnostic,...runtimeOptions}=options;if(onDiagnostic!==undefined&&typeof onDiagnostic!=='function')fail('INVALID_PROBE_CONFIG');
+  const config=dependencies({...runtimeOptions,gpu:Object.freeze({}),importer:()=>{fail('MODEL_LOAD_FAILED');}}),scope=lifecycle(config),diagnostic=createWorkerFailureTracker('preparation-loader',onDiagnostic);
   let prepared;
   try {
-    const plan=await readRegistry(config,scope),total=plan.assets.reduce((sum,asset)=>sum+asset.bytes,0);
+    const plan=await readRegistry(config,scope,diagnostic),total=plan.assets.reduce((sum,asset)=>sum+asset.bytes,0);
     prepared=await scope.wait(()=>prepareVerifiedAssetCache(plan,{fetch:config.fetch,cacheStorage:config.cacheStorage,signal:scope.signal,
+      onDiagnostic:value=>{diagnostic.enter(value.phase,value.assetIndex);diagnostic.failure(value.allowedCode);},
       onProgress:event=>{
         const prefix=plan.assets.slice(0,event.assetIndex).reduce((sum,asset)=>sum+asset.bytes,0);
         config.onProgress?.(Object.freeze({completed:prefix+event.completed,verified:prefix+(event.verified?event.completed:0),
@@ -246,7 +250,8 @@ export async function prepareGeneratorAssets(options={}) {
       }}),'ASSET_CACHE_ERROR',value=>value?.close());
     scope.check();
     return Object.freeze({...prepared.receipt,assetPins:Object.freeze(plan.assets.map(({url,bytes,sha256})=>Object.freeze({url,bytes,sha256})))});
-  } finally {try {prepared?.close();}finally {scope.close();}}
+  } catch(error){const current=diagnostic.snapshot();diagnostic.failure(current.allowedCode==='ASSET_PREPARATION_FAILED'?diagnosticCode(error,'preparation-loader','ASSET_PREPARATION_FAILED'):current.allowedCode);throw error;}
+  finally {try {prepared?.close();}finally {scope.close();}}
 }
 // Only trusted local entry points supply this callback. Recreate and compare
 // the complete canonical preflight before constructing the native model.

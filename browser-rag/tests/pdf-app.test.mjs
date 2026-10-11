@@ -8,6 +8,11 @@ import {tick} from './financial-generation-fixture.mjs';
 import {inspectFinancialOutput} from '../financial-output-contract.mjs';
 import {createFinancialGeometryView} from '../financial-geometry-view.mjs';
 import {createFinancialLookupView} from '../financial-lookup-view.mjs';
+import {createRuntimeFailure} from '../runtime-failure-contract.mjs';
+import {embedInWorker as nativeEmbedInWorker} from '../embedding-source.mjs';
+import {ControlledWorker as NativeClientWorkerDouble} from './query-fixtures.mjs';
+import {queryInWorker as nativeQueryInWorker} from '../query-source.mjs';
+import {createAssetPreparationView} from '../asset-preparation-view.mjs';
 
 const fixture=new URL('./pdf-app-dom-fixture.mjs',import.meta.url).href;
 const hooks=registerHooks({resolve(specifier,context,next){if(context.parentURL?.endsWith('/pdf-app.mjs')){if(specifier==='./vendor/build/pdf.mjs')return {url:'data:text/javascript,export const version="6.4.299";',shortCircuit:true};if(['./pdf-source.mjs','./compute-source.mjs','./embedding-source.mjs','./query-source.mjs'].includes(specifier))return {url:fixture,shortCircuit:true};}return next(specifier,context);}});
@@ -15,6 +20,26 @@ let app,importError;try{app=await import('../pdf-app.mjs');}catch(error){importE
 hooks.deregister();
 function mount(extra={}){assert.equal(importError,undefined,'import must not touch DOM or mount');assert.equal(typeof app.mountPdfApp,'function');const d=dom();d.get('pdf-file').disabled=true;const mounted=app.mountPdfApp({document:d.document,root:d.root,...extra});assert.equal(d.get('pdf-file').disabled,false,'completed mount enables the PDF chooser');assert.equal(d.get('pdf-file').listeners.get('change').length,1,'enabled chooser has its owned handler');return {...d,mounted};}
 async function accepted(d){d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));d.get('question-input').value='READER question';await act(d.get('run-query'));await act(d.get('assemble-context'));}
+test('current native-shaped failure is lazy and detached disclosure is revoked even by a no-op edit',async()=>{
+  adapterControl.embed=async(input,options)=>{const worker=new NativeClientWorkerDouble();
+    const pending=nativeEmbedInWorker(input,{...options,workerFactory:()=>worker});
+    worker.emit('message',{kind:'embedding-ready',protocolVersion:1,workerVersion:'embedding-v2'});
+    worker.emit('error',{message:'PRIVATE signed URL'});return pending;};
+  try{const d=mount();d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));
+    const detail=byTag(d.get('embedding-detail'),'details').find(value=>value.textContent.includes('failure boundary'));assert.ok(detail);assert.equal(byTag(detail,'pre').length,0);
+    detail.open=true;await act(detail,'toggle');assert.equal(JSON.parse(byTag(detail,'pre')[0].textContent).safeError.failureOrigin,'native-worker-error');assert.doesNotMatch(d.root.textContent,/PRIVATE|signed URL/);
+    await act(d.get('question-input'),'input');await act(detail,'toggle');assert.equal(byTag(detail,'pre').length,0);
+  }finally{adapterControl.embed=null;}
+});
+test('query channel failure disclosure revokes on transport Clear pagehide and retry without sharing into another mount',async()=>{
+  adapterControl.query=async(input,passages,question,options)=>{const worker=new NativeClientWorkerDouble(),pending=nativeQueryInWorker(input,passages,question,{...options,workerFactory:()=>worker});worker.ready();worker.emit('error',{message:'PRIVATE query URL'});return pending;};
+  try{for(const action of ['transport','clear','pagehide','retry']){const d=mount({createAssetPreparationView});d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));d.get('question-input').value='question';await act(d.get('run-query'));
+    const detail=byTag(d.get('embedding-detail'),'details').find(value=>value.textContent.includes('failure boundary'));assert.ok(detail);detail.open=true;await act(detail,'toggle');assert.equal(JSON.parse(byTag(detail,'pre')[0].textContent).safeError.component,'query-client');
+    if(action==='transport'){const select=nodes(d.get('asset-preparation')).find(value=>value.id==='asset-preparation-transport');select.value='huggingface';await act(select,'input');for(const listener of d.get('asset-preparation').listeners.get('input'))listener({target:select});}
+    else if(action==='clear')await act(d.get('clear'));else if(action==='pagehide')await act(d.window,'pagehide');else await act(d.get('run-query'));
+    await act(detail,'toggle');assert.equal(byTag(detail,'pre').length,0);const another=mount();assert.equal(byTag(another.get('embedding-detail'),'details').length,0);
+  }}finally{adapterControl.query=null;}
+});
 test('import without a document has no DOM/session/mount side effects',()=>{assert.equal(importError,undefined,'Node import is inert');assert.equal(typeof app.mountPdfApp,'function');});
 test('unknown/invalid options and duplicate roots fail before listener registration',()=>{const d=mount();const count=[...d.root.nodes.values()].reduce((n,node)=>n+[...node.listeners.values()].flat().length,0);assert.throws(()=>app.mountPdfApp({document:d.document,root:d.root,generate}),/mount|already/i);assert.equal([...d.root.nodes.values()].reduce((n,node)=>n+[...node.listeners.values()].flat().length,0),count);for(const options of [{evil:1},{generate:true},{createGeometryView:true},{createLookupView:true},{createAssetPreparationView:true},{document:null},{root:null}]){const e=dom();assert.throws(()=>app.mountPdfApp({document:e.document,root:e.root,...options}),TypeError);assert.equal([...e.root.nodes.values()].flatMap(n=>[...n.listeners.values()].flat()).length,0);}});
 test('ordinary entry is OFF while private entry composes one shared mount',async()=>{const d=mount();await accepted(d);assert.equal(d.get('generate-answer').disabled,true);const ordinary=readFileSync(new URL('../pdf-entry.mjs',import.meta.url),'utf8'),privateEntry=readFileSync(new URL('../pdf-private-entry.mjs',import.meta.url),'utf8');assert.match(ordinary,/mountPdfApp\(\)/);assert.match(privateEntry,/mountPdfApp\(\{generate:generateFinancialInWorker,createGeometryView:createFinancialGeometryView,createLookupView:createFinancialLookupView\}\)/);assert.equal(d.get('pdf-file').value,'');assert.equal(byTag(d.get('computation-notebook'),'details').length,0);assert.equal(d.get('source-cell-lookup').hidden,true);assert.equal(d.get('source-cell-lookup').children.length,0);});

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "status": "static-pdf-worker-body-verified",
+  "parserVersion": "6.4.299",
+  "url": "https://1235357.github.io/browser-rag/vendor/build/pdf.worker.mjs",
+  "bytes": 2229713,
+  "sha256": "07ceb740d746e5d9012fcf9f27d5c7dea09f7d2f5e74f5c8109e5787551a2333",
+  "elapsedMs": 103235.30000001192,
+  "cacheScope": "browser-http-cache-advisory"
+}

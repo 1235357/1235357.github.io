@@ -1,0 +1,58 @@
+{
+  "observedAt": "2026-10-11T22:19:12.646Z",
+  "url": "http://127.0.0.1:8767/reader-owned-rag.archify.html#focus=inspection",
+  "scope": "Actual Codex IAB default-desktop local visual and source-passport interaction; candidate file hashes, not an independent HTTP-body hash or mobile/export/runtime acceptance",
+  "html": {
+    "bytes": 783348,
+    "sha256": "ab342793394b3dadf3d81f6610d5cd9909eb2624443745c48de206df53b4a452"
+  },
+  "editableJson": {
+    "bytes": 7900,
+    "sha256": "aa3c118045ed1d57af9a906fd3a5023851a09278a82d62fe44a66d65a6108a18"
+  },
+  "observations": {
+    "defaultDark": true,
+    "upperResponsibilitiesReadable": true,
+    "lowerResponsibilitiesReadable": true,
+    "wholeDiagramReadByScrolling": true,
+    "sourcePassportOpened": true,
+    "currentPinnedSourceLinks": [
+      {
+        "href": "https://github.com/1235357/1235357.github.io/tree/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+        "label": "1235357/1235357.github.io @ 7c7a2c3"
+      },
+      {
+        "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-session.mjs#L295-L329",
+        "label": "pdf-session.mjsL295–329 ↗browser-rag/pdf-session.mjs"
+      },
+      {
+        "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/financial-output-contract.mjs#L111-L158",
+        "label": "financial-output-contract.mjsL111–158 ↗browser-rag/financial-output-contract.mjs"
+      },
+      {
+        "href": "https://github.com/1235357/1235357.github.io/blob/7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7/browser-rag/pdf-app.mjs#L300-L365",
+        "label": "pdf-app.mjsL300–365 ↗browser-rag/pdf-app.mjs"
+      }
+    ],
+    "nativeModelExecution": false,
+    "financialAcceptance": false
+  },
+  "screenshots": [
+    {
+      "name": "top",
+      "scope": "local screenshot retained outside public distribution"
+    },
+    {
+      "name": "middle",
+      "scope": "local screenshot retained outside public distribution"
+    },
+    {
+      "name": "bottom",
+      "scope": "local screenshot retained outside public distribution"
+    },
+    {
+      "name": "focus",
+      "scope": "local screenshot retained outside public distribution"
+    }
+  ]
+}

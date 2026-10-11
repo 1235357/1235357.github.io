@@ -1,4 +1,5 @@
 import { verifyAssetResponse } from './verified-stream.mjs';
+import {createWorkerFailureTracker} from './runtime-failure-contract.mjs';
 
 const MESSAGES = Object.freeze({
   INVALID_CACHE_CONFIG: 'The asset cache configuration is invalid.',
@@ -66,7 +67,7 @@ function canonicalURL(value) {
 function capture(plan, options) {
   try {
     keys(plan, ['cacheName', 'assets']);
-    const optionKeys = keys(options, [], ['fetch', 'cacheStorage', 'signal', 'onProgress']);
+    const optionKeys = keys(options, [], ['fetch', 'cacheStorage', 'signal', 'onProgress', 'onDiagnostic']);
     const cacheName = plan.cacheName, source = array(plan.assets, 1, 64);
     // Refuse every record's unknown keys before reading any record value.
     for (const item of source) keys(item, ['url', 'bytes', 'sha256', 'aliases']);
@@ -93,6 +94,7 @@ function capture(plan, options) {
     const cacheStorage = optionKeys.includes('cacheStorage') ? options.cacheStorage : globalThis.caches;
     const signal = optionKeys.includes('signal') ? options.signal : undefined;
     const onProgress = optionKeys.includes('onProgress') ? options.onProgress : undefined;
+    const onDiagnostic=optionKeys.includes('onDiagnostic')?options.onDiagnostic:undefined;
     if (optionKeys.includes('fetch') && typeof fetch !== 'function') throw new Error();
     if (optionKeys.includes('cacheStorage') && (!cacheStorage || typeof cacheStorage !== 'object')) throw new Error();
     if (optionKeys.includes('signal')) {
@@ -100,7 +102,8 @@ function capture(plan, options) {
       signalAborted.call(signal);
     }
     if (optionKeys.includes('onProgress') && typeof onProgress !== 'function') throw new Error();
-    return Object.freeze({ cacheName, assets: Object.freeze(assets), keyMap, fetch, cacheStorage, signal, onProgress });
+    if(optionKeys.includes('onDiagnostic')&&typeof onDiagnostic!=='function')throw new Error();
+    return Object.freeze({ cacheName, assets: Object.freeze(assets), keyMap, fetch, cacheStorage, signal, onProgress, onDiagnostic });
   } catch { throw failure('INVALID_CACHE_CONFIG'); }
 }
 
@@ -123,6 +126,7 @@ function errorResponse(code) {
  */
 export async function prepareVerifiedAssetCache(plan, options = {}) {
   const config = capture(plan, options), owned = new AbortController();
+  const diagnostic=config.onDiagnostic?createWorkerFailureTracker('preparation-loader',config.onDiagnostic):null;
   const records = [];
   let stopped = null, storage;
   let rejectStop;
@@ -254,14 +258,16 @@ export async function prepareVerifiedAssetCache(plan, options = {}) {
       addListener.call(config.signal, 'abort', externalAbort, { once: true });
       if (signalAborted.call(config.signal)) stop('ABORTED');
     }
-    storage = await race(() => invoke(config.cacheStorage, 'open', config.cacheName), 'ASSET_CACHE_ERROR');
+    diagnostic?.enter('cache-open');storage = await race(() => invoke(config.cacheStorage, 'open', config.cacheName), 'ASSET_CACHE_ERROR');
     let verifiedBytes = 0, networkBytes = 0, cacheBytes = 0;
     for (let index = 0; index < config.assets.length; index++) {
       const asset = config.assets[index];
+      diagnostic?.enter('cache-match',index);
       let response = await race(() => invoke(storage, 'match', asset.url), 'ASSET_CACHE_ERROR', cancelResponse);
       const cold = response === undefined;
-      if (cold) response = await race(() => Reflect.apply(config.fetch, globalThis, [asset.url,
-        { redirect: 'error', credentials: 'omit', signal: owned.signal }]), 'ASSET_CACHE_ERROR', cancelResponse);
+      if (cold) {diagnostic?.enter('asset-fetch',index);response = await race(() => Reflect.apply(config.fetch, globalThis, [asset.url,
+        { redirect: 'error', credentials: 'omit', signal: owned.signal }]), 'ASSET_CACHE_ERROR', cancelResponse);}
+      diagnostic?.enter('asset-verify-and-store',index);
       const verified = wrap(response, index, 'prepare');
       // Await both independent obligations. A stored entry is never a receipt
       // until the entire body digest and the native put operation both succeed.
@@ -289,6 +295,7 @@ export async function prepareVerifiedAssetCache(plan, options = {}) {
     return Object.freeze({ cache, receipt, finishReads, close() { stop('ABORTED'); } });
   } catch (error) {
     const code = stopped ?? internalCodes.get(error) ?? 'ASSET_CACHE_ERROR';
+    diagnostic?.failure(code);
     stop(code);
     throw failure(code);
   }

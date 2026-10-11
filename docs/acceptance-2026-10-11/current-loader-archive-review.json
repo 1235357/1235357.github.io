@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 1,
+  "createdAtUTC": "2026-10-11T21:49:07.343Z",
+  "reviewer": "independent browser-generation-ui agent",
+  "scope": "read-only saved archive consistency and existing pure contract replay; no new native execution",
+  "modelRuns": 0,
+  "browserOperations": 0,
+  "networkRequests": 0,
+  "testsRun": 0,
+  "files": [
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-geometry.json",
+      "bytes": 231358,
+      "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-original8.json",
+      "bytes": 393283,
+      "sha256": "a3747d805a44cd455ddc1e68599f8dbedb3111a67c58d47a53e903e2bac376e3"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-native-raw.json",
+      "bytes": 266940,
+      "sha256": "2b43483c769f464d9fde3ef4f41f4c92d007e59fa124becd87fcf9e212bcb6c8"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-encoder-observation.json",
+      "bytes": 3431,
+      "sha256": "f8034392b77bf78ddd5770aa9366f6223d6eb8bee08d2ea3d4368ea8f84bc7ad"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-generation-observation.json",
+      "bytes": 3293,
+      "sha256": "75847d3e005c6ebfddb56e3e7f69995ee5c32ac68240d44e6a67b89db95d5ffc"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-chunk-1.json",
+      "bytes": 26717,
+      "sha256": "eaba6d0d5e5b902eec92eb9e27b9c038e054e823cdcd9314940737f5521cc12d"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-chunk-2.json",
+      "bytes": 38919,
+      "sha256": "17f0c694c13d54cbf451bae10885ed568b6642baad939e0a89e25a4822b70889"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-chunk-3.json",
+      "bytes": 40618,
+      "sha256": "4ed5ed8b166e2938c1ffd1ace8d88cd326472b83c158d2fb28981012495a4707"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-chunk-4.json",
+      "bytes": 24129,
+      "sha256": "ddc73c88ddea693c26443f749ec7cfff32ac5b49b5d7a49bcce2624c3026d38b"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-chunk-5.json",
+      "bytes": 25199,
+      "sha256": "107249ff42b3efb683698433b9814d3f992c9b2fd68131b998b1628be972a982"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-current-session-geometry.json",
+      "bytes": 231358,
+      "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-current-session-chunk-1.json",
+      "bytes": 26717,
+      "sha256": "eaba6d0d5e5b902eec92eb9e27b9c038e054e823cdcd9314940737f5521cc12d"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-current-session-chunk-2.json",
+      "bytes": 38919,
+      "sha256": "17f0c694c13d54cbf451bae10885ed568b6642baad939e0a89e25a4822b70889"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-current-session-chunk-3.json",
+      "bytes": 40618,
+      "sha256": "4ed5ed8b166e2938c1ffd1ace8d88cd326472b83c158d2fb28981012495a4707"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-current-session-chunk-4.json",
+      "bytes": 24129,
+      "sha256": "ddc73c88ddea693c26443f749ec7cfff32ac5b49b5d7a49bcce2624c3026d38b"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-current-session-chunk-5.json",
+      "bytes": 25199,
+      "sha256": "107249ff42b3efb683698433b9814d3f992c9b2fd68131b998b1628be972a982"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-current-session-source-observation.json",
+      "bytes": 2149,
+      "sha256": "78e5d8de6f69639e9c46557a2e3bdf15bafa3c5622b9138eeb33b6ed01ec86dc"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-current-session-encoder-observation.json",
+      "bytes": 2227,
+      "sha256": "96d8d335f7b7ce96d90d8644af7e4eb6bb533488eeee2bb8088f5bb271f43467"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-current-loader-source-cell-3m.json",
+      "bytes": 291465,
+      "sha256": "77f1056031c355d27e594a5144d4f25c849624b9b3c98cdad4c34dc58ad7183d"
+    }
+  ],
+  "contractSources": [
+    {
+      "path": "browser-rag/financial-geometry-source.mjs",
+      "sha256": "c2fc22e4a12d564c89f8862df408fb3f70d74f68955772b8ffe21822cea2fd28"
+    },
+    {
+      "path": "browser-rag/compute-source.mjs",
+      "sha256": "6331de29a4e722f8179836203792a6453fdc75e96dd79cf82fd2f0421f4442cd"
+    },
+    {
+      "path": "browser-rag/chunking.mjs",
+      "sha256": "c15fc0290287febca6fa791c665de447c9bbb1763038c679b40c235a27dbcfd1"
+    },
+    {
+      "path": "browser-rag/financial-generation-input.mjs",
+      "sha256": "8c18e1e03b4a266d0ad3bbcf974eefb32b13408439058e2ca0ebd264a8855a9e"
+    },
+    {
+      "path": "browser-rag/context-contract.mjs",
+      "sha256": "078eee55d140a6ed4b703b2fd86849eb7a6dd0510cd6e96adefbac10876e1314"
+    },
+    {
+      "path": "browser-rag/financial-generator-contract.mjs",
+      "sha256": "9e289f2b817d88ff52ab87fe1c3e67c0866c3b7e23abdf7c36fe927c9c9a4ba5"
+    },
+    {
+      "path": "browser-rag/generator-native-core.mjs",
+      "sha256": "f2c5bf3fce31bd6f71b256a624235bd9aa145a0a519c46740143aae2eb60250b"
+    },
+    {
+      "path": "browser-rag/prompt-contract.mjs",
+      "sha256": "b92d118a2e52fc11ef3e6d0d811b10c5a2160e33296a020ec40f57af80342023"
+    },
+    {
+      "path": "browser-rag/financial-output-contract.mjs",
+      "sha256": "9fec00232a9842c1ce0495a3877be9372b210a4de43d13d311ca43dc51a10a7c"
+    },
+    {
+      "path": "browser-rag/generator-contract.mjs",
+      "sha256": "aad979e6297b67496311225931c6b6c7fe021884757d1fbf5ed957baf90cbf91"
+    },
+    {
+      "path": "browser-rag/embedding-source.mjs",
+      "sha256": "9e24f6eb1a1f8adaa539893ef91fbf910dae4ccc77b90bdf2c4ea729d804f97a"
+    },
+    {
+      "path": "browser-rag/embedding-contract.mjs",
+      "sha256": "32d97024241b6ef7fb127742e3ca5dfc1bc08e0f488e7114ad4f10d514ac0869"
+    },
+    {
+      "path": "browser-rag/query-source.mjs",
+      "sha256": "ae69702a1097260350c4a0072991bc6a060bf895e499afd5bfd8fd0af296e7dc"
+    },
+    {
+      "path": "browser-rag/retrieval.mjs",
+      "sha256": "f8da1a7d20206f1bd7b1d463a0eb629f937ebc9026e5ca0696eecb66c74a18a1"
+    },
+    {
+      "path": "browser-rag/financial-table-contract.mjs",
+      "sha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db"
+    },
+    {
+      "path": "browser-rag/receipt-snapshot.mjs",
+      "sha256": "af50e9a3e65b221743677eb0ec8e7ab7a6366de4b74000334cf370de81e48316"
+    },
+    {
+      "path": "browser-rag/acceptance/replay-financial-receipts.mjs",
+      "sha256": "7e2d8807e867a2f25993abca03cbdebd90f6850881b5e63dbcac6e0c8b1bdde4"
+    }
+  ],
+  "pureEntryPointsUsed": [
+    "copyFinancialGeometrySource",
+    "copyValidatedSource",
+    "copyValidatedChunkArtifact",
+    "chunkSource",
+    "copyFinancialGenerationInput",
+    "assembleProvenanceContext",
+    "copyFinancialNativeReceipt",
+    "inspectFinancialOutput",
+    "replayFinancialArchive",
+    "embeddingReceipt",
+    "isEmbeddingIdentity",
+    "deriveFinancialTableLookup"
+  ],
+  "local": {
+    "completeOriginal8": "passed",
+    "completeNativeReceipt": "passed",
+    "geometryTextProjection": "exact match",
+    "chunkReproduction": "exact match; all five disclosed chunks",
+    "canonicalContext": "exact match",
+    "source": {
+      "sha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "bytes": 74085,
+      "pages": 2,
+      "items": 345
+    },
+    "chunks": {
+      "chunks": 5,
+      "outputUtf16": 2426,
+      "fragments": 687
+    },
+    "encoder": {
+      "counts": {
+        "chunks": 5,
+        "totalTokens": 644,
+        "dimensions": 384
+      },
+      "receipt": {
+        "verifiedBytes": 113629084,
+        "networkBytes": 0,
+        "cacheBytes": 113629084,
+        "elapsedMs": 1631
+      }
+    },
+    "query": {
+      "counts": {
+        "totalTokens": 39,
+        "dimensions": 384
+      },
+      "receipt": {
+        "verifiedBytes": 113629084,
+        "networkBytes": 0,
+        "cacheBytes": 113629084,
+        "elapsedMs": 1243.4000000357628
+      },
+      "topK": 3
+    },
+    "generation": {
+      "inputTokens": 1745,
+      "generatedTokens": 33,
+      "termination": "eos",
+      "elapsedMs": 48873.80000001192,
+      "cachePreparation": {
+        "assets": 8,
+        "verifiedBytes": 815725938,
+        "networkBytes": 815725938,
+        "cacheBytes": 0
+      },
+      "sdkReads": {
+        "reads": 6,
+        "verifiedBytes": 814793281
+      }
+    },
+    "outputReplay": {
+      "archiveStatus": "canonical-output-replayed",
+      "strictOutputStatus": "shape-and-citation-identity-accepted",
+      "disposition": "draft",
+      "errorCode": null,
+      "answer": "16,599",
+      "citations": [
+        "E4"
+      ],
+      "financialCorrectness": "unestablished"
+    }
+  },
+  "public": {
+    "geometry": "complete pure copier passed; exact local snapshot match",
+    "chunks": "reproduced complete artifact; all five disclosed chunks match",
+    "sourceObservation": "hash and chunk summary consistent",
+    "encoderObservation": "metadata-only terminal and identity checks passed",
+    "fullVectorArtifactAvailable": false,
+    "fullVectorArtifactReplayed": false,
+    "observedCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+    "counts": {
+      "chunks": 5,
+      "totalTokens": 644,
+      "dimensions": 384
+    },
+    "receipt": {
+      "verifiedBytes": 113629084,
+      "networkBytes": 0,
+      "cacheBytes": 113629084,
+      "elapsedMs": 92214.10000002384
+    },
+    "terminalSeq": 17
+  },
+  "sourceCell": {
+    "fullPureResultReplay": "exact match",
+    "snapshotDigest": "exact displayed JSON2 UTF-8 without trailing newline matches view receipt",
+    "request": {
+      "statement": "Condensed Consolidated Statements of Income",
+      "metric": "Net income",
+      "durationMonths": 3,
+      "periodEndLiteral": "Jul 28, 2024",
+      "unitHeadingLiteral": "(In millions, except per share data)",
+      "currencyGlyph": "$"
+    },
+    "amountLiteral": "16,599",
+    "physicalPageNumber": 1,
+    "pageLabel": "3",
+    "nativeItemReferencesChecked": 24,
+    "normalizedCurrency": null,
+    "generationMode": "not-run",
+    "financialCorrectness": "unadjudicated"
+  },
+  "publicationReview": {
+    "content": "known NVIDIA financial excerpt, financial question and fixed app/model metadata",
+    "absoluteFilesystemPathsIncluded": false,
+    "signedProviderUrlsIncluded": false,
+    "unrelatedUserContentFound": false
+  },
+  "limitations": [
+    "Pure replay checks supplied archives; it does not authenticate their original native production or parent-report lineage.",
+    "Public encoder archive contains terminal metadata and a displayed preview, not complete token/vector arrays; no full public vector artifact replay is claimed.",
+    "Six generator sealed reads include five model bodies plus the owned verified WASM handoff; they are not six wire downloads.",
+    "Generation networkBytes is verified loopback-fetched body bytes; it is not public wire traffic, cold-provider timing or a performance benchmark.",
+    "Output format/citation identity acceptance and source-cell binding do not establish financial correctness, human adjudication or public native generation success.",
+    "Static PDF script receipt identifies its explicitly fetched body; it does not independently hash the subsequently executed native worker."
+  ]
+}

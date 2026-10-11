@@ -72,7 +72,7 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         self.public();out=self.root/'dist/browser-rag'
         markup=(out/'inspector.html').read_text(encoding='utf-8');self.assertIn('src="pdf-public-entry.mjs"',markup);self.assertNotIn('src="pdf-entry.mjs"',markup)
         graph=existing.static_mjs_graph(out,'pdf-public-entry.mjs');self.assertIn('financial-lookup-view.mjs',graph);self.assertIn('financial-generation-source.mjs',graph)
-        for name in ('asset-preparation-source.mjs','asset-preparation-view.mjs','asset-preparation-transport.mjs','pdf-worker-preparation.mjs'):
+        for name in ('asset-preparation-source.mjs','asset-preparation-view.mjs','asset-preparation-transport.mjs','pdf-worker-preparation.mjs','runtime-failure-contract.mjs'):
             self.assertIn(name,graph)
         preparation_worker=existing.static_mjs_graph(out,'asset-preparation.worker.mjs')
         for name in ('asset-preparation.worker.mjs','asset-preparation-source.mjs','asset-preparation-transport.mjs','embedding-runtime.mjs','generator-native-core.mjs'):
@@ -95,6 +95,7 @@ class PublicBrowserAssetsTest(unittest.TestCase):
     def test_default_build_stays_off_and_excludes_public_production_graph_and_qwen(self):
         build.build();out=self.root/'dist/browser-rag'
         self.assertIn('src="pdf-entry.mjs"',(out/'inspector.html').read_text(encoding='utf-8'))
+        self.assertEqual((out/'runtime-failure-contract.mjs').read_bytes(),(self.browser/'runtime-failure-contract.mjs').read_bytes())
         for name in release.PUBLIC_MODULES:self.assertFalse((out/name).exists(),name)
         self.assertFalse((out/'models'/release.QWEN_REVISION).exists());self.assertFalse((out/'acceptance').exists())
         self.assertIn('Local draft · not published',(self.root/'dist/index.html').read_text(encoding='utf-8'))

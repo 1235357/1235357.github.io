@@ -159,7 +159,8 @@ class StreamAssetsTest(unittest.TestCase):
                         'fresh build omits the optional authored cache module')
         graph = static_module_graph(output, 'verified-cache.mjs')
         self.assertEqual(graph, {
-            'verified-cache.mjs': {'./verified-stream.mjs'},
+            'verified-cache.mjs': {'./verified-stream.mjs', './runtime-failure-contract.mjs'},
+            'runtime-failure-contract.mjs': set(),
             'verified-stream.mjs': {'./vendor/noble-hashes/sha2.js'},
             'vendor/noble-hashes/sha2.js': {'./_md.js', './_u64.js', './utils.js'},
             'vendor/noble-hashes/_md.js': {'./_u64.js', './utils.js'},

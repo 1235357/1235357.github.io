@@ -1,6 +1,7 @@
 import {EMBEDDING_PREPARATION_PINS} from './embedding-runtime.mjs';
 import {GENERATOR_PREPARATION_PINS} from './generator-native-core.mjs';
 import {preparationTransport,copyExternalReads,copyTransportFailure} from './asset-preparation-transport.mjs';
+import {copyWorkerFailure,createRuntimeFailure} from './runtime-failure-contract.mjs';
 
 const MESSAGES=Object.freeze({
   INVALID_ASSET_PREPARATION:'The asset preparation configuration is invalid.',
@@ -49,7 +50,7 @@ export function copyPreparationIdentity(raw){
 }
 export function copyPreparationCommand(raw){
   const value=data(raw,['schemaVersion','kind','identity','profile','transport']);
-  if(value.schemaVersion!==2||value.kind!=='prepare-assets')fail('WORKER_PROTOCOL_ERROR');preparationProfile(value.profile);
+  if(value.schemaVersion!==3||value.kind!=='prepare-assets')fail('WORKER_PROTOCOL_ERROR');preparationProfile(value.profile);
   try{preparationTransport(value.transport);}catch{fail('WORKER_PROTOCOL_ERROR');}
   return Object.freeze({...value,identity:copyPreparationIdentity(value.identity)});
 }
@@ -115,10 +116,12 @@ export async function prepareAssetsInWorker(profile,options={}){
   } catch {fail('INVALID_ASSET_PREPARATION');}
   if(signal&&signalAborted.call(signal))fail('ABORTED');
   return new Promise((resolve,reject)=>{
-    let worker,terminate,add,remove,post,settled=false,ready=false,receiving=false,lastSeq=0,lastCompleted=0,lastVerified=0,started=false;
+    let worker,terminate,add,remove,post,settled=false,ready=false,commandPosted=false,receiving=false,lastSeq=0,lastCompleted=0,lastVerified=0,started=false;
+    const constructed=performance.now();
     let readyTimer,deadlineTimer;const listeners=new Map(),abort=()=>finish(new AssetPreparationError('ABORTED'));
-    function finish(error,result){
+    function finish(error,result,failureOrigin='channel-validation',workerFailure=null){
       if(settled)return;settled=true;
+      if(error&&error.code!=='ABORTED')try{error.diagnostic=createRuntimeFailure(identity,{failureOrigin,readyObserved:ready,commandPosted,lastSeq,elapsedMs:performance.now()-constructed,allowedCode:error.code},workerFailure);}catch{}
       clearTimeout(readyTimer);clearTimeout(deadlineTimer);
       try{if(signal)removeSignalListener.call(signal,'abort',abort);}catch{}
       if(worker){for(const [type,listener]of listeners)try{remove?.call(worker,type,listener);}catch{}try{terminate?.call(worker);}catch{}}
@@ -128,9 +131,9 @@ export async function prepareAssetsInWorker(profile,options={}){
       if(settled)return;if(receiving){finish(new AssetPreparationError('WORKER_PROTOCOL_ERROR'));return;}receiving=true;
       try {
         const packet=message.data;
-        if(!ready){const value=data(packet,['kind','protocolVersion','workerVersion']);if(value.kind!=='asset-preparation-ready'||value.protocolVersion!==1||value.workerVersion!=='asset-preparation-v2')throw Error();if(settled)return;ready=true;clearTimeout(readyTimer);post.call(worker,{schemaVersion:2,kind:'prepare-assets',identity,profile,transport});return;}
+        if(!ready){const value=data(packet,['kind','protocolVersion','workerVersion']);if(value.kind!=='asset-preparation-ready'||value.protocolVersion!==1||value.workerVersion!=='asset-preparation-v3')throw Error();if(settled)return;ready=true;clearTimeout(readyTimer);post.call(worker,{schemaVersion:3,kind:'prepare-assets',identity,profile,transport});if(!settled)commandPosted=true;return;}
         const value=data(packet,[...IDENTITY_KEYS,'schemaVersion','profile','transport','kind','seq','payload']);
-        if(value.schemaVersion!==2||value.transport!==transport||IDENTITY_KEYS.some(key=>value[key]!==identity[key])||value.profile!==profile||value.seq!==lastSeq+1||!integer(value.seq,1,PREPARATION_MAX_PACKETS))throw Error();
+        if(value.schemaVersion!==3||value.transport!==transport||IDENTITY_KEYS.some(key=>value[key]!==identity[key])||value.profile!==profile||value.seq!==lastSeq+1||!integer(value.seq,1,PREPARATION_MAX_PACKETS))throw Error();
         if(value.kind==='progress'){
           if(value.seq>=PREPARATION_MAX_PACKETS)throw Error();const payload=copyPreparationProgress(value.payload,profile);
           if((!started&&(payload.completed!==0||payload.verified!==0))||payload.completed<lastCompleted||payload.verified<lastVerified)throw Error();
@@ -139,20 +142,22 @@ export async function prepareAssetsInWorker(profile,options={}){
         }else if(value.kind==='result'){
           if(!started||lastVerified!==preparationProfile(profile).bytes)throw Error();const receipt=copyPreparationReceipt(value.payload,profile,undefined,transport);if(settled)return;lastSeq=value.seq;finish(null,receipt);
         }else if(value.kind==='error'){
-          const payload=copyPreparationFailure(value.payload,profile,transport);
-          if(settled)return;lastSeq=value.seq;finish(new AssetPreparationError(payload.code,payload.transportFailure));
+          const captured=data(value.payload,['code','message','transportFailure','workerFailure']);
+          const payload=copyPreparationFailure({code:captured.code,message:captured.message,transportFailure:captured.transportFailure},profile,transport);
+          const workerFailure=copyWorkerFailure(captured.workerFailure,'preparation-loader');
+          if(settled)return;lastSeq=value.seq;finish(new AssetPreparationError(payload.code,payload.transportFailure),undefined,'worker-reported-error',workerFailure);
         }else throw Error();
       }catch{finish(new AssetPreparationError('WORKER_PROTOCOL_ERROR'));}finally{receiving=false;}
     }
     try{
       // Fixed absolute budget includes readiness and never renews on progress.
-      deadlineTimer=setTimeout(()=>finish(new AssetPreparationError('ASSET_PREPARATION_TIMEOUT')),PREPARATION_DEADLINE_MS);
-      readyTimer=setTimeout(()=>finish(new AssetPreparationError('ASSET_PREPARATION_TIMEOUT')),PREPARATION_READY_MS);
+      deadlineTimer=setTimeout(()=>finish(new AssetPreparationError('ASSET_PREPARATION_TIMEOUT'),undefined,'client-operation-deadline'),PREPARATION_DEADLINE_MS);
+      readyTimer=setTimeout(()=>finish(new AssetPreparationError('ASSET_PREPARATION_TIMEOUT'),undefined,'client-readiness-deadline'),PREPARATION_READY_MS);
       worker=workerFactory(new URL('./asset-preparation.worker.mjs',import.meta.url));if(settled){try{worker?.terminate?.();}catch{}return;}if(!worker)throw Error();
       terminate=worker.terminate;add=worker.addEventListener;remove=worker.removeEventListener;post=worker.postMessage;
       if([terminate,add,remove,post].some(method=>typeof method!=='function'))throw Error();
       if(signal)addSignalListener.call(signal,'abort',abort,{once:true});if(settled)return;if(signal&&signalAborted.call(signal)){abort();return;}
-      listeners.set('message',receive);listeners.set('error',()=>finish(new AssetPreparationError('ASSET_PREPARATION_FAILED')));
+      listeners.set('message',receive);listeners.set('error',()=>finish(new AssetPreparationError('ASSET_PREPARATION_FAILED'),undefined,'native-worker-error'));
       listeners.set('messageerror',()=>finish(new AssetPreparationError('WORKER_PROTOCOL_ERROR')));
       for(const [type,listener]of listeners){add.call(worker,type,listener);if(settled)return;}
     }catch{finish(new AssetPreparationError('WORKER_UNAVAILABLE'));}

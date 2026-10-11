@@ -7,6 +7,32 @@ function start(options = {}, source = input(), embedded = passages(), question =
   const worker = new ControlledWorker();
   return { worker, pending: module.queryInWorker(source, embedded, question, { identity: identity(), workerFactory: () => worker, ...options }) };
 }
+test('query readiness refusal records the trusted deadline before a command is posted',async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});const {worker,pending}=start();t.mock.timers.tick(10000);
+  const error=await pending.catch(value=>value);assert.equal(error.code,'QUERY_TIMEOUT');
+  assert.equal(error.diagnostic.safeError.failureOrigin,'client-readiness-deadline');
+  assert.equal(error.diagnostic.safeError.readyObserved,false);assert.equal(error.diagnostic.safeError.commandPosted,false);
+  assert.equal(error.diagnostic.safeError.lastSeq,0);assert.equal(worker.sent.length,0);
+});
+test('query work refusal records ready command and accepted native progress sequence',async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});const {worker,pending}=start();worker.ready();worker.emit('message',progress('download',1,0,100));t.mock.timers.tick(120000);
+  const error=await pending.catch(value=>value);assert.equal(error.diagnostic.safeError.failureOrigin,'client-operation-deadline');
+  assert.equal(error.diagnostic.safeError.commandPosted,true);assert.equal(error.diagnostic.safeError.lastSeq,1);
+});
+test('query native error and accepted old-channel error packet have distinct inert provenance',async()=>{
+  for(const reported of [false,true]){const {worker,pending}=start();worker.ready();
+    if(reported)worker.emit('message',{event:{...identity(),kind:'error',stage:'download',seq:1,payload:{code:'QUERY_FAILED',message:'The query operation failed.'}}});
+    else worker.emit('error',{message:'PRIVATE https://secret.invalid/?signature=raw'});
+    const error=await pending.catch(value=>value);assert.equal(error.diagnostic.safeError.failureOrigin,reported?'worker-reported-error':'native-worker-error');
+    assert.equal(error.diagnostic.safeError.phase,'unknown');assert.doesNotMatch(JSON.stringify(error.diagnostic),/PRIVATE|secret|signature/);
+  }
+});
+test('query malformed packet and failed post retain channel provenance without a successful command',async()=>{
+  const first=start();first.worker.emit('message',{...READY,workerVersion:'wrong'});
+  const malformed=await first.pending.catch(value=>value);assert.equal(malformed.diagnostic.safeError.failureOrigin,'channel-validation');
+  const postWorker=new ControlledWorker();postWorker.postMessage=()=>{throw Error('PRIVATE');};const second=start({workerFactory:()=>postWorker});postWorker.ready();
+  const failed=await second.pending.catch(value=>value);assert.equal(failed.diagnostic.safeError.commandPosted,false);
+});
 test('query channel posts one owned command and accepts immutable source-linked candidates after ranking', async () => {
   let url; const worker = new ControlledWorker(), source = input(), embedded = passages(); source.source.name = 'PRIVATE_FILENAME';
   const { pending } = start({ workerFactory: value => { url = value; return worker; } }, source, embedded);

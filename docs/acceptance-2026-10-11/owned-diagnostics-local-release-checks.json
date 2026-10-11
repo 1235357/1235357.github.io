@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "createdAtUTC": "2026-10-11T22:32:48.675006+00:00",
+  "scope": "Local reviewed diagnostic increment, complete controlled regression and final public static build; no new native model run, remote deployment, financial score or dot checkout",
+  "baseCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+  "reviewedSourceFreeze": {
+    "path": "docs/local-history/owned-diagnostics-source-freeze-20261011.json",
+    "bytes": 5526,
+    "sha256": "69ebc052efbe8670acb635fcfeb4ca72e70cbe93d904716d2b00dc8b7fa3d5f9"
+  },
+  "ownedSourceFiles": [
+    {
+      "sha256": "125e464684fa1d76db60117dca0ef7b8331aafb3908fe6f6f0dd9432ba8a7c49",
+      "bytes": 8194,
+      "path": "browser-rag/runtime-failure-contract.mjs"
+    },
+    {
+      "sha256": "98431de41e85c6e2c8b22b550e84cf0add71ba534e74c894c0d49932fa355be3",
+      "bytes": 14381,
+      "path": "browser-rag/asset-preparation-source.mjs"
+    },
+    {
+      "sha256": "22bfd5515a53e659f2c3fb290179cd757e7b92d0f619948656c7023ebff39658",
+      "bytes": 6109,
+      "path": "browser-rag/asset-preparation.worker.mjs"
+    },
+    {
+      "sha256": "c045566f41074e847b284f7a15dfcbcb4be529060a43a92bd42b1ab9d63d765c",
+      "bytes": 10195,
+      "path": "browser-rag/asset-preparation-view.mjs"
+    },
+    {
+      "sha256": "2d07511387256b7299c21d9c55399b02341171dccb3f930d538c97361bb6207c",
+      "bytes": 28770,
+      "path": "browser-rag/embedding-runtime.mjs"
+    },
+    {
+      "sha256": "e2e3646bd9d0049b63957c9094187f9f3fb5d3897a119a98020c254423755317",
+      "bytes": 20561,
+      "path": "browser-rag/embedding-source.mjs"
+    },
+    {
+      "sha256": "f45371fe54a11da6862d4dcb492a215e8d56f52ce0861320d305448295dd1edc",
+      "bytes": 5022,
+      "path": "browser-rag/embedding.worker.mjs"
+    },
+    {
+      "sha256": "f2c5bf3fce31bd6f71b256a624235bd9aa145a0a519c46740143aae2eb60250b",
+      "bytes": 31025,
+      "path": "browser-rag/generator-native-core.mjs"
+    },
+    {
+      "sha256": "0098649b16c1027abd162730b6af1a086f05738818c2dfdb70942aa97271d19c",
+      "bytes": 14385,
+      "path": "browser-rag/verified-cache.mjs"
+    },
+    {
+      "sha256": "b9d7cbaebdd47e75fbc36195715e5a74934f4ad04d47575a56f8c81fe89e3ea8",
+      "bytes": 22003,
+      "path": "browser-rag/query-source.mjs"
+    },
+    {
+      "sha256": "64041ff9693886d02c79244eaf75702e8619933e0f2b4075d6a54f31699c9af8",
+      "bytes": 37681,
+      "path": "browser-rag/pdf-session.mjs"
+    },
+    {
+      "sha256": "73f2c04f3050385481f9d000f8a6873c61f89bc10e66b77625354a21694a36bf",
+      "bytes": 50482,
+      "path": "browser-rag/pdf-app.mjs"
+    },
+    {
+      "sha256": "fdaec295897bc602bb4b62724b785c5bb132e52e64c7a5282c9ad8c71fea5a88",
+      "bytes": 28740,
+      "path": "build.py"
+    },
+    {
+      "sha256": "dcb0a8fc032febaaffc2fd4f021037692df2500cca659b91ef503e011fd1028b",
+      "bytes": 53322,
+      "path": "test_browser_assets.py"
+    },
+    {
+      "sha256": "5e2cc3a8264e87cbb13ad541a3f6f48c9f08735cd5521df9d1fef2095f98cd8d",
+      "bytes": 13273,
+      "path": "test_public_browser_assets.py"
+    },
+    {
+      "sha256": "0a8820053814631e1e6f9f6b50d4063813d4c5755551a5b70371f3638c19d228",
+      "bytes": 16643,
+      "path": "browser-rag/acceptance/serve-generator-probe.py"
+    },
+    {
+      "sha256": "c66349b9e2a5895b2a3e207eb105338fd3f276a70016fb8ca86fbe9de43a2756",
+      "bytes": 41731,
+      "path": "test_generator_probe.py"
+    },
+    {
+      "sha256": "eee1507a7a56bc7943dad7eb3e20fb280a1f7d82b75ddbc1743043a83481f23a",
+      "bytes": 5161,
+      "path": "browser-rag/tests/runtime-failure-contract.test.mjs"
+    },
+    {
+      "sha256": "77d8d40f6284938da0dc122fbbe42472f701bc51a1d43e8143d9899ad559464c",
+      "bytes": 2313,
+      "path": "browser-rag/tests/asset-preparation-fixture.mjs"
+    },
+    {
+      "sha256": "ff1abd79880ad0e9b9f9eebc443d75a0019c7fe6b2322ca4a775752bbc3fa520",
+      "bytes": 22750,
+      "path": "browser-rag/tests/asset-preparation-source.test.mjs"
+    },
+    {
+      "sha256": "699d080c94259de3f46f896aefa02105c787e7346ce805912358c0ca77fe7bd1",
+      "bytes": 9899,
+      "path": "browser-rag/tests/asset-preparation-view.test.mjs"
+    },
+    {
+      "sha256": "468be5e74b4e9ac6b0d3c1e4135c8c4b811985932fb33add9ed0a0017378fec4",
+      "bytes": 77012,
+      "path": "browser-rag/tests/embedding-runtime.test.mjs"
+    },
+    {
+      "sha256": "cd0def62f3c929f5a7cbb3da193859098477ea7e27994fe54830fc58bc1ee62d",
+      "bytes": 40015,
+      "path": "browser-rag/tests/embedding-source.test.mjs"
+    },
+    {
+      "sha256": "14d6b82dfe2ac865d0e5cbb248b0e1bb63a9dfdd3b5ad3c7121c9cd58907e204",
+      "bytes": 16819,
+      "path": "browser-rag/tests/embedding.worker.test.mjs"
+    },
+    {
+      "sha256": "433701fd90f0a1c70d6ac15cd6a8c9231e344cf191d4906210c83ef221748c50",
+      "bytes": 98763,
+      "path": "browser-rag/tests/pdf-session.test.mjs"
+    },
+    {
+      "sha256": "50da17c7488d6786fefe7f406a46e409a0927d2dd81a4599b1f872307f4b3c6f",
+      "bytes": 21874,
+      "path": "browser-rag/tests/pdf-app.test.mjs"
+    },
+    {
+      "sha256": "90edc69741c06a67f6c833e3cc420cfd0ac7b614b4ea4864d6a7a538e2ebde2a",
+      "bytes": 30368,
+      "path": "browser-rag/tests/query-source.test.mjs"
+    },
+    {
+      "sha256": "22861c024b7aca79e726702e4300e891af29ae03965f53d52fcd7e204dc4ed5b",
+      "bytes": 27106,
+      "path": "browser-rag/tests/verified-cache.test.mjs"
+    }
+  ],
+  "independentQualityReview": {
+    "path": "docs/acceptance-2026-10-11/owned-diagnostics-independent-quality-review.json",
+    "bytes": 3527,
+    "sha256": "5e3b799afda9d05ed86dd6c7fe1c8d9d595ee18d517bb9387d7f83ea6e938ecb"
+  },
+  "savedNativeArchiveReview": {
+    "path": "docs/acceptance-2026-10-11/current-loader-archive-review.json",
+    "bytes": 11440,
+    "sha256": "6c0d70167c6d19dd9a548e3e7a6692e77bc6e11969f3d34e0292b12e41e885b9"
+  },
+  "additionalExactGraphFixture": {
+    "path": "test_stream_assets.py",
+    "bytes": 19507,
+    "sha256": "e1ee8d98f7cf5f3d451f0d3c6ff21b5fa8944a9001f20b3dc6fc13a530135698"
+  },
+  "regressions": {
+    "node": {
+      "tests": 2879,
+      "passed": 2879,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "durationMs": 17907.6554,
+      "log": {
+        "path": "docs/local-history/owned-diagnostics-full-node-20261011.log",
+        "bytes": 239162,
+        "sha256": "b3cc122aafd67226d585c021ed942278a5618fe259aad8f49f5165487794e3e1"
+      }
+    },
+    "python": {
+      "tests": 155,
+      "passed": 155,
+      "failed": 0,
+      "durationSeconds": 27.739,
+      "log": {
+        "path": "docs/local-history/owned-diagnostics-full-python-fixed-20261011.log",
+        "bytes": 8492,
+        "sha256": "3b6c911cc4610d44fdb12543b83007864af2088dcf662ac35de3ce5a813ec5bc"
+      }
+    },
+    "earlierPythonRun": {
+      "tests": 155,
+      "passed": 154,
+      "failed": 1,
+      "cause": "Exact stream/cache graph expectation omitted the newly named shared diagnostic module",
+      "preservedLog": {
+        "path": "docs/local-history/owned-diagnostics-full-python-20261011.log",
+        "bytes": 10095,
+        "sha256": "4a8d4aa13a75e5ec8c7300b68d1bcd12aac5092ec8be9ecdccda16aff0d6c0d9"
+      }
+    }
+  },
+  "publicBuild": {
+    "status": "public-build-hashed",
+    "scope": "Static file identity and distribution boundary; no GPU or financial quality check",
+    "fileCount": 314,
+    "totalBytes": 919320237,
+    "limitBytes": 1000000000,
+    "verifiedPinnedAssetCount": 16
+  },
+  "publicBuildManifest": {
+    "path": "release-manifest.json",
+    "bytes": 57518,
+    "sha256": "b36e5254498ac5a8010a07c9fc882ee4cd5c445999a7839faf26ab5014b91e98"
+  },
+  "publicationBoundary": {
+    "newSharedCoreModule": "browser-rag/runtime-failure-contract.mjs",
+    "newFigurePair": [
+      "figures/reader-owned-rag.archify.html",
+      "figures/reader-owned-rag.archify.json"
+    ],
+    "rawFigureDelivery": "preserved local-only; not selected for this commit",
+    "selectedInputPdfs": 0,
+    "privateCourseFiles": 0,
+    "modelWeightsCommitted": 0
+  },
+  "remoteCI": "pending for this source increment",
+  "nativeDiagnostics": "pending",
+  "financialCorrectness": "unestablished",
+  "humanAcceptance": false,
+  "documentationBuildChecks": {
+    "tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "durationSeconds": 13.107
+  },
+  "diffCheck": {
+    "authoredSourceAndRecords": "PASS",
+    "frozenGeneratedFigure": "15 existing generated blank-line trailing-space diagnostics; canonical checked bytes preserved"
+  }
+}

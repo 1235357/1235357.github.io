@@ -5,6 +5,7 @@ import {projectEmbeddingInput,createEmbeddingStageGuard,copyEmbeddingArtifact,
 import {copyQueryPassages,createQueryStageGuard,copyQueryResult,queryResultReceipt,
   QueryWorkerError} from './query-source.mjs';
 import {assembleProvenanceContext,ContextError} from './context-contract.mjs';
+import {copyRuntimeFailure,ownData} from './runtime-failure-contract.mjs';
 
 const SAFE_CODES = new Set(['INVALID_RECORD','INVALID_INPUT','FILE_TOO_LARGE','INVALID_PDF',
   'PARSER_VERSION_UNSUPPORTED','WORKER_UNAVAILABLE','INVALID_LIMITS','EXTRACTION_LIMIT','EMPTY_DOCUMENT',
@@ -85,11 +86,27 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
   let acceptedQuery=null,contextArtifact=null,assemblingContext=false;
   let generationArtifact=null,generationInspection=null,generationProgress=null;
   let generationRevision=0,generationPreflight=null,generationAttempt=null,generationNotifying=false;
+  let embeddingFailure=null,queryFailure=null;
+  const discardFailures=()=>{embeddingFailure=null;queryFailure=null;};
+  function currentFailure(failure){
+    const state=controller.snapshot(),terminal=state.terminal;
+    return failure!==null&&!invalidating&&status==='runtime-error'&&state.active===null&&terminal!==null
+      &&['kind','stage','seq',...IDENTITY_KEYS].every(key=>terminal[key]===failure.terminal[key])
+      &&terminal.payload.code===failure.terminal.payload.code&&terminal.payload.message===failure.terminal.payload.message
+      &&source===failure.source&&chunks===failure.chunks
+      &&(failure.identity.operation!=='query'||embeddings===failure.embeddings&&queryRevision===failure.revision)
+      &&failure.terminal.kind==='error'&&IDENTITY_KEYS.every(key=>failure.terminal[key]===failure.identity[key])?failure:null;
+  }
+  function captureFailure(cause,identity,seq,ownsOperation){
+    const raw=ownData(cause,'diagnostic');if(!ownsOperation()||raw===null)return null;
+    let diagnostic=null;try{diagnostic=copyRuntimeFailure(raw,identity,seq);}catch{}
+    return ownsOperation()?diagnostic:null;
+  }
   const snapshot=()=>Object.freeze({status,error,lifecycle:controller.snapshot()});
   const notify=()=>onState(snapshot());
   const discardGeneration=()=>{generationRevision++;generationPreflight=null;generationAttempt=null;
     generationArtifact=null;generationInspection=null;generationProgress=null;};
-  const discardQuery=()=>{discardGeneration();queryRevision++;question=null;queryEmbedding=null;retrieval=null;
+  const discardQuery=()=>{discardFailures();discardGeneration();queryRevision++;question=null;queryEmbedding=null;retrieval=null;
     acceptedQuery=null;contextArtifact=null;};
   function ownsQuery(owner){
     if(owner===null||invalidating||acceptedQuery!==owner||queryRevision!==owner.revision
@@ -123,6 +140,8 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
     document:()=>source,
     chunks:()=>chunks,
     embeddings:()=>embeddings,
+    embeddingFailure:()=>currentFailure(embeddingFailure),
+    queryFailure:()=>currentFailure(queryFailure),
     question:()=>question,
     queryEmbedding:()=>queryEmbedding,
     retrieval:()=>retrieval,
@@ -152,6 +171,7 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
     },
     cancel(){
       if(invalidating)return;
+      discardFailures();
       if(generationPreflight!==null||generationAttempt!==null){
         invalidating=true;
         try{
@@ -167,6 +187,7 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
     clear(){ if(invalidating)return;invalidate(true);notify(); },
     clearQuery(){
       if(invalidating)return;
+      discardFailures();
       // A clear also revokes a preflight currently reading an option getter,
       // without touching an unrelated parser/chunker/passage encoder.
       queryRevision++;
@@ -413,11 +434,15 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
         else throw new QueryWorkerError('WORKER_PROTOCOL_ERROR');
       }catch(cause){
         if(!ownsOperation())return;
+        const diagnostic=captureFailure(cause,identity,seq,ownsOperation);if(!ownsOperation())return;
         let code;try{code=cause?.code;}catch{ /* untrusted diagnostic getters stay private */ }
         if(!ownsOperation())return;
         const safe=new QueryWorkerError(code),event={...identity,kind:'error',stage:stages.stage,seq:seq+1,
           payload:{code:safe.code,message:safe.message}};
+        if(!ownsOperation())return;
         if(controller.accept(event).accepted){discardQuery();error=Object.freeze({...event.payload});
+          if(diagnostic)queryFailure=Object.freeze({identity,diagnostic,terminal:controller.snapshot().terminal,
+            source:ownedSource,chunks:ownedChunks,embeddings:ownedEmbeddings,revision:queryRevision});
           status='runtime-error';aborter=null;notify();}
       }
     },
@@ -427,7 +452,7 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
         throw new EmbeddingWorkerError('INVALID_EMBEDDING_CONFIG');
       // Snapshot the accepted chunk input once. The adapter only sees this
       // detached, frozen projection; attribution remains in the source artifact.
-      const input=projectEmbeddingInput(chunks);
+      const input=projectEmbeddingInput(chunks),ownedSource=source,ownedChunks=chunks;
       try{
         const incarnation=runtimeIdFactory();
         if(typeof incarnation!=='string'||incarnation.length>256||incarnation.trim().length===0)
@@ -482,10 +507,15 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
         else throw new EmbeddingWorkerError('WORKER_PROTOCOL_ERROR');
       }catch(cause){
         if(!ownsOperation())return;
+        const diagnostic=captureFailure(cause,identity,seq,ownsOperation);if(!ownsOperation())return;
         let code;try{code=cause?.code;}catch{ /* private thrown getters stay private */ }
+        if(!ownsOperation())return;
         const safe=new EmbeddingWorkerError(code);
         const event={...identity,kind:'error',stage:stages.stage,seq:seq+1,payload:{code:safe.code,message:safe.message}};
-        if(controller.accept(event).accepted){embeddings=null;error=Object.freeze({...event.payload});status='runtime-error';aborter=null;notify();}
+        if(!ownsOperation())return;
+        if(controller.accept(event).accepted){embeddings=null;error=Object.freeze({...event.payload});
+          if(diagnostic)embeddingFailure=Object.freeze({identity,diagnostic,terminal:controller.snapshot().terminal,source:ownedSource,chunks:ownedChunks});
+          status='runtime-error';aborter=null;notify();}
       }
     },
     async chunk(options={}){

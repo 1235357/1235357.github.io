@@ -1,0 +1,11 @@
+{
+  "observedAt": "2026-10-11T20:50:27.952Z",
+  "startedAt": "2026-10-11T20:48:32.717Z",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "deployedCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+  "scope": "Actual first HF preparation attempt terminal; early refusal before any complete receipt or external-response observation; configured readiness and whole-operation budgets are separate, no CORS/route/cause claim",
+  "profile": "generator",
+  "transport": "huggingface",
+  "status": "ASSET_PREPARATION_TIMEOUT · Static asset preparation exceeded its fixed time budget. Previously completed verified cache entries may remain; no complete preparation receipt was committed.",
+  "receiptText": ""
+}

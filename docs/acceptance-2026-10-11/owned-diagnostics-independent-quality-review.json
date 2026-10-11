@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "scope": "Independent read-only source quality review of the frozen owned runtime failure diagnostics increment; no native acceptance claim",
+  "reviewedAtUtc": "2026-10-11T22:29:35Z",
+  "plan": {
+    "path": "docs/superpowers/plans/2026-10-11-owned-runtime-failure-diagnostics.md",
+    "sha256": "798afd65b5d05703246afc0402bc073aa32f98aa84685e8f0ee716e1dae6c11f"
+  },
+  "sourceFreeze": {
+    "path": "docs/local-history/owned-diagnostics-source-freeze-20261011.json",
+    "sha256": "69ebc052efbe8670acb635fcfeb4ca72e70cbe93d904716d2b00dc8b7fa3d5f9",
+    "files": 28,
+    "allCurrentByteCountsAndSha256Matched": true,
+    "mismatches": []
+  },
+  "priorFindingsVerifiedFixed": [
+    "diagnosticCode accepts only enumerable own data-descriptor codes and does not invoke code getters",
+    "preparation absolute deadline may win before readiness without inventing ready or posted flags; elapsed remains nullable within its existing display cap",
+    "preparation cache-open cancellation retains the normalized ABORTED category",
+    "preparation handler guards hostile Proxy class checks and emits one generic safe worker failure instead of exposing the thrown Proxy exception"
+  ],
+  "additionalQualityChecks": [
+    "closed component, phase, origin, code and bounded numeric grammar; detached deeply frozen diagnostic records",
+    "settled permission revoked before cleanup, with readiness descriptor reentry checked before posting a native command",
+    "preparation active schema 3 and worker v3; embedding active worker v2; unchanged query v1 packet grammar",
+    "unchanged successful artifact and inner preparation receipt schemas; identity and accepted sequence validation retained",
+    "query failure sibling bound to the revision after the failed query is discarded",
+    "controller error payload remains exactly code and message; owned diagnostic stored as a separately validated sibling",
+    "inert lazy textContent disclosure guards source, chunk, terminal, action nonce and detached callback ownership",
+    "actual loader and initializer boundaries recorded without inferring CORS, network cause, SDK internals or financial quality",
+    "existing timers, model and runtime pins, transport policy, source and financial generation gates unchanged"
+  ],
+  "focusedEvidenceInspected": {
+    "path": "docs/local-history/owned-diagnostics-focused-final-20261011.log",
+    "sha256": "b282cfdff5e4ce06dca86542674e160ddd7553a20e34ba0f97282505a88bea69",
+    "tests": 861,
+    "pass": 861,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "reviewerReranTests": false
+  },
+  "additionalExactGraphFixtureReviewed": {
+    "path": "test_stream_assets.py",
+    "sha256": "e1ee8d98f7cf5f3d451f0d3c6ff21b5fa8944a9001f20b3dc6fc13a530135698",
+    "scope": "One explicit runtime-failure-contract import and its empty leaf added to the exact expected verified-cache graph; no wildcard or weakened equality"
+  },
+  "scopedDiffCheck": "PASS",
+  "issues": [],
+  "declinedToJudge": [
+    "Root-owned broad regression, public build, CI and deployment remain separate gates",
+    "Actual native browser model execution and fresh diagnostic archives remain separate gates",
+    "Financial correctness, human adjudication and learner mastery are outside this source diagnostics quality gate"
+  ],
+  "reviewOperations": "Read-only source, diff, descriptor and existing focused-log inspection; no model, browser, network, full-suite or build execution; only this review record written"
+}

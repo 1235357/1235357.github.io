@@ -72,7 +72,7 @@ class ProbeFixture(unittest.TestCase):
             self.write(self.browser / name, b'authored module')
         self.write(self.browser / 'pdf-private-entry.mjs', b'authored private entry')
         for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs',
-                     'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',
+                     'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',
                      'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs',
                      'embedding.worker.mjs', 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
                      'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs',

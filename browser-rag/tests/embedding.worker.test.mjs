@@ -7,7 +7,7 @@ const module = await import('../embedding.worker.mjs').catch(() => ({}));
 const HASH = 'a'.repeat(64);
 const id = () => ({ protocolVersion: 1, runtimeId: 'worker-test', operationId: 'op-1', documentEpoch: 0, operation: 'embed' });
 const input = () => ({ schemaVersion: 1, status: 'chunked-not-embedded', source: { sha256: HASH }, counts: { chunks: 1 }, chunks: [{ id: 'PRIVATE_CHUNK', text: 'PRIVATE_TEXT' }] });
-const command = () => ({ kind: 'embed-chunks', identity: id(), chunkArtifact: input() });
+const command = () => ({ kind: 'embed-chunks', workerVersion:'embedding-v2',identity: id(), chunkArtifact: input() });
 const output = () => ({ schemaVersion: 1, status: 'embedded-not-retrieved', sourceSha256: HASH, representationId: EMBEDDING_SPEC.version,
   representation: { ...EMBEDDING_SPEC }, backend: 'webgpu', dtype: 'fp32', chunkIds: ['PRIVATE_CHUNK'], tokenIds: [[101, 42, 102]],
   vectors: [[1, ...new Array(383).fill(0)]], counts: { chunks: 1, totalTokens: 3, dimensions: 384 },
@@ -76,11 +76,11 @@ for (const [stage, prefix] of [['download', () => {}], ['initialize', progress =
 }], ['encode', progress => { stages(progress); }]]) test(`runtime error is canonical and attributed to last actual ${stage} stage`, async () => {
   const packets = []; const handle = handler(packet => packets.push(packet), { encode: async (_source, { onProgress }) => { prefix(onProgress); throw new EmbeddingRuntimeError('GPU_DEVICE_LOST'); } });
   await handle(command()); const terminal = packets.at(-1).event;
-  assert.equal(terminal.stage, stage); assert.equal(terminal.kind, 'error'); assert.deepEqual(terminal.payload, { code: 'GPU_DEVICE_LOST', message: 'The WebGPU device was lost.' });
+  assert.equal(terminal.stage, stage); assert.equal(terminal.kind, 'error'); assert.deepEqual(terminal.payload, { code: 'GPU_DEVICE_LOST', message: 'The WebGPU device was lost.',workerFailure:{component:'encoder-initializer',phase:'unknown',assetIndex:null,allowedCode:'GPU_DEVICE_LOST'} });
 });
 test('arbitrary encoder failure never leaks exception, input or cause', async () => {
   const packets = []; const handle = handler(packet => packets.push(packet), { encode: () => { throw new Error('PRIVATE_RAW', { cause: input() }); } });
-  await handle(command()); assert.deepEqual(packets[0].event.payload, { code: 'EMBEDDING_FAILED', message: 'The embedding operation failed.' }); assert.equal(JSON.stringify(packets).includes('PRIVATE'), false);
+  await handle(command()); assert.deepEqual(packets[0].event.payload, { code: 'EMBEDDING_FAILED', message: 'The embedding operation failed.',workerFailure:{component:'encoder-initializer',phase:'unknown',assetIndex:null,allowedCode:'EMBEDDING_FAILED'} }); assert.equal(JSON.stringify(packets).includes('PRIVATE'), false);
 });
 for (const [name, encode] of [
   ['result without completed stages', () => output()], ['invalid output', (_source, { onProgress }) => { stages(onProgress); return { ...output(), vectors: [[0, ...new Array(383).fill(0)]] }; }],
@@ -139,7 +139,7 @@ for (const [name, failure] of [
 ]) test(`encoder ${name} still emits a canonical safe terminal`, async () => {
   const packets = [];
   await handler(packet => packets.push(packet), { encode: () => { throw failure(); } })(command());
-  assert.deepEqual(packets[0].event.payload, { code: 'EMBEDDING_FAILED', message: 'The embedding operation failed.' });
+  assert.deepEqual(packets[0].event.payload, { code: 'EMBEDDING_FAILED', message: 'The embedding operation failed.',workerFailure:{component:'encoder-initializer',phase:'unknown',assetIndex:null,allowedCode:'EMBEDDING_FAILED'} });
   assert.equal(JSON.stringify(packets).includes('PRIVATE'), false);
 });
 

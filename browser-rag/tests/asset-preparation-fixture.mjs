@@ -14,8 +14,8 @@ export function receipt(profile='encoder',transport='site'){
 }
 export function cacheResult(profile){const value=receipt(profile);return Object.fromEntries(['assets','verifiedBytes','networkBytes','cacheBytes','assetPins'].map(key=>[key,value[key]]));}
 export const progress=(profile,completed,verified=completed)=>({completed,verified,total:PREPARATION_PROFILES[profile].bytes,unit:'bytes',estimated:false,mode:PREPARATION_PROFILES[profile].mode});
-export const packet=(profile,kind,seq,payload,transport='site')=>({...identity(),schemaVersion:2,profile,transport,kind,seq,payload});
-export const ready=()=>({kind:'asset-preparation-ready',protocolVersion:1,workerVersion:'asset-preparation-v2'});
+export const packet=(profile,kind,seq,payload,transport='site')=>({...identity(),schemaVersion:3,profile,transport,kind,seq,payload});
+export const ready=()=>({kind:'asset-preparation-ready',protocolVersion:1,workerVersion:'asset-preparation-v3'});
 export class WorkerDouble{
   constructor(){this.listeners=new Map();this.sent=[];this.terminated=0;}
   addEventListener(type,listener){this.listeners.set(type,listener);if(type==='message')this.captured=listener;}

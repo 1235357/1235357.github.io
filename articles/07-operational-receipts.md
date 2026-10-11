@@ -37,6 +37,20 @@ contract before an explicit model action, and keep preparation visible. The
 example's local-processing statement is the publisher's claim; our acceptance
 records concern this RAG implementation's own observed behavior.
 
+## The reader's browser owns the work
+
+The current public entry composes responsibilities on the reader's device.
+Source records return through the session owner before chunking, representation,
+retrieval and complete context assembly. Generation and source-cell lookup follow
+different paths. Static asset preparation supplies verified files; a native worker
+still has to initialize and execute, and a financial claim still needs source review.
+
+<figure class="architecture-figure" aria-label="Current reader-owned browser RAG responsibilities">
+<div class="figure-heading"><span class="figure-status">IMPLEMENTED RESPONSIBILITIES / SOURCE 7C7A2C3</span><h3>One owned source. Separate computation and answer gates.</h3><p>Follow the selected PDF through parser records, retrieval, context, Qwen and raw-output inspection. The explicit-field lookup and static preparation have separate contracts.</p></div>
+<iframe src="figures/reader-owned-rag.archify.html" title="Archify overview of implemented reader-owned RAG responsibilities" loading="lazy"></iframe>
+<figcaption>Current source architecture, pinned to commit 7c7a2c3. Arrows summarize owned relationships, including session-mediated data flow; they do not connect workers directly or establish native financial acceptance. Editable <a href="figures/reader-owned-rag.archify.json">JSON</a> · <a href="figures/reader-owned-rag.archify.html">Open full-size ↗</a>. The Python API is a separate integration surface and is not called by this lab.</figcaption>
+</figure>
+
 ## Start with the outcome, preserve the computation
 
 <figure class="architecture-figure" aria-label="Interactive reader-owned RAG computation lab">
@@ -512,20 +526,18 @@ integration defects in shared-file inventory and exact encoder routing; those
 were repaired before these model runs. Contract tests and a diagram alone had
 not exposed them.
 
-The site and reviewed browser profile are now published on
-[GitHub Pages](https://1235357.github.io/07-operational-receipts.html). Current
-last verified deployment before the new local increment, `368ba196`, passed all three jobs in
-[workflow 38168888277](https://github.com/1235357/1235357.github.io/actions/runs/38168888277).
-Its [recorded manifest inventory](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-encoder-layout-ci.json)
-contains 309 files / 918,463,134 bytes / 16 pins. The earlier `e497b2f`
-delivery remains a separate dated record with 309 files / 918,460,230 bytes / 16 pins.
-The preparation runtime was introduced at `5a673bc`; its
-[original release workflow](https://github.com/1235357/1235357.github.io/actions/runs/38165566626)
-and measured artifact remain separate records. The public lab composes the
-generator and source-cell comparator explicitly; the private diagnostic server
-and complete acceptance archives are outside the deployed tree. Public encoder
-execution is recorded below; public Qwen execution remains a separate pending gate
-from the earlier local native receipts and static deployment.
+The site and reviewed browser profile are published on
+[GitHub Pages](https://1235357.github.io/07-operational-receipts.html). Deployment
+`7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7` passed all three jobs in
+[workflow 38173108409](https://github.com/1235357/1235357.github.io/actions/runs/38173108409). Its
+[independently inspected manifest](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-hf-wasm-pdf-ci.json)
+records 311 files / 918,499,608 bytes / 16 pins and exact agreement for all
+20 authored public modules. Previous `368ba196`, `e497b2f` and `5a673bc`
+inventories remain separate dated records. Their earlier module-equality
+statement does not cover the changed loaders. The public lab composes the
+generator and source-cell comparator explicitly; private probes and complete
+acceptance archives are outside the deployed tree. Public Qwen execution remains
+a separate gate from local native receipts and successful deployment.
 
 ## What the HTTPS release exposed
 
@@ -604,8 +616,9 @@ opened and its center hit the source panel; the answer ended above the notebook.
 The question/answer columns, dark theme and computation data remain unchanged.
 The [published stylesheet read-back](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-css-readback.json)
 received the exact 17,952-byte CI body and observed computed `position: static`.
-This confirms delivery and that CSS property. Interactive public disclosure
-read-back still awaits reader readiness.
+This confirms delivery and that CSS property. A later current-session public
+read-back opened the complete geometry disclosure and all five source-span
+disclosures. Query-token inspection still requires an accepted current query.
 
 The embedded public generator preparation subsequently ended with
 [`ASSET_PREPARATION_TIMEOUT`](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-generator-preparation-timeout.json)
@@ -620,7 +633,7 @@ preserved alongside this new public encoder evidence.
 
 ## Prepare exact bytes before runtime initialization
 
-The next local increment keeps the default site transport and adds an explicit
+The increment deployed at `7c7a2c3` keeps the default site transport and adds an explicit
 Hugging Face option to preparation v2. Exactly five model/tokenizer files map to
 immutable full-commit URLs; the registry, three inference runtime files and SDK
 imports stay on the site. Logical cache keys, byte/SHA pins, model revisions and
@@ -659,6 +672,48 @@ The locally implemented increment passed bounded source reviews and focused
 controls, followed by 2,827/2,827 Node and 155/155 Python local passes. The
 [prior local public build](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/local-hf-wasm-pdf-combined-checks.json)
 recorded 311 files / 918,503,041 bytes / 16 pins; prose changes require a refreshed
-inventory. Fresh remote CI/deployment and native provider/preflight/model
-acceptance remain pending; the earlier deployed
+inventory. Remote CI/deployment subsequently passed with the inventory above.
+The current public entry completed static script verification, selected-PDF
+parsing and five source-linked chunks. Its complete geometry and five separately
+disclosed chunk records were archived before the next action. The subsequent
+MiniLM attempt committed 644 token IDs / 384 dimensions, with a complete terminal
+summary and 92,214.1 ms reported elapsed. It reverified 113,629,084 cache-body
+bytes and fetched no model-asset bodies; this does not establish zero network
+traffic. The next query refused with `QUERY_TIMEOUT`, retaining those passage
+vectors. Two explicit HF preparation attempts also refused without complete
+receipts. These failures do not identify CORS, CDN behavior or a loader cause.
+
+The same source and current code completed a separate localhost chain. After
+actual passage/query encoding and three complete context units, Qwen finished
+1,745 prompt token IDs / 33 generated token IDs / EOS in 48,873.8 ms. Its complete
+[RAW receipt](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/local-current-loader-native-raw.json)
+and actual
+[eight-field input](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/local-current-loader-original8.json)
+passed independent pure source/chunk/context/native-output replay. The output
+gate accepted `16,599` / E4 as an unverified draft. A separately requested
+three-month source-cell candidate also retained literal `16,599`; agreement on
+this exposed example is not an independent accuracy score. Public generator
+completion, financial evaluation and human acceptance remain open. Earlier
 successes and failures retain their original scope.
+
+## Make a failure boundary inspectable
+
+The next diagnostic increment keeps every readiness and inference clock. A
+client-side readiness timeout says the expected fresh Worker announcement was
+not accepted; a work timeout says its separate work timer won after readiness.
+Neither identifies a network cause. A native Worker error and a validated worker
+error packet are different observations. The latter can carry a finite loader
+or initializer phase; a client cannot infer that phase from a progress label or
+missing response. Query failure records remain client-only.
+
+The inspectable record captures the current identity, ready/command flags, last
+accepted sequence and nullable elapsed observation. It excludes raw exception
+messages, signed URLs, PDF text, questions, context and model data. A session
+retains it beside the committed terminal, rather than altering the existing
+code/message lifecycle error. Opening its lazy disclosure after an edit, retry,
+Clear or replacement cannot recover stale authority. The active preparation
+channel advances to version 3 around the unchanged schema-2 successful receipt;
+passage packets require `embedding-v2`, while the query worker grammar stays
+unchanged. Local full checks passed 2,879/2,879 Node and 155/155 Python. These
+checks establish controlled boundary behavior; a fresh public diagnostic still
+needs its own native record, and previous refusals cannot be relabeled later.

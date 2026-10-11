@@ -1,0 +1,424 @@
+{
+  "schema": "public-hf-wasm-pdf-ci-readonly-proof-v1",
+  "reviewer": "CodexAI",
+  "createdAtUTC": "2026-10-11T20:45:35.401577+00:00",
+  "status": "passed-with-generated-text-line-ending-differences",
+  "repository": "1235357/1235357.github.io",
+  "workflow": {
+    "runId": 38173108409,
+    "url": "https://github.com/1235357/1235357.github.io/actions/runs/38173108409",
+    "headCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "observationSource": "Actual GitHub REST metadata through existing task-local release helper",
+    "authoredWorkflowSHA256": "c83905f9e8bec724620611f7dad01e1cb3df6a9ced1860d96660642afa6a4319"
+  },
+  "jobs": [
+    {
+      "id": 114569708518,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38173108409/job/114569708518",
+      "successfulStepCount": 18,
+      "allReportedStepsSucceeded": true
+    },
+    {
+      "id": 114569708695,
+      "name": "windows-contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38173108409/job/114569708695",
+      "successfulStepCount": 14,
+      "allReportedStepsSucceeded": true
+    },
+    {
+      "id": 114570196207,
+      "name": "deploy",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38173108409/job/114570196207",
+      "successfulStepCount": 3,
+      "allReportedStepsSucceeded": true
+    }
+  ],
+  "artifact": {
+    "id": 11715091563,
+    "name": "browser-release-manifest",
+    "zipBytes": 16103,
+    "zipSHA256": "70fb7a66fdb601380fe8cb8db4beeecdb0538b4ef0bf0100c6b20713c7252036",
+    "githubDigestMatches": true,
+    "member": "release-manifest.json",
+    "innerBytes": 55452,
+    "innerSHA256": "4e153c452e09512d5cac4a5361451a5fcd94870edee2fa5c07669d5b105f56cb"
+  },
+  "manifest": {
+    "commit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+    "fileCount": 311,
+    "uniquePaths": true,
+    "totalBytes": 918499608,
+    "limitBytes": 1000000000,
+    "verifiedPinnedAssetCount": 16,
+    "fixedPins": [
+      {
+        "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/config.json",
+        "bytes": 678,
+        "sha256": "777e01f0fbb3346eb229cb6fb278ed6533c1e4dcb9ebf4bed0f6e94ef17fa1b5"
+      },
+      {
+        "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/generation_config.json",
+        "bytes": 242,
+        "sha256": "f7e7ce458658b2d40d9eb213b91b77a8bf698845ab89360976722d7ac46928a3"
+      },
+      {
+        "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/onnx/model_q4.onnx",
+        "bytes": 786156820,
+        "sha256": "09235a3b1c135cd04ef570e5053b5c079e028078a2cc5f76ba6a251e91bf3296"
+      },
+      {
+        "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/tokenizer.json",
+        "bytes": 7031673,
+        "sha256": "a8506e7111b80c6d8635951a02eab0f4e1a8e4e5772da83846579e97b16f61bf"
+      },
+      {
+        "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/tokenizer_config.json",
+        "bytes": 7849,
+        "sha256": "6a14243f0ae04884e597b3f032c05e15de9f417318fdcac24ab4e2680e691430"
+      },
+      {
+        "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/config.json",
+        "bytes": 650,
+        "sha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7"
+      },
+      {
+        "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/onnx/model.onnx",
+        "bytes": 90387606,
+        "sha256": "759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e"
+      },
+      {
+        "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/special_tokens_map.json",
+        "bytes": 125,
+        "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3"
+      },
+      {
+        "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/tokenizer.json",
+        "bytes": 711661,
+        "sha256": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0"
+      },
+      {
+        "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/tokenizer_config.json",
+        "bytes": 366,
+        "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3"
+      },
+      {
+        "path": "browser-rag/notices/MODEL-CARD.txt",
+        "bytes": 1767,
+        "sha256": "63ea99bf681a2e9eda4f6a537d5ed8fda95d1677111656da37e9cfd080c3af02"
+      },
+      {
+        "path": "browser-rag/notices/QWEN-LICENSE.txt",
+        "bytes": 11343,
+        "sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e"
+      },
+      {
+        "path": "browser-rag/notices/QWEN-MODEL-CARD.txt",
+        "bytes": 545,
+        "sha256": "d7312dfc364cad2634eefaaf3aefd9cfda3cc27cda03332e18d09e600394ed75"
+      },
+      {
+        "path": "browser-rag/vendor/transformers/ort-wasm-simd-threaded.jsep.mjs",
+        "bytes": 44484,
+        "sha256": "08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9"
+      },
+      {
+        "path": "browser-rag/vendor/transformers/ort-wasm-simd-threaded.jsep.wasm",
+        "bytes": 21596019,
+        "sha256": "c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39"
+      },
+      {
+        "path": "browser-rag/vendor/transformers/transformers.min.js",
+        "bytes": 888173,
+        "sha256": "aa5002b70e789798da263f5f99c62bd3e8fcd0c119258a493c40c180648365fa"
+      }
+    ]
+  },
+  "localComparison": {
+    "localManifestBytes": 56981,
+    "localManifestSHA256": "b3eb36db3257b9c4da0e646460b7c4ab6eb69a3fc6abcf113fd61ab07f9f5a78",
+    "localManifestCommit": null,
+    "localTotalBytes": 918503328,
+    "same311Paths": true,
+    "exactByteMetadataEntriesMatched": 300,
+    "completeByteIdentity": false,
+    "localDistNonPinBodiesRehashedAgainstLocalManifest": 295,
+    "localDistNonPinBodiesAlsoEqualCI": 284,
+    "localDistFixedPinBodiesNotReread": 16,
+    "authoredPublicModuleBodiesCompared": 20,
+    "additionalAuthoredSharedOrStyleBodiesCompared": 5,
+    "sourceMatches": [
+      {
+        "path": "browser-rag/pdf-public-entry.mjs",
+        "bytes": 588,
+        "sha256": "fb17d9f29320922c1cf15b39965e9af092e0be48a73e0197f2c5a06ae7398fd2"
+      },
+      {
+        "path": "browser-rag/generator-contract.mjs",
+        "bytes": 10836,
+        "sha256": "aad979e6297b67496311225931c6b6c7fe021884757d1fbf5ed957baf90cbf91"
+      },
+      {
+        "path": "browser-rag/generator-native-core.mjs",
+        "bytes": 30221,
+        "sha256": "dc568f2bb6cbd2f5500a9fec174b56e2aed9a606eb8d516671980f29b1adf0f8"
+      },
+      {
+        "path": "browser-rag/receipt-snapshot.mjs",
+        "bytes": 4572,
+        "sha256": "af50e9a3e65b221743677eb0ec8e7ab7a6366de4b74000334cf370de81e48316"
+      },
+      {
+        "path": "browser-rag/financial-generation-input.mjs",
+        "bytes": 1671,
+        "sha256": "8c18e1e03b4a266d0ad3bbcf974eefb32b13408439058e2ca0ebd264a8855a9e"
+      },
+      {
+        "path": "browser-rag/financial-generation-source.mjs",
+        "bytes": 15581,
+        "sha256": "e81ce9d9eff2be61ba939c73e711201a87a47c9673ef9a66ee4f14cec1516878"
+      },
+      {
+        "path": "browser-rag/financial-generation.worker.mjs",
+        "bytes": 6535,
+        "sha256": "dde0f5b5e027cf4281717ea8b20c412f6aa94aacfd5349e3083921b33c361bc8"
+      },
+      {
+        "path": "browser-rag/financial-generator-runtime.mjs",
+        "bytes": 1712,
+        "sha256": "d0a8a956d156e943170b9555a18dc6889ce268880051e15ba58a397e6e72a898"
+      },
+      {
+        "path": "browser-rag/financial-generator-contract.mjs",
+        "bytes": 1876,
+        "sha256": "9e289f2b817d88ff52ab87fe1c3e67c0866c3b7e23abdf7c36fe927c9c9a4ba5"
+      },
+      {
+        "path": "browser-rag/prompt-contract.mjs",
+        "bytes": 11381,
+        "sha256": "b92d118a2e52fc11ef3e6d0d811b10c5a2160e33296a020ec40f57af80342023"
+      },
+      {
+        "path": "browser-rag/financial-output-contract.mjs",
+        "bytes": 7825,
+        "sha256": "9fec00232a9842c1ce0495a3877be9372b210a4de43d13d311ca43dc51a10a7c"
+      },
+      {
+        "path": "browser-rag/financial-geometry-source.mjs",
+        "bytes": 3973,
+        "sha256": "c2fc22e4a12d564c89f8862df408fb3f70d74f68955772b8ffe21822cea2fd28"
+      },
+      {
+        "path": "browser-rag/financial-geometry-view.mjs",
+        "bytes": 3828,
+        "sha256": "c483ba9bf8f21d61df9f978bb562113e30210cc56b38c0655c00eb5123818761"
+      },
+      {
+        "path": "browser-rag/financial-table-contract.mjs",
+        "bytes": 10979,
+        "sha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db"
+      },
+      {
+        "path": "browser-rag/financial-lookup-view.mjs",
+        "bytes": 9868,
+        "sha256": "393cb13b3ceb40430e3f6e656bfbb26d6ff552918c7868906aa4d2cfb2bac705"
+      },
+      {
+        "path": "browser-rag/asset-preparation-source.mjs",
+        "bytes": 13488,
+        "sha256": "02491eaf500e50691faea8e9ffd368f86869c79d768a55a55c7e6c21a906091c"
+      },
+      {
+        "path": "browser-rag/asset-preparation.worker.mjs",
+        "bytes": 5067,
+        "sha256": "ee725266a607139b39f867391a74bc7497ba5beebf3f4706f5f77c1169550203"
+      },
+      {
+        "path": "browser-rag/asset-preparation-view.mjs",
+        "bytes": 9722,
+        "sha256": "fcc1488e8aa157640a92a9f30a656a87d23d6bef19c93f7ac645716731700c3f"
+      },
+      {
+        "path": "browser-rag/asset-preparation-transport.mjs",
+        "bytes": 12309,
+        "sha256": "5015b1feee091097e498465bc7d0acc4d2951c302360d30e835e5587704ff02c"
+      },
+      {
+        "path": "browser-rag/pdf-worker-preparation.mjs",
+        "bytes": 6758,
+        "sha256": "04218ec71804efdfff1aed8d12fea630ffcc5e1e02a813f3cadee3a72994f932"
+      },
+      {
+        "path": "browser-rag/embedding-runtime.mjs",
+        "bytes": 27080,
+        "sha256": "0fed5c9f1ff4b88fc5ee69b5fef548c3aba65525939e3ca69b15949f02f6aea9"
+      },
+      {
+        "path": "browser-rag/pdf-app.mjs",
+        "bytes": 49053,
+        "sha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3"
+      },
+      {
+        "path": "browser-rag/pdf-session.mjs",
+        "bytes": 35567,
+        "sha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b"
+      },
+      {
+        "path": "browser-rag/verified-stream.mjs",
+        "bytes": 8885,
+        "sha256": "aa5dfa9c987fa247caa7e6866e23db87b5289203fd0b2ff3ac43950e0d6bafed"
+      },
+      {
+        "path": "browser-rag/inspector.css",
+        "bytes": 17952,
+        "sha256": "17113f6db0c6bf0c1ea7c25b40a618e21d5b1827b063e0a94910e2872870bc11"
+      }
+    ],
+    "generatedTextLineEndingDifferences": [
+      {
+        "path": "01-two-lifecycles.html",
+        "localBytes": 47969,
+        "ciBytes": 47297,
+        "localSHA256": "0ff0815dbc495fd3fba024107213e07e795d305b59d1ce9d8ea0323eed81c076",
+        "ciSHA256": "ed2f7286e8070b939b92d7ba37d300de0ff4c74845a3eb7520b9ec70e915cecd",
+        "crlfPairs": 672,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "02-contracts-before-services.html",
+        "localBytes": 48666,
+        "ciBytes": 47983,
+        "localSHA256": "06768b675d6986f0ddcea18eb2222d9fdbb067665c5d24fc8c29d756e8a68d0c",
+        "ciSHA256": "e64bade7793e6600ddce80b8c7f68576f363d2d3b19f10cdfe7a12a58850cac8",
+        "crlfPairs": 683,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "03-ranking-is-not-confidence.html",
+        "localBytes": 26236,
+        "ciBytes": 25922,
+        "localSHA256": "f2439352c25cbe6622d65066143e9bf3fb0c20c5ead55165e7c91881312c5f23",
+        "ciSHA256": "3f34720ec4671789c912790bd2794053abb712e13ca0e98fa12a08a41485f73c",
+        "crlfPairs": 314,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "04-preserve-evidence-before-embedding.html",
+        "localBytes": 23293,
+        "ciBytes": 22970,
+        "localSHA256": "6741bdb4f19562a5590124a63c983d6971004c50b6a7013de5891ea5ecb73261",
+        "ciSHA256": "322cb9c3c983de0fd0f4934b776e9b54d2bb86654efb2ca8cd8063a98597a07f",
+        "crlfPairs": 323,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "05-generation-is-not-verification.html",
+        "localBytes": 30024,
+        "ciBytes": 29655,
+        "localSHA256": "92b0c2e7c2ae160fba11a1859697b2b173fd1098a3de8567138eeade5c49476c",
+        "ciSHA256": "424e7d24ccfbb35c6d2599caaf71e8084d0c50745a04e0e3a7fef8866f73dc2f",
+        "crlfPairs": 369,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "06-evaluation-labels-before-scores.html",
+        "localBytes": 21242,
+        "ciBytes": 20931,
+        "localSHA256": "73fb9e2f0481ee64ea6edf13b8d84a4adb545b5930695be0ab79d5631006aeb2",
+        "ciSHA256": "934c5b1142dbd17db069f085d3a6cb445143c9a80d7232c678c4928f5c4a7c7b",
+        "crlfPairs": 311,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "07-operational-receipts.html",
+        "localBytes": 55167,
+        "ciBytes": 54325,
+        "localSHA256": "5974dbf216cc0043afc69f9485dbf71a5f51e1a32110b29d4934d75b23acff8d",
+        "ciSHA256": "7774b3e88c91b17d6e20c183e18dacf5709155c42fc71271a923a04faabffd44",
+        "crlfPairs": 842,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "browser-rag/inspector.html",
+        "localBytes": 15446,
+        "ciBytes": 15308,
+        "localSHA256": "ee5df3081770ed9ffec0cdf5cb4798717fd5d57554d9e40d5a1f7051573e4269",
+        "ciSHA256": "2ca52d532bdc3a2634d17724e51a039a67258031a4aa4afae6926daaab4221ef",
+        "crlfPairs": 138,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "browser-rag/notices/QWEN-ATTRIBUTION.txt",
+        "localBytes": 562,
+        "ciBytes": 556,
+        "localSHA256": "2f8e7d28e3d51393277a602aec2e64a4dd619e2a909d6fab11b036a456742af5",
+        "ciSHA256": "b402078182eade7faec8ceea773096cef4c5cb8d13dbe780ee2d8f2f6a3aa5f0",
+        "crlfPairs": 6,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "index.html",
+        "localBytes": 2946,
+        "ciBytes": 2929,
+        "localSHA256": "5d954218f22af63297a37755563ba79430e1ccb19215a6037876345f455daabf",
+        "ciSHA256": "9e8880dc3cb7e89abcf1753cd55e341d1fe616b0728220fa482b5e96cf0608d6",
+        "crlfPairs": 17,
+        "diagnosticLFEqualsCI": true
+      },
+      {
+        "path": "style.css",
+        "localBytes": 4552,
+        "ciBytes": 4507,
+        "localSHA256": "e2f32d6324c461654b6a36d4cde73f93c1fd6b9cd3c09731258db981cb357e59",
+        "ciSHA256": "875ea0d4cfbe5d8868bbe025953c760284fce346e8aa728723d5d1657d20b52a",
+        "crlfPairs": 45,
+        "diagnosticLFEqualsCI": true
+      }
+    ],
+    "lineEndingComparisonScope": "Diagnostic CRLF-to-LF in memory only, not an artifact normalization or complete build byte-identity claim; no source/dist/manifest bytes were changed."
+  },
+  "previous368Comparison": {
+    "previousCommit": "368ba196a16666612d8bfe47885468db14bfdd25",
+    "previousFileCount": 309,
+    "previousTotalBytes": 918463134,
+    "addedPaths": [
+      "browser-rag/asset-preparation-transport.mjs",
+      "browser-rag/pdf-worker-preparation.mjs"
+    ],
+    "removedPaths": [],
+    "changedPaths": [
+      "07-operational-receipts.html",
+      "browser-rag/asset-preparation-source.mjs",
+      "browser-rag/asset-preparation-view.mjs",
+      "browser-rag/asset-preparation.worker.mjs",
+      "browser-rag/embedding-runtime.mjs",
+      "browser-rag/generator-native-core.mjs",
+      "browser-rag/pdf-app.mjs",
+      "browser-rag/pdf-public-entry.mjs",
+      "browser-rag/pdf-session.mjs"
+    ],
+    "all16FixedPinRecordsUnchanged": true
+  },
+  "pagesArtifact": {
+    "metadataOnly": true,
+    "downloaded": false,
+    "id": 11714433037,
+    "bytes": 525741953
+  },
+  "limitations": [
+    "Only the small manifest ZIP was downloaded; no full Pages/model artifact was fetched.",
+    "The 16 fixed asset records were compared against exact production pins and local build inventory; their local/deployed large bodies were not independently reread in this audit.",
+    "All 20 public modules and 5 shared/style sources match exact CI size/SHA; 11 generated text files differ from Windows local build only by CRLF versus LF, fully accounted for in the measured totals.",
+    "Job success and static artifact identity do not establish native browser/GPU/model execution, positive HF CORS/redirect acceptance, financial adjudication or performance."
+  ],
+  "humanAcceptance": false
+}

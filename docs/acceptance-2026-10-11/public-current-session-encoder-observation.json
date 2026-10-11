@@ -1,0 +1,13 @@
+{
+  "observedAt": "2026-10-11T21:46:33.982Z",
+  "startedAt": "2026-10-11T21:44:07.484Z",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "deployedCommit": "7c7a2c39375c29bdef3675d88a4e9a8aa8b610a7",
+  "scope": "Actual fresh-session public native passage encoding; DOM metadata and terminal summary, not full vector artifact; previous failure cause unestablished",
+  "title": "Embedded; not retrieved",
+  "detail": "5 chunks · 644 actual tokens · 384 dimensions. No retrieval or generated answer yet.",
+  "passageReceipt": "Historical accepted passage receiptRepresentationminiLM-fp32-mean-l2-webgpu-v1Backendwebgpu · fp32Verified body113,629,084 bytesFetched body0 bytesCached body113,629,084 bytesAttempt elapsed92214.1 ms\n        Verified, fetched and cached counts describe asset body bytes, not all network traffic. Attempt elapsed includes loading, initialization, encoding and disposal; it is not isolated GPU time. A WebGPU provider does not prove every operator ran on the GPU; mean pooling runs in JavaScript on the CPU.\n      ",
+  "trace": "{\n  \"runtimeId\": \"0f3438c8-5015-401e-94fd-d4203ce3c6df\",\n  \"documentEpoch\": 1,\n  \"active\": null,\n  \"terminal\": {\n    \"protocolVersion\": 1,\n    \"runtimeId\": \"0f3438c8-5015-401e-94fd-d4203ce3c6df\",\n    \"operationId\": \"op-1\",\n    \"documentEpoch\": 1,\n    \"operation\": \"embed\",\n    \"kind\": \"result\",\n    \"stage\": \"encode\",\n    \"seq\": 17,\n    \"payload\": {\n      \"data\": {\n        \"sourceSha256\": \"8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428\",\n        \"representationId\": \"miniLM-fp32-mean-l2-webgpu-v1\",\n        \"status\": \"embedded-not-retrieved\",\n        \"backend\": \"webgpu\",\n        \"dtype\": \"fp32\",\n        \"counts\": {\n          \"chunks\": 5,\n          \"totalTokens\": 644,\n          \"dimensions\": 384\n        },\n        \"receipt\": {\n          \"verifiedBytes\": 113629084,\n          \"networkBytes\": 0,\n          \"cacheBytes\": 113629084,\n          \"elapsedMs\": 92214.10000002384\n        }\n      }\n    }\n  }\n}",
+  "embedding": "Chunk 5 of 5 · 98 actual token IDs · 384 dimensions · L2 norm 1.000000",
+  "errorSignals": []
+}

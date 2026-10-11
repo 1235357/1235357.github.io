@@ -1,6 +1,7 @@
 import { EMBEDDING_SPEC, acceptEmbeddingVectors } from './embedding-contract.mjs';
 import { projectEmbeddingInput, copyEmbeddingArtifact } from './embedding-source.mjs';
 import { rankCandidates } from './retrieval.mjs';
+import {createRuntimeFailure} from './runtime-failure-contract.mjs';
 
 const MESSAGES = Object.freeze({
   INVALID_QUERY_WORKER_CONFIG: 'The query worker configuration is invalid.',
@@ -242,7 +243,8 @@ export async function queryInWorker(chunkArtifact, embeddingArtifact, question, 
   try { source = projectEmbeddingInput(chunkArtifact); } catch { fail('INVALID_EMBEDDING_CONFIG'); }
   const passages = copyQueryPassages(embeddingArtifact, source);
   return new Promise((resolve, reject) => {
-    let worker, methods, terminateWorker, settled = false, ready = false, receiving = false, lastSeq = 0, readyTimer, workTimer;
+    let worker, methods, terminateWorker, settled = false, ready = false, commandPosted=false, receiving = false, lastSeq = 0, readyTimer, workTimer;
+    const constructed=performance.now();
     const stages = createQueryStageGuard(source.counts.chunks), listeners = new Map();
     const onAbort = () => finish(new QueryWorkerError('ABORTED'));
     function cleanup() {
@@ -253,7 +255,9 @@ export async function queryInWorker(chunkArtifact, embeddingArtifact, question, 
         try { terminateWorker?.call(worker); } catch {}
       }
     }
-    function finish(error, result) { if (settled) return; settled = true; cleanup(); if (error) reject(error); else resolve(result); }
+    function finish(error, result, failureOrigin='channel-validation') { if (settled) return; settled = true;
+      if(error&&error.code!=='ABORTED')try{error.diagnostic=createRuntimeFailure(ownedIdentity,{failureOrigin,readyObserved:ready,commandPosted,lastSeq,elapsedMs:performance.now()-constructed,allowedCode:error.code});}catch{}
+      cleanup(); if (error) reject(error); else resolve(result); }
     const protocolError = () => finish(new QueryWorkerError('WORKER_PROTOCOL_ERROR'));
     function receive(message) {
       if (settled) return;
@@ -265,8 +269,8 @@ export async function queryInWorker(chunkArtifact, embeddingArtifact, question, 
           const announcement = snapshot(packet, ['kind', 'protocolVersion', 'workerVersion']);
           if (announcement.kind !== 'query-ready' || announcement.protocolVersion !== 1 || announcement.workerVersion !== 'query-v1') fail('WORKER_PROTOCOL_ERROR');
           if (settled) return;
-          ready = true; clearTimeout(readyTimer); workTimer = setTimeout(() => finish(new QueryWorkerError('QUERY_TIMEOUT')), workTimeoutMs);
-          methods.postMessage.call(worker, { kind: 'query-candidates', identity: ownedIdentity, question, chunkArtifact: source, embeddingArtifact: passages, topK }); return;
+          ready = true; clearTimeout(readyTimer); workTimer = setTimeout(() => finish(new QueryWorkerError('QUERY_TIMEOUT'),undefined,'client-operation-deadline'), workTimeoutMs);
+          methods.postMessage.call(worker, { kind: 'query-candidates', identity: ownedIdentity, question, chunkArtifact: source, embeddingArtifact: passages, topK }); if(!settled)commandPosted=true;return;
         }
         if (!record(packet)) fail('WORKER_PROTOCOL_ERROR');
         const event = snapshot(packet.event, EVENT_KEYS);
@@ -279,7 +283,7 @@ export async function queryInWorker(chunkArtifact, embeddingArtifact, question, 
           if (!exact(packet, ['event']) || event.stage !== stages.stage) fail('WORKER_PROTOCOL_ERROR');
           const payload = snapshot(event.payload, ['code', 'message']);
           if (typeof payload.code !== 'string' || !Object.hasOwn(MESSAGES, payload.code) || payload.message !== MESSAGES[payload.code]) fail('WORKER_PROTOCOL_ERROR');
-          if (settled) return; lastSeq = event.seq; finish(new QueryWorkerError(payload.code));
+          if (settled) return; lastSeq = event.seq; finish(new QueryWorkerError(payload.code),undefined,'worker-reported-error');
         } else if (event.kind === 'result') {
           if (!exact(packet, ['event', 'artifact']) || event.stage !== 'rank') fail('WORKER_PROTOCOL_ERROR');
           stages.assertComplete(); const payload = snapshot(event.payload, ['data']);
@@ -296,13 +300,13 @@ export async function queryInWorker(chunkArtifact, embeddingArtifact, question, 
       terminateWorker = worker.terminate;
       methods = fields(worker, ['addEventListener', 'removeEventListener', 'postMessage']);
       if (typeof terminateWorker !== 'function' || Object.values(methods).some(method => typeof method !== 'function')) { finish(new QueryWorkerError('WORKER_UNAVAILABLE')); return; }
-      listeners.set('message', receive); listeners.set('error', () => finish(new QueryWorkerError('QUERY_FAILED'))); listeners.set('messageerror', protocolError);
+      listeners.set('message', receive); listeners.set('error', () => finish(new QueryWorkerError('QUERY_FAILED'),undefined,'native-worker-error')); listeners.set('messageerror', protocolError);
       for (const [type, listener] of listeners) { methods.addEventListener.call(worker, type, listener); if (settled) return; }
       signalAdd?.call(signal, 'abort', onAbort, { once: true }); if (settled) return;
       const nowAborted = signal?.aborted;
       if (settled) return;
       if (nowAborted) { onAbort(); return; }
-      if (!ready) readyTimer = setTimeout(() => finish(new QueryWorkerError('QUERY_TIMEOUT')), readyTimeoutMs);
+      if (!ready) readyTimer = setTimeout(() => finish(new QueryWorkerError('QUERY_TIMEOUT'),undefined,'client-readiness-deadline'), readyTimeoutMs);
     } catch { finish(new QueryWorkerError('WORKER_UNAVAILABLE')); }
   });
 }
