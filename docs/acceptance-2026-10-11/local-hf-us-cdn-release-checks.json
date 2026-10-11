@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "createdAtUtc": "2026-10-11T23:28:04.933714+00:00",
+  "status": "local-controlled-checks-and-public-build-pass",
+  "baseline": "dad0b721279497e1badd3ab686bf98f2af013e99",
+  "scope": "Finite exact US HF CDN origin compatibility; no fresh remote CI or complete native corrected-body preparation yet",
+  "reviews": {
+    "spec": "independent PASS; exact hostname official-source excerpts and native route",
+    "quality": "independent two-file PASS",
+    "documents": "independent final four-file DOC PASS"
+  },
+  "checks": {
+    "transportRed": {
+      "pass": 61,
+      "fail": 1,
+      "expectedFailure": "ASSET_TRANSPORT_REFUSED on actual observed official CDN origin"
+    },
+    "transportGreen": {
+      "pass": 62,
+      "elapsedMs": 115.7477
+    },
+    "node": {
+      "pass": 2892,
+      "fail": 0,
+      "elapsedMs": 21020.1531
+    },
+    "python": {
+      "pass": 155,
+      "elapsedSeconds": 37.303,
+      "initialDiscoveryError": "tests directory was incorrect; preserved then corrected to repository root"
+    },
+    "docBuild": {
+      "pass": 45,
+      "elapsedSeconds": 13.731
+    },
+    "finalNavigationAfterHistoricalLabels": {
+      "pass": 9,
+      "elapsedSeconds": 8.701
+    },
+    "gitDiffCheck": "PASS"
+  },
+  "publicBuild": {
+    "files": 314,
+    "bytes": 919322141,
+    "pins": 16,
+    "manifest": {
+      "path": "release-manifest.json",
+      "bytes": 57518,
+      "sha256": "e47f6e0facc84292495300b3e642266edd5a4d5baaea3ca8372c03c1f78a02f6"
+    }
+  },
+  "logs": [
+    {
+      "path": "docs/local-history/hf-us-cdn-red-20261011.log",
+      "bytes": 9834,
+      "sha256": "a5f4eda09e939e90477b098c46d3137328b7a3cb95c134ba7706235c577a5e75"
+    },
+    {
+      "path": "docs/local-history/hf-us-cdn-green-20261011.log",
+      "bytes": 7740,
+      "sha256": "ea94bed6928da3d21c8fabf5ae345feee0f8a28d99a4dbe9b720987cf3133240"
+    },
+    {
+      "path": "docs/local-history/hf-us-cdn-full-node-20261011.log",
+      "bytes": 241460,
+      "sha256": "5c1febed2083df728068cfeff49968a33df6ba03ec93b8318a63117acc7f509e"
+    },
+    {
+      "path": "docs/local-history/hf-us-cdn-full-python-20261011.log",
+      "bytes": 1302,
+      "sha256": "3a43c0576d857c650c4f6dd6197ccd5f3a2bafed8f5a3922fe93f0143beaf889"
+    },
+    {
+      "path": "docs/local-history/hf-us-cdn-full-python-fixed-20261011.log",
+      "bytes": 35671,
+      "sha256": "554480bedbc64fa5d14bdb85e589e067dd04de7b42335fdcc2eadcacb017226f"
+    },
+    {
+      "path": "docs/local-history/hf-us-cdn-doc-build-20261011.log",
+      "bytes": 2997,
+      "sha256": "fa30793f6850691e300a4a6de0f7bf9f21a1c9dee3d472132cf1a214b6f6625d"
+    },
+    {
+      "path": "docs/local-history/hf-us-cdn-doc-final-labelled-20261011.log",
+      "bytes": 836,
+      "sha256": "17051a9a30b234f03947096e11ed8215b305e281e999a7dac214f2e943c17f0d"
+    }
+  ],
+  "selectedSourceAndEvidence": [
+    {
+      "path": "README.md",
+      "bytes": 14557,
+      "sha256": "1f9808926c1ba61ff22ad0d08f78f6f472054f0477fb3ed2f20fa2976f3b4b9e"
+    },
+    {
+      "path": "articles/07-operational-receipts.md",
+      "bytes": 53766,
+      "sha256": "2524de3d772790ed166acbc41eabd52ca0da4b1e3521313a9774bed8836bff2d"
+    },
+    {
+      "path": "browser-rag/asset-preparation-transport.mjs",
+      "bytes": 12428,
+      "sha256": "2254785e52f00ac9e309ce10ef7bf75e2986c01753054d7d20768b7b6a962f79"
+    },
+    {
+      "path": "browser-rag/tests/asset-preparation-transport.test.mjs",
+      "bytes": 15259,
+      "sha256": "74ef20c4578fcdf7155d8c93be733ce708870f98ec5ccf25f362b6afdad2f437"
+    },
+    {
+      "path": "docs/dot-handoff.md",
+      "bytes": 8886,
+      "sha256": "47c8da5c84bb78c2b469a5cdd0cc9693ff0fa9f953e5a489c27646c9736f7362"
+    },
+    {
+      "path": "docs/public-release-guide.md",
+      "bytes": 22643,
+      "sha256": "d57fd991eb8502bccaaef114beab9e3645635ae9ce0504556d3197d452bc22a3"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-dad0-generator-preparation-observation.json",
+      "bytes": 660,
+      "sha256": "d5df3f448f0463f3550946e6eb5c0fa2523e0dc1e5a2049739146ce31329924e"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/local-dad0-generator-preparation.json",
+      "bytes": 2493,
+      "sha256": "12990cebb30f1f799a37d1de72deaf0309d52dc9d7339e4c178869d7fb059ded"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-dad0-generator-hf-refusal.json",
+      "bytes": 2597,
+      "sha256": "5cf761a44b2bc2644c10deefd2076649bc6306640343a693b8eb29637bb682e8"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-dad0-module-identity-audit.json",
+      "bytes": 603,
+      "sha256": "8cba99518415853d83192c579b5ee94d65a8bf13df7af67eef84cebeb64654fb"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-dad0-mount-observation.json",
+      "bytes": 116098,
+      "sha256": "ed70177eece0b9196cbce311d4edc57d7edf143c05039b800a08752de200e968"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-dad0-mounted-modules.json",
+      "bytes": 158713,
+      "sha256": "7b41f140b4af92f5429e4776c644724f12a4dd6745d149dd1ce1bdaa21e8bc53"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-dad0-parser-preparation-refusal.json",
+      "bytes": 737,
+      "sha256": "d8fed1f266c71797a3df4354b0a1a54c7deaac874902dc02eed7ef8a6ca19b54"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/public-owned-diagnostics-ci.json",
+      "bytes": 20117,
+      "sha256": "6f099f1851467ff72e89d924c30b4c07fcf3e8035362b1aafd2a9faf601e06ac"
+    }
+  ],
+  "invariants": [
+    "exact logical/requested immutable routes",
+    "two finite bridge origins, same anchored path grammar",
+    "full decoded body length/EOF/SHA unchanged",
+    "credentials omit/no-referrer/no automatic fallback",
+    "pins, timers, inference SDK URLs, worker/schema markers unchanged"
+  ],
+  "acceptanceLimits": [
+    "Body receipts/model execution/public Qwen/financial accuracy/human gold/performance distribution remain separate",
+    "docs and raw acceptance archives excluded from Pages",
+    "Existing historical failures not retroactively diagnosed"
+  ]
+}

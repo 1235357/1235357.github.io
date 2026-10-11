@@ -59,6 +59,29 @@ test('exact HF resolve/cache paths and narrow CAS policy copy no signed queries'
     assert.equal(signed.queryPresent,true);assert.equal(signed.finalUrlSha256,sha(signedUrl));assert.doesNotMatch(JSON.stringify(signed),/Signature|PRIVATE|\?/);
   }
 });
+test('current official US CDN redirect preserves pinned logical identity and redacted observations',()=>{
+  const path='/xet-bridge-us/66f10865f63ffc857d6b0249/77469a324cc36ace6ccd590c14405e3bbdb1c062009bc5c87a4f71486fad598f';
+  const signedUrl=`https://us.aws.cdn.hf.co${path}?Signature=PRIVATE`;
+  const item=model('generator',4),value=observe('generator',4,{finalUrl:signedUrl,redirected:true,
+    headers:observedHeaders({'content-type':'application/octet-stream','content-length':'786156820'})});
+  assert.equal(value.logicalUrl,item.logicalUrl);assert.equal(value.requestedUrl,item.requestedUrl);
+  assert.equal(value.finalOrigin,'https://us.aws.cdn.hf.co');assert.equal(value.finalPath,path);
+  assert.equal(value.policyAccepted,true);assert.equal(value.queryPresent,true);assert.equal(value.finalUrlSha256,sha(signedUrl));
+  assert.doesNotMatch(JSON.stringify(value),/Signature|PRIVATE|\?/);
+  assert.deepEqual(copyTransportFailure(value,'generator',base),value);
+  assert.deepEqual(copyExternalReads([value],'generator','huggingface',item.bytes,base),[value]);
+});
+const currentCdnPath='/xet-bridge-us/'+'a'.repeat(24)+'/'+'b'.repeat(64);
+for(const finalUrl of [
+  'https://us.aws.cdn.hf.co.evil.test'+currentCdnPath,'https://sub.us.aws.cdn.hf.co'+currentCdnPath,
+  'https://us.gcp.cdn.hf.co'+currentCdnPath,'http://us.aws.cdn.hf.co'+currentCdnPath,
+  'https://user@us.aws.cdn.hf.co'+currentCdnPath,'https://us.aws.cdn.hf.co:444'+currentCdnPath,
+  'https://us.aws.cdn.hf.co'+currentCdnPath+'/','https://us.aws.cdn.hf.co'+currentCdnPath+'/extra',
+  'https://us.aws.cdn.hf.co'+currentCdnPath.replace('xet-bridge-us','xet-bridge-eu'),
+  'https://us.aws.cdn.hf.co'+currentCdnPath.replace('/aaa','/Aaa'),
+  'https://us.aws.cdn.hf.co'+currentCdnPath.replace('/aaa','/%61aa'),
+  'https://us.aws.cdn.hf.co'+currentCdnPath.slice(0,-1),
+])test(`current CDN remains finite and path-bound: ${finalUrl}`,()=>assert.throws(()=>observe('generator',4,{finalUrl,redirected:true}),safe));
 for(const finalUrl of ['http://huggingface.co/','https://huggingface.co.evil.test/','https://cdn-lfs.huggingface.co/asset',
   'https://cas-bridge.xethub.hf.co:444/xet-bridge-us/'+'a'.repeat(24)+'/'+'b'.repeat(64),
   'https://cas-bridge.xethub.hf.co/xet-bridge-us/'+'A'.repeat(24)+'/'+'b'.repeat(64),

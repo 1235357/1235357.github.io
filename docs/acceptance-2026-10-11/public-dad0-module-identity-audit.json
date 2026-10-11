@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "createdAtUtc": "2026-10-11T23:18:47.963967+00:00",
+  "release": "dad0b721279497e1badd3ab686bf98f2af013e99",
+  "status": "40-native-parent-http-bodies-match-ci-manifest",
+  "sourceArchive": {
+    "path": "public-dad0-mounted-modules.json",
+    "bytes": 158713,
+    "sha256": "7b41f140b4af92f5429e4776c644724f12a4dd6745d149dd1ce1bdaa21e8bc53"
+  },
+  "nativeMounted": true,
+  "matchedBodies": 40,
+  "scope": "Actual native IAB parent-page completed bodies only; excludes Worker bodies, model weights, GPU inference, financial output and performance distribution"
+}

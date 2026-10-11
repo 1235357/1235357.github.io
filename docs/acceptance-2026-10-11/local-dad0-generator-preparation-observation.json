@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-11T22:36:10.610Z",
+  "startedAt": "2026-10-11T22:35:30.053Z",
+  "url": "http://127.0.0.1:8765/browser-rag/inspector.html",
+  "commit": "dad0b721279497e1badd3ab686bf98f2af013e99",
+  "scope": "Actual localhost current active v3 preparation channel accepting unchanged schema2 successful receipt; no tokenizer/model/GPU run or public provider acceptance",
+  "status": "Generator static cache verification complete · 815,725,938 body bytes · 8.9 seconds of preparation. Model loading and inference have not run.",
+  "receipt": {
+    "bytes": 2493,
+    "sha256": "12990cebb30f1f799a37d1de72deaf0309d52dc9d7339e4c178869d7fb059ded"
+  }
+}

@@ -52,8 +52,10 @@ function approvedPath(origin,path,requestedUrl){
     const requested=new URL(requestedUrl).pathname;
     return path===requested||path===`/api/resolve-cache/models/${requested.replace('/resolve/','/').slice(1)}`;
   }
-  // Deliberately narrow implementation policy; provider docs establish host/prefix.
-  return origin==='https://cas-bridge.xethub.hf.co'&&/^\/xet-bridge-us\/[a-f0-9]{24}\/[a-f0-9]{64}$/.test(path);
+  // Exact observed CDN compatibility, backed by the official HF hostname list.
+  // Physical route acceptance still precedes unchanged full-body pin checking.
+  return (origin==='https://cas-bridge.xethub.hf.co'||origin==='https://us.aws.cdn.hf.co')
+    &&/^\/xet-bridge-us\/[a-f0-9]{24}\/[a-f0-9]{64}$/.test(path);
 }
 export function validatePreparationPhysicalMetadata(raw,profile,logicalUrl,baseURL=rootURL){
   const mapping=route(profile,logicalUrl,baseURL),value=data(raw,['responseType','status','finalUrl','redirected','headers']);

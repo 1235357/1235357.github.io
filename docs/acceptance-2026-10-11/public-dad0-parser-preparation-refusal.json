@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "release": "dad0b721279497e1badd3ab686bf98f2af013e99",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "startedAtUtc": "2026-10-11T23:18:10.664Z",
+  "capturedAtUtc": "2026-10-11T23:21:00.723Z",
+  "sourceFile": "local-nvidia-fy2025-q2-original-pages-3-4.pdf",
+  "sourceBytes": 74085,
+  "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+  "statusTitle": "No new result committed",
+  "statusDetail": "The pinned parser script exceeded its separate fixed 120-second preparation budget. No native parser was started.",
+  "scope": "Actual selected PDF attempt refused during fixed static parser preparation; no native parse started, no accepted source artifact"
+}

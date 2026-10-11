@@ -645,8 +645,9 @@ explains bridge delivery. The implementation's final-origin/path policy is
 deliberately narrow; it does not establish an exhaustive host list or verified
 redirect chain. V2 receipts distinguish logical cache keys from bounded external
 response observations and omit signed query text. Historical v1 receipts remain
-read-only evidence. Actual native CORS, accepted final routes and throughput are
-still pending.
+read-only evidence. Those historical HF attempts did not establish native CORS,
+accepted final routes or throughput. The later dad0b72 observation below retains
+its separate physical-response refusal.
 
 The pinned ONNX Runtime factory supports a `wasmBinary` input, as shown in its
 [corresponding source](https://github.com/microsoft/onnxruntime/blob/89f8206ba4/js/web/lib/wasm/wasm-factory.ts).
@@ -672,8 +673,8 @@ The locally implemented increment passed bounded source reviews and focused
 controls, followed by 2,827/2,827 Node and 155/155 Python local passes. The
 [prior local public build](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/local-hf-wasm-pdf-combined-checks.json)
 recorded 311 files / 918,503,041 bytes / 16 pins; prose changes require a refreshed
-inventory. Remote CI/deployment subsequently passed with the inventory above.
-The current public entry completed static script verification, selected-PDF
+inventory. Historical 7c7a2c3 CI/deployment subsequently passed in Actions38173108409.
+That public entry completed static script verification, selected-PDF
 parsing and five source-linked chunks. Its complete geometry and five separately
 disclosed chunk records were archived before the next action. The subsequent
 MiniLM attempt committed 644 token IDs / 384 dimensions, with a complete terminal
@@ -683,7 +684,7 @@ traffic. The next query refused with `QUERY_TIMEOUT`, retaining those passage
 vectors. Two explicit HF preparation attempts also refused without complete
 receipts. These failures do not identify CORS, CDN behavior or a loader cause.
 
-The same source and current code completed a separate localhost chain. After
+The same source and 7c7a2c3 code completed a separate localhost chain. After
 actual passage/query encoding and three complete context units, Qwen finished
 1,745 prompt token IDs / 33 generated token IDs / EOS in 48,873.8 ms. Its complete
 [RAW receipt](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/local-current-loader-native-raw.json)
@@ -715,5 +716,28 @@ Clear or replacement cannot recover stale authority. The active preparation
 channel advances to version 3 around the unchanged schema-2 successful receipt;
 passage packets require `embedding-v2`, while the query worker grammar stays
 unchanged. Local full checks passed 2,879/2,879 Node and 155/155 Python. These
-checks establish controlled boundary behavior; a fresh public diagnostic still
-needs its own native record, and previous refusals cannot be relabeled later.
+checks establish controlled boundary behavior. The diagnostic release
+`dad0b72` then passed Windows, Linux build and Pages deploy in
+[workflow 38180951673](https://github.com/1235357/1235357.github.io/actions/runs/38180951673).
+Forty completed parent-page module bodies in the actual Codex browser match its
+CI manifest. That served-source identity is distinct from Worker or model execution.
+
+The next explicit HF generator preparation supplied the missing boundary:
+Ready and command accepted, terminal sequence 10, `asset-fetch` at asset index 4,
+11,744.1 ms elapsed. Its separate physical-response observation retained HTTP
+200/CORS from `us.aws.cdn.hf.co`, followed by a policy refusal. The model body
+had not earned a complete verification receipt. The
+[official download guide](https://huggingface.co/docs/hub/datasets-downloading)
+and [provider domain list](https://huggingface.co/.well-known/meta.json) identify
+that hostname as a current CDN endpoint; the native observation supplies this
+particular Xet bridge path. The correction adds only that exact HTTPS origin
+under the existing anchored path grammar, preserving full decoded-body length
+and SHA pins. The failing test first reproduced the refusal; 62 focused controls
+then passed, followed by 2,892 Node and 155 Python checks. Fresh deployment and a
+complete native body receipt are still required for the correction.
+
+This record does not explain older failures. The same current public session
+also exceeded the separate 120-second PDF script preparation budget before
+starting its native parser. Neither observation supplies an answer-quality
+score or a performance distribution. They give the next engineering action a
+specific owner, stage and preserved refusal.

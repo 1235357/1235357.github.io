@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "release": "dad0b721279497e1badd3ab686bf98f2af013e99",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "startedAtUtc": "2026-10-11T23:15:05.984Z",
+  "capturedAtUtc": "2026-10-11T23:15:44.643Z",
+  "profile": "generator",
+  "transport": "huggingface",
+  "scope": "Actual native v3 preparation attempt; incomplete failure, no model/financial acceptance",
+  "disclosures": [
+    {
+      "raw": {
+        "code": "ASSET_TRANSPORT_REFUSED",
+        "profile": "generator",
+        "schemaVersion": 2,
+        "status": "incomplete-transport-observation-not-verified",
+        "transport": "huggingface",
+        "transportFailure": {
+          "finalOrigin": "https://us.aws.cdn.hf.co",
+          "finalPath": "/xet-bridge-us/66f10865f63ffc857d6b0249/77469a324cc36ace6ccd590c14405e3bbdb1c062009bc5c87a4f71486fad598f",
+          "finalUrlSha256": "33cf175ea93376000d209468cb99a5c80c09b9594b1add6aba8df11d0a1f3205",
+          "headers": {
+            "cache-control": null,
+            "content-encoding": null,
+            "content-length": "786156820",
+            "content-type": "application/octet-stream",
+            "etag": "\"77469a324cc36ace6ccd590c14405e3bbdb1c062009bc5c87a4f71486fad598f\""
+          },
+          "logicalUrl": "https://1235357.github.io/browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/onnx/model_q4.onnx",
+          "policyAccepted": false,
+          "queryPresent": true,
+          "redirected": true,
+          "requestedUrl": "https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/resolve/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx/model_q4.onnx",
+          "responseType": "cors",
+          "status": 200
+        }
+      },
+      "summary": "Incomplete transport observation · no verified asset receipt"
+    },
+    {
+      "raw": {
+        "identity": {
+          "documentEpoch": 0,
+          "operation": "prepare-assets",
+          "operationId": "op-1",
+          "protocolVersion": 1,
+          "runtimeId": "38eb7c0d-16e6-48f3-8104-3e28b5087618"
+        },
+        "safeError": {
+          "allowedCode": "ASSET_CACHE_ERROR",
+          "assetIndex": 4,
+          "commandPosted": true,
+          "component": "preparation-loader",
+          "elapsedMs": 11744.100000023842,
+          "failureOrigin": "worker-reported-error",
+          "lastSeq": 10,
+          "phase": "asset-fetch",
+          "readyObserved": true
+        },
+        "schemaVersion": 1
+      },
+      "summary": "Inspect current preparation failure boundary · no success receipt"
+    }
+  ]
+}
