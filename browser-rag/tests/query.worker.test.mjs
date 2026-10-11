@@ -6,6 +6,7 @@ import { webcrypto } from 'node:crypto';
 import { encodeQuery, EmbeddingRuntimeError } from '../embedding-runtime.mjs';
 import { RetrievalError } from '../retrieval.mjs';
 import { Tensor, mean_pooling } from '../node_modules/@huggingface/transformers/src/utils/tensor.js';
+import { WASM_FILE, WASM_PIN, wasmBytes } from './wasm-runtime-fixture.mjs';
 import { input, passages, query, command, resultArtifact, encodeStages, identity, code, ControlledWorker, clean } from './query-fixtures.mjs';
 const module = await import('../query.worker.mjs').catch(() => ({}));
 const sourceModule = await import('../query-source.mjs').catch(() => ({}));
@@ -99,7 +100,7 @@ test('one-shot permission is consumed before encoder await and retained progress
 async function runtimeFixture() {
   const registry = JSON.parse(await readFile(new URL('../embedding-assets.json', import.meta.url), 'utf8'));
   const bytes = new Uint8Array([42]), hash = Buffer.from(await webcrypto.subtle.digest('SHA-256', bytes)).toString('hex');
-  let total = 0; for (const group of ['modelFiles', 'runtimeFiles', 'noticeFiles']) for (const key of Object.keys(registry[group])) { registry[group][key] = { bytes: 1, sha256: hash }; if (group !== 'noticeFiles') total++; }
+  let total = 0; for (const group of ['modelFiles', 'runtimeFiles', 'noticeFiles']) for (const key of Object.keys(registry[group])) { registry[group][key] = group === 'runtimeFiles' && key === WASM_FILE ? { ...WASM_PIN } : { bytes: 1, sha256: hash }; if (group !== 'noticeFiles') total += registry[group][key].bytes; }
   const state = { questions: [], inferences: 0, modelDisposals: 0, deviceDestructions: 0 };
   const device = { lost: new Promise(() => {}), destroy() { state.deviceDestructions++; } }, adapter = { info: { isFallbackAdapter: false }, async requestDevice() { return device; } };
   const model = async inputs => { state.inferences++; const buffer = new Float32Array(3 * 384); for (let i = 0; i < 3; i++) buffer[i * 384 + 1] = 2; return { last_hidden_state: new Tensor('float32', buffer, [1, 3, 384]) }; };
@@ -109,7 +110,7 @@ async function runtimeFixture() {
     AutoModel: { async from_pretrained() { await library.env.backends.onnx.webgpu.adapter.requestDevice(); return model; } } };
   let time = 0;
   return { state, total, options: { baseURL: 'https://fixture.example/browser-rag/', crypto: webcrypto, cacheStorage: null, gpu: { async requestAdapter() { return adapter; } },
-    fetch: async url => new Response(url.endsWith('embedding-assets.json') ? JSON.stringify(registry) : bytes), importer: async () => library, now: () => ++time } };
+    fetch: async url => new Response(url.endsWith('embedding-assets.json') ? JSON.stringify(registry) : url === 'https://fixture.example/browser-rag/vendor/transformers/' + WASM_FILE ? wasmBytes() : bytes), importer: async () => library, now: () => ++time } };
 }
 test('controlled channel invokes real query encoding and exact ranking without reencoding passages', async () => {
   const fixture = await runtimeFixture(), worker = new ControlledWorker();

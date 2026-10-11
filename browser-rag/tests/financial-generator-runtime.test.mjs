@@ -10,6 +10,8 @@ import { rankCandidates } from '../retrieval.mjs';
 import { assembleProvenanceContext } from '../context-contract.mjs';
 import { prepareGenerationPrompt, PROMPT_SPEC } from '../prompt-contract.mjs';
 import { preflightGeneration } from '../generator-contract.mjs';
+import {WASM_FILE,WASM_PIN,verifiedWasmRead,wasmBytes} from './wasm-runtime-fixture.mjs';
+import {verifyAssetResponse} from '../verified-stream.mjs';
 
 // Real provenance/parser/chunker/ranker contracts and controlled SDK resources.
 // These unit boundaries establish no GPU execution or financial correctness.
@@ -55,7 +57,7 @@ function contextInput(pages = [['  PRIVATE_ALPHA\n😀\t  ', '', '尾  '], ['PRI
     topK,queryDownloadTotal:100,queryMetadata});
 }
 function sdkFixture({length=23,suffix=[5,151645],text='{"answer":"unverified","citations":["E2"],"insufficient_evidence":false}'}={}) {
-  const calls={adapter:0,assets:0,tokenizer:0,load:0,generate:0,decode:[],tensors:[],disposed:0,modelDisposed:0,closed:0,destroyed:0,stages:[]};
+  const calls={adapter:0,assets:0,tokenizer:0,load:0,generate:0,decode:[],tensors:[],disposed:0,modelDisposed:0,closed:0,destroyed:0,stages:[],wasmMatches:[]};
   const ids=Array.from({length},(_,index)=>index+10),mask=ids.map(()=>1),lost=deferred(),listeners=new Map();
   const device={lost:lost.promise,addEventListener(type,listener){listeners.set(type,listener);},
     removeEventListener(type,listener){if(listeners.get(type)===listener)listeners.delete(type);},destroy(){calls.destroyed++;}};
@@ -81,11 +83,16 @@ function sdkFixture({length=23,suffix=[5,151645],text='{"answer":"unverified","c
       {revision:REVISION,local_files_only:true,device:'webgpu',dtype:'q4',use_external_data_format:false,session_options:{executionProviders:['webgpu']}});
       await library.env.backends.onnx.webgpu.adapter.requestDevice({requiredFeatures:[]});return model;}}};
   const assets=Object.values({...registry().modelFiles,...registry().runtimeFiles}).reduce((sum,pin)=>sum+pin.bytes,0);
-  const prepared={cache:{},receipt:{assets:8,verifiedBytes:assets,networkBytes:0,cacheBytes:assets},
-    async finishReads(){return {reads:5,verifiedBytes:800000000};},close(){calls.closed++;}};
+  let readProgress,readSignal;const wasmReads=[];
+  const prepared={cache:{async match(url){
+    assert.equal(url,BASE+'vendor/transformers/'+WASM_FILE);calls.wasmMatches.push(url);
+    const read=verifiedWasmRead(url,{signal:readSignal,onProgress:event=>readProgress?.({stage:'consume',assetIndex:7,...event})});
+    wasmReads.push(read.completion);return read.response;
+  }},receipt:{assets:8,verifiedBytes:assets,networkBytes:0,cacheBytes:assets},
+    async finishReads(){const reads=await Promise.all(wasmReads);return {reads:5+reads.length,verifiedBytes:800000000+reads.reduce((sum,read)=>sum+read.bytes,0)};},close(){calls.closed++;}};
   const options={baseURL:BASE,gpu:{async requestAdapter(){calls.adapter++;return adapter;}},cacheStorage:{open(){}},
     async fetch(url){assert.equal(url,BASE+'acceptance/generator-probe-assets.json');return new Response(JSON.stringify(registry()));},
-    async prepare(plan,options){calls.assets++;for(const [assetIndex,asset] of plan.assets.entries()) {
+    async prepare(plan,options){calls.assets++;readProgress=options.onProgress;readSignal=options.signal;for(const [assetIndex,asset] of plan.assets.entries()) {
       options.onProgress({stage:'prepare',assetIndex,completed:0,total:asset.bytes,unit:'bytes',estimated:false,verified:false});
       options.onProgress({stage:'prepare',assetIndex,completed:asset.bytes,total:asset.bytes,unit:'bytes',estimated:false,verified:true});
     } return prepared;},async importer(url){assert.equal(url,BASE+'vendor/transformers/transformers.min.js');return library;},
@@ -99,6 +106,46 @@ function run(input,options,sdk) {
 
 test('financial entry exports a bounded decoded text policy',()=>{
   assert.equal(typeof runtime.runFinancialGenerator,'function');assert.equal(runtime.FINANCIAL_MAX_DECODED_UTF16,16384);
+});
+test('generator consumes the sealed verified runtime binary before SDK model loading without a second file fetch',async()=>{
+  const f=sdkFixture(),load=f.library.AutoModelForCausalLM.from_pretrained;
+  f.library.AutoModelForCausalLM.from_pretrained=async(...args)=>{
+    const binary=f.library.env.backends.onnx.wasm.wasmBinary;
+    assert.ok(binary instanceof ArrayBuffer,'the application must supply the verified WASM binary');assert.equal(binary.byteLength,WASM_PIN.bytes);
+    return load(...args);
+  };
+  const receipt=await run(contextInput(),{},f.options);
+  assert.deepEqual(f.calls.wasmMatches,[BASE+'vendor/transformers/'+WASM_FILE]);assert.equal(receipt.sdkReads.reads,6);
+  assert.equal(receipt.sdkReads.verifiedBytes,800000000+WASM_PIN.bytes);assert.equal(f.calls.closed,1);assert.equal(f.calls.destroyed,1);
+});
+test('controlled generator SDK negative control detects a missing binary file-fetch attempt',async()=>{
+  const f=sdkFixture(),fetch=f.options.fetch;let fallbackFetches=0;
+  f.options.fetch=async(url,...args)=>{if(url===BASE+'vendor/transformers/'+WASM_FILE){fallbackFetches++;throw Error('PRIVATE second WASM file fetch');}return fetch(url,...args);};
+  f.library.AutoModelForCausalLM.from_pretrained=async()=>{delete f.library.env.backends.onnx.wasm.wasmBinary;await f.options.fetch(BASE+'vendor/transformers/'+WASM_FILE);};
+  await assert.rejects(run(contextInput(),{},f.options),code('MODEL_LOAD_FAILED'));assert.equal(fallbackFetches,1);assert.equal(f.calls.closed,1);
+});
+for(const response of [undefined,new Response('short')])test(`missing/short verified-cache WASM refuses before model loading: ${response===undefined?'missing':'short'}`,async()=>{
+  const f=sdkFixture();f.prepared.cache.match=async()=>response;
+  await assert.rejects(run(contextInput(),{},f.options),code('ASSET_INTEGRITY_ERROR'));assert.equal(f.calls.load,0);assert.equal(f.calls.closed,1);
+});
+test('sealed WASM corruption refuses before SDK model loading',async()=>{
+  const f=sdkFixture(),body=wasmBytes();body[8]^=1;
+  f.prepared.cache.match=async url=>verifyAssetResponse(new Response(body),{url,...WASM_PIN}).response;
+  await assert.rejects(run(contextInput(),{},f.options),code('ASSET_INTEGRITY_ERROR'));assert.equal(f.calls.load,0);assert.equal(f.calls.closed,1);
+});
+test('cancelled pending runtime cache match releases a late native response without loading a model',async()=>{
+  const f=sdkFixture(),controller=new AbortController(),gate=deferred(),entered=deferred();let cancelled=0;
+  f.options.signal=controller.signal;f.prepared.cache.match=()=>{entered.resolve();return gate.promise;};
+  const pending=run(contextInput(),{},f.options);await entered.promise;controller.abort();await assert.rejects(pending,code('ABORTED'));
+  gate.resolve(new Response(new ReadableStream({cancel(){cancelled++;}})));await tick();
+  assert.equal(cancelled,1);assert.equal(f.calls.load,0);assert.equal(f.calls.closed,1);
+});
+test('cancel during runtime body consumption aborts the sealed reader before model loading',async()=>{
+  const f=sdkFixture(),controller=new AbortController(),entered=deferred();let cancelled=0;
+  f.options.signal=controller.signal;
+  f.prepared.cache.match=async url=>verifyAssetResponse(new Response(new ReadableStream({pull(){entered.resolve();return new Promise(()=>{});},cancel(){cancelled++;}})),{url,...WASM_PIN},{signal:controller.signal}).response;
+  const pending=run(contextInput(),{},f.options);await entered.promise;controller.abort();await assert.rejects(pending,code('ABORTED'));await tick();
+  assert.equal(cancelled,1);assert.equal(f.calls.load,0);assert.equal(f.calls.closed,1);
 });
 for(const length of [23,71]) test(`complete financial prompt drives dynamic native tensors at ${length} tokens`,async()=>{
   const input=contextInput(),f=sdkFixture({length}),options={maxNewTokens:17};

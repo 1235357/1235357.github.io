@@ -514,9 +514,11 @@ not exposed them.
 
 The site and reviewed browser profile are now published on
 [GitHub Pages](https://1235357.github.io/07-operational-receipts.html). Current
-archived delivery `e497b2f` passed all three jobs in
-[workflow 38166407011](https://github.com/1235357/1235357.github.io/actions/runs/38166407011).
-Its recorded manifest inventory contains 309 files / 918,460,230 bytes / 16 pins.
+last verified deployment before the new local increment, `368ba196`, passed all three jobs in
+[workflow 38168888277](https://github.com/1235357/1235357.github.io/actions/runs/38168888277).
+Its [recorded manifest inventory](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-encoder-layout-ci.json)
+contains 309 files / 918,463,134 bytes / 16 pins. The earlier `e497b2f`
+delivery remains a separate dated record with 309 files / 918,460,230 bytes / 16 pins.
 The preparation runtime was introduced at `5a673bc`; its
 [original release workflow](https://github.com/1235357/1235357.github.io/actions/runs/38165566626)
 and measured artifact remain separate records. The public lab composes the
@@ -600,9 +602,63 @@ disclosure's center. The bounded stylesheet correction lets the answer scroll
 with its question row. In the local native browser, a parser-item disclosure then
 opened and its center hit the source panel; the answer ended above the notebook.
 The question/answer columns, dark theme and computation data remain unchanged.
-Public interaction read-back follows deployment of that correction.
+The [published stylesheet read-back](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-css-readback.json)
+received the exact 17,952-byte CI body and observed computed `position: static`.
+This confirms delivery and that CSS property. Interactive public disclosure
+read-back still awaits reader readiness.
 
-Generator preparation and actual public Qwen generation remain pending.
+The embedded public generator preparation subsequently ended with
+[`ASSET_PREPARATION_TIMEOUT`](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-generator-preparation-timeout.json)
+at its fixed 30-minute budget. Previously completed verified cache entries may
+remain, but no complete preparation receipt was committed. This attempt supplies
+no public generator loading or financial output evidence. Generator preparation
+completion and actual public Qwen generation remain open; no alternative download
+transport has native acceptance in these records.
 Independent financial gold, calibrated judging and load measurements remain
 open. The earlier wrong six-month outputs and zero independent human gold are
 preserved alongside this new public encoder evidence.
+
+## Prepare exact bytes before runtime initialization
+
+The next local increment keeps the default site transport and adds an explicit
+Hugging Face option to preparation v2. Exactly five model/tokenizer files map to
+immutable full-commit URLs; the registry, three inference runtime files and SDK
+imports stay on the site. Logical cache keys, byte/SHA pins, model revisions and
+remote-model SDK restrictions stay fixed, with no automatic fallback. The
+[official file-download reference](https://huggingface.co/docs/huggingface_hub/v2.2.0/en/package_reference/file_download#huggingface_hub.hf_hub_url)
+supports revision-specific URLs, while the
+[Xet migration description](https://huggingface.co/blog/migrating-the-hub-to-xet)
+explains bridge delivery. The implementation's final-origin/path policy is
+deliberately narrow; it does not establish an exhaustive host list or verified
+redirect chain. V2 receipts distinguish logical cache keys from bounded external
+response observations and omit signed query text. Historical v1 receipts remain
+read-only evidence. Actual native CORS, accepted final routes and throughput are
+still pending.
+
+The pinned ONNX Runtime factory supports a `wasmBinary` input, as shown in its
+[corresponding source](https://github.com/microsoft/onnxruntime/blob/89f8206ba4/js/web/lib/wasm/wasm-factory.ts).
+The local encoder and generator now pass the verified runtime body through that
+input before model initialization. This adds an owned 21,596,019-byte ArrayBuffer,
+about 21.6 decimal MB, which can remain in the worker/library realm until teardown.
+It is not zero-copy, a peak-memory measurement or a demonstrated speedup. SDK/MJS
+imports retain their same-origin paths; inference clocks remain 120 seconds for
+passages, 120 for queries and 300 for generation. Controlled handoff and cleanup
+tests verify the source contract, without proving that this change resolves the
+earlier public initialization refusal.
+
+The public mount also has an optional preflight for the fixed PDF.js 6.4.299 worker
+script: consume and verify 2,229,713 decoded bytes and its pinned SHA at EOF within
+a separate 120-second static budget, then invoke the unchanged extractor and its
+10-second native readiness limit. This phase receives owned signal/progress
+metadata, never the selected file or question. Received script bytes, verified
+static bytes and executable readiness are different states. Ordinary HTTP cache
+reuse is advisory: the later Worker may revalidate, fetch again or still refuse
+readiness, and the static receipt does not prove which bytes it executes. No Blob
+or substitute Worker is introduced; ordinary/private entries omit this hook.
+The locally implemented increment passed bounded source reviews and focused
+controls, followed by 2,827/2,827 Node and 155/155 Python local passes. The
+[prior local public build](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/local-hf-wasm-pdf-combined-checks.json)
+recorded 311 files / 918,503,041 bytes / 16 pins; prose changes require a refreshed
+inventory. Fresh remote CI/deployment and native provider/preflight/model
+acceptance remain pending; the earlier deployed
+successes and failures retain their original scope.

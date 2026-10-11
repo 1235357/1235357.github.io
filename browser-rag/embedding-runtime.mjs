@@ -255,7 +255,7 @@ export async function prepareEmbeddingAssets(options = {}) {
   }
 }
 
-function configureLibrary(library, config, adapter, verified) {
+function configureLibrary(library, config, adapter, verified, wasmBinary) {
   try {
     if (typeof library?.AutoTokenizer?.from_pretrained !== 'function'
       || typeof library?.AutoModel?.from_pretrained !== 'function' || typeof library.Tensor !== 'function'
@@ -276,6 +276,9 @@ function configureLibrary(library, config, adapter, verified) {
       wasm: new URL('vendor/transformers/ort-wasm-simd-threaded.jsep.wasm', config.baseURL).href,
       mjs: new URL('vendor/transformers/ort-wasm-simd-threaded.jsep.mjs', config.baseURL).href,
     };
+    // The pinned ORT factory uses this verified body instead of fetching WASM
+    // again. The owned worker retains the additional ArrayBuffer until teardown.
+    env.backends.onnx.wasm.wasmBinary = wasmBinary;
     env.backends.onnx.wasm.proxy = false; env.backends.onnx.wasm.numThreads = 1;
     env.backends.onnx.webgpu.adapter = adapter;
   } catch { fail('EMBEDDING_LOAD_FAILED'); }
@@ -364,6 +367,13 @@ async function encodeTextRows(texts, options, unit) {
     if (!adapter || fallback !== false || typeof adapter.requestDevice !== 'function') fail('GPU_UNAVAILABLE');
     const assets = await verifyAssets(config, scope);
     scope.emit('initialize', { completed: 0, total: null, unit, estimated: false });
+    const wasmURL=new URL('vendor/transformers/ort-wasm-simd-threaded.jsep.wasm',config.baseURL).href;
+    const wasmPin=EMBEDDING_PREPARATION_PINS['ort-wasm-simd-threaded.jsep.wasm'];
+    const acceptedPin=assets.assetPins.find(asset=>asset.url===wasmURL),wasmResponse=assets.verified.get(wasmURL);
+    if(!acceptedPin||acceptedPin.bytes!==wasmPin.bytes||acceptedPin.sha256!==wasmPin.sha256||!(wasmResponse instanceof Response))fail('ASSET_INTEGRITY_ERROR');
+    const wasmBinary=await scope.wait(()=>Response.prototype.arrayBuffer.call(Response.prototype.clone.call(wasmResponse)),'ASSET_INTEGRITY_ERROR');
+    if(!(wasmBinary instanceof ArrayBuffer)||wasmBinary.byteLength!==wasmPin.bytes)fail('ASSET_INTEGRITY_ERROR');
+    scope.check();
     const library = await scope.wait(() => config.importer(new URL('vendor/transformers/transformers.min.js', config.baseURL).href),
       'EMBEDDING_LOAD_FAILED');
     // This operation owns a fresh worker/library instance. The pinned ORT JSEP
@@ -382,7 +392,7 @@ async function encodeTextRows(texts, options, unit) {
       const value = Reflect.get(target, key, target);
       return typeof value === 'function' ? value.bind(target) : value;
     } });
-    configureLibrary(library, config, ownedAdapter, assets.verified);
+    configureLibrary(library, config, ownedAdapter, assets.verified, wasmBinary);
     const settings = { revision: EMBEDDING_SPEC.revision, local_files_only: true };
     const tokenizer = await scope.wait(() => library.AutoTokenizer.from_pretrained(EMBEDDING_SPEC.modelId, settings), 'EMBEDDING_LOAD_FAILED');
     if (typeof tokenizer !== 'function') fail('EMBEDDING_LOAD_FAILED');

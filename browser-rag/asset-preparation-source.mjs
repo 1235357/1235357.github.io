@@ -1,16 +1,18 @@
 import {EMBEDDING_PREPARATION_PINS} from './embedding-runtime.mjs';
 import {GENERATOR_PREPARATION_PINS} from './generator-native-core.mjs';
+import {preparationTransport,copyExternalReads,copyTransportFailure} from './asset-preparation-transport.mjs';
 
 const MESSAGES=Object.freeze({
   INVALID_ASSET_PREPARATION:'The asset preparation configuration is invalid.',
   ASSET_PREPARATION_FAILED:'Static asset preparation failed. No complete preparation receipt was committed.',
   ASSET_PREPARATION_TIMEOUT:'Static asset preparation exceeded its fixed time budget.',
+  ASSET_TRANSPORT_REFUSED:'The explicit static asset transport was refused.',
   WORKER_UNAVAILABLE:'A native asset preparation worker is unavailable.',
   WORKER_PROTOCOL_ERROR:'The asset preparation worker channel was invalid.',
   ABORTED:'Static asset preparation was cancelled.',
 });
 export class AssetPreparationError extends Error {
-  constructor(code){const safe=typeof code==='string'&&Object.hasOwn(MESSAGES,code)?code:'ASSET_PREPARATION_FAILED';super(MESSAGES[safe]);this.name='AssetPreparationError';this.code=safe;}
+  constructor(code,transportFailure=null){const safe=typeof code==='string'&&Object.hasOwn(MESSAGES,code)?code:'ASSET_PREPARATION_FAILED';super(MESSAGES[safe]);this.name='AssetPreparationError';this.code=safe;this.transportFailure=transportFailure;}
 }
 export const PREPARATION_READY_MS=10000;
 export const PREPARATION_DEADLINE_MS=1800000;
@@ -45,7 +47,12 @@ export function copyPreparationIdentity(raw){
     ||!integer(value.documentEpoch,0,Number.MAX_SAFE_INTEGER))fail('WORKER_PROTOCOL_ERROR');
   return Object.freeze(value);
 }
-export function copyPreparationCommand(raw){const value=data(raw,['kind','identity','profile']);if(value.kind!=='prepare-assets')fail('WORKER_PROTOCOL_ERROR');preparationProfile(value.profile);return Object.freeze({...value,identity:copyPreparationIdentity(value.identity)});}
+export function copyPreparationCommand(raw){
+  const value=data(raw,['schemaVersion','kind','identity','profile','transport']);
+  if(value.schemaVersion!==2||value.kind!=='prepare-assets')fail('WORKER_PROTOCOL_ERROR');preparationProfile(value.profile);
+  try{preparationTransport(value.transport);}catch{fail('WORKER_PROTOCOL_ERROR');}
+  return Object.freeze({...value,identity:copyPreparationIdentity(value.identity)});
+}
 export function copyPreparationProgress(raw,profile){
   const spec=preparationProfile(profile),value=data(raw,PROGRESS_KEYS);
   if(!integer(value.completed,0,spec.bytes)||!integer(value.verified,0,value.completed)||value.total!==spec.bytes
@@ -53,9 +60,10 @@ export function copyPreparationProgress(raw,profile){
     ||(spec.mode==='verified-assets'&&value.completed!==value.verified))fail('WORKER_PROTOCOL_ERROR');
   return Object.freeze(value);
 }
-export function copyPreparationReceipt(raw,profile,baseURL=new URL('./',import.meta.url).href){
+function copyReceipt(raw,profile,baseURL,version,transport){
+  if(version===2)try{preparationTransport(transport);}catch{fail('WORKER_PROTOCOL_ERROR');}
   const spec=preparationProfile(profile),value=data(raw,RECEIPT_KEYS);
-  if(value.schemaVersion!==1||value.status!=='static-assets-prepared-not-loaded'||value.profile!==profile||value.modelId!==spec.modelId||value.revision!==spec.revision
+  if(value.schemaVersion!==version||value.status!=='static-assets-prepared-not-loaded'||value.profile!==profile||value.modelId!==spec.modelId||value.revision!==spec.revision
     ||value.libraryVersion!=='3.8.1'||value.ortVersion!=='1.22.0-dev.20250409-89f8206ba4'||value.assets!==8||value.verifiedBytes!==spec.bytes
     ||!integer(value.networkBytes,0,spec.bytes)||!integer(value.cacheBytes,0,spec.bytes)||value.networkBytes+value.cacheBytes!==spec.bytes
     ||typeof value.elapsedMs!=='number'||!Number.isFinite(value.elapsedMs)||value.elapsedMs<0||value.elapsedMs>PREPARATION_DEADLINE_MS)fail('WORKER_PROTOCOL_ERROR');
@@ -73,15 +81,33 @@ export function copyPreparationReceipt(raw,profile,baseURL=new URL('./',import.m
   if(bytes!==spec.bytes)fail('WORKER_PROTOCOL_ERROR');
   return Object.freeze({...value,assetPins:Object.freeze(copied)});
 }
+// Historical v1 archives can be replayed explicitly; the current client/UI never
+// uses this helper to commit a new preparation.
+export function copyLegacyPreparationReceipt(raw,profile,baseURL=new URL('./',import.meta.url).href){return copyReceipt(raw,profile,baseURL,1);}
+export function copyPreparationReceipt(raw,profile,baseURL=new URL('./',import.meta.url).href,transport='site'){
+  const value=data(raw,[...RECEIPT_KEYS,'transport','externalReads']);
+  if(value.transport!==transport)fail('WORKER_PROTOCOL_ERROR');
+  const core=Object.fromEntries(RECEIPT_KEYS.map(key=>[key,value[key]])),receipt=copyReceipt(core,profile,baseURL,2,transport);
+  try{return Object.freeze({...receipt,transport,externalReads:copyExternalReads(value.externalReads,profile,transport,receipt.networkBytes,baseURL)});}
+  catch{fail('WORKER_PROTOCOL_ERROR');}
+}
+export function copyPreparationFailure(raw,profile,transport,baseURL=new URL('./',import.meta.url).href){
+  const value=data(raw,['code','message','transportFailure']);
+  if(typeof value.code!=='string'||!Object.hasOwn(MESSAGES,value.code)||value.message!==MESSAGES[value.code]
+    ||(transport==='site'&&value.transportFailure!==null))fail('WORKER_PROTOCOL_ERROR');
+  try{preparationTransport(transport);return Object.freeze({...value,transportFailure:copyTransportFailure(value.transportFailure,profile,baseURL)});}
+  catch{fail('WORKER_PROTOCOL_ERROR');}
+}
 
 export async function prepareAssetsInWorker(profile,options={}){
   preparationProfile(profile);
-  let identity,signal,onProgress,workerFactory;
+  let identity,signal,onProgress,workerFactory,transport;
   try {
     if(options===null||typeof options!=='object'||![Object.prototype,null].includes(Object.getPrototypeOf(options)))throw Error();
-    const keys=Reflect.ownKeys(options);if(keys.some(key=>!['identity','signal','onProgress','workerFactory'].includes(key)))throw Error();
+    const keys=Reflect.ownKeys(options);if(keys.some(key=>!['identity','signal','onProgress','workerFactory','transport'].includes(key)))throw Error();
     const captured={};for(const key of keys){const descriptor=Object.getOwnPropertyDescriptor(options,key);if(!descriptor||!Object.hasOwn(descriptor,'value'))throw Error();captured[key]=descriptor.value;}
     identity=copyPreparationIdentity(captured.identity);signal=captured.signal;onProgress=captured.onProgress;
+    transport=preparationTransport(captured.transport??'site');
     workerFactory=captured.workerFactory??(url=>new globalThis.Worker(url,{type:'module'}));
     if(typeof workerFactory!=='function'||(onProgress!==undefined&&typeof onProgress!=='function')
       ||(signal!==undefined&&(!(signal instanceof AbortSignal))))throw Error();
@@ -102,19 +128,19 @@ export async function prepareAssetsInWorker(profile,options={}){
       if(settled)return;if(receiving){finish(new AssetPreparationError('WORKER_PROTOCOL_ERROR'));return;}receiving=true;
       try {
         const packet=message.data;
-        if(!ready){const value=data(packet,['kind','protocolVersion','workerVersion']);if(value.kind!=='asset-preparation-ready'||value.protocolVersion!==1||value.workerVersion!=='asset-preparation-v1')throw Error();if(settled)return;ready=true;clearTimeout(readyTimer);post.call(worker,{kind:'prepare-assets',identity,profile});return;}
-        const value=data(packet,[...IDENTITY_KEYS,'profile','kind','seq','payload']);
-        if(IDENTITY_KEYS.some(key=>value[key]!==identity[key])||value.profile!==profile||value.seq!==lastSeq+1||!integer(value.seq,1,PREPARATION_MAX_PACKETS))throw Error();
+        if(!ready){const value=data(packet,['kind','protocolVersion','workerVersion']);if(value.kind!=='asset-preparation-ready'||value.protocolVersion!==1||value.workerVersion!=='asset-preparation-v2')throw Error();if(settled)return;ready=true;clearTimeout(readyTimer);post.call(worker,{schemaVersion:2,kind:'prepare-assets',identity,profile,transport});return;}
+        const value=data(packet,[...IDENTITY_KEYS,'schemaVersion','profile','transport','kind','seq','payload']);
+        if(value.schemaVersion!==2||value.transport!==transport||IDENTITY_KEYS.some(key=>value[key]!==identity[key])||value.profile!==profile||value.seq!==lastSeq+1||!integer(value.seq,1,PREPARATION_MAX_PACKETS))throw Error();
         if(value.kind==='progress'){
           if(value.seq>=PREPARATION_MAX_PACKETS)throw Error();const payload=copyPreparationProgress(value.payload,profile);
           if((!started&&(payload.completed!==0||payload.verified!==0))||payload.completed<lastCompleted||payload.verified<lastVerified)throw Error();
           if(settled)return;started=true;lastSeq=value.seq;lastCompleted=payload.completed;lastVerified=payload.verified;
           onProgress?.(payload);
         }else if(value.kind==='result'){
-          if(!started||lastVerified!==preparationProfile(profile).bytes)throw Error();const receipt=copyPreparationReceipt(value.payload,profile);if(settled)return;lastSeq=value.seq;finish(null,receipt);
+          if(!started||lastVerified!==preparationProfile(profile).bytes)throw Error();const receipt=copyPreparationReceipt(value.payload,profile,undefined,transport);if(settled)return;lastSeq=value.seq;finish(null,receipt);
         }else if(value.kind==='error'){
-          const payload=data(value.payload,['code','message']);if(typeof payload.code!=='string'||!Object.hasOwn(MESSAGES,payload.code)||payload.message!==MESSAGES[payload.code])throw Error();
-          if(settled)return;lastSeq=value.seq;finish(new AssetPreparationError(payload.code));
+          const payload=copyPreparationFailure(value.payload,profile,transport);
+          if(settled)return;lastSeq=value.seq;finish(new AssetPreparationError(payload.code,payload.transportFailure));
         }else throw Error();
       }catch{finish(new AssetPreparationError('WORKER_PROTOCOL_ERROR'));}finally{receiving=false;}
     }

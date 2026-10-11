@@ -6,6 +6,7 @@ import { projectEmbeddingInput } from '../embedding-source.mjs';
 import { copyQueryPassages, queryResultReceipt } from '../query-source.mjs';
 import { rankCandidates } from '../retrieval.mjs';
 import { runFinancialGenerator } from '../financial-generator-runtime.mjs';
+import {WASM_FILE,verifiedWasmRead} from './wasm-runtime-fixture.mjs';
 
 // Declared SDK and Worker doubles only. Provenance, framing and native resource
 // lifecycle use the production contracts. This fixture proves no model run.
@@ -43,10 +44,13 @@ export async function syntheticRun(input,options,callbacks={}) {
   let clock=0,emitBytes;
   return runFinancialGenerator(input,options,{...callbacks,baseURL:'http://127.0.0.1:8766/browser-rag/',now:()=>++clock,
     gpu:{requestAdapter:()=>adapter},cacheStorage:{open(){}},fetch:()=>new Response(JSON.stringify(registry)),
-    prepare(plan,{onProgress}) {emitBytes=onProgress;for(const [assetIndex,asset] of plan.assets.entries()) {
+    prepare(plan,{onProgress,signal}) {emitBytes=onProgress;const wasmReads=[];for(const [assetIndex,asset] of plan.assets.entries()) {
       onProgress({stage:'prepare',assetIndex,completed:0,total:asset.bytes,unit:'bytes',estimated:false,verified:false});
       onProgress({stage:'prepare',assetIndex,completed:asset.bytes,total:asset.bytes,unit:'bytes',estimated:false,verified:true});
-    }return {cache:{},receipt:{assets:8,verifiedBytes:bytes,networkBytes:0,cacheBytes:bytes},finishReads:()=>({reads:5,verifiedBytes:sizes.slice(0,5).reduce((a,b)=>a+b,0)}),close(){}};},
+    }return {cache:{async match(url){
+      if(url!=='http://127.0.0.1:8766/browser-rag/vendor/transformers/'+WASM_FILE)throw Error('Unapproved controlled runtime key');
+      const read=verifiedWasmRead(url,{signal,onProgress:event=>emitBytes({stage:'consume',assetIndex:7,...event})});wasmReads.push(read.completion);return read.response;
+    }},receipt:{assets:8,verifiedBytes:bytes,networkBytes:0,cacheBytes:bytes},async finishReads(){const reads=await Promise.all(wasmReads);return {reads:5+reads.length,verifiedBytes:sizes.slice(0,5).reduce((a,b)=>a+b,0)+reads.reduce((sum,read)=>sum+read.bytes,0)};},close(){}};},
     importer(){for(let assetIndex=0;assetIndex<5;assetIndex++)for(const verified of [false,true])emitBytes({stage:'consume',assetIndex,completed:verified?sizes[assetIndex]:0,total:sizes[assetIndex],unit:'bytes',estimated:false,verified});return library;}});
 }
 export const ready=()=>({kind:'generation-ready',protocolVersion:1,workerVersion:'financial-generation-v1'});

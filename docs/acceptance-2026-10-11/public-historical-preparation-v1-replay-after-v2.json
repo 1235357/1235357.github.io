@@ -1,0 +1,27 @@
+{
+  "schema": "historical-preparation-v1-readonly-replay-after-v2",
+  "observedAt": "2026-10-11T20:12:57.952Z",
+  "status": "passed",
+  "scope": "Offline validation of archived v1 receipt against current local candidate copier; no browser, asset-body rehash, provider request, GPU or inference",
+  "input": {
+    "file": "public-encoder-preparation.json",
+    "bytes": 2388,
+    "sha256": "47f98365dcbebd78ca7346587ef19039f55ac631c42bad44ecf1e4ef347fedbb"
+  },
+  "localCandidateContract": {
+    "file": "browser-rag/asset-preparation-source.mjs",
+    "bytes": 13488,
+    "sha256": "02491eaf500e50691faea8e9ffd368f86869c79d768a55a55c7e6c21a906091c"
+  },
+  "checks": {
+    "strictLegacyReceiptPreserved": true,
+    "currentV2CommitGateRefusesV1": true,
+    "profilePinsUnchanged": true
+  },
+  "summary": {
+    "profile": "encoder",
+    "verifiedBytes": 113629084,
+    "assets": 8,
+    "elapsedMs": 1176598.5
+  }
+}

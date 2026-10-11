@@ -8,6 +8,7 @@ import { projectEmbeddingInput } from '../embedding-source.mjs';
 import { copyQueryPassages, queryResultReceipt } from '../query-source.mjs';
 import { rankCandidates } from '../retrieval.mjs';
 import { runFinancialGenerator } from '../financial-generator-runtime.mjs';
+import {WASM_FILE,verifiedWasmRead} from './wasm-runtime-fixture.mjs';
 
 const native = await import('../generator-native-core.mjs').catch(() => ({}));
 const prompt = await import('../prompt-contract.mjs').catch(() => ({}));
@@ -60,8 +61,11 @@ async function fixture({length=23,maxNewTokens=17,suffix=[5,151645],text=' {"ans
   const bytes=Object.values({...registry.modelFiles,...registry.runtimeFiles}).reduce((sum,pin)=>sum+pin.bytes,0);
   const receipt = await runFinancialGenerator(input,options,{baseURL:'http://127.0.0.1:8766/browser-rag/',
     gpu:{requestAdapter:()=>adapter},cacheStorage:{open(){}},fetch:()=>new Response(JSON.stringify(registry)),
-    prepare:()=>({cache:{},receipt:{assets:8,verifiedBytes:bytes,networkBytes:0,cacheBytes:bytes},
-      finishReads:()=>({reads:5,verifiedBytes:800000000}),close(){}}),importer:()=>library,now:()=>1});
+    prepare:(_plan,{onProgress,signal})=>{const reads=[];return {cache:{async match(url){
+      assert.equal(url,'http://127.0.0.1:8766/browser-rag/vendor/transformers/'+WASM_FILE);
+      const read=verifiedWasmRead(url,{signal,onProgress:event=>onProgress({stage:'consume',assetIndex:7,...event})});reads.push(read.completion);return read.response;
+    }},receipt:{assets:8,verifiedBytes:bytes,networkBytes:0,cacheBytes:bytes},
+      async finishReads(){const completed=await Promise.all(reads);return {reads:5+completed.length,verifiedBytes:800000000+completed.reduce((sum,read)=>sum+read.bytes,0)};},close(){}};},importer:()=>library,now:()=>1});
   return {input,options,receipt:structuredClone(receipt)};
 }
 function financialCopy(value,input,options) {

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import { EmbeddingRuntimeError, encodeChunks, encodeQuery } from '../embedding-runtime.mjs';
 import { EMBEDDING_SPEC } from '../embedding-contract.mjs';
+import {WASM_FILE,WASM_PIN,wasmBytes} from './wasm-runtime-fixture.mjs';
 import { Tensor as LibraryTensor, mean_pooling as libraryMeanPooling }
   from '../node_modules/@huggingface/transformers/src/utils/tensor.js';
 
@@ -130,8 +131,8 @@ async function assetFixture() {
     ['modelFiles', MODEL_FILES, `models/${EMBEDDING_SPEC.revision}/${EMBEDDING_SPEC.modelId}/`],
     ['runtimeFiles', RUNTIME_FILES, 'vendor/transformers/'], ['noticeFiles', NOTICE_FILES, 'notices/']]) {
     for (const file of files) {
-      const bytes = new TextEncoder().encode(`fixture ${file}`);
-      registry[group][file] = { bytes: bytes.length, sha256: await sha256(bytes) };
+      const bytes = file===WASM_FILE?wasmBytes():new TextEncoder().encode(`fixture ${file}`);
+      registry[group][file] = file===WASM_FILE?{...WASM_PIN}:{ bytes: bytes.length, sha256: await sha256(bytes) };
       bodies.set(new URL(prefix + file, BASE).href, bytes);
     }
   }
@@ -486,6 +487,38 @@ async function encoderFixture() {
     get modelDisposals() { return modelDisposals; } };
 }
 
+test('verified encoder WASM reaches the SDK before loading and avoids a second file fetch',async()=>{
+  const f=await encoderFixture(),url=BASE+'vendor/transformers/'+WASM_FILE,fetch=f.opts.fetch,load=f.library.AutoModel.from_pretrained;
+  let wasmFetches=0;
+  f.opts.fetch=async(...args)=>{if(args[0]===url)wasmFetches++;return fetch(...args);};
+  f.library.AutoModel.from_pretrained=async(...args)=>{
+    const binary=f.library.env.backends.onnx.wasm.wasmBinary;
+    if(!(binary instanceof ArrayBuffer)){await f.opts.fetch(url);throw Error('PRIVATE second WASM file fetch');}
+    assert.equal(binary.byteLength,WASM_PIN.bytes);assert.equal(await sha256(binary),WASM_PIN.sha256);
+    assert.equal(f.library.env.backends.onnx.wasm.wasmPaths.mjs,BASE+'vendor/transformers/ort-wasm-simd-threaded.jsep.mjs');
+    return load(...args);
+  };
+  const result=await encodeChunks(artifact(),f.opts);
+  assert.equal(wasmFetches,1);assert.equal(result.receipt.verifiedBytes,f.total);
+  assert.equal(f.modelDisposals,1);assert.equal(f.hardware.calls.filter(value=>value==='destroy').length,1);
+});
+
+test('controlled SDK negative control detects a missing binary and its second WASM fetch',async()=>{
+  const f=await encoderFixture(),url=BASE+'vendor/transformers/'+WASM_FILE,fetch=f.opts.fetch;let wasmFetches=0;
+  f.opts.fetch=async(...args)=>{if(args[0]===url)wasmFetches++;return fetch(...args);};
+  f.library.AutoModel.from_pretrained=async()=>{delete f.library.env.backends.onnx.wasm.wasmBinary;await f.opts.fetch(url);throw Error('PRIVATE second WASM fetch');};
+  await assert.rejects(encodeChunks(artifact(),f.opts),safeError('EMBEDDING_LOAD_FAILED'));assert.equal(wasmFetches,2);
+});
+
+test('a self-consistent substituted WASM descriptor is refused before SDK import',async()=>{
+  for(const shorten of [true,false]){
+    const f=await assetFixture(),url=BASE+'vendor/transformers/'+WASM_FILE,body=wasmBytes();
+    const changed=shorten?body.subarray(0,body.length-1):body; if(!shorten)changed[8]^=1;
+    f.bodies.set(url,changed);f.registry.runtimeFiles[WASM_FILE]={bytes:changed.length,sha256:await sha256(changed)};
+    await assert.rejects(encodeChunks(artifact(),f.opts),safeError('ASSET_INTEGRITY_ERROR'));assert.equal(f.imports.length,0);
+  }
+});
+
 test('the encoder produces a frozen detached normalized artifact with precise verified-byte receipts', async () => {
   const fixture = await encoderFixture(), input = artifact(['one', 'two']);
   const result = await encodeChunks(input, fixture.opts);
@@ -531,7 +564,7 @@ test('local environment and the forwarding adapter are installed before any pret
     assert.equal(['tokenizer', 'model'].includes(stage), true);
     assert.deepEqual(snapshot, { allowRemoteModels: false, allowLocalModels: true,
       localModelPath: `${BASE}models/${EMBEDDING_SPEC.revision}/`, useBrowserCache: false,
-      useFSCache: false, useCustomCache: true, wasm: { proxy: false, numThreads: 1, wasmPaths: {
+      useFSCache: false, useCustomCache: true, wasm: { proxy: false, numThreads: 1, wasmBinary:fixture.library.env.backends.onnx.wasm.wasmBinary,wasmPaths: {
         wasm: BASE + 'vendor/transformers/ort-wasm-simd-threaded.jsep.wasm',
         mjs: BASE + 'vendor/transformers/ort-wasm-simd-threaded.jsep.mjs' } },
       adapter: fixture.library.env.backends.onnx.webgpu.adapter, device: undefined });

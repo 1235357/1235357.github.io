@@ -1,0 +1,16 @@
+{
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "status": [
+    "No current preparation receipt. Choose a profile explicitly; previous verified cache entries may remain.",
+    "Native generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer; its pinned model/runtime bodies total 815.73 MB (777.94 MiB). A first run downloads uncached assets to this device.",
+    "COMMIT BOUNDARYNo new result committedThe native worker could not start. No new artifact was committed. If extraction succeeded, its source records are retained for retry.",
+    "No owned parsed source. Select a PDF first.",
+    "No candidates committed. An explicit query uses the retained passage vectors.",
+    "No query vector committed. Run an explicit question against accepted passage vectors.",
+    "No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.",
+    "Showing 0 items of 0.",
+    "No chunks committed.",
+    "No vectors committed. Embed accepted chunks to inspect actual encoder output."
+  ],
+  "scope": "first PDF selection after368 deployment/reload; worker could not start; no source committed"
+}

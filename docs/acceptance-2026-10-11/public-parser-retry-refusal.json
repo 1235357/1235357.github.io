@@ -1,0 +1,7 @@
+{
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "statusTitle": "No new result committed",
+  "statusDetail": "The native worker could not start. No new artifact was committed. If extraction succeeded, its source records are retained for retry.",
+  "receipt": "",
+  "scope": "explicit second source-selection attempt after clearing first refusal; no source accepted"
+}

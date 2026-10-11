@@ -27,7 +27,7 @@ test('stage guard ties all eight timestamps and all verified reads to the comple
   const guard=call('createFinancialGenerationStageGuard');
   const receipt=await syntheticRun(inputOf(),{maxNewTokens:17},{onProgress:(stage,ms)=>guard.accept(stage,ms),onByteProgress:detail=>guard.acceptBytes(detail)});
   guard.assertComplete(receipt);assert.deepEqual(guard.stages,receipt.stages);assert.equal(guard.stage,'cleanup');
-  assert.equal(receipt.cachePreparation.verifiedBytes,PROBE_ASSET_BYTES);assert.equal(receipt.sdkReads.reads,5);assert.equal(receipt.sdkReads.verifiedBytes,793197262);
+  assert.equal(receipt.cachePreparation.verifiedBytes,PROBE_ASSET_BYTES);assert.equal(receipt.sdkReads.reads,6);assert.equal(receipt.sdkReads.verifiedBytes,814793281);
 });
 for(const stage of [undefined,'cleanup'])test(`complete stage guard rejects a ninth ${String(stage)} stage without mutation`,async()=>{
   const guard=call('createFinancialGenerationStageGuard');

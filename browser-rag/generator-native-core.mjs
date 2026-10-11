@@ -330,10 +330,19 @@ export async function runNativeGenerator(prepareFrame,options={},maxDecodedUtf16
     stage('sdk');const library=await scope.wait(()=>config.importer(new URL('vendor/transformers/transformers.min.js',config.baseURL).href),'MODEL_LOAD_FAILED');
     if(typeof library?.AutoTokenizer?.from_pretrained!=='function'||typeof library?.AutoModelForCausalLM?.from_pretrained!=='function'
       ||typeof library.Tensor!=='function'||!library.env?.backends?.onnx?.wasm||!library.env.backends.onnx.webgpu)fail('MODEL_LOAD_FAILED');
+    // Read through the sealed cache during the SDK stage so the full pinned
+    // body verification is included in progress and final SDK read counters.
+    const wasmURL=new URL('vendor/transformers/ort-wasm-simd-threaded.jsep.wasm',config.baseURL).href;
+    const wasmResponse=await scope.wait(()=>prepared.cache.match(wasmURL),'ASSET_CACHE_ERROR',value=>value?.body?.cancel());
+    if(!(wasmResponse instanceof Response)||wasmResponse.status!==200)fail('ASSET_INTEGRITY_ERROR');
+    const wasmBinary=await scope.wait(()=>Response.prototype.arrayBuffer.call(wasmResponse),'ASSET_INTEGRITY_ERROR');
+    if(!(wasmBinary instanceof ArrayBuffer)||wasmBinary.byteLength!==RUNTIME_PINS['ort-wasm-simd-threaded.jsep.wasm'].bytes)fail('ASSET_INTEGRITY_ERROR');
+    scope.check();
     const env=library.env;env.allowLocalModels=true;env.allowRemoteModels=false;env.localModelPath=new URL(`models/${PROBE_REVISION}/`,config.baseURL).href;
     env.useBrowserCache=false;env.useFSCache=false;env.useCustomCache=true;env.customCache=prepared.cache;
     env.backends.onnx.wasm.wasmPaths={mjs:new URL('vendor/transformers/ort-wasm-simd-threaded.jsep.mjs',config.baseURL).href,
       wasm:new URL('vendor/transformers/ort-wasm-simd-threaded.jsep.wasm',config.baseURL).href};
+    env.backends.onnx.wasm.wasmBinary=wasmBinary;
     env.backends.onnx.wasm.proxy=false;env.backends.onnx.wasm.numThreads=1;env.backends.onnx.webgpu.adapter=ownedAdapter;
     stage('tokenizer');const settings={revision:PROBE_REVISION,local_files_only:true};
     const tokenizer=await scope.wait(()=>library.AutoTokenizer.from_pretrained(PROBE_MODEL,settings),'MODEL_LOAD_FAILED');

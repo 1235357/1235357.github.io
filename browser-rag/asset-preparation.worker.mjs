@@ -3,19 +3,20 @@ import {prepareGeneratorAssets} from './generator-native-core.mjs';
 import {AssetPreparationError,copyPreparationCommand,copyPreparationProgress,copyPreparationReceipt,
   preparationProfile,PREPARATION_MAX_PACKETS,PREPARATION_DEADLINE_MS} from './asset-preparation-source.mjs';
 import {suppressWorkerConsole} from './worker-console.mjs';
+import {createPreparationTransport,copyTransportFailure,AssetTransportError} from './asset-preparation-transport.mjs';
 
 export function createAssetPreparationCommandHandler(send,options={}){
   if(typeof send!=='function'||options===null||typeof options!=='object'||![Object.prototype,null].includes(Object.getPrototypeOf(options))
-    ||Reflect.ownKeys(options).some(key=>!['prepareEncoder','prepareGenerator','now'].includes(key)))throw new AssetPreparationError('INVALID_ASSET_PREPARATION');
-  const encoder=options.prepareEncoder??prepareEmbeddingAssets,generator=options.prepareGenerator??prepareGeneratorAssets,now=options.now??(()=>performance.now());
-  if([encoder,generator,now].some(value=>typeof value!=='function'))throw new AssetPreparationError('INVALID_ASSET_PREPARATION');
+    ||Reflect.ownKeys(options).some(key=>!['prepareEncoder','prepareGenerator','now','createTransport'].includes(key)))throw new AssetPreparationError('INVALID_ASSET_PREPARATION');
+  const encoder=options.prepareEncoder??prepareEmbeddingAssets,generator=options.prepareGenerator??prepareGeneratorAssets,now=options.now??(()=>performance.now()),transportFactory=options.createTransport??createPreparationTransport;
+  if([encoder,generator,now,transportFactory].some(value=>typeof value!=='function'))throw new AssetPreparationError('INVALID_ASSET_PREPARATION');
   let consumed=false,validating=false;
   return raw=>{
     if(consumed||validating)throw new AssetPreparationError('WORKER_PROTOCOL_ERROR');
     let command;validating=true;try{command=copyPreparationCommand(raw);consumed=true;}finally{validating=false;}
-    const {identity,profile}=command,spec=preparationProfile(profile);let seq=0,active=true,lastSent=-Infinity,lastCompleted=0,lastVerified=0,callbackError;
+    const {identity,profile,transport}=command,spec=preparationProfile(profile);let seq=0,active=true,lastSent=-Infinity,lastCompleted=0,lastVerified=0,callbackError,adapter;
     const started=now(),clock=()=>{const value=now()-started;if(!Number.isFinite(value)||value<0||value>PREPARATION_DEADLINE_MS)throw new AssetPreparationError('ASSET_PREPARATION_TIMEOUT');return value;};
-    const emit=(kind,payload)=>{if(!active||seq>=PREPARATION_MAX_PACKETS)throw new AssetPreparationError('WORKER_PROTOCOL_ERROR');if(kind!=='progress')active=false;send(Object.freeze({...identity,profile,kind,seq:++seq,payload}));};
+    const emit=(kind,payload)=>{if(!active||seq>=PREPARATION_MAX_PACKETS)throw new AssetPreparationError('WORKER_PROTOCOL_ERROR');if(kind!=='progress')active=false;send(Object.freeze({...identity,schemaVersion:2,profile,transport,kind,seq:++seq,payload}));};
     function progress(rawPayload){
       try{
         if(callbackError)throw callbackError;const value=copyPreparationProgress(rawPayload,profile),elapsed=clock();
@@ -28,15 +29,19 @@ export function createAssetPreparationCommandHandler(send,options={}){
     return (async()=>{
       try{
         progress(Object.freeze({completed:0,verified:0,total:spec.bytes,unit:'bytes',estimated:false,mode:spec.mode}));
-        const result=profile==='encoder'?await encoder({onProgress:(_stage,payload)=>progress({...payload,verified:payload.completed,mode:'verified-assets'})})
-          :await generator({onProgress:progress});
+        adapter=transportFactory(profile,transport);
+        const result=profile==='encoder'?await encoder({fetch:adapter.fetch,onProgress:(_stage,payload)=>progress({...payload,verified:payload.completed,mode:'verified-assets'})})
+          :await generator({fetch:adapter.fetch,onProgress:progress});
         if(callbackError)throw callbackError;
-        const receipt=copyPreparationReceipt({schemaVersion:1,status:'static-assets-prepared-not-loaded',profile,modelId:spec.modelId,revision:spec.revision,
-          libraryVersion:'3.8.1',ortVersion:'1.22.0-dev.20250409-89f8206ba4',...result,elapsedMs:clock()},profile);
+        const receipt=copyPreparationReceipt({schemaVersion:2,status:'static-assets-prepared-not-loaded',profile,modelId:spec.modelId,revision:spec.revision,
+          libraryVersion:'3.8.1',ortVersion:'1.22.0-dev.20250409-89f8206ba4',...result,elapsedMs:clock(),transport,externalReads:adapter.externalReads()},profile,undefined,transport);
         if(lastVerified!==spec.bytes)throw Error();emit('result',receipt);
-      }catch{
+      }catch(caught){
         if(!active)throw new AssetPreparationError('WORKER_PROTOCOL_ERROR');
-        const error=callbackError??new AssetPreparationError('ASSET_PREPARATION_FAILED');emit('error',Object.freeze({code:error.code,message:error.message}));
+        let diagnostic=null;
+        if(transport==='huggingface')try{diagnostic=copyTransportFailure(adapter?.transportFailure()??null,profile);}catch{}
+        const error=callbackError??new AssetPreparationError(caught instanceof AssetTransportError||diagnostic?'ASSET_TRANSPORT_REFUSED':'ASSET_PREPARATION_FAILED');
+        emit('error',Object.freeze({code:error.code,message:error.message,transportFailure:diagnostic}));
       }
       return true;
     })();
@@ -49,5 +54,5 @@ if(typeof WorkerGlobalScope!=='undefined'&&globalThis instanceof WorkerGlobalSco
   });
   const failure=()=>{throw new AssetPreparationError('WORKER_PROTOCOL_ERROR');};
   globalThis.addEventListener('message',message=>{try{handle(message.data).catch(()=>globalThis.setTimeout(failure,0));}catch{failure();}});
-  globalThis.postMessage({kind:'asset-preparation-ready',protocolVersion:1,workerVersion:'asset-preparation-v1'});
+  globalThis.postMessage({kind:'asset-preparation-ready',protocolVersion:1,workerVersion:'asset-preparation-v2'});
 }

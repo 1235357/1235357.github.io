@@ -72,10 +72,10 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         self.public();out=self.root/'dist/browser-rag'
         markup=(out/'inspector.html').read_text(encoding='utf-8');self.assertIn('src="pdf-public-entry.mjs"',markup);self.assertNotIn('src="pdf-entry.mjs"',markup)
         graph=existing.static_mjs_graph(out,'pdf-public-entry.mjs');self.assertIn('financial-lookup-view.mjs',graph);self.assertIn('financial-generation-source.mjs',graph)
-        for name in ('asset-preparation-source.mjs','asset-preparation-view.mjs'):
+        for name in ('asset-preparation-source.mjs','asset-preparation-view.mjs','asset-preparation-transport.mjs','pdf-worker-preparation.mjs'):
             self.assertIn(name,graph)
         preparation_worker=existing.static_mjs_graph(out,'asset-preparation.worker.mjs')
-        for name in ('asset-preparation.worker.mjs','asset-preparation-source.mjs','embedding-runtime.mjs','generator-native-core.mjs'):
+        for name in ('asset-preparation.worker.mjs','asset-preparation-source.mjs','asset-preparation-transport.mjs','embedding-runtime.mjs','generator-native-core.mjs'):
             self.assertIn(name,preparation_worker)
         for name in release.PUBLIC_MODULES:self.assertEqual((out/name).read_bytes(),(self.browser/name).read_bytes())
         self.assertTrue((out/'financial-generation.worker.mjs').is_file())

@@ -14,15 +14,16 @@ export function mountPdfApp(options={}) {
   if(options===null||typeof options!=='object'||Array.isArray(options)
       ||![Object.prototype,null].includes(Object.getPrototypeOf(options)))throw new TypeError('Invalid PDF mount options');
   const keys=Reflect.ownKeys(options);
-  if(keys.some(key=>!['document','root','generate','createGeometryView','createLookupView','createAssetPreparationView'].includes(key)))throw new TypeError('Unknown PDF mount option');
+  if(keys.some(key=>!['document','root','generate','createGeometryView','createLookupView','createAssetPreparationView','preparePdfWorker'].includes(key)))throw new TypeError('Unknown PDF mount option');
   const captured={};for(const key of keys)captured[key]=options[key];
   const document=captured.document===undefined?globalThis.document:captured.document;
-  const root=captured.root===undefined?document:captured.root,generate=captured.generate,createGeometryView=captured.createGeometryView,createLookupView=captured.createLookupView,createAssetPreparationView=captured.createAssetPreparationView;
+  const root=captured.root===undefined?document:captured.root,generate=captured.generate,createGeometryView=captured.createGeometryView,createLookupView=captured.createLookupView,createAssetPreparationView=captured.createAssetPreparationView,preparePdfWorker=captured.preparePdfWorker;
   if(!document||typeof document.createElement!=='function'||!root||typeof root.querySelector!=='function'
       ||(generate!==undefined&&typeof generate!=='function')
       ||(createGeometryView!==undefined&&typeof createGeometryView!=='function')
       ||(createLookupView!==undefined&&typeof createLookupView!=='function')
-      ||(createAssetPreparationView!==undefined&&typeof createAssetPreparationView!=='function'))throw new TypeError('Invalid PDF mount configuration');
+      ||(createAssetPreparationView!==undefined&&typeof createAssetPreparationView!=='function')
+      ||(preparePdfWorker!==undefined&&typeof preparePdfWorker!=='function'))throw new TypeError('Invalid PDF mount configuration');
   const window=document.defaultView??globalThis.window;
   if(!window||typeof window.addEventListener!=='function')throw new TypeError('A PDF mount window is required');
   if(mounts.has(root))throw new TypeError('PDF root is already mounted');
@@ -35,6 +36,10 @@ export function mountPdfApp(options={}) {
 const fileInput=byId('pdf-file'),pageSelect=byId('page-select'),items=byId('items');
 fileInput.disabled=true;
 const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
+  INVALID_PDF_WORKER_PREPARATION:'The static parser preparation configuration was refused. No native parser was started.',
+  PDF_WORKER_PREPARATION_TIMEOUT:'The pinned parser script exceeded its separate fixed 120-second preparation budget. No native parser was started.',
+  PDF_WORKER_PREPARATION_INTEGRITY:'The parser script body did not match its exact decoded size and SHA-256. No native parser was started.',
+  PDF_WORKER_PREPARATION_FAILED:'Static parser preparation failed. No native parser was started.',
   EMPTY_DOCUMENT:'No selectable text was extracted. This lab does not perform OCR.',
   PDF_PASSWORD_REQUIRED:'Password-protected PDFs are not supported by this inspector.',
   EXTRACTION_LIMIT:'The document exceeds a page, text or item budget.',
@@ -75,6 +80,7 @@ const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
   TOKENIZER_MISMATCH:'The paired tokenizer frame did not match the pinned contract.',
   INVALID_FINANCIAL_RECEIPT:'The complete native financial receipt did not satisfy its contract.'};
 let lastSource=null,lastChunks=null,lastEmbeddings=null,itemWindowIndex=0,chunkWindowIndex=0;
+let parserPreparation=null;
 let lastQuestion=undefined,lastQueryEmbedding=null,lastRetrieval=null;
 let lastContext=undefined,contextOwner=null,contextView;
 let lastGeneration=undefined,lastInspection=undefined,generationOwner=null,generationView;
@@ -235,11 +241,13 @@ function showChunkWindow(selectedIndex){
 }
 function render(state){
   uiActionNonce++;embeddingRefusal=false;queryRefusal=false;contextRefusal=false;generationRefusal=false;
+  if(parserPreparation&&(parserPreparation.documentEpoch!==state.lifecycle.documentEpoch||state.status==='cancelled'))parserPreparation=null;
   const source=session.document(),chunks=session.chunks(),embeddings=session.embeddings();
   preparationView?.render({source,documentEpoch:state.lifecycle.documentEpoch,active:Boolean(state.lifecycle.active)});
   const raw=session.generation(),inspection=session.generationInspection();
   const titles={idle:'Waiting for a PDF',parsing:'Reading selected bytes',chunking:'Building source-linked windows',embedding:'Embedding accepted chunks',querying:'Finding sourced candidates',generating:'Generating financial output','unverified-financial-draft':'UNVERIFIED financial draft','financial-output-refused':'Financial output refused','query-candidates-only':'Query candidates; not an answer','context-not-generated':'Context assembled; not generated',cancelled:'Commit rights revoked','runtime-error':'No new result committed','extracted-not-indexed':'Extracted; not indexed','chunked-not-embedded':'Chunked; not embedded','embedded-not-retrieved':'Embedded; not retrieved'};
   byId('status-title').textContent=titles[state.status];
+  if(preparePdfWorker&&state.status==='parsing'&&state.lifecycle.active?.progress?.unit==='bytes')byId('status-title').textContent='Preparing pinned parser script';
   const active=state.lifecycle.active,progress=active?.progress,bar=byId('operation-progress');
   if(generationReplay&&((!raw&&active?.operation!=='generate')
       ||!sameGenerationAttempt(generationReplay.identity,active??state.lifecycle.terminal)
@@ -289,6 +297,10 @@ function render(state){
       active.stage==='initialize'?'Encoder initialization · indeterminate. No reliable initialization percentage.':
       active.stage==='encode'?`${progress.completed} / ${progress.total} completed chunks · encoding with the pinned WebGPU provider.`:
       'Waiting for the fresh embedding worker. Asset verification, initialization and encoding follow.';
+  }else if(preparePdfWorker&&state.status==='parsing'&&progress?.unit==='bytes'){
+    progressText=`Preparing pinned parser script · received ${progress.completed.toLocaleString()} / ${progress.total===null?'unknown':progress.total.toLocaleString()} decoded body bytes; integrity is checked at EOF. These are static-script bytes, not PDF pages or verified bytes.`;
+  }else if(preparePdfWorker&&state.status==='parsing'&&parserPreparation&&progress?.unit==='pages'&&progress.total===null){
+    progressText='Pinned parser script body verified. PDF hashing and native worker readiness follow with the unchanged 10-second readiness limit. HTTP cache reuse is advisory.';
   }else if(progress){progressText=`${progress.completed} / ${progress.total??'unknown'} ${progress.unit} · ${active.stage==='index'?'chunking':active.stage==='parse'?'parsing':active.stage}.`;}
   byId('status-detail').textContent=state.error?(ERROR_HELP[state.error.code]||'Work failed. No new artifact was committed.'):
     progressText?progressText:
@@ -322,6 +334,11 @@ function render(state){
   const stage=raw?`native generation · ${inspection.artifact?'unverified financial draft':'output inspection refused'}`:active?.operation==='generate'?'generating financial output':session.context()?'context; not generated':session.retrieval()?'query candidates only':embeddings?'embedded; not retrieved':chunks?'chunked; not embedded':'extracted; not indexed';
   byId('header-stage').textContent=raw?(inspection.artifact?'NATIVE RECEIPT · UNVERIFIED DRAFT':'NATIVE RECEIPT · OUTPUT REFUSED'):active?.operation==='generate'?'READER DEVICE · GENERATING':generate?'BROWSER LAB · CONTEXT NOT GENERATED':'LOCAL DRAFT · CONTEXT NOT GENERATED';
   if(source)receipt([['File',source.source.name],['Bytes',source.source.size],['SHA-256',source.source.sha256],['Parser',`PDF.js ${source.parser.version}`],['Parse worker',source.workerMode],['Compute',chunks?'native · owned module worker':'no chunk result'],['Pages',source.numPages],['Epoch',state.lifecycle.documentEpoch],['Stage',stage]]);
+  else receipt([]);
+  if(parserPreparation){
+    const value=element('dd','');value.append(element('pre',JSON.stringify(parserPreparation.receipt,null,2)));
+    byId('receipt').append(element('dt','Static parser script receipt · HTTP cache advisory'),value);
+  }
   if(chunks!==lastChunks){lastChunks=chunks;chunkWindowIndex=0;showChunkWindow();}
   if(embeddings!==lastEmbeddings){
     lastEmbeddings=embeddings;showEmbedding();const list=byId('embedding-receipt');list.replaceChildren();
@@ -358,7 +375,53 @@ function captureGenerationInput(input,settings,workerOptions){
     question:session.question(),query:session.queryEmbedding(),retrieval:session.retrieval(),context:session.context()});
   return generate(input,settings,workerOptions);
 }
-const session=createPdfSession({extract:extractPdf,parserOptions:{pdfjs,
+function copyParserPreparation(raw){
+  const keys=['schemaVersion','status','parserVersion','url','bytes','sha256','elapsedMs','cacheScope'];
+  if(!raw||typeof raw!=='object'||![Object.prototype,null].includes(Object.getPrototypeOf(raw))
+      ||Reflect.ownKeys(raw).length!==keys.length||Reflect.ownKeys(raw).some(key=>!keys.includes(key)))throw Object.assign(new Error('Invalid static parser receipt'),{code:'PDF_WORKER_PREPARATION_FAILED'});
+  const value={};for(const key of keys){const descriptor=Object.getOwnPropertyDescriptor(raw,key);
+    if(!descriptor||!Object.hasOwn(descriptor,'value')||!descriptor.enumerable)throw Object.assign(new Error('Invalid static parser receipt'),{code:'PDF_WORKER_PREPARATION_FAILED'});value[key]=descriptor.value;}
+  let url;try{url=new URL(value.url);}catch{}
+  if(value.schemaVersion!==1||value.status!=='static-pdf-worker-body-verified'||value.parserVersion!=='6.4.299'
+      ||value.bytes!==2229713||value.sha256!=='07ceb740d746e5d9012fcf9f27d5c7dea09f7d2f5e74f5c8109e5787551a2333'
+      ||typeof value.url!=='string'||!url||!['http:','https:'].includes(url.protocol)||url.href!==value.url||url.search||url.hash||url.username||url.password
+      ||value.url!==new URL('./vendor/build/pdf.worker.mjs',import.meta.url).href
+      ||typeof value.elapsedMs!=='number'||!Number.isFinite(value.elapsedMs)||value.elapsedMs<0||value.elapsedMs>=120000||value.cacheScope!=='browser-http-cache-advisory')
+    throw Object.assign(new Error('Invalid static parser receipt'),{code:'PDF_WORKER_PREPARATION_FAILED'});
+  return Object.freeze(value);
+}
+async function extractWithPreparation(file,parserOptions){
+  const {signal,onProgress}=parserOptions,epoch=session.snapshot().lifecycle.documentEpoch;
+  const aborted=()=>Object.assign(new Error('Static parser preparation cancelled'),{code:'ABORTED'});
+  if(signal.aborted)throw aborted();
+  let listener,preparing=true;
+  const revoked=new Promise((_,reject)=>{listener=()=>reject(aborted());signal.addEventListener('abort',listener,{once:true});});
+  try{
+    const options=Object.freeze({signal,onProgress:value=>{if(preparing&&!signal.aborted)onProgress(value);}});
+    const prepared=await Promise.race([Promise.resolve().then(()=>{
+      if(signal.aborted)throw aborted();return preparePdfWorker(options);
+    }),revoked]);
+    if(signal.aborted)throw aborted();
+    const copied=copyParserPreparation(prepared);if(signal.aborted)throw aborted();
+    parserPreparation=Object.freeze({documentEpoch:epoch,receipt:copied});
+    preparing=false;onProgress(Object.freeze({completed:0,total:null,unit:'pages',estimated:false}));
+    if(signal.aborted)throw aborted();
+  }catch(error){
+    if(signal.aborted)throw aborted();
+    // Only this optional preparation boundary normalizes arbitrary hook values.
+    // Do not evaluate rejection getters in the existing parser session.
+    let code='PDF_WORKER_PREPARATION_FAILED';
+    try{
+      const property=error!==null&&['object','function'].includes(typeof error)?Object.getOwnPropertyDescriptor(error,'code'):null;
+      if(property&&Object.hasOwn(property,'value')&&typeof property.value==='string'
+          &&['INVALID_PDF_WORKER_PREPARATION','PDF_WORKER_PREPARATION_TIMEOUT','PDF_WORKER_PREPARATION_INTEGRITY','PDF_WORKER_PREPARATION_FAILED','ABORTED'].includes(property.value))code=property.value;
+    }catch{}
+    throw Object.assign(new Error('Static parser preparation did not complete safely'),{code});
+  }finally{preparing=false;signal.removeEventListener('abort',listener);}
+  // Preserve every original extraction result/error after preparation succeeds.
+  return extractPdf(file,parserOptions);
+}
+const session=createPdfSession({extract:preparePdfWorker===undefined?extractPdf:extractWithPreparation,parserOptions:{pdfjs,
   assetBaseUrl:new URL('./vendor/',import.meta.url).href,
   workerFactory:url=>new Worker(url,{type:'module'})},
   compute:chunkInWorker,computeOptions:{workerFactory:url=>new Worker(url,{type:'module'})},

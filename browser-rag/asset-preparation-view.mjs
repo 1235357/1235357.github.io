@@ -1,4 +1,4 @@
-import {prepareAssetsInWorker,AssetPreparationError,copyPreparationReceipt,copyPreparationProgress} from './asset-preparation-source.mjs';
+import {prepareAssetsInWorker,AssetPreparationError,copyPreparationReceipt,copyPreparationProgress,copyPreparationFailure} from './asset-preparation-source.mjs';
 
 // Optional configured presentation. Its worker receives static profile/identity
 // only; source is retained here solely to revoke stale UI permission.
@@ -7,6 +7,10 @@ export function createAssetPreparationView({document,root,prepare=prepareAssetsI
   const section=document.createElement('section');section.className='asset-preparation';root.append(section);
   const element=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
   section.append(element('h2','Prepare local model assets'),element('p','Download the files for model actions on this device: 113.63 MB for the encoder or 815.73 MB for the generator. Start explicitly, cancel at any time, or retry from completed cached files. Each preparation has a fixed 30-minute limit.'));
+  const transportLabel=element('label','Model download source'),transport=element('select');transport.id='asset-preparation-transport';
+  for(const [value,text]of [['site','This site (default)'],['huggingface','Hugging Face · explicit model files only']]){const option=element('option',text);option.value=value;transport.append(option);}
+  transport.value='site';transportLabel.append(transport);section.append(transportLabel);
+  const transportHint=element('p','Hugging Face sends static model-file requests to that provider; no PDF, question or context is sent. Runtime files stay on this site. Choose explicitly; there is no automatic fallback or speed guarantee.');transportHint.className='hint';section.append(transportHint);
   const buttons=element('div');buttons.className='buttons';
   const encoder=element('button','Prepare encoder · 113.63 MB'),generator=element('button','Prepare generator · 815.73 MB');
   encoder.id='prepare-encoder';generator.id='prepare-generator';encoder.type=generator.type='button';buttons.append(encoder,generator);section.append(buttons);
@@ -17,7 +21,8 @@ export function createAssetPreparationView({document,root,prepare=prepareAssetsI
   const hint=element('p','Preparation downloads and checks files; it does not produce an answer. Files are rechecked for every model action. The browser may evict cached files, so a completed receipt does not guarantee they remain available.');hint.className='hint';section.append(hint);
   const contract=element('details'),contractSummary=element('summary','Preparation contract');contract.append(contractSummary,
     element('p','Encoder: 113,629,084 bytes. Generator: 815,725,938 bytes. Counts describe decoded asset bodies, not HTTP wire traffic or GPU memory. Only complete byte-count, SHA-256 and cache-write verification earns a preparation receipt.'),
-    element('p','Preparation sends no PDF, question or context and invokes no GPU device, SDK or model. Its fixed absolute 30-minute budget includes a separate 10-second worker readiness limit; progress does not renew either deadline. Encoder/query operations remain limited to 120 seconds and generation to 300 seconds. Each later operation rechecks cache bodies and may fetch a missing body within that original limit.'));section.append(contract);
+    element('p','Preparation sends no PDF, question or context and invokes no GPU device, SDK or model. Its fixed absolute 30-minute budget includes a separate 10-second worker readiness limit; progress does not renew either deadline. Encoder/query operations remain limited to 120 seconds and generation to 300 seconds. Each later operation rechecks cache bodies and may fetch a missing body within that original limit.'),
+    element('p','The optional provider transport permits only five fixed immutable model URLs and a narrow final-host/path policy. Browser CORS or an unapproved redirect can refuse preparation. A response observation records only exposed headers, not intermediate redirect hops; an absent header is unknown. Signed queries are omitted. The observed full-URL hash cannot be recomputed from a redacted archive. Cache hits create no external request record. Only the complete receipt also establishes decoded-body SHA and cache-write verification.'));section.append(contract);
   let owner=null,attempt=0,current=null,counter=0,revoking=false,renderVersion=0;
   function controls(){const disabled=revoking||owner===null||owner.active||Boolean(current);encoder.disabled=generator.disabled=disabled;cancel.disabled=!current;}
   function revoke(message='Preparation ownership was revoked. Start a new explicit preparation to retry.'){
@@ -28,37 +33,43 @@ export function createAssetPreparationView({document,root,prepare=prepareAssetsI
       previous?.controller.abort();
     }finally{revoking=false;controls();}
   }
-  function owns(task){return current===task&&attempt===task.attempt&&owner===task.owner&&!owner.active&&!task.controller.signal.aborted;}
+  function owns(task){return current===task&&attempt===task.attempt&&owner===task.owner&&!owner.active&&!task.controller.signal.aborted&&transport.value===task.transport;}
+  function disclose(caption,value){
+    const detail=element('details'),summary=element('summary',caption);detail.append(summary);disclosure.append(detail);
+    const acceptedAttempt=attempt,acceptedOwner=owner,acceptedTransport=transport.value;
+    detail.addEventListener('toggle',()=>{detail.replaceChildren(summary);if(attempt!==acceptedAttempt||owner!==acceptedOwner||owner.active||transport.value!==acceptedTransport||!detail.open)return;detail.append(element('pre',JSON.stringify(value,null,2)));});
+  }
   function run(profile){
     if(revoking||owner===null||owner.active||current)return;
     revoke();const controller=new AbortController(),ownedOwner=owner,id=attempt;
-    const task=Object.freeze({owner:ownedOwner,attempt:id,controller});current=task;disclosure.replaceChildren();progress.hidden=false;progress.removeAttribute('value');controls();
-    status.textContent=`Preparing ${profile} static assets. Fixed 30-minute deadline; waiting for a fresh worker.`;
+    const task=Object.freeze({owner:ownedOwner,attempt:id,controller,transport:transport.value});current=task;disclosure.replaceChildren();progress.hidden=false;progress.removeAttribute('value');controls();
+    status.textContent=`Preparing ${profile} static assets via ${task.transport==='huggingface'?'Hugging Face':'this site'}. Fixed 30-minute deadline; waiting for a fresh worker.`;
     void(async()=>{
       try{
         const identity=Object.freeze({protocolVersion:1,runtimeId:runtimeIdFactory(),operationId:`op-${++counter}`,documentEpoch:ownedOwner.documentEpoch,operation:'prepare-assets'});
-        const raw=await prepare(profile,{identity,signal:controller.signal,onProgress:value=>{
+        const raw=await prepare(profile,{transport:task.transport,identity,signal:controller.signal,onProgress:value=>{
           if(!owns(task))return;
           value=copyPreparationProgress(value,profile);if(!owns(task))return;
           progress.max=value.total;progress.value=value.verified;
           status.textContent=value.mode==='verified-assets'?`${value.verified.toLocaleString()} / ${value.total.toLocaleString()} verified asset body bytes. Whole bodies advance after SHA and cache write; partial transfer is not shown.`
             :`${value.completed.toLocaleString()} decoded body bytes received; ${value.verified.toLocaleString()} / ${value.total.toLocaleString()} fully verified body bytes. No wire-traffic percentage.`;
         }});
-        if(!owns(task))return;const receipt=copyPreparationReceipt(raw,profile);if(!owns(task))return;
+        if(!owns(task))return;const receipt=copyPreparationReceipt(raw,profile,undefined,task.transport);if(!owns(task))return;
         current=null;progress.hidden=true;controls();
         status.textContent=`${profile==='encoder'?'Encoder':'Generator'} static cache verification complete · ${receipt.verifiedBytes.toLocaleString()} body bytes · ${(receipt.elapsedMs/1000).toFixed(1)} seconds of preparation. Model loading and inference have not run.`;
-        const detail=element('details'),summary=element('summary','Complete static asset preparation receipt');detail.append(summary);disclosure.append(detail);
-        const acceptedAttempt=attempt,acceptedOwner=owner;
-        detail.addEventListener('toggle',()=>{
-          detail.replaceChildren(summary);
-          if(attempt!==acceptedAttempt||owner!==acceptedOwner||owner.active||!detail.open)return;
-          detail.append(element('pre',JSON.stringify(receipt,null,2)));
-        });
-      }catch(error){if(!owns(task))return;current=null;progress.hidden=true;disclosure.replaceChildren();controls();const safe=error instanceof AssetPreparationError?error:new AssetPreparationError();status.textContent=`${safe.code} · ${safe.message} Previously completed verified cache entries may remain; no complete preparation receipt was committed.`;}
+        disclose('Complete static asset preparation receipt',receipt);
+      }catch(error){
+        if(!owns(task))return;let safe=error instanceof AssetPreparationError?error:new AssetPreparationError(),diagnostic=null;
+        try{diagnostic=copyPreparationFailure({code:safe.code,message:safe.message,transportFailure:safe.transportFailure},profile,task.transport).transportFailure;}catch{safe=new AssetPreparationError();}
+        if(!owns(task))return;current=null;progress.hidden=true;disclosure.replaceChildren();controls();status.textContent=`${safe.code} · ${safe.message} Previously completed verified cache entries may remain; no complete preparation receipt was committed.`;
+        if(diagnostic)disclose('Incomplete transport observation · no verified asset receipt',{schemaVersion:2,status:'incomplete-transport-observation-not-verified',profile,transport:task.transport,code:safe.code,transportFailure:diagnostic});
+      }
     })();
   }
   encoder.addEventListener('click',()=>run('encoder'));generator.addEventListener('click',()=>run('generator'));
   cancel.addEventListener('click',()=>{if(current)revoke('Preparation cancelled. No complete preparation receipt was committed. Completed verified cache entries may remain for an explicit retry.');});
+  const editTransport=()=>{revoke();status.textContent='Download source changed. Start a new explicit preparation; no previous receipt belongs to this choice.';};
+  transport.addEventListener('input',editTransport);transport.addEventListener('change',editTransport);
   return {revoke,render(state){const version=++renderVersion;revoke();if(version!==renderVersion)return;owner=Object.freeze({source:state.source,documentEpoch:state.documentEpoch,active:state.active});
     status.textContent=owner.active?'Preparation is unavailable during active source/model work.':'No current preparation receipt. Choose a profile explicitly; previous verified cache entries may remain.';controls();}};
 }

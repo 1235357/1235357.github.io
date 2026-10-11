@@ -5,6 +5,7 @@ import { generatorAssetPlan, runGeneratorProbe, copyProbeReceipt, copyProbeByteP
 import { createProbeCommandHandler } from '../acceptance/generator-probe.worker.mjs';
 import { createGeneratorProbeController } from '../acceptance/generator-probe.mjs';
 import { preflightGeneration, inspectGeneratedSequence } from '../generator-contract.mjs';
+import {WASM_FILE,verifiedWasmRead} from './wasm-runtime-fixture.mjs';
 
 const MODEL = 'onnx-community/Qwen2.5-0.5B-Instruct';
 const REVISION = '22942cb7d7ba4cc81bb4673549ca4d4614469b5e';
@@ -41,8 +42,12 @@ function fixture(changes={}) {
     AutoModelForCausalLM:{async from_pretrained(id,options){calls.load++;assert.equal(id,MODEL);assert.deepEqual(options,{revision:REVISION,local_files_only:true,device:'webgpu',dtype:'q4',use_external_data_format:false,session_options:{executionProviders:['webgpu']}});await library.env.backends.onnx.webgpu.adapter.requestDevice({requiredFeatures:[]});return model;}}
   };
   const receipt={assets:8,verifiedBytes:Object.values({...MODEL_FILES,...RUNTIME_FILES}).reduce((n,v)=>n+v.bytes,0),networkBytes:0,cacheBytes:0};receipt.cacheBytes=receipt.verifiedBytes;
-  const prepared={cache:{async match(){throw new Error('unused stub');}},receipt,async finishReads(){return {reads:5,verifiedBytes:800000000};},close(){calls.closed++;}};
+  let readProgress,readSignal;const wasmReads=[];
+  const prepared={cache:{async match(url){assert.equal(url,BASE+'vendor/transformers/'+WASM_FILE);
+    const read=verifiedWasmRead(url,{signal:readSignal,onProgress:event=>readProgress?.({stage:'consume',assetIndex:7,...event})});wasmReads.push(read.completion);return read.response;
+  }},receipt,bindReadOptions(settings){readProgress=settings.onProgress;readSignal=settings.signal;},async finishReads(){const reads=await Promise.all(wasmReads);return {reads:5+reads.length,verifiedBytes:800000000+reads.reduce((sum,read)=>sum+read.bytes,0)};},close(){calls.closed++;}};
   const options={baseURL:BASE,gpu:{async requestAdapter(){return adapter;}},async fetch(url){assert.equal(url,BASE+'acceptance/generator-probe-assets.json');return new Response(JSON.stringify(registry()));},cacheStorage:{open(){}},async prepare(plan,options){assert.equal(plan.assets.length,8);assert.equal(options.cacheStorage.open instanceof Function,true);for(const [assetIndex,asset] of plan.assets.entries()){options.onProgress?.({stage:'prepare',assetIndex,completed:0,total:asset.bytes,unit:'bytes',estimated:false,verified:false});options.onProgress?.({stage:'prepare',assetIndex,completed:asset.bytes,total:asset.bytes,unit:'bytes',estimated:false,verified:true});}return prepared;},async importer(url){assert.equal(url,BASE+'vendor/transformers/transformers.min.js');return library;},now:()=>1,onProgress:(stage)=>calls.stages.push(stage),...changes};
+  const prepare=options.prepare;options.prepare=async(plan,settings)=>{prepared.bindReadOptions(settings);return prepare(plan,settings);};
   return {options,calls,device,adapter,tokenizer,model,library,prepared,Tensor};
 }
 
@@ -142,8 +147,8 @@ test('parent refuses a result with an alternative preflight even when its EOS in
 });
 test('runtime exposes bounded actual C2 prepare counters including the final verified graph bytes',async()=>{
  const progress=[],f=fixture({onByteProgress:event=>progress.push(event)});await runGeneratorProbe(f.options);
- assert.equal(progress.length,16);assert.deepEqual(progress[9],{stage:'prepare',assetIndex:4,receivedBytes:786156820,verifiedBytes:786156820,totalBytes:786156820,elapsedMs:0});
- assert.deepEqual(progress.at(-1),{stage:'prepare',assetIndex:7,receivedBytes:21596019,verifiedBytes:21596019,totalBytes:21596019,elapsedMs:0});
+ assert.equal(progress.filter(event=>event.stage==='prepare').length,16);assert.deepEqual(progress[9],{stage:'prepare',assetIndex:4,receivedBytes:786156820,verifiedBytes:786156820,totalBytes:786156820,elapsedMs:0});
+ assert.deepEqual(progress.at(-1),{stage:'consume',assetIndex:7,receivedBytes:21596019,verifiedBytes:21596019,totalBytes:21596019,elapsedMs:0});
  assert.equal(progress.every(event=>Object.keys(event).length===6&&Object.isFrozen(event)),true);
 });
 test('worker emits a separate bounded byte event without changing its eight stage entry receipts',async()=>{
@@ -177,13 +182,14 @@ test('C2 callback remains active for actual SDK-read phase after preparation cou
   return generate(options);
  };
  const receipt=await runGeneratorProbe(f.options);
- assert.equal(progress.filter(event=>event.stage==='prepare').length,16);assert.equal(progress.filter(event=>event.stage==='consume').length,2);
+ assert.equal(progress.filter(event=>event.stage==='prepare').length,16);assert.equal(progress.filter(event=>event.stage==='consume'&&event.assetIndex===4).length,2);assert.equal(progress.filter(event=>event.stage==='consume'&&event.assetIndex===7).length,2);
  assert.deepEqual(progress.at(-1),{stage:'consume',assetIndex:4,receivedBytes:786156820,verifiedBytes:786156820,totalBytes:786156820,elapsedMs:0});
  assert.equal(receipt.cachePreparation.verifiedBytes,815725938);
 });
 test('intermediate byte counters are throttled while every read start and verified final survives',async()=>{
  let now=0;const progress=[],f=fixture({now:()=>now,onByteProgress:event=>progress.push(event)});
  f.options.prepare=async(plan,options)=>{
+   f.prepared.bindReadOptions(options);
    for(const [assetIndex,asset] of plan.assets.entries()){
      const emit=(completed,verified=false)=>options.onProgress({stage:'prepare',assetIndex,completed,total:asset.bytes,unit:'bytes',estimated:false,verified});
      emit(0);if(assetIndex===4){now=50;emit(100);now=100;emit(200);now=125;emit(300);now=150;emit(400);}emit(asset.bytes,true);

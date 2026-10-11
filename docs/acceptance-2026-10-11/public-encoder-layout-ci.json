@@ -1,0 +1,173 @@
+{
+  "schema": "public-encoder-layout-ci-readonly-proof-v1",
+  "reviewer": "CodexAI",
+  "createdAtUTC": "2026-10-11T19:42:43.723979+00:00",
+  "status": "passed",
+  "repository": "1235357/1235357.github.io",
+  "workflow": {
+    "runId": 38168888277,
+    "url": "https://github.com/1235357/1235357.github.io/actions/runs/38168888277",
+    "headCommit": "368ba196a16666612d8bfe47885468db14bfdd25",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "observationSource": "Actual GitHub REST metadata through existing task-local release helper"
+  },
+  "jobs": [
+    {
+      "id": 114557114365,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38168888277/job/114557114365"
+    },
+    {
+      "id": 114557114565,
+      "name": "windows-contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38168888277/job/114557114565"
+    },
+    {
+      "id": 114557390404,
+      "name": "deploy",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38168888277/job/114557390404"
+    }
+  ],
+  "manifestArtifact": {
+    "id": 11713425380,
+    "name": "browser-release-manifest",
+    "githubReportedBytes": 15996,
+    "githubReportedDigest": "sha256:689afa2d271c3906c25fa8b094484977fac494b3a703d583fe76b24f2d631dc3",
+    "downloadedArchiveDigestMatchesGitHub": true,
+    "archiveBytes": 15996,
+    "archiveSHA256": "689afa2d271c3906c25fa8b094484977fac494b3a703d583fe76b24f2d631dc3",
+    "manifestBytes": 55100,
+    "manifestSHA256": "3af9c0f2fcf24dde5863cae1d66ac5c36eb0035194cfee3a094ef1458c6ab171",
+    "zipEntryNames": [
+      "release-manifest.json"
+    ],
+    "zipCRCValid": true
+  },
+  "pagesArtifactMetadataOnly": {
+    "id": 11713805003,
+    "name": "github-pages",
+    "githubReportedBytes": 525725518,
+    "githubReportedDigest": "sha256:1a086ed05e43a98db9c3b854acbb4e02dddd301e9072c5a34798adf69a9d325d",
+    "downloaded": false
+  },
+  "inventory": {
+    "fileCount": 309,
+    "totalBytes": 918463134,
+    "limitBytes": 1000000000,
+    "uniqueCanonicalPaths": true,
+    "entryByteSumMatches": true,
+    "excludedPrivatePathCheckPassed": true,
+    "matchingPublishedPins": 16,
+    "pinCategories": {
+      "modelBodies": 10,
+      "sharedRuntimeBodies": 3,
+      "modelCardAndLicenseBodies": 3
+    }
+  },
+  "productionModuleChecks": [
+    {
+      "path": "browser-rag/asset-preparation-source.mjs",
+      "bytes": 11495,
+      "sha256": "3dbbcfcaa3b20ae16f027b989ba080245e7b2e6dc004a886c7e5380cfcbb4fff",
+      "equalsCurrentLocalSource": true,
+      "unchangedFromPriorDelivery": true
+    },
+    {
+      "path": "browser-rag/asset-preparation.worker.mjs",
+      "bytes": 4364,
+      "sha256": "a624d0209bc94352ebb02be8a90b4de72b57583f530c1865ad4ae3e1b6e7f1a1",
+      "equalsCurrentLocalSource": true,
+      "unchangedFromPriorDelivery": true
+    },
+    {
+      "path": "browser-rag/asset-preparation-view.mjs",
+      "bytes": 7374,
+      "sha256": "a74c842c5748d32bdce6186ff6b06d401b664a316ede3c947fbb0f85708980b0",
+      "equalsCurrentLocalSource": true,
+      "unchangedFromPriorDelivery": true
+    },
+    {
+      "path": "browser-rag/pdf-app.mjs",
+      "bytes": 43440,
+      "sha256": "34e6a61f3b66f985d0fda04b8d3b7db468eb137ab039bd6853bedfaafb1de50f",
+      "equalsCurrentLocalSource": true,
+      "unchangedFromPriorDelivery": true
+    },
+    {
+      "path": "browser-rag/embedding-runtime.mjs",
+      "bytes": 26101,
+      "sha256": "d966c9292651e1f3dc3f0e2afec71b0175ed4342fbda10d6bfd2d76c97666570",
+      "equalsCurrentLocalSource": true,
+      "unchangedFromPriorDelivery": true
+    },
+    {
+      "path": "browser-rag/generator-native-core.mjs",
+      "bytes": 29395,
+      "sha256": "ead9aef61d91f758eb198db70fd98a2256c7e8f3874d6f63d73dc0b6214f03f6",
+      "equalsCurrentLocalSource": true,
+      "unchangedFromPriorDelivery": true
+    }
+  ],
+  "stylesheet": {
+    "path": "browser-rag/inspector.css",
+    "bytes": 17952,
+    "sha256": "17113f6db0c6bf0c1ea7c25b40a618e21d5b1827b063e0a94910e2872870bc11",
+    "matchesRequestedHash": true,
+    "matchesCurrentLocalSource": true,
+    "browserLayoutBehaviorValidatedByThisProof": false
+  },
+  "priorDeliveryComparison": {
+    "runId": 38166407011,
+    "commit": "e497b2f60ae5d1e79623715e5bdd59f3bce54f6e",
+    "archiveBytes": 15995,
+    "archiveSHA256": "a4b2eaec2efb39dcb982e33371c48b146d26c403aebd927378f1d37e6d61ce84",
+    "manifestBytes": 55100,
+    "manifestSHA256": "e1ff2658ece0b78de535761bee8986196d1704fd4334a585de58f83378af412c",
+    "fileCount": 309,
+    "totalBytes": 918460230,
+    "inventoryPathsUnchanged": true,
+    "totalBytesDelta": 2904,
+    "allSixReviewedProductionModulesUnchanged": true,
+    "allSixteenPublishedPinsUnchanged": true,
+    "allOtherBrowserFilesUnchanged": true,
+    "changedEntries": [
+      {
+        "path": "07-operational-receipts.html",
+        "before": {
+          "bytes": 46692,
+          "sha256": "3ecbb6ec72031d599a690184c719c732e67939eb087f96c6ca4d6d27e4a7d56a"
+        },
+        "after": {
+          "bytes": 49596,
+          "sha256": "6c7dd321f9cc3e53548e2840f3834027a7c9f82bd9e5df9afefe9fd9954afea6"
+        }
+      },
+      {
+        "path": "browser-rag/inspector.css",
+        "before": {
+          "bytes": 17952,
+          "sha256": "691730e6ef47e6dba9e85a8b41948f2b21bc737a5073fc3def4caacb93dbdf4d"
+        },
+        "after": {
+          "bytes": 17952,
+          "sha256": "17113f6db0c6bf0c1ea7c25b40a618e21d5b1827b063e0a94910e2872870bc11"
+        }
+      }
+    ]
+  },
+  "limits": [
+    "The current run was initially observed with successful build/Windows jobs and active deployment; after a spaced follow-up all three jobs and the run reported success before this manifest download.",
+    "Only the small manifest ZIP was downloaded; full Pages artifact and model bodies were not downloaded or independently rehashed.",
+    "Published asset checks compare CI inventory metadata with fixed local pins; six module and stylesheet hashes were computed from current local source.",
+    "CI deployment and CSS byte identity do not establish browser layout behavior, native preparation, inference or financial quality.",
+    "No build, CI retry, push, model run, browser action, runtime edit or credential output occurred."
+  ]
+}

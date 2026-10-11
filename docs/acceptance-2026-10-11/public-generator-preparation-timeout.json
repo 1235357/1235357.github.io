@@ -1,0 +1,7 @@
+{
+  "observedAt": "2026-10-11T19:45:50Z",
+  "url": "https://1235357.github.io/07-operational-receipts.html",
+  "scope": "embedded public preparation terminal; no complete receipt",
+  "status": "ASSET_PREPARATION_TIMEOUT · Static asset preparation exceeded its fixed time budget. Previously completed verified cache entries may remain; no complete preparation receipt was committed.",
+  "receiptChildren": ""
+}

@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-11T20:34:12Z",
+  "status": "local-combined-increment-verified",
+  "priorPublishedCommit": "368ba196a16666612d8bfe47885468db14bfdd25",
+  "scope": "Local regression and public static build only; no new remote CI, native HF preparation, native PDF/encoder/Qwen or financial quality claim",
+  "node": {
+    "tests": 2827,
+    "pass": 2827,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "durationMs": 22541.3439,
+    "priorFailurePreserved": {
+      "tests": 2827,
+      "pass": 2826,
+      "fail": 1,
+      "cause": "Adjacent query-worker controlled fixture still used one-byte WASM; production size gate refused it; repaired fixture uses installed pinned bytes without changing production source"
+    }
+  },
+  "python": {
+    "tests": 155,
+    "status": "OK",
+    "durationSeconds": 40.578
+  },
+  "publicBuild": {
+    "fileCount": 311,
+    "totalBytes": 918503041,
+    "limitBytes": 1000000000,
+    "verifiedPinnedAssetCount": 16,
+    "localManifestSha256": "37f04843ceb0ee378395a60ab1a1ab7cc8da0459d93f8711c1aaf1ba93cafd05"
+  },
+  "sources": [
+    {
+      "path": "browser-rag/asset-preparation-transport.mjs",
+      "bytes": 12309,
+      "sha256": "5015b1feee091097e498465bc7d0acc4d2951c302360d30e835e5587704ff02c"
+    },
+    {
+      "path": "browser-rag/asset-preparation-source.mjs",
+      "bytes": 13488,
+      "sha256": "02491eaf500e50691faea8e9ffd368f86869c79d768a55a55c7e6c21a906091c"
+    },
+    {
+      "path": "browser-rag/asset-preparation-view.mjs",
+      "bytes": 9722,
+      "sha256": "fcc1488e8aa157640a92a9f30a656a87d23d6bef19c93f7ac645716731700c3f"
+    },
+    {
+      "path": "browser-rag/asset-preparation.worker.mjs",
+      "bytes": 5067,
+      "sha256": "ee725266a607139b39f867391a74bc7497ba5beebf3f4706f5f77c1169550203"
+    },
+    {
+      "path": "browser-rag/embedding-runtime.mjs",
+      "bytes": 27080,
+      "sha256": "0fed5c9f1ff4b88fc5ee69b5fef548c3aba65525939e3ca69b15949f02f6aea9"
+    },
+    {
+      "path": "browser-rag/generator-native-core.mjs",
+      "bytes": 30221,
+      "sha256": "dc568f2bb6cbd2f5500a9fec174b56e2aed9a606eb8d516671980f29b1adf0f8"
+    },
+    {
+      "path": "browser-rag/pdf-worker-preparation.mjs",
+      "bytes": 6758,
+      "sha256": "04218ec71804efdfff1aed8d12fea630ffcc5e1e02a813f3cadee3a72994f932"
+    },
+    {
+      "path": "browser-rag/pdf-app.mjs",
+      "bytes": 49053,
+      "sha256": "d2f33633a8e8419e8f288dae6b76acad26f08b4707748212745f301af386cbf3"
+    },
+    {
+      "path": "browser-rag/pdf-public-entry.mjs",
+      "bytes": 588,
+      "sha256": "fb17d9f29320922c1cf15b39965e9af092e0be48a73e0197f2c5a06ae7398fd2"
+    },
+    {
+      "path": "browser-rag/pdf-session.mjs",
+      "bytes": 35567,
+      "sha256": "b2660571a0d3aeec726604012ca1ee25df39fe87931a33b4dea3b10084de1f7b"
+    },
+    {
+      "path": "browser_release_assets.py",
+      "bytes": 4678,
+      "sha256": "0a87f249509563f253639863167869fbcaa67ec25771cc0fa87eef59d21f69df"
+    },
+    {
+      "path": "test_public_browser_assets.py",
+      "bytes": 13107,
+      "sha256": "f0712509a9038fd082117a273f4086d336121d305ac164795aeeca98473d943d"
+    },
+    {
+      "path": "browser-rag/tests/query.worker.test.mjs",
+      "bytes": 15659,
+      "sha256": "a91c55a49c2d57dadef87eb8672570becd47d6f85c54cfa982072d76250ea516"
+    }
+  ],
+  "localLogs": [
+    {
+      "path": "docs/local-history/combined-hf-wasm-pdf-node-20261011.log",
+      "bytes": 235164,
+      "sha256": "c1fe95a2ee6412cc739b9bb8bf9f77374f93acd355f614304f150ada325b6f2e",
+      "distributed": false
+    },
+    {
+      "path": "docs/local-history/combined-hf-wasm-pdf-node-fixed-20261011.log",
+      "bytes": 234206,
+      "sha256": "d772109cc332c11b0de4625b97612165b3bee91ff22dfd0047650e090d2dfc80",
+      "distributed": false
+    },
+    {
+      "path": "docs/local-history/combined-hf-wasm-pdf-python-20261011.log",
+      "bytes": 8625,
+      "sha256": "487994f1b1e6bf4b076eaa9b78854c5d4a09cd990dc9a979d1803cf011de5f5c",
+      "distributed": false
+    },
+    {
+      "path": "docs/local-history/combined-hf-wasm-pdf-public-build-20261011.log",
+      "bytes": 219,
+      "sha256": "84c564a10430baa8a1dc2928f8f9779a6343a5c1616e2b9e868a9e901ab128cc",
+      "distributed": false
+    }
+  ]
+}
