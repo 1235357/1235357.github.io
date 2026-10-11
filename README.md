@@ -1304,6 +1304,95 @@ An October 10 root diagnostic streamed the downloaded Qwen Q4 file through
 This is one local fingerprint measurement, not process RSS, browser memory,
 model initialization, GPU inference, or a latency benchmark for RAG requests.
 
+#### Task 4.3b — explicit effective generation policy
+
+> **For agentic workers:** Use subagent-driven-development in this chat. Root
+> owns documentation and commits after independent SPEC then QUALITY review.
+> This is the already-planned effective-settings prerequisite, not inference.
+
+**Goal:** Prevent the selected model's downloaded generation defaults from
+silently changing the recorded greedy-generation policy.
+
+**Architecture / stack:** Extend the existing pure generation preflight in
+`browser-rag/generator-contract.mjs`; use the installed Transformers.js 3.8.1
+`GenerationConfig` and merge method only in a Node integration test. No SDK
+import in the pure module, new runtime, dependency, model copy, UI control,
+download, browser generation or capacity increase. Modify its existing test
+file and create `browser-rag/tests/generator-sdk-policy.test.mjs` for the pinned
+SDK diagnostic. Existing prompt/context/output contracts keep their purpose.
+
+The inspected pinned Qwen `generation_config.json` requests sampling and a
+repetition penalty of 1.1. In SDK 3.8.1, model defaults are merged before caller
+settings, and repetition penalties are applied independently of `do_sample`.
+The existing eight settings therefore do not fully describe effective behavior.
+
+- [x] **1. RED complete-policy test:** Update the independent expected settings
+  oracle below, with `inputTokens` as an argument. Require every preflight to
+  contain all 46 own `GenerationConfig` fields and a fresh recursively frozen
+  empty `generation_kwargs`. Preserve all existing boundary tests. Run
+  `node --test tests/generator-contract.test.mjs`: before implementation it must
+  fail the complete-policy expectations rather than a syntax/import error.
+
+  ```javascript
+  const expected = (inputTokens, maxNewTokens) => ({
+    max_length: inputTokens + maxNewTokens, max_new_tokens: maxNewTokens,
+    min_length: 0, min_new_tokens: null, early_stopping: false, max_time: null,
+    do_sample: false, num_beams: 1, num_beam_groups: 1, penalty_alpha: null,
+    use_cache: true, temperature: 1, top_k: 0, top_p: 1, typical_p: 1,
+    epsilon_cutoff: 0, eta_cutoff: 0, diversity_penalty: 0,
+    repetition_penalty: 1, encoder_repetition_penalty: 1, length_penalty: 1,
+    no_repeat_ngram_size: 0, bad_words_ids: null, force_words_ids: null,
+    renormalize_logits: false, constraints: null, forced_bos_token_id: null,
+    forced_eos_token_id: null, remove_invalid_values: false,
+    exponential_decay_length_penalty: null, suppress_tokens: null,
+    streamer: null, begin_suppress_tokens: null, forced_decoder_ids: null,
+    guidance_scale: null, num_return_sequences: 1, output_attentions: false,
+    output_hidden_states: false, output_scores: false,
+    return_dict_in_generate: false, pad_token_id: 151643, bos_token_id: 151643,
+    eos_token_id: [151645, 151643], encoder_no_repeat_ngram_size: 0,
+    decoder_start_token_id: null, generation_kwargs: {},
+  });
+  ```
+
+- [x] **2. GREEN owned policy:** Change `generationSettings` to accept
+  `(inputTokens, maxNewTokens)` and return the complete values above. Give the
+  revised policy identity `qwen2.5-0.5b-q4-webgpu-v2`. Derive the known setting
+  key list from the private canonical factory, not from caller properties or
+  SDK imports. Revalidation captures each declared setting once; EOS remains
+  a two-element owned numeric snapshot. Validate `generation_kwargs` as a local
+  plain or null-prototype record with exactly zero own keys, without reading
+  unknown getters, and return only the canonical detached frozen empty record.
+  Compare all other scalars strictly against the reconstructed preflight.
+  Preserve canonical private errors and `generationMode: not-run`.
+
+- [x] **3. Regression and actual SDK merge:** Test altered, missing, extra,
+  symbol, throwing and changing settings; reject nonempty/array/custom-prototype
+  kwargs without reading their private values. Accept a null-prototype empty
+  kwargs record without mutating it. Verify independent receipts share no EOS
+  array or kwargs object. The SDK test imports pinned installed source
+  `GenerationConfig` and `PreTrainedModel`, checks the full 46-field set, and
+  calls the actual prototype `_prepare_generation_config` method on a fixture
+  with the downloaded default values above. An eight-setting legacy control
+  must retain penalty 1.1; the new caller policy must yield penalty 1, sampling
+  false, exact input/output bounds and all 46 values. Metadata such as
+  `transformers_version` is not a behavior setting. This test does not load a
+  model or call `generate`; the SDK-owned merged object must remain mutable
+  because SDK generation adjusts `max_length`.
+- [x] **4. Acceptance:** Fresh SPEC review then QUALITY review; full Node suite,
+  Python build suite and `git diff --check`. Root adds a short teaching account
+  to article 05, rebuilds/reloads the local preview, records exact test results,
+  commits only reviewed files locally, and continues asset/loading/inference
+  work. No GitHub publication or claim of actual generation acceptance.
+
+Status: **implementation, independent SPEC and independent QUALITY accepted**.
+Fresh QUALITY independently reran 1,609 Node tests and 276 focused policy/SDK
+tests with zero failures or skips. Root reran the 65 Python build/assets tests
+successfully, rebuilt the six-article local preview, checked the real Codex IAB
+rendering and saved its screenshot. The first root command mistakenly named an
+absent third test module; the corrected two-module run exited successfully.
+`git diff --check` passed. No model has been loaded or generated by this
+policy-only task, and nothing was published to GitHub.
+
 </details>
 
 </details>

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { runInNewContext } from 'node:vm';
 import {
   GENERATION_SPEC, GenerationContractError, preflightGeneration, inspectGeneratedSequence,
 } from '../generator-contract.mjs';
@@ -12,7 +13,7 @@ const SPEC = {
   libraryVersion: '3.8.1', ortVersion: '1.22.0-dev.20250409-89f8206ba4',
   dtype: 'q4', device: 'webgpu', modelMaxPositions: 32768, vocabSize: 151936,
   maxDeviceWindowTokens: 2048, defaultMaxNewTokens: 128, hardMaxNewTokens: 512,
-  version: 'qwen2.5-0.5b-q4-webgpu-v1',
+  version: 'qwen2.5-0.5b-q4-webgpu-v2',
 };
 const MESSAGES = {
   INVALID_GENERATION_CONFIG: 'The generation configuration is invalid.',
@@ -24,10 +25,23 @@ const fixedError = code => error => error instanceof GenerationContractError
   && error.message === MESSAGES[code] && !Object.hasOwn(error, 'cause');
 const accepted = (ids = [5, 6], options = { maxNewTokens: 3 }) => preflightGeneration(ids, options);
 const mutable = (ids, options) => structuredClone(accepted(ids, options));
-const settings = max => ({
-  do_sample: false, num_beams: 1, num_return_sequences: 1, max_new_tokens: max,
-  eos_token_id: [151645, 151643], pad_token_id: 151643,
-  return_dict_in_generate: false, use_cache: true,
+// Independently specify the entire effective policy, including fields that
+// would otherwise survive the SDK's downloaded-model configuration merge.
+const settings = (input, max) => ({
+  max_length: input + max, max_new_tokens: max, min_length: 0, min_new_tokens: null,
+  early_stopping: false, max_time: null, do_sample: false, num_beams: 1,
+  num_beam_groups: 1, penalty_alpha: null, use_cache: true, temperature: 1,
+  top_k: 0, top_p: 1, typical_p: 1, epsilon_cutoff: 0, eta_cutoff: 0,
+  diversity_penalty: 0, repetition_penalty: 1, encoder_repetition_penalty: 1,
+  length_penalty: 1, no_repeat_ngram_size: 0, bad_words_ids: null,
+  force_words_ids: null, renormalize_logits: false, constraints: null,
+  forced_bos_token_id: null, forced_eos_token_id: null, remove_invalid_values: false,
+  exponential_decay_length_penalty: null, suppress_tokens: null, streamer: null,
+  begin_suppress_tokens: null, forced_decoder_ids: null, guidance_scale: null,
+  num_return_sequences: 1, output_attentions: false, output_hidden_states: false,
+  output_scores: false, return_dict_in_generate: false, pad_token_id: 151643,
+  bos_token_id: 151643, eos_token_id: [151645, 151643],
+  encoder_no_repeat_ngram_size: 0, decoder_start_token_id: null, generation_kwargs: {},
 });
 function recursivelyFrozen(value) {
   if (value === null || typeof value !== 'object') return;
@@ -59,7 +73,7 @@ test('preflight preserves every token and returns an explicit not-run receipt', 
   assert.deepEqual(result, {
     schemaVersion: 1, status: 'generation-preflight', generationMode: 'not-run',
     generationId: SPEC.version, generation: SPEC, promptTokenIds: ids,
-    inputTokens: 4, contextWindowTokens: 2048, maxNewTokens: 128, settings: settings(128),
+    inputTokens: 4, contextWindowTokens: 2048, maxNewTokens: 128, settings: settings(4, 128),
   });
   assert.notEqual(result.promptTokenIds, ids);
   assert.notEqual(result.generation, GENERATION_SPEC);
@@ -77,8 +91,13 @@ test('preflight detaches its arrays, identity and settings without freezing call
   assert.equal(Object.isFrozen(options), false);
   assert.notEqual(first.promptTokenIds, second.promptTokenIds);
   assert.notEqual(first.generation, second.generation);
+  assert.notEqual(first.settings, second.settings);
   assert.notEqual(first.settings.eos_token_id, second.settings.eos_token_id);
+  assert.notEqual(first.settings.generation_kwargs, second.settings.generation_kwargs);
+  assert.equal(Reflect.ownKeys(first.settings).length, 46);
+  recursivelyFrozen(first.settings);
   assert.throws(() => { first.settings.eos_token_id[0] = 0; }, TypeError);
+  assert.throws(() => { first.settings.generation_kwargs.private = 'PRIVATE'; }, TypeError);
 });
 
 test('minimum valid token budget is accepted exactly', () => {
@@ -86,7 +105,7 @@ test('minimum valid token budget is accepted exactly', () => {
   assert.equal(result.inputTokens, 1);
   assert.equal(result.contextWindowTokens, 2);
   assert.equal(result.maxNewTokens, 1);
-  assert.deepEqual(result.settings, settings(1));
+  assert.deepEqual(result.settings, settings(1, 1));
 });
 
 for (const [inputTokens, maxNewTokens] of [[1920, 128], [2047, 1], [1536, 512]]) {
@@ -95,6 +114,7 @@ for (const [inputTokens, maxNewTokens] of [[1920, 128], [2047, 1], [1536, 512]])
     const result = preflightGeneration(ids, { maxNewTokens });
     assert.deepEqual(result.promptTokenIds, ids);
     assert.equal(result.inputTokens + result.maxNewTokens, 2048);
+    assert.deepEqual(result.settings, settings(inputTokens, maxNewTokens));
   });
   test(`one token above the device budget refuses ${inputTokens + 1} input tokens`, () => {
     assert.throws(() => preflightGeneration(Array(inputTokens + 1).fill(5), { maxNewTokens }),
@@ -360,7 +380,7 @@ for (const key of Object.keys(SPEC)) {
   });
 }
 
-for (const key of Object.keys(settings(3))) {
+for (const key of Object.keys(settings(2, 3))) {
   test(`accepted preflight refuses altered generation setting ${key}`, () => {
     const preflight = mutable();
     preflight.settings[key] = Array.isArray(preflight.settings[key]) ? [151643, 151645]
@@ -368,7 +388,128 @@ for (const key of Object.keys(settings(3))) {
     assert.throws(() => inspectGeneratedSequence([5, 6, 7], preflight),
       fixedError('INVALID_GENERATION_CONFIG'));
   });
+  test(`accepted preflight refuses missing generation setting ${key}`, () => {
+    const preflight = mutable(); delete preflight.settings[key];
+    assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+      fixedError('INVALID_GENERATION_CONFIG'));
+  });
+  test(`throwing generation setting ${key} receives only the private configuration error`, () => {
+    const preflight = mutable();
+    Object.defineProperty(preflight.settings, key, { get() { throw new Error('PRIVATE_QUESTION'); } });
+    assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+      fixedError('INVALID_GENERATION_CONFIG'));
+  });
+  test(`changing generation setting ${key} is captured exactly once`, () => {
+    const preflight = mutable(), expected = preflight.settings[key];
+    let reads = 0;
+    Object.defineProperty(preflight.settings, key, { get() {
+      return ++reads === 1 ? expected : 'PRIVATE_CHANGED_VALUE';
+    } });
+    assert.equal(inspectGeneratedSequence([5, 6], preflight).termination, 'empty-output');
+    assert.equal(reads, 1);
+  });
 }
+
+test('extra generation setting getters are refused without reading private values', () => {
+  for (const key of ['private', Symbol('private')]) {
+    const preflight = mutable(); let reads = 0;
+    Object.defineProperty(preflight.settings, key, { get() { reads++; throw new Error('PRIVATE'); } });
+    assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+      fixedError('INVALID_GENERATION_CONFIG'));
+    assert.equal(reads, 0);
+  }
+});
+
+test('generation kwargs must be an empty local plain record', () => {
+  class Other {}
+  for (const value of [null, undefined, true, 1, 'kwargs', [], new Map(), new Other(),
+    Object.create({}), runInNewContext('({})'), { private: 1 },
+    { [Symbol('private')]: 1 }]) {
+    const preflight = mutable(); preflight.settings.generation_kwargs = value;
+    assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+      fixedError('INVALID_GENERATION_CONFIG'));
+  }
+});
+
+test('nonempty generation kwargs reject private getter values without reading them', () => {
+  for (const key of ['private', Symbol('private')]) {
+    const preflight = mutable(), kwargs = {}; let reads = 0;
+    Object.defineProperty(kwargs, key, { get() { reads++; throw new Error('PRIVATE'); } });
+    preflight.settings.generation_kwargs = kwargs;
+    assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+      fixedError('INVALID_GENERATION_CONFIG'));
+    assert.equal(reads, 0);
+    assert.equal(Object.isFrozen(kwargs), false);
+  }
+});
+
+test('malformed generation kwargs containers are refused before reading private getters', () => {
+  class Other {}
+  for (const kwargs of [[], new Other(), Object.create({})]) {
+    const preflight = mutable(); let reads = 0;
+    Object.defineProperty(kwargs, 'private', { get() { reads++; throw new Error('PRIVATE'); } });
+    preflight.settings.generation_kwargs = kwargs;
+    assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+      fixedError('INVALID_GENERATION_CONFIG'));
+    assert.equal(reads, 0);
+  }
+});
+
+test('generation kwargs reflection errors stay canonical without reading values', () => {
+  for (const trap of ['getPrototypeOf', 'ownKeys']) {
+    const preflight = mutable(); let reads = 0;
+    preflight.settings.generation_kwargs = new Proxy({}, {
+      [trap]() { throw new Error('PRIVATE_REFLECTION'); },
+      get() { reads++; throw new Error('PRIVATE_VALUE'); },
+    });
+    assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+      fixedError('INVALID_GENERATION_CONFIG'));
+    assert.equal(reads, 0);
+  }
+});
+
+test('empty null-prototype generation kwargs are accepted without identity comparison or mutation', () => {
+  const preflight = mutable(), kwargs = Object.create(null);
+  preflight.settings.generation_kwargs = kwargs;
+  assert.equal(inspectGeneratedSequence([5, 6], preflight).termination, 'empty-output');
+  assert.equal(preflight.settings.generation_kwargs, kwargs);
+  assert.deepEqual(Reflect.ownKeys(kwargs), []);
+  assert.equal(Object.getPrototypeOf(kwargs), null);
+  assert.equal(Object.isFrozen(kwargs), false);
+});
+
+test('EOS policy is bounded to two numeric snapshot values', () => {
+  const extra = [151645, 151643]; extra.private = 1;
+  const symbol = [151645, 151643]; symbol[Symbol('private')] = 1;
+  for (const eos of [[151645, 151643, 0], [151645, 151643n], [151645, '151643'],
+    [151645, ,], extra, symbol]) {
+    const preflight = mutable(); preflight.settings.eos_token_id = eos;
+    assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+      fixedError('INVALID_GENERATION_CONFIG'));
+  }
+  const preflight = mutable(); let values = 0, keys = 0;
+  preflight.settings.eos_token_id = new Proxy(Array(3), {
+    ownKeys() { keys++; throw new Error('PRIVATE_KEYS'); },
+    get(target, key) {
+      if (key === 'length') return target.length;
+      values++; throw new Error('PRIVATE_VALUE');
+    },
+  });
+  assert.throws(() => inspectGeneratedSequence([5, 6], preflight),
+    fixedError('INVALID_GENERATION_CONFIG'));
+  assert.equal(keys, 0); assert.equal(values, 0);
+});
+
+test('changing EOS policy token getters are captured once', () => {
+  const preflight = mutable(), reads = [0, 0], ids = [151645, 151643];
+  for (let index = 0; index < 2; index++) {
+    Object.defineProperty(preflight.settings.eos_token_id, index, { get() {
+      return ++reads[index] === 1 ? ids[index] : 0;
+    } });
+  }
+  assert.equal(inspectGeneratedSequence([5, 6], preflight).termination, 'empty-output');
+  assert.deepEqual(reads, [1, 1]);
+});
 
 for (const [key, value] of [['schemaVersion', 2], ['status', 'generated'],
   ['generationMode', 'run'], ['generationId', 'other'], ['inputTokens', 1],

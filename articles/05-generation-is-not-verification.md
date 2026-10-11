@@ -225,6 +225,39 @@ inference. In particular, the selected SDK still reads model bytes into a
 full buffer for initialization. Bounded build reads do not remove that separate
 browser/runtime memory cost.
 
+### Record the effective policy, not only the requested setting
+
+Setting `do_sample: false` does not describe the complete policy that reaches
+the model. The pinned Qwen configuration requests sampling, temperature 0.7,
+top-k 20, top-p 0.8 and a repetition penalty of 1.1. Transformers.js 3.8.1 merges
+model defaults before caller settings. Some defaults are irrelevant to greedy
+selection, but repetition penalties can still change the logits independently
+of sampling. A trace that records only “greedy” would conceal that difference.
+
+The local preflight now owns every one of the pinned SDK's 46 generation fields.
+It specifies neutral repetition penalties, one beam, no sampling and the exact
+input-plus-reserved-output limit. Its Qwen-specific BOS, padding and two EOS IDs
+are not portable defaults for an arbitrary model. Each receipt owns frozen
+copies of its EOS array and empty extra-arguments record; when a receipt crosses
+the contract boundary, validation reconstructs those values instead of trusting
+the caller's object identity. The policy identity is
+`qwen2.5-0.5b-q4-webgpu-v2`.
+
+An integration test calls the actual installed SDK configuration-merge method
+without loading weights or invoking generation. Its legacy eight-setting control
+retains the model's 1.1 repetition penalty. The complete caller policy overrides
+all 46 known fields and preserves the configured token limits. The SDK's own
+merged object remains writable because generation subsequently adjusts its
+length limit; freezing the public receipt is not a reason to freeze SDK-owned
+state. A dependency upgrade must rerun this field-set and merge test.
+
+This is a CS381 contract and ownership example: the preflight owns the intended
+policy, the adapter must pass it to the runtime, and the test observes the real
+merge boundary. For your learning exercise, predict the legacy control's penalty
+before reading its output, then explain why recording a setting is weaker than
+checking the effective configuration. This test establishes policy composition,
+not GPU inference, reproducible output across devices or financial correctness.
+
 ## Explain the observed failure without exaggeration
 
 A prior local Qwen2.5-0.5B-Instruct run reached generation but omitted the required

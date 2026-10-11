@@ -8,7 +8,7 @@ export const GENERATION_SPEC = Object.freeze({
   libraryVersion: '3.8.1', ortVersion: '1.22.0-dev.20250409-89f8206ba4',
   dtype: 'q4', device: 'webgpu', modelMaxPositions: 32768, vocabSize: 151936,
   maxDeviceWindowTokens: 2048, defaultMaxNewTokens: 128, hardMaxNewTokens: 512,
-  version: 'qwen2.5-0.5b-q4-webgpu-v1',
+  version: 'qwen2.5-0.5b-q4-webgpu-v2',
 });
 
 const MESSAGES = Object.freeze({
@@ -30,8 +30,7 @@ const SPEC_KEYS = Object.keys(GENERATION_SPEC);
 const OPTION_KEYS = ['contextWindowTokens', 'maxNewTokens'];
 const PREFLIGHT_KEYS = ['schemaVersion', 'status', 'generationMode', 'generationId',
   'generation', 'promptTokenIds', 'inputTokens', 'contextWindowTokens', 'maxNewTokens', 'settings'];
-const SETTING_KEYS = ['do_sample', 'num_beams', 'num_return_sequences', 'max_new_tokens',
-  'eos_token_id', 'pad_token_id', 'return_dict_in_generate', 'use_cache'];
+const SETTING_KEYS = Object.keys(generationSettings(1, 1));
 
 // Local same-realm plain records (including null-prototype records) are the
 // contract boundary. Reflection/access failures are made canonical; this is
@@ -73,11 +72,26 @@ function snapshotIds(value, minLength, maxLength, code, allowBigInt = false) {
   return Object.freeze(copied);
 }
 
-function generationSettings(maxNewTokens) {
+// Own every known Transformers.js 3.8.1 generation field: greedy decoding
+// alone does not neutralize settings inherited from the downloaded model.
+// Each receipt owns its nested records; no SDK code or model is loaded here.
+function generationSettings(inputTokens, maxNewTokens) {
   return Object.freeze({
-    do_sample: false, num_beams: 1, num_return_sequences: 1, max_new_tokens: maxNewTokens,
-    eos_token_id: Object.freeze([151645, 151643]), pad_token_id: 151643,
-    return_dict_in_generate: false, use_cache: true,
+    max_length: inputTokens + maxNewTokens, max_new_tokens: maxNewTokens,
+    min_length: 0, min_new_tokens: null, early_stopping: false, max_time: null,
+    do_sample: false, num_beams: 1, num_beam_groups: 1, penalty_alpha: null,
+    use_cache: true, temperature: 1, top_k: 0, top_p: 1, typical_p: 1,
+    epsilon_cutoff: 0, eta_cutoff: 0, diversity_penalty: 0, repetition_penalty: 1,
+    encoder_repetition_penalty: 1, length_penalty: 1, no_repeat_ngram_size: 0,
+    bad_words_ids: null, force_words_ids: null, renormalize_logits: false,
+    constraints: null, forced_bos_token_id: null, forced_eos_token_id: null,
+    remove_invalid_values: false, exponential_decay_length_penalty: null,
+    suppress_tokens: null, streamer: null, begin_suppress_tokens: null,
+    forced_decoder_ids: null, guidance_scale: null, num_return_sequences: 1,
+    output_attentions: false, output_hidden_states: false, output_scores: false,
+    return_dict_in_generate: false, pad_token_id: 151643, bos_token_id: 151643,
+    eos_token_id: Object.freeze([151645, 151643]), encoder_no_repeat_ngram_size: 0,
+    decoder_start_token_id: null, generation_kwargs: Object.freeze({}),
   });
 }
 
@@ -113,7 +127,7 @@ export function preflightGeneration(promptTokenIds, options = {}) {
       schemaVersion: 1, status: 'generation-preflight', generationMode: 'not-run',
       generationId: GENERATION_SPEC.version, generation: Object.freeze({ ...GENERATION_SPEC }),
       promptTokenIds: prompt, inputTokens, contextWindowTokens, maxNewTokens,
-      settings: generationSettings(maxNewTokens),
+      settings: generationSettings(inputTokens, maxNewTokens),
     });
   } catch {
     throw new GenerationContractError('GENERATION_INPUT_LIMIT');
@@ -128,6 +142,9 @@ function acceptPreflight(value) {
     const spec = snapshotRecord(captured.generation, SPEC_KEYS, 'INVALID_GENERATION_CONFIG');
     const settings = snapshotRecord(captured.settings, SETTING_KEYS, 'INVALID_GENERATION_CONFIG');
     const eos = snapshotIds(settings.eos_token_id, 2, 2, 'INVALID_GENERATION_CONFIG');
+    // Empty plain records are equivalent, regardless of caller identity or
+    // null prototype. Reject unknown keys before any getter value is read.
+    snapshotRecord(settings.generation_kwargs, [], 'INVALID_GENERATION_CONFIG');
     const prompt = snapshotIds(captured.promptTokenIds, 1, GENERATION_SPEC.maxDeviceWindowTokens,
       'INVALID_GENERATION_CONFIG');
     const canonical = preflightGeneration(prompt, {
@@ -141,7 +158,8 @@ function acceptPreflight(value) {
       if (spec[key] !== canonical.generation[key]) fail('INVALID_GENERATION_CONFIG');
     }
     for (const key of SETTING_KEYS) {
-      if (key !== 'eos_token_id' && settings[key] !== canonical.settings[key]) fail('INVALID_GENERATION_CONFIG');
+      if (key !== 'eos_token_id' && key !== 'generation_kwargs'
+          && settings[key] !== canonical.settings[key]) fail('INVALID_GENERATION_CONFIG');
     }
     if (eos[0] !== canonical.settings.eos_token_id[0]
         || eos[1] !== canonical.settings.eos_token_id[1]) fail('INVALID_GENERATION_CONFIG');
