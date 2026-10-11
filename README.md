@@ -1569,7 +1569,7 @@ build delivery and `test_stream_assets.py` to deliver its complete static graph
 when the cache module exists. Leave embedding caps/runtime, UI and model files
 unchanged. Do not add arbitrary filename or URL resolution.
 
-- [ ] **C2.1 / RED API and real SDK controls:** Export the minimal importable API
+- [x] **C2.1 / RED API and real SDK controls:** Export the minimal importable API
   below and first fail a real preparation/read success assertion. Do not use
   an always-successful digest or mock `getModelFile`.
 
@@ -1595,7 +1595,7 @@ unchanged. Do not add arbitrary filename or URL resolution.
   Reproduce the actual SDK's rejected-match fallback with a counted rejecting
   global fetch, then prove the new adapter yields zero fallback fetches.
 
-- [ ] **C2.2 / owned preparation:** Implement `prepareVerifiedAssetCache(plan,
+- [x] **C2.2 / owned preparation:** Implement `prepareVerifiedAssetCache(plan,
   options = {})`, `VerifiedCacheError`, and an accepted frozen store
   `{cache, receipt, finishReads, close}`. `cache` exposes frozen `{match, put}`.
   The plan is exact plain/null-prototype `{cacheName, assets}`; use a native
@@ -1633,7 +1633,7 @@ unchanged. Do not add arbitrary filename or URL resolution.
   estimated: false, verified}` using C1's actual bytes; include no payload,
   arbitrary request key or raw exception in progress/errors.
 
-- [ ] **C2.3 / closed reads and lifecycle:** `cache.match(request)` accepts only
+- [x] **C2.3 / closed reads and lifecycle:** `cache.match(request)` accepts only
   an exact string key or native GET Request URL from the owned map. Read the
   primary URL again from the Cache and return a fresh C1-wrapped response;
   never fetch during SDK consumption. Track its completion. Unknown/missing
@@ -1667,7 +1667,7 @@ unchanged. Do not add arbitrary filename or URL resolution.
   Error codes are private `INVALID_CACHE_CONFIG`, `ASSET_CACHE_ERROR`,
   `ASSET_INTEGRITY_ERROR` and `ABORTED`; do not trust a caller error's `.code`.
 
-- [ ] **C2.4 / SDK and build acceptance:** In serial installed-SDK tests, set
+- [x] **C2.4 / SDK and build acceptance:** In serial installed-SDK tests, set
   `allowLocalModels:true`, `allowRemoteModels:false`, `useCustomCache:true`,
   `useBrowserCache:false`, `useFSCache:false`; bind `customCache` to the store.
   Use fixed local and exact revision-qualified HF aliases from the five-file
@@ -1695,7 +1695,177 @@ GPU and captured ORT device cleanup. The inspected tokenizer's separate smoke
 fixture is 32 input IDs with 8 reserved output IDs, total window 40, before a
 full financial prompt. That is a bounded runtime probe, not answer evaluation.
 
-Status: **written C2 plan; C1 accepted locally, C2 code is next**.
+Status: **C2 accepted locally after SPEC then QUALITY, root verification,
+rebuild and actual IAB teaching preview.** The final SPEC gap was repeated SDK
+reads: two new serial cases now use one prepared store for three installed
+`getModelFile` calls with and without progress callbacks. Consumed-response and
+sealed-cache-bypass fault controls both failed before restoration. Independent
+rechecks passed 113 focused tests and all 1,831 Node tests; root also freshly
+reran both suites successfully. Root's fresh complete
+85-test Python run passed in 25.768 seconds. The adapter source SHA-256 is
+`3d88ffb6c24d1227163ac4238f47747da773484b61df65b86df147816659feaf`.
+This accepts Node/SDK/cache-contract and static packaging behavior, not native
+browser CacheStorage, Qwen model initialization or generation.
+The six-article local rebuild succeeded, delivered cache bytes exactly match
+the source, and the real IAB screenshot is `rag-cache-boundary-oct11.jpg`.
+The local checkpoint includes the next C3 execution plan; C3 has not yet passed
+review or actual-browser acceptance. No GitHub publication is performed.
+
+**Private model staging, October 11:** The five downloaded Qwen files are now
+under the existing ignored `.model-cache/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/`
+directory, with the graph at `onnx/model_q4.onnx`. Original Downloads files were
+retained and no existing cache file was overwritten. Each source and copied
+target matched its pinned byte count and SHA-256; total model assets are
+793,197,262 bytes, including the 786,156,820-byte graph. `git check-ignore`
+confirms the files are excluded from Git. They are not copied to `dist`, loaded
+by the browser, publicly redistributed or accepted for generation by this step.
+Conversion-tree redistribution provenance remains unresolved; no release is
+authorized. A fresh `nvidia-smi` reported RTX 4060 Laptop / 8,188 MiB total with
+6,379 MiB already used; this is a dated device observation, not a promise of
+available GPU capacity. Start with the separate 32-input/8-output smoke before
+attempting the full financial prompt or configured 2,048-token ceiling.
+
+#### Task 4.3d / C3 — actual private browser WebGPU generation probe
+
+> **For agentic workers:** C2 independent SPEC and QUALITY must both pass first.
+> Continue the approved same-chat implementation with fresh SPEC then QUALITY.
+> Root owns documentation, browser execution and local commits. This probe is
+> an integration gate toward the financial runtime, not a replacement for it.
+
+**Goal:** Execute the real pinned Qwen model in a native browser Worker, with
+native CacheStorage, 32 actual input tokens, at most eight new tokens, inspected
+output and explicit cleanup. Contract-only fixtures cannot satisfy this goal.
+
+**Architecture:** Keep the accepted default static build and port 8765 intact.
+Add a loopback-only diagnostic server on port 8766. It serves accepted `dist`
+resources and a short authored diagnostic allowlist. Mount exactly five ignored
+Qwen files; never expose the repository, private-cache directory or arbitrary
+filenames. The diagnostic owns one native module Worker per attempt. It does
+not enable financial generation or publish model weights.
+
+**Stack and files:** Native Python standard-library HTTP server; native browser
+CacheStorage/WebGPU/Worker; accepted C2; Transformers.js 3.8.1 and its already
+pinned ORT bundle. Create `browser-rag/acceptance/serve-generator-probe.py`,
+`generator-probe.html`, `generator-probe.mjs`, `generator-probe.worker.mjs`,
+`generator-probe-assets.json`,
+`browser-rag/tests/generator-probe.test.mjs` and `test_generator_probe.py`.
+Separate a small pure handler/runtime file only if the Worker exceeds a focused
+single responsibility. Do not change the default model-copy build, MiniLM caps,
+PDF/retrieval artifacts, dependency versions or public UI activation.
+
+- [ ] **C3.1 / RED exact local delivery:** Test GET/HEAD and Content-Length for
+  the five named model routes, diagnostic resources and accepted static files;
+  refuse traversal, percent-encoded escapes, unknown model files, directories,
+  query/fragment-bearing requests and a non-loopback bind. Model paths map only
+  to `.model-cache/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/` with its graph at
+  `onnx/model_q4.onnx`. Stream/hash-check the named files in bounded blocks at
+  startup; refuse wrong bytes/hash or reparse paths. The authored manifest has
+  exact fields `schemaVersion:1`, pinned `modelId`, `revision`, `modelFiles` and
+  `runtimeFiles`; each named file has exactly `bytes` and `sha256`. File names
+  are the fixed five Qwen and three existing runtime names, not arbitrary paths.
+  Use small test fixture
+  assets, not copies of the 786 MB graph in temporary build tests. Root starts
+  the real server only after review. Port 8765 remains untouched.
+
+  Fixed model URL prefix:
+  `http://127.0.0.1:8766/browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/`.
+  Mount the existing `generator-contract.mjs` separately because the default
+  build does not deliver it. Other existing modules/vendor resources come from
+  `dist`. No directory listing, broad source mount, external request or upload.
+
+- [ ] **C3.2 / RED owned Worker and actual loader:** The Worker accepts one fixed
+  `{kind:'qwen-smoke',version:1}` command. Prepare the five model assets through
+  C2 with fixed primary URLs and exact HF revision aliases; preserve all five
+  byte/hash pins recorded above. Also verify the three runtime files against
+  the existing `embedding-assets.json` runtime pins. Native storage errors,
+  unsupported non-fallback GPU or an unexpected asset reject; no precision,
+  CPU, CDN or download-repair fallback. Publish safe actual progress, not fake
+  percentages or raw SDK exceptions. Suppress the owned Worker's SDK console
+  before importing the pinned bundle. Validate the actual adapter's non-fallback
+  status and capture ORT's requested native device through a receiver-preserving
+  adapter proxy, as the current embedding runtime does.
+
+  Configure local-only custom cache, `allowLocalModels:true`,
+  `allowRemoteModels:false`, browser/FS caches disabled, explicit same-origin ORT
+  `wasmPaths`, `proxy:false`, `numThreads:1`, and the owned adapter. Runtime
+  JS/WASM fetches remain a separately counted transport boundary; do not call
+  model-body receipts a whole-browser privacy/network audit. AutoTokenizer and
+  AutoModelForCausalLM use the exact revision and `local_files_only:true`.
+  Model options are `device:'webgpu'`, `dtype:'q4'`,
+  `use_external_data_format:false`, and
+  `session_options:{executionProviders:['webgpu']}` with no external-data field.
+
+  Manifest model pins (runtime pins are the exact three entries in the current
+  `embedding-assets.json`, copied without alteration):
+
+  | File | Bytes | SHA-256 |
+  | --- | ---: | --- |
+  | config.json | 678 | 777e01f0fbb3346eb229cb6fb278ed6533c1e4dcb9ebf4bed0f6e94ef17fa1b5 |
+  | tokenizer.json | 7031673 | a8506e7111b80c6d8635951a02eab0f4e1a8e4e5772da83846579e97b16f61bf |
+  | tokenizer_config.json | 7849 | 6a14243f0ae04884e597b3f032c05e15de9f417318fdcac24ab4e2680e691430 |
+  | generation_config.json | 242 | f7e7ce458658b2d40d9eb213b91b77a8bf698845ab89360976722d7ac46928a3 |
+  | onnx/model_q4.onnx | 786156820 | 09235a3b1c135cd04ef570e5053b5c079e028078a2cc5f76ba6a251e91bf3296 |
+
+  Tokenize this explicit fixture with the real tokenizer:
+
+  ```javascript
+  const messages = [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'Say hello briefly and mention this is a very small local test.' },
+  ];
+  const expectedIds = [151644,8948,198,2610,525,264,10950,17847,13,151645,198,
+    151644,872,198,45764,23811,26753,323,6286,419,374,264,1602,2613,2205,1273,
+    13,151645,198,151644,77091,198];
+  const prompt = tokenizer.apply_chat_template(messages,
+    { tokenize:false, add_generation_prompt:true });
+  const frame = await tokenizer(prompt, { add_special_tokens:false,
+    truncation:false, padding:false, return_tensor:false });
+  const preflight = preflightGeneration(frame.input_ids,
+    { contextWindowTokens:40, maxNewTokens:8 });
+  ```
+
+  Reject any ID/mask mismatch before loading the graph. Own int64 tensors of
+  shape `[1,32]`, then call `model.generate` with those tensors and all canonical
+  preflight settings under `generation_config`, with fresh nested EOS/kwargs
+  copies. Validate rank-two int64 output and length 32..40 before copying IDs;
+  inspect it with `inspectGeneratedSequence`, decode only generated IDs and
+  reject empty/incomplete output. Keep the pure check's `generationMode:not-run`
+  unchanged inside its report; the separate runtime receipt establishes the
+  actual invocation. Await C2 `finishReads` before success.
+
+- [ ] **C3.3 / RED terminal ownership and UI:** Run/Cancel controls, fixed input
+  and output token panels, pinned identity, cache preparation/SDK-read receipts,
+  stage elapsed times and cleanup state. Use existing dark visual tokens and
+  readable two-column layout; no new diagram without Archify/editable sources.
+  Render only bounded owned receipts with `textContent`, not raw HTML/errors.
+  Parent owns ready/work deadlines, one Worker, listeners and timers; cancel,
+  timeout, pagehide, native error and malformed packets revoke commit permission
+  and terminate the Worker. Start a fresh Worker on an explicit new attempt,
+  never reuse readonly ORT state. Worker owns tensors, model and captured device:
+  dispose inputs/result, await model.dispose, close cache, destroy device once
+  before posting success. Device loss/validation failures are fixed errors.
+  Late model/device completion after cancellation cannot escape cleanup.
+  Parent termination is a reachable resource boundary, not proof of a disposed
+  model when the SDK has not returned. Do not delete persisted valid caches.
+
+- [ ] **C3.4 / review and actual acceptance:** Native lifecycle/loader unit tests
+  use meaningful importable-stub REDs and fault controls, not a fake model run
+  claimed as GPU acceptance. Test malformed packets, cancel/timeout/late results,
+  wrong token IDs/output prefix/shape, cache/load/generation failures, and owned
+  cleanup. Run complete Node/Python suites and independent SPEC then QUALITY.
+  Root starts only the reviewed loopback server, opens the diagnostic in Codex
+  IAB, clicks Run, observes real stages and records actual terminal evidence.
+  Check warm reread and explicit cancellation after one successful cold attempt
+  where practical; stop on a concrete device/resource failure and fix from that
+  evidence rather than silently changing backend. Record a screenshot and real
+  receipts in the existing chapter/README. No public release, financial-quality
+  result, throughput claim, source-permission claim or whole-goal completion.
+
+**Next after a real successful probe:** Integrate the existing provenance prompt
+with selected-PDF context and deliberate larger token budgets. The end state
+still includes inspected financial generation, output/source validation,
+independent answer evaluation, API integration, learning figures and release
+gates. This private fixture is only a prerequisite for that actual end state.
 
 </details>
 
@@ -1707,12 +1877,12 @@ their own identities and evaluations; no reuse of the Python 0.78 threshold as a
 validated browser operating point. No new runtime, cloud inference or sample-PDF
 redistribution was implemented by this documentation update.
 
-Latest user instruction restores Obsidian as a personal visual-learning delivery
-surface, with Excalidraw as its preferred interface. The blog and independent
-repository remain the external portfolio artifacts; they are not replaced by a
-private vault. The read-only RAG migration inventory is complete; its bounded
-findings and recommended structure are below. No bulk deletion, plugin change or
-completed vault migration is claimed by this update.
+An earlier user instruction requested an Excalidraw-first personal learning
+surface. The October 11 replacement AGENTS.md does not retain that mandate,
+and the active RAG objective explicitly keeps the staged repository and public
+portfolio blog as the delivery direction. No vault migration is being executed.
+The historical read-only inventory below is background, not current permission
+to change plugins, delete notes or replace the external portfolio with a vault.
 
 <details>
 <summary>Personal Excalidraw learning surface: inventory and structure for review</summary>

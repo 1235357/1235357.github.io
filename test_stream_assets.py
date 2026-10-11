@@ -66,6 +66,11 @@ class StreamAssetsTest(unittest.TestCase):
     def write_registry(self):
         (self.browser / 'noble-assets.json').write_text(json.dumps(self.registry), encoding='utf-8')
 
+    def install_cache_module(self):
+        data = (REPOSITORY_BROWSER / 'verified-cache.mjs').read_bytes()
+        (self.browser / 'verified-cache.mjs').write_bytes(data)
+        return data
+
     def build_last_good(self):
         build.build()
         previous = self.root / 'dist' / 'prior-output' / 'binary.bin'
@@ -129,6 +134,91 @@ class StreamAssetsTest(unittest.TestCase):
         })
         for name in graph:
             self.assertEqual((output / name).read_bytes(), (self.browser / name).read_bytes(), name)
+
+    def test_optional_authored_cache_is_copied_exactly_without_other_cache_sources(self):
+        cache_bytes = self.install_cache_module()
+        for source in (self.browser / 'cache-private.mjs',
+                       self.browser / 'tests' / 'verified-cache.test.mjs'):
+            source.parent.mkdir(parents=True, exist_ok=True)
+            source.write_bytes(b'PRIVATE NON-RUNTIME SOURCE')
+        build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        delivered = output / 'verified-cache.mjs'
+        self.assertTrue(delivered.is_file(), 'fresh build omits the optional authored cache module')
+        self.assertEqual(delivered.read_bytes(), cache_bytes)
+        self.assertFalse((output / 'cache-private.mjs').exists())
+        self.assertFalse((output / 'tests').exists())
+        self.assertEqual({path.name for path in (output / 'vendor' / 'noble-hashes').iterdir()},
+                         set(NOBLE_FILES))
+
+    def test_real_cache_static_import_graph_closes_over_existing_stream_graph(self):
+        self.install_cache_module()
+        build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        self.assertTrue((output / 'verified-cache.mjs').is_file(),
+                        'fresh build omits the optional authored cache module')
+        graph = static_module_graph(output, 'verified-cache.mjs')
+        self.assertEqual(graph, {
+            'verified-cache.mjs': {'./verified-stream.mjs'},
+            'verified-stream.mjs': {'./vendor/noble-hashes/sha2.js'},
+            'vendor/noble-hashes/sha2.js': {'./_md.js', './_u64.js', './utils.js'},
+            'vendor/noble-hashes/_md.js': {'./_u64.js', './utils.js'},
+            'vendor/noble-hashes/_u64.js': set(),
+            'vendor/noble-hashes/utils.js': set(),
+        })
+        for name in graph:
+            self.assertEqual((output / name).read_bytes(), (self.browser / name).read_bytes(), name)
+
+    def test_cache_without_stream_verifier_preserves_all_last_good_bytes(self):
+        self.install_cache_module()
+        before = self.build_last_good()
+        (self.browser / 'verified-stream.mjs').unlink()
+        self.assert_rejected_preserving_dist(before, '[Ss]tream|[Cc]ache')
+
+    def test_cache_directory_is_refused_preserving_all_last_good_bytes(self):
+        self.install_cache_module()
+        before = self.build_last_good()
+        source = self.browser / 'verified-cache.mjs'
+        source.unlink()
+        source.mkdir()
+        self.assert_rejected_preserving_dist(before, '[Cc]ache')
+
+    def test_cache_source_and_destination_reparse_guards_refuse_named_module(self):
+        self.install_cache_module()
+        before = self.build_last_good()
+        source = self.browser / 'verified-cache.mjs'
+        real_lstat = Path.lstat
+
+        def source_reparse(path, *args, **kwargs):
+            details = real_lstat(path, *args, **kwargs)
+            return fixtures.reparse_stat(details) if path == source else details
+
+        with patch.object(Path, 'lstat', source_reparse):
+            self.assert_rejected_preserving_dist(before, 'reparse')
+
+        target = self.root / '.dist-stage-direct' / 'browser-rag'
+        target.mkdir(parents=True)
+        destination = target / 'verified-cache.mjs'
+        destination.write_bytes(b'PRIOR DESTINATION')
+
+        def destination_reparse(path, *args, **kwargs):
+            details = real_lstat(path, *args, **kwargs)
+            return fixtures.reparse_stat(details) if path == destination else details
+
+        with patch.object(Path, 'lstat', destination_reparse):
+            with self.assertRaisesRegex(ValueError, 'reparse'):
+                build.copy_stream_assets(self.browser, target, self.root)
+        self.assertEqual(destination.read_bytes(), b'PRIOR DESTINATION')
+        self.assertEqual(list(target.iterdir()), [destination])
+
+    def test_cache_does_not_add_registry_controlled_paths(self):
+        self.install_cache_module()
+        before = self.build_last_good()
+        self.registry['files']['verified-cache.mjs'] = {
+            'bytes': 1, 'sha256': '0' * 64,
+        }
+        self.write_registry()
+        self.assert_rejected_preserving_dist(before, 'registry')
 
     def test_missing_registry_or_each_pinned_file_preserves_all_last_good_bytes(self):
         before = self.build_last_good()
@@ -228,7 +318,8 @@ class StreamAssetsTest(unittest.TestCase):
         output = self.root / 'dist' / 'browser-rag'
         self.assertEqual((output / 'pdf-source.mjs').read_bytes(),
                          (self.browser / 'pdf-source.mjs').read_bytes())
-        for name in ('verified-stream.mjs', 'noble-assets.json', 'vendor/noble-hashes'):
+        for name in ('verified-stream.mjs', 'verified-cache.mjs', 'noble-assets.json',
+                     'vendor/noble-hashes'):
             self.assertFalse((output / name).exists(), name)
 
     def test_unchanged_stream_graph_does_not_create_recovery_copies(self):

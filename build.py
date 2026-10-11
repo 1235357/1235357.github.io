@@ -236,14 +236,24 @@ def copy_browser_assets(root, output):
             if source.is_file() and (source.suffix in suffixes or source.name.startswith('LICENSE')):
                 copy(source, target / 'vendor' / directory / source.name)
     copy_embedding_assets(browser, target, root)
-    if guard_path(browser / 'verified-stream.mjs', root).exists():
+    if (guard_path(browser / 'verified-stream.mjs', root).exists()
+            or guard_path(browser / 'verified-cache.mjs', root).exists()):
         copy_stream_assets(browser, target, root)
 
 
 def copy_stream_assets(browser, target, root):
-    """Deliver the verifier and its exact pinned, same-origin hash module graph."""
+    """Deliver the optional cache, verifier and pinned same-origin hash graph."""
     browser = guard_path(browser, root)
     target = guard_path(target, root)
+    verifier = guard_path(browser / 'verified-stream.mjs', root)
+    if not verifier.is_file():
+        raise ValueError('Stream verifier is missing or not a file')
+    cache = guard_path(browser / 'verified-cache.mjs', root)
+    cache_destination = None
+    if cache.exists():
+        if not cache.is_file():
+            raise ValueError('Cache module is not a file')
+        cache_destination = guard_path(target / 'verified-cache.mjs', root)
     registry_path = guard_path(browser / 'noble-assets.json', root)
     registry_bytes = registry_path.read_bytes()
     registry = json.loads(registry_bytes)
@@ -275,12 +285,11 @@ def copy_stream_assets(browser, target, root):
         copy_verified_asset(source, target / 'vendor' / 'noble-hashes' / name,
                             entry['bytes'], entry['sha256'], root,
                             f'Stream asset: {name}')
-    verifier = guard_path(browser / 'verified-stream.mjs', root)
-    if not verifier.is_file():
-        raise ValueError('Stream verifier is missing or not a file')
     destination = guard_path(target / 'verified-stream.mjs', root)
     shutil.copyfile(verifier, destination)
     guard_path(target / 'noble-assets.json', root).write_bytes(registry_bytes)
+    if cache_destination is not None:
+        shutil.copyfile(cache, cache_destination)
 
 
 def copy_embedding_assets(browser, target, root):

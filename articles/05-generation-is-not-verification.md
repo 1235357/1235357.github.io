@@ -293,12 +293,48 @@ availability, GPU allocation or a successful model session. Those costs need
 actual measurement at the later runtime boundary.
 
 This connects CS310 resource lifetimes with CS381 interface responsibilities.
-The next cache adapter must own and await writes, then verify cached bytes again
+The cache adapter now owns and awaits writes, then verifies cached bytes again
 when the SDK reads them. Source inspection and an actual SDK probe found that
 Transformers.js swallows a rejected custom-cache match and can then fetch the
 local URL. Its closed adapter must deny unexpected files without allowing that
-fallback. That adapter and real Qwen WebGPU inference are not implemented by the
-streaming primitive; generation remains disabled in the current browser UI.
+fallback. The adapter has passed its independent Node/SDK reviews, while real
+Qwen WebGPU inference remains a separate gate. Generation remains disabled in
+the current financial browser UI.
+
+### A cache write and an SDK read are separate obligations
+
+`prepareVerifiedAssetCache` returns an accepted store only after the streamed
+body has the pinned length and SHA-256 **and** the native storage write resolves.
+A valid digest does not make a quota failure successful. On a warm entry, it
+drains and verifies cached bytes without silently downloading a replacement.
+Preparation receipts count these accepted asset-body reads; they do not count
+SDK consumption, HTTP overhead or every request made by the browser.
+
+SDK consumption then rereads the primary entry through a fresh verified stream.
+An unexpected filename, missing entry, corrupt body or closed store returns a
+native Response whose body errors. Returning an ordinary empty response or
+rejecting the cache lookup would mean something different to this dependency:
+its cache helper catches lookup rejection and can try transport afterward.
+The regression uses the actual installed file loader, with a legacy control
+that attempts a fetch and sealed cases that do not. Both progress modes also
+read one store three times, checking fresh consumed responses and cumulative
+receipts. Small synthetic files exercise that boundary; no model executes in
+these tests.
+
+Closing the store revokes new reads and errors active or unconsumed SDK bodies.
+The caller still owns finishing or cancelling each body. This is the same
+ownership question discussed in CS381: which component decides that work is
+accepted, and which component releases a resource when the work cannot finish?
+For your exercise, predict what happens if the digest succeeds but `Cache.put`
+rejects, and why the SDK's swallowed lookup exception requires a deliberately
+errored body. Then explain why a completed cache receipt is not model inference.
+
+The next actual-runtime experiment uses a native browser Worker and a separate
+32-input-token, eight-output-token Qwen fixture before the financial prompt.
+The [pinned SDK's WebGPU guide](https://huggingface.co/docs/transformers.js/v3.8.1/guides/webgpu)
+shows the explicit device selection. Selecting a device is only configuration;
+our experiment must observe real loading, generation, output bounds and cleanup.
+It does not increase the financial context limit or establish answer accuracy.
 
 ## Explain the observed failure without exaggeration
 
