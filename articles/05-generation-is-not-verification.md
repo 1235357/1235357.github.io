@@ -258,6 +258,48 @@ before reading its output, then explain why recording a setting is weaker than
 checking the effective configuration. This test establishes policy composition,
 not GPU inference, reproducible output across devices or financial correctness.
 
+### Byte progress is not asset acceptance
+
+The new browser-side `verifyAssetResponse` is a pull-driven transport boundary.
+It reads one upstream chunk, hands the consumer owned copies of at most 64 KiB,
+and feeds those same copies into pinned incremental SHA-256. It does not collect
+all chunks into a second whole-weight buffer merely to hash them. A completed
+byte counter means those bytes were read; `verified: true` is emitted only when
+EOF has the exact pinned length and matching digest. A short body, extra bytes,
+wrong digest or failed read errors the response before it can close successfully.
+The caller must finish consuming the body or cancel it, and await its completion
+receipt before treating the asset as accepted.
+
+For a concrete learning exercise, change the final byte of an otherwise
+same-length test asset. Predict why its progress can reach the expected count
+but its completion still rejects. Then cancel a read while the source is pending
+and explain who releases the reader lock. These tests use an independent digest
+oracle, not a stub that always reports success. A separate regression rejects
+an object that only inherits `Response.prototype` but lacks the native Response
+brand. It also rejects own shadows of Response metadata, captures the actual
+native status, URL, redirect flag, headers and body once, and reads that captured
+body. Real local HTTP tests cover URL matching and redirect refusal. These are
+transport and ownership observations, not financial answers.
+
+The memory claim has a narrow scope. Our verifier retains one native upstream
+chunk, one bounded outgoing copy and fixed hash state. The browser determines
+upstream chunk sizes; the SDK still constructs a complete model buffer. The
+[Cache.put documentation](https://developer.mozilla.org/en-US/docs/Web/API/Cache/put)
+also says writing consumes the response body. The
+[Service Worker specification](https://w3c.github.io/ServiceWorker/#cache-put)
+describes buffering and permits an implementation to optimize by streaming to
+disk. Therefore, a bounded verifier does not prove bounded browser RAM, storage
+availability, GPU allocation or a successful model session. Those costs need
+actual measurement at the later runtime boundary.
+
+This connects CS310 resource lifetimes with CS381 interface responsibilities.
+The next cache adapter must own and await writes, then verify cached bytes again
+when the SDK reads them. Source inspection and an actual SDK probe found that
+Transformers.js swallows a rejected custom-cache match and can then fetch the
+local URL. Its closed adapter must deny unexpected files without allowing that
+fallback. That adapter and real Qwen WebGPU inference are not implemented by the
+streaming primitive; generation remains disabled in the current browser UI.
+
 ## Explain the observed failure without exaggeration
 
 A prior local Qwen2.5-0.5B-Instruct run reached generation but omitted the required

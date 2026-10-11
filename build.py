@@ -236,6 +236,51 @@ def copy_browser_assets(root, output):
             if source.is_file() and (source.suffix in suffixes or source.name.startswith('LICENSE')):
                 copy(source, target / 'vendor' / directory / source.name)
     copy_embedding_assets(browser, target, root)
+    if guard_path(browser / 'verified-stream.mjs', root).exists():
+        copy_stream_assets(browser, target, root)
+
+
+def copy_stream_assets(browser, target, root):
+    """Deliver the verifier and its exact pinned, same-origin hash module graph."""
+    browser = guard_path(browser, root)
+    target = guard_path(target, root)
+    registry_path = guard_path(browser / 'noble-assets.json', root)
+    registry_bytes = registry_path.read_bytes()
+    registry = json.loads(registry_bytes)
+    identity = {'schemaVersion': 1, 'package': '@noble/hashes', 'version': '2.4.0'}
+    if not isinstance(registry, dict) or set(registry) != set(identity) | {'files'}:
+        raise ValueError('Stream registry keys are incomplete or unexpected')
+    if type(registry['schemaVersion']) is not int or any(
+            registry[key] != value for key, value in identity.items()):
+        raise ValueError('Stream registry identity or version mismatch')
+    vendor = browser / 'vendor' / 'noble-hashes'
+    # Registry metadata contains pins only: it cannot choose source paths.
+    sources = {
+        'sha2.js': vendor / 'sha2.js',
+        '_md.js': vendor / '_md.js',
+        '_u64.js': vendor / '_u64.js',
+        'utils.js': vendor / 'utils.js',
+        'LICENSE': vendor / 'LICENSE',
+    }
+    files = registry['files']
+    if not isinstance(files, dict) or set(files) != set(sources):
+        raise ValueError('Stream files registry keys are incomplete or unexpected')
+    for name, source in sources.items():
+        entry = files[name]
+        if (not isinstance(entry, dict) or set(entry) != {'bytes', 'sha256'}
+                or type(entry['bytes']) is not int or entry['bytes'] <= 0
+                or not isinstance(entry['sha256'], str)
+                or re.fullmatch(r'[0-9a-f]{64}', entry['sha256']) is None):
+            raise ValueError(f'Stream asset metadata is invalid: {name}')
+        copy_verified_asset(source, target / 'vendor' / 'noble-hashes' / name,
+                            entry['bytes'], entry['sha256'], root,
+                            f'Stream asset: {name}')
+    verifier = guard_path(browser / 'verified-stream.mjs', root)
+    if not verifier.is_file():
+        raise ValueError('Stream verifier is missing or not a file')
+    destination = guard_path(target / 'verified-stream.mjs', root)
+    shutil.copyfile(verifier, destination)
+    guard_path(target / 'noble-assets.json', root).write_bytes(registry_bytes)
 
 
 def copy_embedding_assets(browser, target, root):
