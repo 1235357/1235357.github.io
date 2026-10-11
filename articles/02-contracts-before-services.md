@@ -308,8 +308,10 @@ the real paired tokenizer encoded the displayed text, or that the decoded answer
 matches those generated IDs. Actual native execution needs separate evidence.
 The complete financial receipt boundary is now implemented and locally reviewed.
 Its tests cover canonical shape, shared-node snapshots and mutation isolation;
-they do not establish native financial execution. Its future transport and
-session integration are not established here.
+they do not establish native financial execution. The new transport has its own
+separate code-review gate, accepted locally after independent specification and
+quality reviews on October 11. Session and visible financial generation are not
+established by transport or receipt-copying tests.
 
 There is also a subtler identity issue. The original provenance input has eight
 fields, but its assembled prompt context deliberately omits some values, such as
@@ -328,6 +330,50 @@ arrives after the user selects another PDF. Then explain why both a correct
 schema and a correct source snapshot are insufficient without the current
 operation identity. This is a design exercise, not an assertion that financial
 generation has already been enabled.
+
+### A fresh Worker still needs one-command permission
+
+A separate Worker isolates an attempt from an imported SDK singleton, but it does
+not by itself prevent the application from invoking that attempt twice. A
+source-level regression for the financial handler made an input getter call the
+same handler recursively while the outer command was being copied. Before the
+fix, both commands started the controlled run. Reserving validation permission
+before reading the command, and consuming valid-command permission before the
+first native callback, makes that exported handler admit only one run. An invalid
+first command can still be corrected before any run has started.
+
+These are adversarial JavaScript boundary tests with declared synthetic runs,
+not an observed browser exploit. Structured cloning does not deliver those
+getter descriptors across a real Worker message. The exercise instead checks
+whether our directly exported copier and handler are consistent when called by
+another JavaScript component. It is useful to keep the test's scope as precise
+as the implementation claim.
+
+Callback permission has a similar boundary. Reading a byte-detail getter or
+calling a subscriber can reenter application code. A sequence-budget check made
+only before that read can become stale before the byte guard changes state.
+The handler therefore reserves callback execution, captures its permitted fields,
+and rechecks permission and the terminal-slot budget before advancing byte
+observations. A callback failure remains latched even when a caller catches its
+exception during full-receipt copying. Rechecking that latch before success
+prevents a superficially valid final object from erasing the earlier failure.
+
+The eight-stage lifecycle also has an end. After `cleanup`, an undefined or
+repeated ninth stage is rejected immediately, rather than added to progress and
+left waiting for a timeout. Neither this ordering nor a valid output JSON object
+establishes a correct financial answer. The
+[Anyscale generation guide](https://docs.anyscale.com/rag/quality-improvement/generation-strategies),
+read in Codex IAB on October 11, separates context omissions, hallucination,
+numerical reasoning and output-format failures. Our next session integration must
+likewise preserve a complete raw native result when format inspection refuses it,
+while showing no accepted draft. Claim support still needs the original report.
+
+For a CS381 explanation, predict when one attempt loses its permission to commit,
+not just which function runs next. For a CS310 explanation, distinguish that
+logical permission from physically stopping or disposing a Worker. Then run the
+named command-reentry, receipt-getter and callback-budget regressions and explain
+their outcomes in your own words. The tests are development evidence; your own
+reproduction and explanation are the learning evidence.
 
 **October 7 execution receipt:** the three controller increments were implemented
 with independent specification and quality reviews. The first increment retained

@@ -2395,6 +2395,292 @@ visible commit. Only then can the private standalone and blog demo exercise
 the genuine selected PDF → complete paired prompt → native financial output →
 C4.4 inspection → source navigation path. Those gates remain unimplemented here.
 
+##### C4.5b fresh financial Worker transport implementation plan
+
+> **For agentic workers:** continue the approved same-chat TDD implementation,
+> independent SPEC, then independent QUALITY flow. Root owns acceptance records,
+> article updates and local commits. Do not change public release gates.
+
+**Goal:** Execute each complete financial input in one fresh owned native Worker
+and transport its full validated receipt with truthful progress, fixed private
+errors, bounded deadlines and revocation before cleanup. This is the channel
+needed by the following session/UI integration, not an alternative demo.
+
+**Architecture:** Share the existing runtime's complete eight-field input owner
+with the channel rather than send an assembled context projection. A pure single
+command handler calls the trusted `runFinancialGenerator`; the native entry
+mutes only its own Worker console before any dynamic SDK load. The receiver
+revalidates the full C4.5a receipt against its owned input/options. Compact
+controller metadata never contains the source text, question, complete prompt,
+token arrays or decoded output; the full receipt travels as a sibling artifact.
+Actual paired tokenization and model execution still need native acceptance.
+
+**Files:** create `browser-rag/financial-generation-input.mjs`,
+`browser-rag/financial-generation-source.mjs`,
+`browser-rag/financial-generation.worker.mjs` and their focused tests. Modify
+`browser-rag/financial-generator-runtime.mjs` only to reuse the shared complete
+input owner. Modify `browser-rag/protocol.mjs` and its tests only to add explicit
+operation `generate`, the eight native stage names, and unit `milliseconds`.
+The existing query vocabulary and metadata budgets remain unchanged. Do not
+edit session, UI, model pins, public build allowlists or server routes here.
+
+```js
+copyFinancialGenerationInput(originalEightFields)
+copyFinancialGenerationOptions(options = {})
+copyFinancialGenerationCommand(command)
+createFinancialGenerationStageGuard()
+financialGenerationResultReceipt(validatedFullReceipt)
+generateFinancialInWorker(originalEightFields, generationOptions = {}, options = {})
+createFinancialGenerationCommandHandler(send, options = {})
+// options: identity, workerFactory, onProgress, signal,
+// readyTimeoutMs = 10000, workTimeoutMs = 300000
+// handler options: trusted run function only; never present in a command
+```
+
+```js
+// Three exact fields, no sequence/event or arbitrary injected runtime settings.
+{kind: 'generation-ready', protocolVersion: 1,
+ workerVersion: 'financial-generation-v1'}
+{kind: 'generate-financial', identity: {
+ protocolVersion: 1, runtimeId, operationId, documentEpoch, operation: 'generate'
+}, contextInput: originalEightFields, generationOptions}
+// The controller receives only event. Detail/artifact are bounded sibling values.
+{event: {...identity, kind: 'progress', stage: nativeStage, seq,
+ payload: {completed: elapsedMs, total: null, unit: 'milliseconds', estimated: false}},
+ detail: null}
+{event: {...identity, kind: 'progress', stage: nativeStage, seq,
+ payload: {completed: receivedBytes, total: totalBytes, unit: 'bytes', estimated: false}},
+ detail: {stage: 'prepare' /* or consume */, assetIndex,
+ receivedBytes, verifiedBytes, totalBytes, elapsedMs}}
+{event: {...identity, kind: 'result', stage: 'cleanup', seq,
+ payload: {data: compactReceipt}}, artifact: completeFinancialNativeReceipt}
+{event: {...identity, kind: 'error', stage: currentNativeStage, seq,
+ payload: {code: fixedKnownCode, message: fixedPublicMessage}}}
+```
+
+- [x] **Input/protocol RED then GREEN:** extract the runtime's existing bounded
+  complete input copy for reuse, preserving source normalization, ignored PDF
+  geometry, exact eight fields, raw question whitespace, full vectors and query
+  metadata. Validate before structured cloning, revalidate the owned copy and
+  deep-freeze it. Capture the outer key list once. Canonical generation options
+  come from `preflightGeneration`, not a duplicate settings validator. Tests
+  mutate originals after copying and verify rejection occurs before Worker
+  construction for malformed input/options. Add controller tests for explicit
+  generate identity, native stages and milliseconds while retaining all old
+  operations, stage vocabularies and 256 KiB / 4096-value / depth-32 limits.
+- [x] **Stage/byte RED then GREEN:** require the native stages exactly in order
+  `adapter, assets, sdk, tokenizer, model, generate, reads, cleanup` with finite
+  monotonic elapsed values from 0 through 300000 ms. Reuse the existing fixed-pin
+  byte guard, including eight ordered preparation assets and at most 64 SDK
+  reads; preparation byte details are allowed only after assets/before sdk,
+  consumption details only after sdk/before cleanup. Require each byte read's
+  start and verified end, all preparation completions before sdk, and final
+  completed SDK-read count/verified-byte sum matching the full receipt. Compare
+  every final native stage/timestamp to observed progress. Unknown totals must
+  stay null; no fabricated token percentages or advancing time estimates.
+- [x] **Single command handler RED then GREEN:** exact detached command and
+  bounded identity (`generate`, version 1, nonempty runtime ID <=256, positive
+  safe `op-N`, nonnegative safe document epoch). Consume valid command permission
+  before awaited native work or any progress callback. Default to the trusted
+  financial runtime; test-only injected runs are explicitly synthetic. Emit
+  exact increasing sequence +1 up to 4096, reserving a terminal slot. Validate
+  callback stages/bytes and full output before result emission. Emit known
+  private-safe error codes/messages only, never raw causes, stack, question,
+  prompt, source or output in errors. A failed send cannot trigger unbounded
+  recursive error sends; callbacks after terminal are refused.
+- [x] **Owned receiver RED then GREEN:** copy original input/options/identity
+  synchronously before constructing a fresh module Worker at the literal
+  `./financial-generation.worker.mjs` URL. Capture terminate first and remaining
+  Worker/signal methods once with native receivers. Require the exact ready
+  announcement before sending the command once. Bound ready to 1–10000 ms and
+  work to 1–300000 ms; progress must not extend either deadline. Validate exact
+  packet/event/identity/sequence/stage/payload/detail. Revalidate the complete
+  sibling receipt through C4.5a, then compare observed stages/bytes and compact
+  metadata. Resolve only `{event, artifact}` with owned frozen values, retaining
+  raw EOS/length and uninspected/unestablished status. Reentrancy or exceptions
+  from accessors/callbacks must not allow a late success. Settle/revoke before
+  removing listeners and terminating the channel. Abort/timeouts/native channel
+  errors have fixed safe errors and no accepted artifact; channel termination
+  does not imply native disposal.
+- [x] **Native entry and adversarial verification:** suppress the new Worker's
+  console only; no shared main-thread console changes. Test exact ready output,
+  one command, duplicate/unknown commands, premature results, reordered/skipped
+  stages, byte mismatches, wrong identity, gaps/duplicates/exhausted sequence,
+  oversized/mutated full receipt and metadata, unsafe errors, send failures,
+  cancellation at setup/progress/result, late callbacks, method-getter failures,
+  thrown subscribers and ready/work timeouts without extension. Use existing
+  real provenance/parser/chunk/ranking contracts in fixtures; label SDK/Worker
+  doubles synthetic. Run focused/all Node, all Python, build/diff checks, then
+  independent SPEC and QUALITY before root commit. No native financial browser
+  run, session ownership or public release is claimed by transport tests.
+
+C4.5b accepted locally on October 11 after independent SPEC and then QUALITY.
+The root reran all 2,347 Node tests with zero failures/skips/cancellations
+(2,088.3046 ms), all 128 Python tests (23.684 s), the six-article build and
+whitespace checks. Three independent SPEC reproductions were repaired through
+RED/GREEN regressions: an accepted ninth undefined stage, a receipt accessor
+erasing a latched callback failure, and callback reentry consuming the packet
+budget before byte-guard mutation. A listener-setup cancellation race was also
+regression-tested. Independent probes accept a valid final result at sequence
+4096 and exactly one SDK read; the existing 1–64 read policy is unchanged.
+The fixtures and probes are synthetic: this accepts the full owned Worker
+transport, not native financial inference, session/UI integration, financial
+quality or release. No financial module was added to the public build or the
+private server's exact route allowlist; public generation remains OFF.
+
+The following C4.6 session task must capture the accepted query input before
+`begin('generate')` clears its terminal. It owns cancellation/replacement/edit/
+pagehide and refuses stale completion before any visible output. Private
+standalone/blog composition, full paired prompt, actual financial generation,
+C4.4 JSON/citation inspection and source navigation then need real browser
+acceptance; the public Generate button stays disabled until that path is proved.
+
+##### C4.6 query-bound generation session implementation plan
+
+> **For agentic workers:** use the approved same-chat TDD flow, independent
+> SPEC, then independent QUALITY. Start implementation only after C4.5b has
+> passed both reviews. Root owns this plan, teaching changes and local commits.
+
+**Goal:** Bind a complete financial generation and its output inspection to the
+reader's actual accepted PDF/query, with cancellation, retry and stale-result
+revocation. This is the next component of the real financial path, not a greeting
+probe or a substitute synthetic demo.
+
+**Architecture:** Extend `browser-rag/pdf-session.mjs` rather than introduce a
+second source of document state. Separate persistent accepted-query data authority
+from the controller's latest terminal, because `begin('generate')` supersedes the
+rank terminal. Production validators load through literal lazy imports only for
+an explicitly configured generation adapter. The default public composition has
+no such adapter and must refuse before importing unshipped generation modules.
+No caller-replaceable validator hooks are permitted. The private UI and its exact
+module/asset delivery are a following slice; this slice does not enable the public
+Generate button or change `build.py` allowlists.
+
+**Files:** modify `browser-rag/pdf-session.mjs`; add
+`browser-rag/tests/financial-generation-session.test.mjs` and, if needed, a
+focused test-only session fixture. Existing context/PDF session suites must stay
+green. Do not edit UI, server routes, model pins, output grammar, native runtime,
+public module allowlists or unrelated files.
+
+```js
+createPdfSession({
+  // Existing constructor options remain unchanged.
+  generate: generationAdapter,          // optional, absent by default
+  generationOptions: {},                // contextWindowTokens, maxNewTokens
+  generationWorkerOptions: {},          // workerFactory, ready/work timeout
+});
+await session.generate(generationOptions = {}, workerOptions = {}); // void
+session.generation();                   // null or complete owned raw receipt
+session.generationInspection();         // null or the envelope below
+session.generationProgress();           // null or last bounded stage/byte detail
+
+// Accepted shape/citation identity is not accepted financial truth.
+({status: 'shape-and-citation-identity-accepted', artifact: c44Artifact, error: null});
+({status: 'refused', artifact: null, error: {code: safeCode, message: safeMessage}});
+```
+
+- [ ] **Unavailable/default and preflight RED then GREEN:** add a small fixed
+  local `GenerationSessionError` with unavailable/invalid/failed session codes.
+  An absent adapter, absent accepted query, active work or recursive generation
+  refuses without loading financial modules or changing accepted state. Reserve
+  a generation-preflight token before the first getter/await. Literal lazy imports
+  supply the actual C4.5b copier/guard/metadata/error class, C4.5a receipt copier,
+  C4.4 inspector and receipt snapshot; do not accept per-call replacements.
+  Recheck owner/revisions/document epoch/current references after the import
+  await, options getters, complete input copy and runtime factory. Invalid
+  settings, import failure, reused runtime ID or a throwing factory preserve the
+  prior accepted outcome. Revocation during preflight prevents adapter startup.
+- [ ] **Separate query authority RED then GREEN:** a private predicate checks
+  accepted-query token/revision/document epoch plus current source/chunks/
+  embeddings/question/query/retrieval references. The query owner is installed
+  only after a rank result has been validated and accepted; its original terminal
+  remains a historical receipt, not the current controller terminal. Capture the
+  complete eight-field input through `copyFinancialGenerationInput` before
+  replacing runtime/beginning generation. Retain raw question whitespace,
+  original topK/query metadata/full vectors. Never pass `session.context()` or
+  compact rank metadata as the full input, and add no public `contextInput()`.
+- [ ] **Settings and fresh attempt RED then GREEN:** snapshot known own option
+  keys/values once; reject unknown keys before reading their values. Merge partial
+  constructor and call generation settings before canonical defaults so overriding
+  maxNewTokens does not reset a configured context window. Canonicalize via
+  C4.5b's production option copier. Worker options obey its ready/work ceilings;
+  reserved identity/signal/progress cannot replace session-owned values. A fresh
+  runtime ID and `generate` identity plus a distinct AbortController, generation
+  revision/token and detached input/settings own each attempt. Clear only old
+  generation outcomes when a valid attempt starts; retain the accepted query and
+  any assembled context for inspection/retry. The adapter call is exactly:
+
+  ```js
+  generationAdapter(ownedOriginalEightFields, canonicalGenerationOptions, {
+    ...capturedWorkerOptions,
+    identity: ownedIdentity,
+    signal: ownedAborter.signal,
+    onProgress: ownedProgressHandler,
+  });
+  ```
+- [ ] **Owned progress RED then GREEN:** each callback is exact `{event, detail}`;
+  snapshot headers/payload/detail once. Reject reentrant callback traversal.
+  Validate complete identity, exact contiguous sequence and the 4096 packet cap,
+  then all primitive stage/unit/detail correspondence before guard mutation.
+  Recheck attempt/query ownership after any getter and before committing progress.
+  Only bounded scalar events enter the lifecycle controller; measured asset detail
+  stays in the separate frozen progress getter. Malformed current progress closes
+  that attempt with a fixed protocol error, revokes before abort and publishes no
+  artifact; stale progress is ignored before reading its private fields. Do not
+  let a swallowed bad callback later produce a successful result.
+- [ ] **Full result and inspection RED then GREEN:** snapshot exact terminal
+  `{event, artifact}` and identity/sequence. Copy the entire native receipt against
+  the same owned eight fields/settings, assert every observed stage/byte read, and
+  compare exact recomputed compact metadata. Recheck ownership after accessor-
+  reading boundaries. Inspect the full text and full sequence without truncation:
+
+  ```js
+  inspectFinancialOutput(
+    artifact.text,
+    [...artifact.promptTokenIds, ...artifact.generatedTokenIds],
+    artifact.preflight,
+    ownedOriginalEightFields,
+  );
+  ```
+
+  Commit the native cleanup terminal and owned raw receipt plus inspection/status
+  synchronously before notifying. Valid EOS JSON/citations produces
+  `unverified-financial-draft`; model abstention remains an unverified model
+  disposition. Length, malformed/trailing/duplicate-key JSON or unknown/duplicate
+  citations produces `financial-output-refused`: retain full raw text, prompt,
+  IDs and receipt, but no draft artifact. A malformed native receipt produces a
+  fixed runtime/protocol error and retains no raw artifact. Do not change the
+  pure C4.4 artifact's `generationMode: 'not-run'`; the separate native receipt
+  carries execution evidence. Financial correctness and claim support remain
+  unestablished. The async method returns void, never a stale artifact after
+  subscriber reentry. A throwing subscriber is normalized without private text;
+  it must not strand work or leave a falsely accepted visible generation outcome.
+- [ ] **Invalidation/retry RED then GREEN:** generation cancel revokes its token
+  and outputs before abort listeners, retains source/chunks/passages/query/context
+  and permits a fresh runtime retry. `clearQuery()` revokes generation preflight
+  or active generation and clears query/context/generation while preserving source,
+  chunks and passage embeddings; it still leaves unrelated active extraction,
+  chunking or passage encoding untouched. Full clear, same-SHA source replacement,
+  new query, rechunk and reembed revoke generation and dependent outcomes. Existing
+  pagehide→clear therefore remains sufficient. Abort-listener reentry cannot
+  start replacement work beneath an invalidation transition. An explicit
+  successful context reassembly clears generation outcome/error and returns to
+  `context-not-generated`; failure preserves the prior state. Keep the existing
+  post-notification context ownership check.
+- [ ] **Adversarial/full verification:** use the real session parser/chunker/
+  ranker harness and its pinned query download total, not the smaller unrelated
+  `inputOf()` fixture. Produce controlled native-shaped traces with the production
+  command handler and declared synthetic run. Test exact eight-field detachment,
+  malformed receipt/settings/prompt/context/cleanup/metadata, stage/byte/sequence
+  errors, reentrant preflight/progress/result/getter/subscriber, cancellation at
+  each boundary, old A after fresh B, same-SHA epoch replacement, option merge,
+  factory failure/reuse, retry, default no-import behavior and snapshots without
+  source/question/prompt/output/token content. Run focused/full Node, all Python,
+  six-article build and diff checks, then independent SPEC and QUALITY. Tests prove
+  session ownership/validation only; private standalone/blog UI, actual paired
+  financial model run, source navigation and financial quality still require
+  their own subsequent native browser evidence.
+
 ##### Remaining C4 integration gates
 
 C4.2 accepted locally on October 11 after independent SPEC then QUALITY. The

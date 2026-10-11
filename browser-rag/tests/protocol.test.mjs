@@ -2,6 +2,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createController } from '../protocol.mjs';
 
+test('explicit financial generate operation accepts native stage milliseconds without replacing query vocabulary',()=>{
+  const controller=createController('financial-runtime'),identity=controller.begin('generate');let seq=0;
+  for(const stage of ['adapter','assets','sdk','tokenizer','model','generate','reads','cleanup']) {
+    assert.equal(controller.accept({...identity,kind:'progress',stage,seq:++seq,payload:{completed:seq,total:null,unit:'milliseconds',estimated:false}}).accepted,true);
+  }
+  assert.equal(controller.accept({...identity,kind:'result',stage:'cleanup',seq:++seq,payload:{data:{status:'native-generation-complete-uninspected'}}}).accepted,true);
+  const query=controller.begin('query');assert.equal(controller.accept({...query,kind:'progress',stage:'context',seq:1,payload:{completed:1,total:null,unit:'tokens',estimated:false}}).accepted,true);
+});
+test('milliseconds are scoped to the explicit generation operation',()=>{
+  const controller=createController('query-runtime'),identity=controller.begin('query');
+  assert.equal(controller.accept({...identity,kind:'progress',stage:'generate',seq:1,payload:{completed:0,total:null,unit:'milliseconds',estimated:false}}).accepted,false);
+});
 test('query vocabulary includes loading without changing other operation stages', () => {
   const controller = createController('query-runtime'), identity = controller.begin('query');
   for (const [index, stage] of ['download', 'initialize', 'encode', 'rank', 'context', 'generate', 'release'].entries()) {

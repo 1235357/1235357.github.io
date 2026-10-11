@@ -12,8 +12,9 @@ const STAGES = new Map([
   ['model-load', ['download', 'initialize']], ['ingest', ['parse', 'index']],
   ['embed', ['download', 'initialize', 'encode']],
   ['query', ['download', 'initialize', 'encode', 'rank', 'context', 'generate', 'release']], ['clear', ['clear']],
+  ['generate', ['adapter', 'assets', 'sdk', 'tokenizer', 'model', 'generate', 'reads', 'cleanup']],
 ]);
-const UNITS = new Set(['bytes', 'pages', 'chunks', 'tokens']);
+const UNITS = new Set(['bytes', 'pages', 'chunks', 'tokens', 'milliseconds']);
 const MAX_JSON_BYTES = 256 * 1024;
 const utf8 = new TextEncoder();
 
@@ -94,6 +95,7 @@ function copyPayload(event) {
     if (!exactKeys(payload, ['completed', 'total', 'unit', 'estimated'])
         || typeof payload.completed !== 'number' || !Number.isFinite(payload.completed)
         || payload.completed < 0 || !UNITS.has(payload.unit)
+        || (payload.unit === 'milliseconds' && event.operation !== 'generate')
         || typeof payload.estimated !== 'boolean'
         || (payload.total !== null && (typeof payload.total !== 'number'
           || !Number.isFinite(payload.total) || payload.total < payload.completed))) {
