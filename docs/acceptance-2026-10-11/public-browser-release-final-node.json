@@ -1,0 +1,28 @@
+{
+  "createdAtUTC": "2026-10-11T17:38:52.892381+00:00",
+  "scope": "full Node contract/pure/controlled-fixture compatibility; no browser/GPU/model acceptance",
+  "command": "node --test tests/*.test.mjs",
+  "cwd": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\browser-rag",
+  "tests": 2635,
+  "pass": 2635,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "durationMs": 3041.778,
+  "sourceHashes": {
+    "browser-rag/pdf-app.mjs": {
+      "bytes": 42467,
+      "sha256": "e1d5564772ec0462700f43d1c4c4236f1c71307dda44119b381eae3746a40116"
+    },
+    "browser-rag/pdf-public-entry.mjs": {
+      "bytes": 408,
+      "sha256": "626b6f3195df055d7edb571f325adf05feefab1eef54857d2a0e4f20c6de2d26"
+    },
+    "browser-rag/financial-geometry-view.mjs": {
+      "bytes": 3828,
+      "sha256": "c483ba9bf8f21d61df9f978bb562113e30210cc56b38c0655c00eb5123818761"
+    }
+  },
+  "pairedPythonReceipt": "public-browser-release-final-frozen-python.json"
+}

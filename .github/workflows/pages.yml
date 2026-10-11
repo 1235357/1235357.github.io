@@ -34,6 +34,9 @@ jobs:
       - run: python -m pip install -r requirements.txt
       - name: Reconstruct pinned embedding assets
         run: python scripts/materialize-browser-assets.py --embedding-only
+      - name: Canonical temporary root for Windows path contracts
+        run: |
+          python -c "from pathlib import Path; import os; base=Path(os.environ['RUNNER_TEMP']).resolve(); target=base/'browser-contracts'; target.mkdir(exist_ok=True); target=target.resolve(); assert target.is_relative_to(base); assert target.absolute()==target.resolve(); stream=open(os.environ['GITHUB_ENV'],'a',encoding='utf-8'); stream.write(f'TMPDIR={target}\nTEMP={target}\nTMP={target}\n'); stream.close(); print(f'Canonical test temp root: {target}')"
       - name: Browser contract checks (controlled fixtures, no GPU inference)
         run: npm test --prefix browser-rag
       - name: Build, delivery and routing contracts
