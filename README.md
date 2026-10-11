@@ -1884,6 +1884,109 @@ establishes the BFCache-specific path. These observations accept the private
 small generation prerequisite, not financial generation, answer completeness,
 quality, performance SLOs, redistribution permission or the complete objective.
 
+#### C4 selected PDF to financial generation implementation plan
+
+> **For agentic workers:** Use subagent-driven-development, with fresh SPEC then
+> QUALITY review. Continue the user's already-approved same-chat execution;
+> this plan stays in the existing README instead of creating another document.
+
+**Goal:** Connect the reader's accepted PDF, exact question, sourced retrieval,
+complete prompt, real private Qwen generation and inspected source-linked draft.
+The C3 greeting remains an independent diagnostic and is never relabelled RAG.
+
+**Architecture:** The session owns the accepted-query/context boundary; full
+text and vectors stay outside the controller's bounded lifecycle metadata.
+The existing provenance/prompt/generation contracts stay authoritative. Real
+generation later uses a fresh owned Worker and the verified C2/C3 native loader,
+not the fixed 32-ID, 40/8 greeting command. The financial UI retains complete
+quotes, refuses overflow rather than trimming, and separates token/JSON/citation
+validation from financial correctness. The Python API remains independent.
+
+**Tech stack:** Existing native ES modules, PDF.js 6.4.299, MiniLM WebGPU FP32,
+Transformers.js 3.8.1, pinned Qwen q4, Node tests, Python static delivery tests,
+and actual Codex in-app-browser acceptance. No new backend, external browser,
+public model redistribution, GPU fallback or GitHub publication.
+
+##### C4.1 owned accepted-query context action
+
+Files: `browser-rag/pdf-session.mjs`, a focused
+`browser-rag/tests/context-session.test.mjs`, `build.py`, and the existing
+static module-closure tests if their asserted allowlist needs updating.
+
+- [x] RED: exercise the real parser-record/chunker/representation/ranker contracts
+  through a controlled session. Assert that `assembleContext()` and `context()`
+  exist, produce complete immutable ranked evidence with source-ordinal citation
+  IDs, retain the exact whitespace-bearing question and separate query receipt,
+  and expose no private strings/vectors/evidence in `snapshot()`.
+- [x] RED: absent/pending/failed/cancelled queries cannot assemble. A source or
+  chunk mutation is refused by the shared full provenance validation. Clearing,
+  selecting another PDF, starting a new valid query, re-chunking or re-embedding
+  revokes context. An invalid query preflight preserves already accepted context.
+  Synchronous getter/subscriber reentry must not publish or return a stale context;
+  recursive assembly cannot bypass the ownership guard. No test-only state setter.
+- [x] GREEN: import `assembleProvenanceContext` and `ContextError`; retain a
+  private accepted-query owner at the successful rank commit. Its identities,
+  query revision, source/chunk/passage references, exact question, accepted query
+  result, top K, verified download total and copied terminal metadata are captured
+  before any subscriber runs. Reuse that original eight-field input internally,
+  not the already-assembled context as a substitute for prompt preparation.
+- [x] GREEN: add the synchronous explicit action and immutable context getter.
+  Verify current successful query/rank terminal identity and captured state before
+  validation, after untrusted reads, before committing and after notification.
+  Commit `context-not-generated`; clear the context/owner in the existing query
+  invalidation path. Keep the successful rank terminal as rank evidence; do not
+  fabricate a generation event, generation receipt or percentage for this action.
+- [x] GREEN: copy `context-contract.mjs` in the existing explicit build allowlist;
+  verify served ES-module dependency closure. Do not copy acceptance probes,
+  private Qwen weights, audit JSON or unrelated files into the public build.
+- [x] Verify: run the focused command below, full Node/Python suites, and build.
+  Independent SPEC must pass before independent QUALITY. Root reviews actual
+  production changes and commits only the scoped accepted files.
+
+```powershell
+& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test --test-reporter=spec browser-rag/tests/context-session.test.mjs browser-rag/tests/pdf-session.test.mjs browser-rag/tests/context-contract.test.mjs
+& 'C:\ProgramData\anaconda3\python.exe' -u -m unittest discover
+& 'C:\ProgramData\anaconda3\python.exe' build.py
+```
+
+##### C4.2 visible provenance context
+
+C4.1 accepted locally on October 11: independent SPEC and then QUALITY approved
+the session action and explicit static delivery. The root reran all 1,926 Node
+tests (0 failures, 1,370.0098 ms), all 119 Python tests (25.140 s), the six-article
+build and `git diff --check`. The 34 new session cases use synthetic vectors;
+none is a browser/GPU/financial generation or answer-quality result. Context is
+a detached frozen snapshot. Same-reference mutations by a custom adapter after
+notification can change later live inspection; native parser/chunker artifacts
+are recursively frozen. This boundary does not assert source permissions.
+
+After C4.1 review, connect the existing Assemble context control in `pdf-app.mjs`
+and `inspector.html`; reuse existing source navigation. Display full evidence
+units, exact question, source digest, physical page versus PDF label, UTF-16
+spans, source-ordinal citation IDs and `omissions: []`. Use textContent, lazy
+details and bounded viewport rendering without dropping accepted evidence.
+Editing/clearing the question, replacing the PDF or restarting earlier stages
+must revoke visible context and saved source-inspection handlers. Mount the real
+UI module in tests, then use the actual in-app chooser, native GPU encoder and
+query to inspect context in the standalone lab and the blog iframe. Generate
+remains disabled until the variable-frame generation/source-output path passes.
+
+##### Remaining C4 integration gates
+
+Prepare the real complete Qwen prompt inside a session-owned attempt using its
+original eight-field provenance input. Tokenize with the actual paired verified
+tokenizer, enforce the unchanged 2,048-token device ceiling and explicit output
+reservation, and show actual token counts/overflow refusals. Implement the
+variable-length Worker command and ownership using the proven native loader,
+canonical effective settings, generated-only decoding and confirmed cleanup.
+Inspect JSON shape, finite bounded output, listed citation identity and source
+navigation before displaying a labelled unverified financial draft; invalid,
+truncated, stale or unsupported output must not masquerade as a verified answer.
+Actual selected-PDF financial runs, frozen independent gold questions, judge/human
+calibration and measured latency/resource results remain required, as do API
+interop, editable Archify learning figures, licensing and github.io compatibility.
+Passing C4.1/C4.2 alone cannot complete this plan or the full thread objective.
+
 **Next after a real successful probe:** Integrate the existing provenance prompt
 with selected-PDF context and deliberate larger token budgets. The end state
 still includes inspected financial generation, output/source validation,

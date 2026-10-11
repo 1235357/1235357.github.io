@@ -4,6 +4,7 @@ import {projectEmbeddingInput,createEmbeddingStageGuard,copyEmbeddingArtifact,
   embeddingReceipt,EmbeddingWorkerError} from './embedding-source.mjs';
 import {copyQueryPassages,createQueryStageGuard,copyQueryResult,queryResultReceipt,
   QueryWorkerError} from './query-source.mjs';
+import {assembleProvenanceContext,ContextError} from './context-contract.mjs';
 
 const SAFE_CODES = new Set(['INVALID_RECORD','INVALID_INPUT','FILE_TOO_LARGE','INVALID_PDF',
   'PARSER_VERSION_UNSUPPORTED','WORKER_UNAVAILABLE','INVALID_LIMITS','EXTRACTION_LIMIT','EMPTY_DOCUMENT',
@@ -57,9 +58,23 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
   const controller=createController(runtimeId);
   let source=null,chunks=null,embeddings=null,question=null,queryEmbedding=null,retrieval=null;
   let aborter=null,status='idle',error=null,invalidating=false,queryRevision=0;
+  let acceptedQuery=null,contextArtifact=null,assemblingContext=false;
   const snapshot=()=>Object.freeze({status,error,lifecycle:controller.snapshot()});
   const notify=()=>onState(snapshot());
-  const discardQuery=()=>{queryRevision++;question=null;queryEmbedding=null;retrieval=null;};
+  const discardQuery=()=>{queryRevision++;question=null;queryEmbedding=null;retrieval=null;
+    acceptedQuery=null;contextArtifact=null;};
+  function ownsContext(owner){
+    if(owner===null||invalidating||acceptedQuery!==owner||queryRevision!==owner.revision
+        ||source!==owner.input.source||chunks!==owner.input.chunkArtifact||embeddings!==owner.input.embeddingArtifact
+        ||question!==owner.input.question||queryEmbedding!==owner.input.queryResult.query
+        ||retrieval!==owner.input.queryResult.retrieval
+        ||!['query-candidates-only','context-not-generated'].includes(status))return false;
+    const lifecycle=controller.snapshot(),terminal=lifecycle.terminal;
+    return lifecycle.active===null&&lifecycle.runtimeId===owner.identity.runtimeId
+      &&lifecycle.documentEpoch===owner.identity.documentEpoch&&terminal!==null
+      &&IDENTITY_KEYS.every(key=>terminal[key]===owner.identity[key])
+      &&terminal.kind==='result'&&terminal.stage==='rank'&&terminal.seq===owner.terminal.seq;
+  }
   function invalidate(replace,retainSource=false,nextStatus='idle',retainChunks=false,retainEmbeddings=false) {
     invalidating=true;
     try {
@@ -80,6 +95,27 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
     question:()=>question,
     queryEmbedding:()=>queryEmbedding,
     retrieval:()=>retrieval,
+    context:()=>contextArtifact,
+    assembleContext(){
+      const owner=acceptedQuery;
+      if(assemblingContext||!ownsContext(owner))throw new ContextError('CONTEXT_FAILED');
+      assemblingContext=true;
+      try{
+        let artifact;
+        try{artifact=assembleProvenanceContext(owner.input);}
+        catch(cause){
+          if(!ownsContext(owner))throw new ContextError('CONTEXT_FAILED');
+          throw new ContextError(cause instanceof ContextError?cause.code:undefined);
+        }
+        // The contract may read mutable caller source/chunk getters. Recheck
+        // their query owner before committing, and again after subscribers run.
+        if(!ownsContext(owner))throw new ContextError('CONTEXT_FAILED');
+        contextArtifact=artifact;status='context-not-generated';
+        try{notify();}catch{throw new ContextError('CONTEXT_FAILED');}
+        if(!ownsContext(owner)||contextArtifact!==artifact)throw new ContextError('CONTEXT_FAILED');
+        return artifact;
+      }finally{assemblingContext=false;}
+    },
     cancel(){ if(invalidating||controller.snapshot().active===null) return;
       const querying=status==='querying';
       invalidate(false,querying||['chunking','embedding'].includes(status),'cancelled',querying||status==='embedding',querying);notify(); },
@@ -165,6 +201,13 @@ export function createPdfSession({extract,parserOptions={},compute,computeOption
         // The exact ranker is recomputed against captured inputs before one
         // synchronous metadata/artifact/status commit and any subscriber call.
         if(controller.accept(event).accepted){queryEmbedding=artifact.query;retrieval=artifact.retrieval;
+          // Retain the original eight-field input privately. A future prompt
+          // adapter must receive this capture, never the assembled context.
+          const terminal=controller.snapshot().terminal;
+          acceptedQuery=Object.freeze({revision:queryRevision,identity,terminal,
+            input:Object.freeze({source:ownedSource,chunkArtifact:ownedChunks,embeddingArtifact:ownedEmbeddings,
+              question:rawQuestion,queryResult:Object.freeze({query:artifact.query,retrieval:artifact.retrieval}),
+              topK,queryDownloadTotal:stages.downloadTotal,queryMetadata:terminal.payload.data})});
           status='query-candidates-only';aborter=null;notify();}
         else throw new QueryWorkerError('WORKER_PROTOCOL_ERROR');
       }catch(cause){

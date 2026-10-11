@@ -149,7 +149,7 @@ class BrowserAssetsTest(unittest.TestCase):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs'):
+        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs'):
             if name.endswith('.mjs'):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
@@ -202,6 +202,10 @@ class BrowserAssetsTest(unittest.TestCase):
         graph = static_mjs_graph(output, 'pdf-app.mjs')
         self.assertIn('./pdf-session.mjs', graph['pdf-app.mjs'])
         self.assertIn('./embedding-source.mjs', graph['pdf-session.mjs'])
+        self.assertIn('./context-contract.mjs', graph['pdf-session.mjs'])
+        self.assertEqual(graph['context-contract.mjs'], {
+            './compute-source.mjs', './embedding-source.mjs', './query-source.mjs',
+        })
         self.assertIn('./embedding-contract.mjs', graph['embedding-source.mjs'])
         self.assertEqual(graph['embedding-contract.mjs'], set())
         self.assertNotIn('embedding-runtime.mjs', graph,
@@ -222,6 +226,31 @@ class BrowserAssetsTest(unittest.TestCase):
         for relative in ('embedding-assets.json', 'models', 'vendor/transformers', 'notices',
                          'node_modules', 'tests', 'secret.env'):
             self.assertFalse((output / relative).exists(), relative)
+
+    def test_context_contract_is_named_runtime_while_generation_and_audit_inputs_stay_excluded(self):
+        excluded = ('generator-contract.mjs', 'prompt-contract.mjs', 'generator-assets.json',
+                    'acceptance/c3-query-audit.json', 'models/qwen/model_q4.onnx')
+        for name in excluded:
+            source = self.browser / name
+            source.parent.mkdir(parents=True, exist_ok=True)
+            source.write_bytes(b'NOT C4.1 RUNTIME')
+        build.build()
+        output = self.root / 'dist' / 'browser-rag'
+        self.assertTrue((output / 'context-contract.mjs').is_file())
+        self.assertEqual((output / 'context-contract.mjs').read_bytes(),
+                         (self.browser / 'context-contract.mjs').read_bytes())
+        for name in excluded:
+            self.assertFalse((output / name).exists(), name)
+
+    def test_missing_context_contract_refuses_before_promotion_preserving_all_previous_bytes(self):
+        build.build()
+        before = fixtures.file_snapshot(self.root / 'dist')
+        (self.browser / 'context-contract.mjs').unlink()
+        with self.assertRaisesRegex((ValueError, FileNotFoundError), 'context-contract'):
+            build.build()
+        self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+        self.assertFalse((self.root / '.build-recovery').exists())
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
 
     def test_pdf_only_missing_contract_refuses_before_promotion_and_retains_all_previous_bytes(self):
         build.build()

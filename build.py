@@ -215,7 +215,7 @@ def copy_browser_assets(root, output):
                  'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs',
                  'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs',
                  'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs',
-                 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
+                 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs', 'context-contract.mjs',
                  'pdf-assets.json'):
         copy(browser / name, target / name)
     for name, expected_hash in registry['moduleHashes'].items():
