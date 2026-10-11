@@ -1539,6 +1539,11 @@ passed in 22.831 seconds, the six-article local build succeeded, and the refresh
 Codex IAB showed the new chapter. Its real screenshot is saved locally as
 `rag-streaming-boundary-oct11.jpg`. `git diff --check` passed. This checkpoint
 is a local commit only, with no model weight staged or public publication.
+The checkout follow-up adds five explicit Git `-text` rules for the pinned
+vendor graph: this machine has `core.autocrlf=true`, so unspecified attributes
+would otherwise change byte counts and hashes on a future checkout. Its real
+Git-attribute regression first failed and then passed; independent SPEC and
+QUALITY reran all 14 stream build tests. Vendor bytes remained unchanged.
 Article 05 teaches the exact byte/EOF/ownership boundary. CacheStorage, SDK
 integration, actual WebGPU inference and financial evaluation remain required.
 

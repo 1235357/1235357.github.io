@@ -6,4 +6,10 @@ figures/ARCHIFY-LICENSE.txt -text
 figures/ARCHIFY-THIRD-PARTY-NOTICES.txt -text
 figures/JetBrainsMono-OFL.txt -text
 browser-rag/notices/*.txt -text
+# Keep the pinned upstream hash graph byte-identical across Windows checkouts.
+browser-rag/vendor/noble-hashes/sha2.js -text
+browser-rag/vendor/noble-hashes/_md.js -text
+browser-rag/vendor/noble-hashes/_u64.js -text
+browser-rag/vendor/noble-hashes/utils.js -text
+browser-rag/vendor/noble-hashes/LICENSE -text
 *.pdf binary

@@ -1,6 +1,7 @@
 """Build acceptance for the pinned streaming verifier graph; no model execution."""
 import json
 import re
+import subprocess
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -78,6 +79,14 @@ class StreamAssetsTest(unittest.TestCase):
         self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
         self.assertFalse((self.root / '.build-recovery').exists())
         self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+    def test_git_preserves_exact_pinned_vendor_bytes_without_text_conversion(self):
+        paths = [f'browser-rag/vendor/noble-hashes/{name}' for name in NOBLE_FILES]
+        result = subprocess.run(
+            ['git', 'check-attr', 'text', '--', *paths],
+            cwd=REPOSITORY_BROWSER.parent, check=True, capture_output=True, text=True,
+        )
+        self.assertEqual(result.stdout.splitlines(), [f'{path}: text: unset' for path in paths])
 
     def test_real_verifier_registry_and_exact_five_file_graph_are_delivered(self):
         # An arbitrary source beside the pinned graph must not become public.
