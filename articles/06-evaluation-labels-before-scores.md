@@ -22,12 +22,16 @@ recommendations, not evidence that this project already implements all metrics.
 
 ## The local labels are not an independent acceptance set
 
-The first two inspected rows of `evaluation/annual_multiyear_heldout.jsonl`
-explicitly register `purpose: development`, `development_exposed: true` and a null
-freeze date. Their filename and question IDs retain the historical word “heldout”;
-that does not make them independent now. Each contains assistant-reviewed financial
-ground truth and a primary-PDF locator. Neither certifies domain-expert review,
-student reproduction or current remote-byte equality.
+The October 11 registration audit covered all 15 JSONL files in the local Python
+project's `evaluation` directory. No row registered
+`evaluation_usage.purpose: acceptance_candidate`. All ten rows of
+`annual_multiyear_heldout.jsonl` register `purpose: development`,
+`development_exposed: true` and a null freeze date. Its filename and question IDs
+retain the historical word “heldout”; that does not make them independent now.
+Other files contain development or unregistered rows. A prospective filename,
+PDF hash or assistant source-review note does not certify independent human
+annotation, student reproduction or current remote-byte equality. This was a
+registration audit, not a new verification of every financial label.
 
 These questions remain useful for regression: a change should not casually lose
 previously understood behavior. They cannot be reused as unseen acceptance evidence
@@ -102,6 +106,35 @@ paraphrases and ambiguous requests. Keep its registration, source hashes and
 review provenance. Select operating thresholds using development data, then
 evaluate the frozen set without adjusting the system to its individual failures.
 
+The browser variant needs its own strict registration rather than an unchanged
+copy of the legacy loader. The inspected Python `load_questions` carries
+`financial_ground_truth` and `evaluation_usage`, but does not carry prospective
+rows' top-level `source_pdf_sha256`, `gold_table`, `gold_row` or `gold_asof_date`.
+A field present in a JSONL file can therefore disappear before evaluation. A
+browser acceptance loader should reject missing required provenance instead of
+quietly retaining a question while losing its source identity.
+
+Register the original PDF hash, physical page and PDF label, exact supporting
+span, statement and row, complete period/column header, signed amount, currency
+and unit. Record answerability with a reason, reviewer and procedure, freeze
+time, exposure history and fact-family identity. Paraphrasing an exposed revenue
+cell does not create an unseen case. Freeze source labels independently of model
+outputs; an assistant-run table inspection remains a development source check
+unless an independent reviewer actually validates it. Store an explicit
+`reviewer_type` and review receipt. Independent assistant review does not establish
+independent human verification; an unknown or missing human-review status must
+remain unknown, not be promoted by a filename, registration flag or absent
+objection.
+
+Keep four output boundaries separate: a generated token sequence, valid decoded
+JSON, recognized citation IDs, and source-supported financial claims. Rejecting
+malformed or truncated JSON is not an appropriate evidence refusal. A recognized
+`E` citation is not entailment. Record real predictions and claim-level review
+before calculating scores, and keep runtime errors, overflow, cancellation,
+false refusals and false accepts as different outcomes. Calibration controls
+with deliberately wrong years or units can test a judge, but cannot be reported
+as real model accuracy or human-calibrated judgment without the actual reviews.
+
 ## Pair quality with operational measurements
 
 ### Course connection: measure interfaces and stages, not one success flag
@@ -166,6 +199,6 @@ not a complete end-to-end benchmark.
 4. Design an unseen question and state how it will stay outside tuning.
 
 No new quality score, independent review, latency benchmark or acceptance result
-is claimed by this chapter. It records inspected label boundaries and the next
-measurement design. Remaining corpus rows and evaluation implementation need
-their own audit before a complete dataset claim.
+is claimed by this chapter. It records the audited registration boundaries and
+the next measurement design. The source labels, browser predictions and judge
+implementation still need their own verification before a quality claim.

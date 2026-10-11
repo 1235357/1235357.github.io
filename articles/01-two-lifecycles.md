@@ -5,7 +5,7 @@ category: technical-article
 domain: financial-rag
 status: draft
 created: 2026-10-07
-updated: 2026-10-09
+updated: 2026-10-11
 source_type: implementation-and-primary-documentation
 metadata_version: 1
 tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
@@ -49,8 +49,9 @@ The source inspector embedded below now parses selected bytes and explicitly
 builds source-linked chunks in a native computation worker. An explicit next
 action now runs a pinned MiniLM encoder with WebGPU. It is not the classroom
 retrieval demo: it now encodes an explicit question and ranks retained MiniLM
-passages in a fresh browser worker. Browser context assembly and generation are
-still disabled; this is not the complete RAG product.
+passages in a fresh browser worker. After ranking, an explicit action assembles
+the complete selected provenance context. Actual financial generation remains
+disabled; the complete RAG product still requires its remaining acceptance gates.
 
 ## Offline work creates a reusable representation
 
@@ -342,9 +343,9 @@ device-specific performance evidence must precede any release claim.
 ## First browser increment: inspect before indexing
 
 <figure class="architecture-figure" id="browser-source-lab" aria-label="Interactive local PDF extraction lab, not a complete RAG runtime">
-<div class="figure-heading"><span class="figure-status">03 / QUESTION-TO-SOURCE LAB · CANDIDATES ONLY</span><h3>Choose bytes. Ask. Inspect the source.</h3><p>This is an actual application entry point, not a diagram. Parse the selected file, build chunks, explicitly encode passages, then run your exact question. Inspect candidates, source fragments, token IDs and vectors separately.</p></div>
+<div class="figure-heading"><span class="figure-status">03 / QUESTION-TO-CONTEXT LAB · NOT GENERATED</span><h3>Choose bytes. Ask. Inspect the source.</h3><p>This is an actual application entry point, not a diagram. Parse the selected file, build chunks, explicitly encode passages, run your exact question, then assemble its complete provenance context. Inspect candidates, source fragments, token IDs, vectors and citation identities separately.</p></div>
 <iframe src="browser-rag/inspector.html" title="Local question-to-source inspector — candidates, not generated answers" loading="lazy"></iframe>
-<figcaption>“Extracted; not indexed” → “Chunked; not embedded” → “Embedded; not retrieved” → “Query candidates; not an answer”, each after its own accepted action. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection and model download are explicit; no PDF upload endpoint is implemented. Context assembly, NVIDIA sample mode and generation remain unavailable. Browser acceptance is recorded separately from unit tests.</figcaption>
+<figcaption>“Extracted; not indexed” → “Chunked; not embedded” → “Embedded; not retrieved” → “Query candidates; not an answer” → “Context assembled; not generated”, each after its own explicit accepted action. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a>. File selection and model download are explicit; no PDF upload endpoint is implemented. Context assembly preserves all selected evidence and the exact question. NVIDIA sample mode and generation remain unavailable. Browser acceptance is recorded separately from unit tests.</figcaption>
 </figure>
 
 <details><summary>What was actually checked in Codex IAB on October 7?</summary>
@@ -520,7 +521,9 @@ asynchronous failure boundaries. Explain in English: “The question owns a new
 query artifact, but it reuses accepted passage vectors. Cancellation revokes the
 right to commit; source replacement invalidates every dependent artifact.” Then
 reproduce those outcomes yourself. Assistant-run checks are not your mastery
-evidence. Context assembly and actual generation remain separate work.
+evidence. After a successful query, explicitly assemble and inspect its complete
+context; actual financial generation still needs a separate implementation and
+acceptance gate.
 
 <details>
 <summary>Recovery lesson: a filename is not an accepted document</summary>
@@ -556,6 +559,67 @@ this agent-run regression is scaffolding, not your personal mastery evidence.
 </details>
 
 ## Source and verification boundary
+
+### A complete context can have a bounded preview
+
+The October 11 context action binds the exact question and successful query
+attempt to a detached, immutable evidence snapshot. The interface presents every
+selected unit with its source-ordinal citation ID, retrieval rank, physical page,
+PDF label and UTF-16 mapping. It renders at most 100 cards per window, but keeps
+the complete selected set. Opening a card creates its full quote and all mapping
+segments; closing it releases that display text. `omissions: []` means no selected
+evidence was removed from the context, not that the retriever found all relevant
+information or the model has answered correctly.
+
+Source inspection uses retained artifacts rather than running the encoder again.
+Editing or clearing a question, changing top K, replacing the document or
+restarting an earlier stage revokes old context callbacks. In CS381 terms, the
+presentation component controls display and navigation; the session and shared
+provenance contract control ownership and consistency. That separation makes a
+layout change independent of the evidence-selection policy. In CS310 terms, a
+successful earlier operation is not permission for an old result to commit into
+a new session. In CS461 terms, actual embedding tokens and vectors are not
+generated answer tokens.
+
+<details><summary>Actual financial-source context check in Codex IAB on October 11</summary>
+
+This was a local development trace, not a complete corpus or independent gold
+evaluation. The selected 74,085-byte PDF contained original physical pages 3–4
+of the locally stored NVIDIA FY2025 Q2 report. It had its own SHA-256
+`8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428`;
+selected physical pages 1/2 carried PDF labels "3"/"4". The original report was
+unchanged, and neither it nor the excerpt was added to the public sample build.
+
+Both the standalone application and this article's actual iframe used the native
+chooser, PDF.js worker, computation worker and MiniLM WebGPU FP32 encoding. Each
+produced five chunks, 644 passage token IDs and 384-dimensional vectors. The exact
+question was `"  What was revenue for the three months ended July 28, 2024?\n"`:
+two leading spaces and a trailing newline remained in the context. Its encoder
+used 16 token IDs. Requested top K 3 yielded citations E1, E4 and E2 at ranks
+1, 2 and 3; citation identity did not change into rank identity.
+
+| Warm-cache observation | Passage attempt | Query attempt |
+| --- | ---: | ---: |
+| Standalone | 1,785.5 ms | 862.9 ms |
+| Article iframe | 1,530.4 ms | 1,060.3 ms |
+
+Each attempt verified 113,629,084 asset-body bytes, all from the owned asset cache
+with zero fetched asset-body bytes. These are individual attempt observations,
+not isolated GPU time, a p95 benchmark, a total-network-zero claim, or generation
+latency. The opened E1 quote matched the retained candidate's complete 512 UTF-16
+units. E4 inspection selected physical page 2 / label "4" and chunk 4 without
+changing the query receipt. Editing the standalone question then removed all
+context cards and disabled Assemble while retaining accepted source/passages.
+Generate remained disabled, and the iframe console had no observed warning or
+error entry in this check.
+
+Any future generated financial claim still requires a claim-specific check
+against the original table's quarter and six-month columns. Mechanical source
+identity, full quote retention and GPU execution do not supply that judgment.
+The real selected-context prompt, Qwen generation,
+decoded-answer inspection and independent quality evaluation remain unfinished.
+
+</details>
 
 Implementation inspected: `src/nvidia_rag/service.py`, with composition and
 ranking discussed in `runtime.py` and `retrieval.py`. The local recording-model

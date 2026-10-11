@@ -9,10 +9,10 @@
   <script type="module" src="pdf-app.mjs"></script>
 </head>
 <body>
-<header><a href="../index.html">ENGINEERING NOTES / SOURCE LAB</a><span>LOCAL DRAFT · CANDIDATES ONLY</span></header>
+<header><a href="../index.html">ENGINEERING NOTES / SOURCE LAB</a><span>LOCAL DRAFT · CONTEXT NOT GENERATED</span></header>
 <main>
   <section class="lead"><p class="eyebrow">01 / QUESTION TO SOURCE</p><h1>Ask a question.<br>Inspect its candidate sources.</h1>
-  <p>Follow one local PDF from parser records to source-linked chunks, explicit encoder output and sourced candidates. Every accepted stage keeps its own receipt.</p></section>
+  <p>Follow one local PDF from parser records to source-linked chunks, explicit encoder output, sourced candidates and their complete provenance context. Every accepted stage keeps its own receipt.</p></section>
   <div class="workspace">
     <section class="controls panel" aria-labelledby="input-title">
       <h2 id="input-title">Your document</h2>
@@ -41,7 +41,7 @@
         <div class="buttons"><button id="run-query" disabled>Run question</button><button id="clear-query">Clear question</button></div>
         <p class="hint">Requires accepted passage vectors. A fresh worker verifies local assets, encodes this question and ranks the retained chunks. Inspection uses accepted artifacts.</p>
         <div class="buttons"><button id="assemble-context" disabled>Assemble context</button><button id="generate-answer" disabled>Generate answer</button></div>
-        <p class="hint">Generation remains disabled. Sourced candidates are not a verified answer.</p>
+        <p class="hint">Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled. Sourced candidates are not a verified answer.</p>
       </section>
       <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">COMMIT BOUNDARY</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></div>
       <dl id="receipt" class="receipt"></dl>
@@ -52,7 +52,7 @@
         <p>This receipt belongs to the accepted question attempt. Verified, fetched and cached body bytes and elapsed time are separate from the historical passage receipt. Elapsed time includes loading, initialization, encoding and cleanup, rather than isolated GPU time.</p>
       </details>
       <details><summary>What this lab does — and does not do</summary>
-        <p><strong>Extracted; not indexed.</strong> After parsing, build source-linked chunks. <strong>Chunked; not embedded.</strong> Explicitly download the pinned encoder to continue. <strong>Embedded; not retrieved.</strong> Run an explicit question to obtain ranked candidates. Candidate scores do not establish financial facts, table columns, reading order or OCR.</p>
+        <p><strong>Extracted; not indexed.</strong> After parsing, build source-linked chunks. <strong>Chunked; not embedded.</strong> Explicitly download the pinned encoder to continue. <strong>Embedded; not retrieved.</strong> Run an explicit question to obtain ranked candidates. <strong>Context; not generated.</strong> Assemble all selected evidence with exact quotes and source mappings. Candidate scores do not establish financial facts, table columns, reading order or OCR.</p>
         <p>Text is the original parser-extracted string, not a raw PDF byte offset. PDF.js can replace whitespace. Geometry describes a text item, not every character.</p>
         <p>Replacing a document first revokes the old operation's right to commit and clears its dependent artifacts. Cancelling chunk work preserves the accepted source; cancelling embedding preserves source and chunks; cancelling a query preserves source, chunks and passage vectors. No partial output is committed.</p>
       </details>
@@ -72,6 +72,12 @@
           <p id="query-embedding-meta" class="hint" role="status" aria-live="polite">No query vector committed.</p>
           <div id="query-embedding-detail"></div>
         </details>
+      </section>
+      <section class="context-inspection" aria-labelledby="context-title">
+        <p class="eyebrow">COMPLETE PROVENANCE / NO GENERATED ANSWER</p><h2 id="context-title">Context; not generated</h2>
+        <p id="context-meta" class="hint" role="status" aria-live="polite">No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.</p>
+        <p class="hint">Citation IDs follow source chunk ordinals; retrieval rank is shown separately. Physical pages and PDF labels identify different things. Quotes retain the exact parser text, including whitespace.</p>
+        <div id="context-detail"><p class="empty">No provenance context committed.</p></div>
       </section>
       <section class="source-inspection" aria-labelledby="source-title">
       <div class="section-heading"><div><p class="eyebrow">EXACT PARSER RECORDS</p><h2 id="source-title">Source inspection</h2></div>

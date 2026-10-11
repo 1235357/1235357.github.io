@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "observationDate": "2026-10-11",
+  "status": "local-selected-context-accepted-not-generated",
+  "browser": "Codex in-app browser",
+  "previewOrigin": "http://127.0.0.1:8765",
+  "parser": "PDF.js 6.4.299 native worker",
+  "computeWorker": "native owned module worker",
+  "representationId": "miniLM-fp32-mean-l2-webgpu-v1",
+  "backend": "webgpu",
+  "dtype": "fp32",
+  "selectedFile": {
+    "name": "local-nvidia-fy2025-q2-original-pages-3-4.pdf",
+    "bytes": 74085,
+    "sha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+    "parentSha256": "35d94221f0ed30f974b4fe6536fa54ff40945265d8b354b0ae17066c8856a861",
+    "parentPages": 80,
+    "parentUnchanged": true,
+    "pageMap": [
+      {"physicalPage": 1, "pdfLabel": "3", "parentPhysicalPage": 3},
+      {"physicalPage": 2, "pdfLabel": "4", "parentPhysicalPage": 4}
+    ],
+    "inPublicSampleBuild": false,
+    "redistributionPermissionEstablished": false
+  },
+  "chunks": 5,
+  "outputUtf16": 2426,
+  "mappingFragments": 687,
+  "passageTokenIds": 644,
+  "dimensions": 384,
+  "rawQuestion": "  What was revenue for the three months ended July 28, 2024?\n",
+  "queryTokenIds": 16,
+  "requestedTopK": 3,
+  "evidence": [
+    {"citationId": "E1", "rank": 1, "ordinal": 0, "physicalPage": 1, "pdfLabel": "3", "startUtf16": 0, "endUtf16": 512},
+    {"citationId": "E4", "rank": 2, "ordinal": 3, "physicalPage": 2, "pdfLabel": "4", "startUtf16": 0, "endUtf16": 512},
+    {"citationId": "E2", "rank": 3, "ordinal": 1, "physicalPage": 1, "pdfLabel": "3", "startUtf16": 448, "endUtf16": 960}
+  ],
+  "omissions": [],
+  "runs": [
+    {"surface": "standalone", "passageAttemptElapsedMs": 1785.5, "queryAttemptElapsedMs": 862.9, "verifiedAssetBodyBytesPerAttempt": 113629084, "fetchedAssetBodyBytesPerAttempt": 0, "cachedAssetBodyBytesPerAttempt": 113629084},
+    {"surface": "article-iframe", "passageAttemptElapsedMs": 1530.4, "queryAttemptElapsedMs": 1060.3, "verifiedAssetBodyBytesPerAttempt": 113629084, "fetchedAssetBodyBytesPerAttempt": 0, "cachedAssetBodyBytesPerAttempt": 113629084}
+  ],
+  "checks": {
+    "actualChooserUsedBothSurfaces": true,
+    "rawQuestionWhitespacePreservedBothSurfaces": true,
+    "openedE1QuoteEqualsRetainedCandidateBothSurfaces": true,
+    "openedE1QuoteUtf16": 512,
+    "e4SourceNavigationPreservedQueryReceiptStandalone": true,
+    "questionEditClearedContextAndRetainedPassagesStandalone": true,
+    "generateButtonDisabledBothSurfaces": true,
+    "iframeObservedWarningOrErrorEntries": 0
+  },
+  "generationMode": "not-run",
+  "financialAnswerQualityEstablished": false,
+  "independentGoldEstablished": false,
+  "judgeCalibrationEstablished": false,
+  "publicDeploymentEstablished": false,
+  "limitations": [
+    "Local diagnostic excerpt, not the complete report or evaluation corpus.",
+    "Attempt timings include loading, initialization, encoding and cleanup; not isolated GPU time, p95 or generation latency.",
+    "Zero fetched asset-body bytes is not zero total network traffic.",
+    "Full selected evidence and citation identity do not establish relevance, financial column support or answer correctness.",
+    "Source-linked prompt, actual Qwen financial generation, decoded-answer validation and independent financial evaluation remain unfinished.",
+    "Assistant-run checks do not establish learner mastery or independent human annotation."
+  ]
+}

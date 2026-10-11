@@ -5,6 +5,8 @@ import {getItemWindow} from './item-window.mjs';
 import {chunkInWorker} from './compute-source.mjs';
 import {embedInWorker} from './embedding-source.mjs';
 import {queryInWorker} from './query-source.mjs';
+import {createContextView} from './context-view.mjs';
+import {ContextError} from './context-contract.mjs';
 
 const byId=id=>document.getElementById(id);
 const fileInput=byId('pdf-file'),pageSelect=byId('page-select'),items=byId('items');
@@ -33,11 +35,20 @@ const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
   EMBEDDING_TIMEOUT:'The embedding worker exceeded its readiness/work budget. Source and chunks are retained.',
   INVALID_QUERY_WORKER_CONFIG:'Enter a nonblank question of at most 4,096 UTF-16 units and a whole-number top K of 1–512.',
   QUERY_TIMEOUT:'The query worker exceeded its readiness/work budget. Source, chunks and passage vectors are retained.',
-  QUERY_FAILED:'The query operation failed. Source, chunks and passage vectors are retained.'};
+  QUERY_FAILED:'The query operation failed. Source, chunks and passage vectors are retained.',
+  INVALID_CONTEXT_INPUT:'The provenance context input is invalid. Retry from an accepted retrieval.',
+  INVALID_CONTEXT_ARTIFACT:'The accepted provenance artifacts are inconsistent. No context was accepted.',
+  CONTEXT_FAILED:'The provenance context could not be assembled safely. Retry from an accepted retrieval.'};
 let lastSource=null,lastChunks=null,lastEmbeddings=null,itemWindowIndex=0,chunkWindowIndex=0;
 let lastQuestion=undefined,lastQueryEmbedding=null,lastRetrieval=null;
-let uiActionNonce=0,embeddingRefusal=false,queryRefusal=false;
-function beginUiAction(){uiActionNonce++;if(embeddingRefusal||queryRefusal)render(session.snapshot());return uiActionNonce;}
+let lastContext=undefined,contextOwner=null,contextView;
+let uiActionNonce=0,embeddingRefusal=false,queryRefusal=false,contextRefusal=false;
+function beginUiAction(){uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal)render(session.snapshot());return uiActionNonce;}
+function currentContext(artifact){
+  return contextOwner!==null&&contextOwner.artifact===artifact&&artifact===session.context()
+    &&contextOwner.source===session.document()&&contextOwner.chunks===session.chunks()
+    &&contextOwner.retrieval===session.retrieval()&&session.snapshot().lifecycle.active===null;
+}
 function element(tag,text,className){const value=document.createElement(tag);if(text!==undefined)value.textContent=text;if(className)value.className=className;return value;}
 function receipt(rows){const list=byId('receipt');list.replaceChildren();for(const [key,value] of rows){list.append(element('dt',key),element('dd',String(value)));}}
 function inspectCandidate(candidate,source,chunks,retrieval){
@@ -168,9 +179,9 @@ function showChunkWindow(selectedIndex){
   showChunk();
 }
 function render(state){
-  uiActionNonce++;embeddingRefusal=false;queryRefusal=false;
+  uiActionNonce++;embeddingRefusal=false;queryRefusal=false;contextRefusal=false;
   const source=session.document(),chunks=session.chunks(),embeddings=session.embeddings();
-  const titles={idle:'Waiting for a PDF',parsing:'Reading selected bytes',chunking:'Building source-linked windows',embedding:'Embedding accepted chunks',querying:'Finding sourced candidates','query-candidates-only':'Query candidates; not an answer',cancelled:'Commit rights revoked','runtime-error':'No new result committed','extracted-not-indexed':'Extracted; not indexed','chunked-not-embedded':'Chunked; not embedded','embedded-not-retrieved':'Embedded; not retrieved'};
+  const titles={idle:'Waiting for a PDF',parsing:'Reading selected bytes',chunking:'Building source-linked windows',embedding:'Embedding accepted chunks',querying:'Finding sourced candidates','query-candidates-only':'Query candidates; not an answer','context-not-generated':'Context assembled; not generated',cancelled:'Commit rights revoked','runtime-error':'No new result committed','extracted-not-indexed':'Extracted; not indexed','chunked-not-embedded':'Chunked; not embedded','embedded-not-retrieved':'Embedded; not retrieved'};
   byId('status-title').textContent=titles[state.status];
   const active=state.lifecycle.active,progress=active?.progress,bar=byId('operation-progress');
   bar.hidden=!active;
@@ -191,7 +202,8 @@ function render(state){
   }else if(progress){progressText=`${progress.completed} / ${progress.total??'unknown'} ${progress.unit} · ${active.stage==='index'?'chunking':active.stage==='parse'?'parsing':active.stage}.`;}
   byId('status-detail').textContent=state.error?(ERROR_HELP[state.error.code]||'Work failed. No new artifact was committed.'):
     progressText?progressText:
-    state.status==='query-candidates-only'?`${session.retrieval().returnedCount} sourced candidates · ${session.queryEmbedding().counts.totalTokens} actual query tokens · ${session.queryEmbedding().counts.dimensions} dimensions. Context and generation remain disabled. This is not a verified answer.`:
+    state.status==='context-not-generated'?`${session.context().evidenceUnits.length} evidence units with complete source provenance. No prompt was built and no answer was generated.`:
+    state.status==='query-candidates-only'?`${session.retrieval().returnedCount} sourced candidates · ${session.queryEmbedding().counts.totalTokens} actual query tokens · ${session.queryEmbedding().counts.dimensions} dimensions. Assemble their complete provenance context to inspect the evidence. Generation remains disabled.`:
     state.status==='embedded-not-retrieved'?`${embeddings.counts.chunks} chunks · ${embeddings.counts.totalTokens} actual tokens · ${embeddings.counts.dimensions} dimensions. No retrieval or generated answer yet.`:
     state.status==='chunked-not-embedded'?`${chunks.counts.chunks} chunks · ${chunks.counts.outputUtf16} output UTF-16 units · ${chunks.counts.fragments} mapping fragments. No vectors or generated answer.`:
     state.status==='extracted-not-indexed'?'Actual parser records below. No embedding index or generated answer exists.':
@@ -202,6 +214,8 @@ function render(state){
   byId('build-chunks').disabled=!source||Boolean(state.lifecycle.active);
   byId('embed-chunks').disabled=!chunks||Boolean(state.lifecycle.active);
   byId('run-query').disabled=!embeddings||Boolean(active);
+  byId('assemble-context').disabled=!session.retrieval()||Boolean(active);
+  byId('generate-answer').disabled=true;
   byId('clear-query').disabled=Boolean(active)&&active.operation!=='query';
   byId('question-input').disabled=active?.operation==='query';
   byId('query-top-k').disabled=active?.operation==='query';
@@ -214,7 +228,7 @@ function render(state){
       showPage();
     }
   }
-  if(source)receipt([['File',source.source.name],['Bytes',source.source.size],['SHA-256',source.source.sha256],['Parser',`PDF.js ${source.parser.version}`],['Parse worker',source.workerMode],['Compute',chunks?'native · owned module worker':'no chunk result'],['Pages',source.numPages],['Epoch',state.lifecycle.documentEpoch],['Stage',session.retrieval()?'query candidates only':embeddings?'embedded; not retrieved':chunks?'chunked; not embedded':'extracted; not indexed']]);
+  if(source)receipt([['File',source.source.name],['Bytes',source.source.size],['SHA-256',source.source.sha256],['Parser',`PDF.js ${source.parser.version}`],['Parse worker',source.workerMode],['Compute',chunks?'native · owned module worker':'no chunk result'],['Pages',source.numPages],['Epoch',state.lifecycle.documentEpoch],['Stage',session.context()?'context; not generated':session.retrieval()?'query candidates only':embeddings?'embedded; not retrieved':chunks?'chunked; not embedded':'extracted; not indexed']]);
   if(chunks!==lastChunks){lastChunks=chunks;chunkWindowIndex=0;showChunkWindow();}
   if(embeddings!==lastEmbeddings){
     lastEmbeddings=embeddings;showEmbedding();const list=byId('embedding-receipt');list.replaceChildren();
@@ -226,6 +240,12 @@ function render(state){
   if(session.question()!==lastQuestion||session.queryEmbedding()!==lastQueryEmbedding||session.retrieval()!==lastRetrieval){
     lastQuestion=session.question();lastQueryEmbedding=session.queryEmbedding();lastRetrieval=session.retrieval();showQuery();
   }
+  if(session.context()!==lastContext){
+    lastContext=session.context();contextOwner=lastContext?{artifact:lastContext,source,chunks,retrieval:session.retrieval()}:null;
+    byId('context-meta').textContent=lastContext?`${lastContext.evidenceUnits.length} evidence units · requested top K ${lastContext.retrieval.requestedTopK} · context not generated. No selected evidence was omitted.`:
+      'No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.';
+    contextView.render(lastContext);
+  }
 }
 const session=createPdfSession({extract:extractPdf,parserOptions:{pdfjs,
   assetBaseUrl:new URL('./vendor/',import.meta.url).href,
@@ -233,6 +253,8 @@ const session=createPdfSession({extract:extractPdf,parserOptions:{pdfjs,
   compute:chunkInWorker,computeOptions:{workerFactory:url=>new Worker(url,{type:'module'})},
   embed:embedInWorker,embeddingOptions:{workerFactory:url=>new Worker(url,{type:'module'})},
   query:queryInWorker,queryOptions:{workerFactory:url=>new Worker(url,{type:'module'})},onState:render});
+contextView=createContextView({document,root:byId('context-detail'),isCurrent:currentContext,
+  onInspect:(unit,artifact)=>{if(currentContext(artifact))inspectCandidate(unit,contextOwner.source,contextOwner.chunks,contextOwner.retrieval);}});
 fileInput.addEventListener('change',()=>{const file=fileInput.files?.[0];if(file){beginUiAction();void session.select(file);}});
 byId('cancel').addEventListener('click',()=>{beginUiAction();session.cancel();});
 byId('clear').addEventListener('click',()=>{beginUiAction();session.clear();fileInput.value='';});
@@ -266,6 +288,20 @@ byId('run-query').addEventListener('click',()=>{
     queryRefusal=true;byId('status-title').textContent='Query did not start';
     byId('status-detail').textContent=`INVALID_QUERY_WORKER_CONFIG · ${ERROR_HELP.INVALID_QUERY_WORKER_CONFIG} Source, chunks and accepted passage vectors are retained.`;
   });
+});
+byId('assemble-context').addEventListener('click',()=>{
+  const action=beginUiAction(),state=session.snapshot(),source=session.document(),chunks=session.chunks(),embeddings=session.embeddings();
+  const question=session.question(),query=session.queryEmbedding(),retrieval=session.retrieval(),context=session.context();
+  if(state.lifecycle.active!==null||retrieval===null)return;
+  try{session.assembleContext();}catch(cause){
+    const current=session.snapshot();
+    if(action!==uiActionNonce||current.lifecycle.documentEpoch!==state.lifecycle.documentEpoch||current.lifecycle.active!==null
+        ||source!==session.document()||chunks!==session.chunks()||embeddings!==session.embeddings()
+        ||question!==session.question()||query!==session.queryEmbedding()||retrieval!==session.retrieval()||context!==session.context())return;
+    const safe=new ContextError(cause instanceof ContextError?cause.code:undefined);
+    contextRefusal=true;byId('status-title').textContent='Context did not assemble';
+    byId('status-detail').textContent=`${safe.code} · ${ERROR_HELP[safe.code]} Source, chunks and accepted query artifacts are retained.`;
+  }
 });
 for(const id of ['question-input','query-top-k'])byId(id).addEventListener('input',()=>{beginUiAction();session.clearQuery();});
 byId('clear-query').addEventListener('click',()=>{beginUiAction();session.clearQuery();byId('question-input').value='';});

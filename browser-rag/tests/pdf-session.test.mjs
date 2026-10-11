@@ -13,6 +13,8 @@ import {getItemWindow} from '../item-window.mjs';
 import {queryInWorker,queryResultReceipt,QueryWorkerError} from '../query-source.mjs';
 import {rankCandidates} from '../retrieval.mjs';
 import {createQueryCommandHandler} from '../query.worker.mjs';
+import {createContextView} from '../context-view.mjs';
+import {ContextError} from '../context-contract.mjs';
 
 const deferred = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
 const source = name => ({status:'extracted-not-indexed',source:{name,sha256:'a'.repeat(64),size:8},parser:{version:'6.4.299'},numPages:2,pages:[]});
@@ -592,6 +594,7 @@ class AppElement{
   append(...children){this.children.push(...children);if(this.tag==='select'&&this.value===''&&this.children.length)this.value=String(this.children[0].value);}
   replaceChildren(...children){this.children=[];if(this.tag==='select')this.value='';this.append(...children);}
   addEventListener(type,listener){this.listeners.set(type,listener);}
+  setAttribute(name,value){this[name]=String(value);}
   removeAttribute(name){if(name==='value')this.value=undefined;}
   fire(type,event){this.listeners.get(type)?.(event);}
 }
@@ -613,6 +616,7 @@ function appHarness(harnessOptions={}){
   const context={document:{getElementById:byId,createElement:tag=>new AppElement(tag)},window:{addEventListener(type,listener){
       if(!windowListeners.has(type))windowListeners.set(type,new Set());windowListeners.get(type).add(listener);}},
     URL,Worker:class{},pdfjs:{},extractPdf(){},chunkInWorker(){},embedInWorker(){},queryInWorker(){},getItemWindow,EMBEDDING_SPEC,
+    createContextView,ContextError,
     createPdfSession:options=>{session=createPdfSession({...options,runtimeId:'ui-parser',runtimeIdFactory:()=>`ui-${++incarnation}`,
       extract:(file,options)=>{extracts.push({file,options});return (harnessOptions.extract??(async selected=>extracted(selected.name)))(file,options);},compute:async(record,options)=>{
         computes.push({record,options});

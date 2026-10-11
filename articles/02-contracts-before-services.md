@@ -1,7 +1,7 @@
 ---
 title: Contracts before services
 status: draft
-updated: 2026-10-07
+updated: 2026-10-11
 tags: [rag, software-design, api]
 ---
 
@@ -245,7 +245,10 @@ implement RAG; the later parser, chunk, passage and query adapters separately
 validate their full artifacts before committing them. The query adapter recomputes
 ranking before its atomic commit. Source replacement invalidates its dependents;
 editing or cancelling a question clears only query-owned data and retains passage
-vectors. Context assembly and generation are still disabled.
+vectors. The explicit context action now binds an immutable evidence snapshot to
+that accepted query; clearing or replacing the query also revokes its context.
+Actual financial generation remains disabled and needs its own ownership and
+answer-validation boundary.
 
 Worker replacement has a second trap. Reusing `runtime-a` after briefly switching
 to `runtime-b` could recreate an old `runtime-a/op-1/epoch-0` identity. Therefore

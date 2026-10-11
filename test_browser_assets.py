@@ -72,6 +72,25 @@ class InspectorMarkupTest(unittest.TestCase):
         self.assertLess(markup.index('id="candidate-results"'), markup.index('id="source-title"'))
         self.assertNotIn('https://', markup)
 
+    def test_context_inspection_follows_candidates_before_parser_records_without_inline_code(self):
+        markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
+        for identifier in ('context-title', 'context-detail', 'context-meta'):
+            self.assertEqual(markup.count(f'id="{identifier}"'), 1, identifier)
+        self.assertRegex(markup, r'<section\b[^>]*aria-labelledby="context-title"')
+        self.assertRegex(markup, r'<h2\b[^>]*id="context-title"')
+        self.assertRegex(markup, r'<div\b[^>]*id="context-detail"')
+        self.assertRegex(markup, r'<p\b[^>]*id="context-meta"[^>]*role="status"[^>]*aria-live="polite"')
+        self.assertRegex(markup, r'<button\b[^>]*id="assemble-context"[^>]*disabled')
+        self.assertLess(markup.index('id="candidate-results"'), markup.index('id="context-title"'))
+        self.assertLess(markup.index('id="context-title"'), markup.index('id="source-title"'))
+        scripts = re.findall(r'<script\b([^>]*)>(.*?)</script>', markup, flags=re.DOTALL)
+        self.assertTrue(scripts, 'The inspector must keep its external module entry point.')
+        for attributes, body in scripts:
+            self.assertRegex(attributes, r'\bsrc="[^\"]+"')
+            self.assertFalse(body.strip(), 'The inspector must not introduce inline scripts.')
+        self.assertNotRegex(markup, r'<[^>]+\bon[a-zA-Z]+\s*=')
+        self.assertNotRegex(markup, r'<[^>]+\bstyle\s*=|<style\b')
+
     def test_csp_allows_same_origin_wasm_without_broad_eval_or_remote_workers(self):
         markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
         policy = re.search(r'http-equiv="Content-Security-Policy" content="([^"]+)"', markup)
@@ -81,7 +100,9 @@ class InspectorMarkupTest(unittest.TestCase):
         self.assertEqual(directives['script-src'], ["'self'", "'wasm-unsafe-eval'"])
         self.assertEqual(directives['worker-src'], ["'self'"])
         self.assertEqual(directives['connect-src'], ["'self'"])
+        self.assertEqual(directives['style-src'], ["'self'"])
         self.assertEqual(directives['form-action'], ["'none'"])
+        self.assertNotIn("'unsafe-inline'", policy.group(1))
         self.assertNotIn("'unsafe-eval'", policy.group(1))
         self.assertNotIn('https:', policy.group(1))
 
@@ -149,7 +170,7 @@ class BrowserAssetsTest(unittest.TestCase):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs'):
+        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs'):
             if name.endswith('.mjs'):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
@@ -201,6 +222,10 @@ class BrowserAssetsTest(unittest.TestCase):
         output = self.root / 'dist' / 'browser-rag'
         graph = static_mjs_graph(output, 'pdf-app.mjs')
         self.assertIn('./pdf-session.mjs', graph['pdf-app.mjs'])
+        self.assertIn('./context-view.mjs', graph['pdf-app.mjs'])
+        self.assertEqual(graph['context-view.mjs'], {'./item-window.mjs'})
+        self.assertRegex((output / 'context-view.mjs').read_text(encoding='utf-8'),
+                         r'import\s*\{\s*getItemWindow\s*\}\s*from\s*[\'\"]\./item-window\.mjs[\'\"]')
         self.assertIn('./embedding-source.mjs', graph['pdf-session.mjs'])
         self.assertIn('./context-contract.mjs', graph['pdf-session.mjs'])
         self.assertEqual(graph['context-contract.mjs'], {
@@ -210,6 +235,10 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertEqual(graph['embedding-contract.mjs'], set())
         self.assertNotIn('embedding-runtime.mjs', graph,
                          'The app static graph must not eagerly import the model runtime.')
+        for relative in ('generator-contract.mjs', 'generator-runtime.mjs', 'prompt-contract.mjs',
+                         'generator.worker.mjs', 'generator-assets.json',
+                         'models/qwen/model_q4.onnx', 'acceptance/c3-query-audit.json'):
+            self.assertNotIn(relative, graph, relative)
         worker_graph = static_mjs_graph(output, 'embedding.worker.mjs')
         self.assertEqual(worker_graph, {
             'embedding.worker.mjs': {'./embedding-runtime.mjs', './embedding-source.mjs',
@@ -227,18 +256,19 @@ class BrowserAssetsTest(unittest.TestCase):
                          'node_modules', 'tests', 'secret.env'):
             self.assertFalse((output / relative).exists(), relative)
 
-    def test_context_contract_is_named_runtime_while_generation_and_audit_inputs_stay_excluded(self):
+    def test_context_modules_are_named_runtime_while_generation_and_audit_inputs_stay_excluded(self):
         excluded = ('generator-contract.mjs', 'prompt-contract.mjs', 'generator-assets.json',
+                    'generator-runtime.mjs', 'generator.worker.mjs',
                     'acceptance/c3-query-audit.json', 'models/qwen/model_q4.onnx')
         for name in excluded:
             source = self.browser / name
             source.parent.mkdir(parents=True, exist_ok=True)
-            source.write_bytes(b'NOT C4.1 RUNTIME')
+            source.write_bytes(b'NOT C4.2 RUNTIME')
         build.build()
         output = self.root / 'dist' / 'browser-rag'
-        self.assertTrue((output / 'context-contract.mjs').is_file())
-        self.assertEqual((output / 'context-contract.mjs').read_bytes(),
-                         (self.browser / 'context-contract.mjs').read_bytes())
+        for name in ('context-contract.mjs', 'context-view.mjs'):
+            self.assertTrue((output / name).is_file(), f'fresh build omits {name}')
+            self.assertEqual((output / name).read_bytes(), (self.browser / name).read_bytes(), name)
         for name in excluded:
             self.assertFalse((output / name).exists(), name)
 
@@ -247,6 +277,20 @@ class BrowserAssetsTest(unittest.TestCase):
         before = fixtures.file_snapshot(self.root / 'dist')
         (self.browser / 'context-contract.mjs').unlink()
         with self.assertRaisesRegex((ValueError, FileNotFoundError), 'context-contract'):
+            build.build()
+        self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
+        self.assertFalse((self.root / '.build-recovery').exists())
+        self.assertEqual(list(self.root.glob('.dist-stage-*')), [])
+
+    def test_missing_context_view_refuses_before_promotion_preserving_all_previous_bytes(self):
+        build.build()
+        previous_binary = self.root / 'dist' / 'prior-output' / 'binary.bin'
+        previous_binary.parent.mkdir()
+        previous_binary.write_bytes(bytes(range(256)))
+        before = fixtures.file_snapshot(self.root / 'dist')
+        (self.browser / 'context-view.mjs').unlink()
+        (self.browser / 'inspector.css').write_bytes(b'CHANGED CORE STYLE')
+        with self.assertRaisesRegex((ValueError, FileNotFoundError), 'context-view'):
             build.build()
         self.assertEqual(fixtures.file_snapshot(self.root / 'dist'), before)
         self.assertFalse((self.root / '.build-recovery').exists())

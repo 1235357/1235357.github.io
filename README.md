@@ -546,10 +546,12 @@ and performance remain unaccepted.
 This milestone continues the locally staged technical blog and independent RAG
 runtime. It does not modify the Obsidian vault or expand the old PPT. Those
 historical learning-surface requests remain separate from this browser/API goal.
-Actual PDF parsing, native-worker chunking and explicit MiniLM WebGPU encoding
-now run in the standalone browser lab on the bounded original fixture. Explicit
-question encoding/ranking also ran in that lab and its blog iframe. Real context
-assembly, generation and independent financial evaluation remain unfinished.
+Actual PDF parsing, native-worker chunking, explicit MiniLM WebGPU passage and
+question encoding/ranking, and complete selected-context assembly have run in
+the standalone browser lab and its blog iframe on bounded local inputs. The
+October 11 financial excerpt check is separate from the earlier toy fixture.
+Real financial generation, answer validation and independent financial
+evaluation remain unfinished.
 The full approved design and remaining acceptance gates below are not completion
 receipts. No push, public endpoint or GitHub publication has been performed.
 
@@ -1971,7 +1973,81 @@ UI module in tests, then use the actual in-app chooser, native GPU encoder and
 query to inspect context in the standalone lab and the blog iframe. Generate
 remains disabled until the variable-frame generation/source-output path passes.
 
+Files: extend `pdf-app.mjs`, `inspector.html` and `inspector.css`; add the focused
+presentation component `context-view.mjs`; extend the real mounted-app harness
+in `tests/item-window.test.mjs`, the separate mounted-app harness in
+`tests/pdf-session.test.mjs`, and existing static build-closure assertions.
+Keep `README.md` root-owned. No session, encoder or generator contract changes.
+
+- [x] **RED real mounted UI:** accepted rank enables Assemble context, not
+  Generate answer. Clicking the actual handler calls the real session action
+  and renders complete `context-not-generated` evidence; absent/pending query
+  stays disabled. Capture raw whitespace/Unicode, source ordinal citation IDs,
+  rank order, physical page versus PDF label, exact full quote, source digest,
+  UTF-16 range, and literal `omissions: []`. Assert no invented generation or
+  lifecycle percentage. Check private exceptions never appear in the DOM.
+- [x] **RED lifetime and bounded rendering:** retain an old inspect/toggle/next
+  handler, then edit/clear the question, change top K, select another PDF or
+  restart chunks/embeddings. No old handler may reveal or navigate old evidence.
+  Traverse a context larger than 100 units forwards/backwards and reach its last
+  unit; render at most 100 cards, build full quote/segment JSON only when opened,
+  and release it on close. Hostile source markup must remain text.
+- [x] **GREEN focused component:** `createContextView({document, root,
+  isCurrent, onInspect})` returns `{render(artifact)}`. It owns only rendering and
+  a 100-unit preview window, never domain selection or model work. Before every
+  delayed toggle/navigation/inspection callback, require the same rendered
+  artifact and `isCurrent(artifact)`. `render(null)` removes all old evidence and
+  disables its navigation. Show all source fields above and no omission beyond
+  the explicit shared artifact's empty omissions array.
+- [x] **GREEN application binding:** one `lastContext` reference drives render
+  updates. `isCurrent` checks `session.context()` plus captured source/chunk/
+  retrieval identity and null active work; the component's inspect callback
+  calls existing `inspectCandidate` only after these guards. Add the existing
+  Assemble button handler and canonical ContextError guidance with current
+  action/ref guards; never print arbitrary exceptions. Add the context status
+  title, detail and source receipt stage. Keep Generate answer disabled.
+- [x] **GREEN static delivery:** explicitly copy only `context-view.mjs` and
+  test its served import closure and required HTML controls. Update the actual
+  app harness IDs and injection parameters rather than replacing app behavior
+  with a fake renderer. Preserve the CSP and no-inline-handler requirement.
+- [x] **Verify and accept:** focused mounted UI/context tests must first fail
+  for missing behavior, then pass; rerun every Node/Python test and build.
+  Independent SPEC then QUALITY precede the root's actual IAB selected-file,
+  native WebGPU embedding/query/context run in standalone and blog iframe.
+  Save real browser screenshots; no GPU claim from Node fixtures. Commit only
+  the reviewed scope after the root checks actual code and browser output.
+
+```javascript
+// Binding contract: the selected context is still owned, not merely rendered.
+const isCurrent = artifact => artifact === session.context()
+  && source === session.document() && chunks === session.chunks()
+  && retrieval === session.retrieval()
+  && session.snapshot().lifecycle.active === null;
+// The callback remains in the Presentation layer; no duplicated ranker.
+const onInspect = unit => {
+  if (isCurrent(artifact)) inspectCandidate(unit, source, chunks, retrieval);
+};
+```
+
+```powershell
+& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test --test-reporter=spec browser-rag/tests/item-window.test.mjs browser-rag/tests/context-session.test.mjs
+& 'C:\ProgramData\anaconda3\python.exe' -u -m unittest discover
+& 'C:\ProgramData\anaconda3\python.exe' build.py
+```
+
 ##### Remaining C4 integration gates
+
+C4.2 accepted locally on October 11 after independent SPEC then QUALITY. The
+root reran 1,940 Node tests (0 failures, 1,461.0239 ms), all 121 Python tests
+(24.435 s), the six-article build and whitespace checks. Actual IAB standalone
+and article-iframe runs selected the same local-only financial excerpt via their
+native choosers, produced five chunks / 644 actual passage tokens / 384 dimensions
+and a 16-token question, then displayed complete E1/E4/E2 context with exact raw
+whitespace. The opened 512-unit quote matched the retained candidate, E4 source
+inspection preserved the query receipt, and editing revoked the standalone
+context. The blog records the individual warm-cache timings and source/page-map
+boundary. Generate remained disabled; this accepts the selected-context UI, not
+Qwen financial generation, independent gold/judge quality or full-goal completion.
 
 Prepare the real complete Qwen prompt inside a session-owned attempt using its
 original eight-field provenance input. Tokenize with the actual paired verified
