@@ -1,0 +1,892 @@
+{
+  "selected": {
+    "statement": {
+      "role": "statement",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "sourceRecordPath": [
+        "pages",
+        1,
+        "textItems",
+        1
+      ],
+      "item": {
+        "itemIndex": 1,
+        "text": "Condensed Consolidated Statements of Comprehensive Income",
+        "dir": "ltr",
+        "transform": [
+          8.099999086500024,
+          0,
+          0,
+          8.099999086500024,
+          182.55584153775604,
+          711.675008530875
+        ],
+        "width": 247.09346508334554,
+        "height": 8.099999086500024,
+        "fontName": "g_d0_f1",
+        "hasEOL": true,
+        "span": {
+          "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i1/u16-0-57",
+          "startUtf16": 0,
+          "endUtf16": 57,
+          "quote": "Condensed Consolidated Statements of Comprehensive Income"
+        }
+      }
+    },
+    "unit": {
+      "role": "unit",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "sourceRecordPath": [
+        "pages",
+        1,
+        "textItems",
+        2
+      ],
+      "item": {
+        "itemIndex": 2,
+        "text": "(In millions)",
+        "dir": "ltr",
+        "transform": [
+          8.099999086500024,
+          0,
+          0,
+          8.099999086500024,
+          283.3839551665845,
+          701.5500096727499
+        ],
+        "width": 45.44779482449824,
+        "height": 8.099999086500024,
+        "fontName": "g_d0_f1",
+        "hasEOL": true,
+        "span": {
+          "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i2/u16-0-13",
+          "startUtf16": 0,
+          "endUtf16": 13,
+          "quote": "(In millions)"
+        }
+      }
+    },
+    "annotation": {
+      "role": "annotation",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "sourceRecordPath": [
+        "pages",
+        1,
+        "textItems",
+        3
+      ],
+      "item": {
+        "itemIndex": 3,
+        "text": "(Unaudited)",
+        "dir": "ltr",
+        "transform": [
+          8.099999086500024,
+          0,
+          0,
+          8.099999086500024,
+          283.6159863904165,
+          692.1000107384998
+        ],
+        "width": 44.99296124579338,
+        "height": 8.099999086500024,
+        "fontName": "g_d0_f1",
+        "hasEOL": false,
+        "span": {
+          "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i3/u16-0-11",
+          "startUtf16": 0,
+          "endUtf16": 11,
+          "quote": "(Unaudited)"
+        }
+      }
+    },
+    "metric": {
+      "role": "metric",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "sourceRecordPath": [
+        "pages",
+        1,
+        "textItems",
+        17
+      ],
+      "item": {
+        "itemIndex": 17,
+        "text": "Net income",
+        "dir": "ltr",
+        "transform": [
+          8.099999086500024,
+          0,
+          0,
+          8.099999086500024,
+          21.23085635663095,
+          645.5250159911247
+        ],
+        "width": 40.966693079867,
+        "height": 8.099999086500024,
+        "fontName": "g_d0_f2",
+        "hasEOL": false,
+        "span": {
+          "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i17/u16-0-10",
+          "startUtf16": 0,
+          "endUtf16": 10,
+          "quote": "Net income"
+        }
+      }
+    },
+    "duration": {
+      "role": "duration",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "sourceRecordPath": [
+        "pages",
+        1,
+        "textItems",
+        7
+      ],
+      "item": {
+        "itemIndex": 7,
+        "text": "Six Months Ended",
+        "dir": "ltr",
+        "transform": [
+          8.099999086500024,
+          0,
+          0,
+          8.099999086500024,
+          481.69682005129835,
+          679.2750121848749
+        ],
+        "width": 70.20262485270327,
+        "height": 8.099999086500024,
+        "fontName": "g_d0_f1",
+        "hasEOL": false,
+        "span": {
+          "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i7/u16-0-16",
+          "startUtf16": 0,
+          "endUtf16": 16,
+          "quote": "Six Months Ended"
+        }
+      }
+    },
+    "date": {
+      "role": "date",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "sourceRecordPath": [
+        "pages",
+        1,
+        "textItems",
+        13
+      ],
+      "item": {
+        "itemIndex": 13,
+        "text": "Jul 28, 2024",
+        "dir": "ltr",
+        "transform": [
+          8.099999086500024,
+          0,
+          0,
+          8.099999086500024,
+          455.097604301099,
+          667.8000134789997
+        ],
+        "width": 45.48338946048394,
+        "height": 8.099999086500024,
+        "fontName": "g_d0_f1",
+        "hasEOL": false,
+        "span": {
+          "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i13/u16-0-12",
+          "startUtf16": 0,
+          "endUtf16": 12,
+          "quote": "Jul 28, 2024"
+        }
+      }
+    },
+    "currency": {
+      "role": "currency",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "sourceRecordPath": [
+        "pages",
+        1,
+        "textItems",
+        27
+      ],
+      "item": {
+        "itemIndex": 27,
+        "text": "$",
+        "dir": "ltr",
+        "transform": [
+          8.099999086500024,
+          0,
+          0,
+          8.099999086500024,
+          442.6206559582217,
+          645.5250159911247
+        ],
+        "width": 4.504833121954887,
+        "height": 8.099999086500024,
+        "fontName": "g_d0_f2",
+        "hasEOL": false,
+        "span": {
+          "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i27/u16-0-1",
+          "startUtf16": 0,
+          "endUtf16": 1,
+          "quote": "$"
+        }
+      }
+    },
+    "value": {
+      "role": "value",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "sourceRecordPath": [
+        "pages",
+        1,
+        "textItems",
+        29
+      ],
+      "item": {
+        "itemIndex": 29,
+        "text": "31,480",
+        "dir": "ltr",
+        "transform": [
+          8.099999086500024,
+          0,
+          0,
+          8.099999086500024,
+          485.5780696135796,
+          645.5250159911247
+        ],
+        "width": 24.77460455597491,
+        "height": 8.099999086500024,
+        "fontName": "g_d0_f2",
+        "hasEOL": false,
+        "span": {
+          "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i29/u16-0-6",
+          "startUtf16": 0,
+          "endUtf16": 6,
+          "quote": "31,480"
+        }
+      }
+    }
+  },
+  "columns": [
+    {
+      "durationMonths": 3,
+      "periodEndLiteral": "Jul 28, 2024",
+      "band": {
+        "left": 283.0912741195924,
+        "right": 360.9904840842919
+      },
+      "duration": {
+        "role": "duration",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          5
+        ],
+        "item": {
+          "itemIndex": 5,
+          "text": "Three Months Ended",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            320.90973218451035,
+            679.2750121848749
+          ],
+          "width": 80.1021837262529,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f1",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i5/u16-0-18",
+            "startUtf16": 0,
+            "endUtf16": 18,
+            "quote": "Three Months Ended"
+          }
+        }
+      },
+      "date": {
+        "role": "date",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          9
+        ],
+        "item": {
+          "itemIndex": 9,
+          "text": "Jul 28, 2024",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            299.29918437170016,
+            667.8000134789997
+          ],
+          "width": 45.48338946048394,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f1",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i9/u16-0-12",
+            "startUtf16": 0,
+            "endUtf16": 12,
+            "quote": "Jul 28, 2024"
+          }
+        }
+      },
+      "currency": {
+        "role": "currency",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          19
+        ],
+        "item": {
+          "itemIndex": 19,
+          "text": "$",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            286.8222360288228,
+            645.5250159911247
+          ],
+          "width": 4.504833121954887,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f2",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i19/u16-0-1",
+            "startUtf16": 0,
+            "endUtf16": 1,
+            "quote": "$"
+          }
+        }
+      },
+      "value": {
+        "role": "value",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          21
+        ],
+        "item": {
+          "itemIndex": 21,
+          "text": "16,599",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            329.7796496841807,
+            645.5250159911247
+          ],
+          "width": 24.77460455597491,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f2",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i21/u16-0-6",
+            "startUtf16": 0,
+            "endUtf16": 6,
+            "quote": "16,599"
+          }
+        }
+      }
+    },
+    {
+      "durationMonths": 3,
+      "periodEndLiteral": "Jul 30, 2023",
+      "band": {
+        "left": 360.9904840842919,
+        "right": 438.88969404899126
+      },
+      "duration": {
+        "role": "duration",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          5
+        ],
+        "item": {
+          "itemIndex": 5,
+          "text": "Three Months Ended",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            320.90973218451035,
+            679.2750121848749
+          ],
+          "width": 80.1021837262529,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f1",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i5/u16-0-18",
+            "startUtf16": 0,
+            "endUtf16": 18,
+            "quote": "Three Months Ended"
+          }
+        }
+      },
+      "date": {
+        "role": "date",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          11
+        ],
+        "item": {
+          "itemIndex": 11,
+          "text": "Jul 30, 2023",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            377.1983943363996,
+            667.8000134789997
+          ],
+          "width": 45.48338946048394,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f1",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i11/u16-0-12",
+            "startUtf16": 0,
+            "endUtf16": 12,
+            "quote": "Jul 30, 2023"
+          }
+        }
+      },
+      "currency": {
+        "role": "currency",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          23
+        ],
+        "item": {
+          "itemIndex": 23,
+          "text": "$",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            364.77417698757534,
+            645.5250159911247
+          ],
+          "width": 4.504833121954887,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f2",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i23/u16-0-1",
+            "startUtf16": 0,
+            "endUtf16": 1,
+            "quote": "$"
+          }
+        }
+      },
+      "value": {
+        "role": "value",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          25
+        ],
+        "item": {
+          "itemIndex": 25,
+          "text": "6,188",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            412.12964039693094,
+            645.5250159911247
+          ],
+          "width": 20.269771434020022,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f2",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i25/u16-0-5",
+            "startUtf16": 0,
+            "endUtf16": 5,
+            "quote": "6,188"
+          }
+        }
+      }
+    },
+    {
+      "durationMonths": 6,
+      "periodEndLiteral": "Jul 28, 2024",
+      "band": {
+        "left": 438.88969404899126,
+        "right": 516.8099977613118
+      },
+      "duration": {
+        "role": "duration",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          7
+        ],
+        "item": {
+          "itemIndex": 7,
+          "text": "Six Months Ended",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            481.69682005129835,
+            679.2750121848749
+          ],
+          "width": 70.20262485270327,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f1",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i7/u16-0-16",
+            "startUtf16": 0,
+            "endUtf16": 16,
+            "quote": "Six Months Ended"
+          }
+        }
+      },
+      "date": {
+        "role": "date",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          13
+        ],
+        "item": {
+          "itemIndex": 13,
+          "text": "Jul 28, 2024",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            455.097604301099,
+            667.8000134789997
+          ],
+          "width": 45.48338946048394,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f1",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i13/u16-0-12",
+            "startUtf16": 0,
+            "endUtf16": 12,
+            "quote": "Jul 28, 2024"
+          }
+        }
+      },
+      "currency": {
+        "role": "currency",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          27
+        ],
+        "item": {
+          "itemIndex": 27,
+          "text": "$",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            442.6206559582217,
+            645.5250159911247
+          ],
+          "width": 4.504833121954887,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f2",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i27/u16-0-1",
+            "startUtf16": 0,
+            "endUtf16": 1,
+            "quote": "$"
+          }
+        }
+      },
+      "value": {
+        "role": "value",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          29
+        ],
+        "item": {
+          "itemIndex": 29,
+          "text": "31,480",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            485.5780696135796,
+            645.5250159911247
+          ],
+          "width": 24.77460455597491,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f2",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i29/u16-0-6",
+            "startUtf16": 0,
+            "endUtf16": 6,
+            "quote": "31,480"
+          }
+        }
+      }
+    },
+    {
+      "durationMonths": 6,
+      "periodEndLiteral": "Jul 30, 2023",
+      "band": {
+        "left": 516.8099977613118,
+        "right": 594.7513952212536
+      },
+      "duration": {
+        "role": "duration",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          7
+        ],
+        "item": {
+          "itemIndex": 7,
+          "text": "Six Months Ended",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            481.69682005129835,
+            679.2750121848749
+          ],
+          "width": 70.20262485270327,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f1",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i7/u16-0-16",
+            "startUtf16": 0,
+            "endUtf16": 16,
+            "quote": "Six Months Ended"
+          }
+        }
+      },
+      "date": {
+        "role": "date",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          15
+        ],
+        "item": {
+          "itemIndex": 15,
+          "text": "Jul 30, 2023",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            533.0390017610407,
+            667.8000134789997
+          ],
+          "width": 45.48338946048394,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f1",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i15/u16-0-12",
+            "startUtf16": 0,
+            "endUtf16": 12,
+            "quote": "Jul 30, 2023"
+          }
+        }
+      },
+      "currency": {
+        "role": "currency",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          31
+        ],
+        "item": {
+          "itemIndex": 31,
+          "text": "$",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            520.5725969169742,
+            645.5250159911247
+          ],
+          "width": 4.504833121954887,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f2",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i31/u16-0-1",
+            "startUtf16": 0,
+            "endUtf16": 1,
+            "quote": "$"
+          }
+        }
+      },
+      "value": {
+        "role": "value",
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+        "sourceRecordPath": [
+          "pages",
+          1,
+          "textItems",
+          33
+        ],
+        "item": {
+          "itemIndex": 33,
+          "text": "8,232",
+          "dir": "ltr",
+          "transform": [
+            8.099999086500024,
+            0,
+            0,
+            8.099999086500024,
+            567.9491540739509,
+            645.5250159911247
+          ],
+          "width": 20.269771434020022,
+          "height": 8.099999086500024,
+          "fontName": "g_d0_f2",
+          "hasEOL": false,
+          "span": {
+            "id": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/p2/i33/u16-0-5",
+            "startUtf16": 0,
+            "endUtf16": 5,
+            "quote": "8,232"
+          }
+        }
+      }
+    }
+  ],
+  "geometry": {
+    "height": 8.099999086500024,
+    "epsilon": 1.012499885812503,
+    "rowBaseline": 645.5250159911247,
+    "durationBaseline": 679.2750121848749,
+    "dateBaseline": 667.8000134789997,
+    "columnBoundaries": [
+      283.0912741195924,
+      360.9904840842919,
+      438.88969404899126,
+      516.8099977613118,
+      594.7513952212536
+    ]
+  }
+}

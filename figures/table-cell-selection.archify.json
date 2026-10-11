@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Source cells → explicit field selection",
+    "output": "figures/table-cell-selection.archify.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "animation": "none",
+    "legend": {
+      "mode": "hidden"
+    }
+  },
+  "participants": [
+    {
+      "id": "source",
+      "type": "database",
+      "label": "Source"
+    },
+    {
+      "id": "cells",
+      "type": "backend",
+      "label": "Cell build"
+    },
+    {
+      "id": "profiles",
+      "type": "external",
+      "label": "Profiles"
+    },
+    {
+      "id": "lookup",
+      "type": "backend",
+      "label": "Selector"
+    }
+  ],
+  "segments": [
+    {
+      "from": 160,
+      "to": 435,
+      "label": "1 · Bind four source cells"
+    },
+    {
+      "from": 470,
+      "to": 615,
+      "label": "2 · Keep raw coverage separate"
+    },
+    {
+      "from": 645,
+      "to": 915,
+      "label": "3 · Select an exact field tuple"
+    },
+    {
+      "from": 950,
+      "to": 1100,
+      "label": "4 · Controlled refusals · human=false"
+    }
+  ],
+  "messages": [
+    {
+      "id": "hash-read",
+      "from": "cells",
+      "to": "source",
+      "y": 210,
+      "label": "Hash + read p3",
+      "variant": "security"
+    },
+    {
+      "id": "duration-dates",
+      "from": "source",
+      "to": "cells",
+      "y": 275,
+      "label": "3mo / 6mo; dates repeat",
+      "variant": "return"
+    },
+    {
+      "id": "row-unit-value",
+      "from": "source",
+      "to": "cells",
+      "y": 340,
+      "label": "Row + unit + value boxes",
+      "variant": "return"
+    },
+    {
+      "id": "bound-cells",
+      "from": "cells",
+      "to": "lookup",
+      "y": 405,
+      "label": "4 bound Net income cells",
+      "variant": "emphasis"
+    },
+    {
+      "id": "raw-binding",
+      "from": "lookup",
+      "to": "source",
+      "y": 520,
+      "label": "Verify raw value spans",
+      "variant": "security"
+    },
+    {
+      "id": "raw-lexical",
+      "from": "source",
+      "to": "lookup",
+      "y": 585,
+      "label": "4/4 lexical presence only",
+      "variant": "return"
+    },
+    {
+      "id": "net-profile",
+      "from": "profiles",
+      "to": "lookup",
+      "y": 695,
+      "label": "Net income tuple",
+      "variant": "emphasis"
+    },
+    {
+      "id": "unique-cell",
+      "from": "lookup",
+      "to": "profiles",
+      "y": 760,
+      "label": "3mo:16,599 / 6mo:31,480",
+      "variant": "return"
+    },
+    {
+      "id": "revenue-profile",
+      "from": "profiles",
+      "to": "lookup",
+      "y": 825,
+      "label": "Revenue tuple",
+      "variant": "emphasis"
+    },
+    {
+      "id": "no-cell",
+      "from": "lookup",
+      "to": "profiles",
+      "y": 890,
+      "label": "NO_EXACT_CELL",
+      "variant": "return"
+    },
+    {
+      "id": "controls",
+      "from": "profiles",
+      "to": "lookup",
+      "y": 1000,
+      "label": "Duplicate / missing fields",
+      "variant": "security"
+    },
+    {
+      "id": "control-refusal",
+      "from": "lookup",
+      "to": "profiles",
+      "y": 1065,
+      "label": "9 controls refuse",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Dates repeat; geometry binds the columns",
+      "items": [
+        "The original FY2025 Q2 report's physical page 3 has Three Months Ended and Six Months Ended groups. Each group repeats Jul 28, 2024 and Jul 30, 2023.",
+        "The extractor validates the row, unit, duration/date columns and four amounts using sorted text and measured word geometry. It preserves exact text spans and bounding boxes; ambiguous input is refused.",
+        "Four Net income cells are emitted: current-year 3mo 16,599 and 6mo 31,480; prior-year 3mo 6,188 and 6mo 8,232. Source unit: In millions, except per share data. Currency glyph: $; normalized currency unset."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "A complete explicit tuple, without guessing",
+      "items": [
+        "Each current-year development profile supplies metric, duration_months (3 or 6), period_end (2024-07-28) and the exact source unit literal. Natural-language query parsing is outside this comparison.",
+        "Only one exactly matching cell may be selected. Net income profiles return their independently derived cells. Revenue profiles return NO_EXACT_CELL because the standalone sidecar contains only Net income.",
+        "Logical inputs and transformations belong to one local Python replay. This sequence illustrates the source/selection contract, not separate network services."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Raw presence is a different observation",
+      "items": [
+        "All four frozen development cases retain a verified raw value span and lexical row/duration/date/unit/value presence. The raw chunk contains two Jul 28, 2024 headings.",
+        "Lexical presence does not resolve a raw column. Raw deterministic selection and semantic entailment are not evaluated here. The sidecar matches 2 of 4 explicit profiles; the two Revenue profiles remain uncovered.",
+        "Candidate values are post-selection source assertions; expected-answer strings do not enter cell discovery or exact-tuple selection."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Experimental acceptance stays bounded",
+      "items": [
+        "Nine synthetic controls refuse unsupported or missing qualifiers, duplicate agreeing records, conflicting records and missing unit bindings. They are not a labeled financial negative set; financial false-accept rate is null.",
+        "Status: AI-source-reviewed-experimental; reviewer CodexAI; human_acceptance=false; development-exposed. Author tests 45/45; independent comparison tests 24/24; original-PDF/raw-source replay passed.",
+        "Ten preserved files stayed byte-identical, including original/old corpora, package sources and the API wheel. No embeddings, model generation, retrieval integration or browser-offset bridge was run."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Artifact-backed audit; strict pair checks have their own scope",
+      "items": [
+        "Extractor SHA ead976a3076536be…; comparison code SHA a218402e3b677a7a…. Cells SHA 3f6c35f8d7fcbf0b…; comparison SHA 38576f1d7529ffee…. Full paths, hashes, receipt identities and claim ranges are preserved in this figure's source-audit.json.",
+        "The Python staging repository has no HEAD or origin; its scripts are untracked. Native Archify repository-source verification is unsupported. No committed Git evidence is claimed.",
+        "Archify deliver and the unmodified strict checker bind this JSON/HTML pair. Browser measurement and visual inspection are separate; the external browser gate is not run under the Codex IAB-only requirement.",
+        "The viewer reuses the task-local readable sequence policy: 16px messages/roles, 14px phases and width-first vertical scrolling. This figure defaults to dark on its plain article URL, while explicit theme selection remains available."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Owned generation: invocation to draft gate",
+    "output": "figures/owned-generation.archify.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "animation": "none",
+    "legend": {
+      "mode": "hidden"
+    }
+  },
+  "participants": [
+    {
+      "id": "session",
+      "type": "frontend",
+      "label": "Session"
+    },
+    {
+      "id": "channel",
+      "type": "messagebus",
+      "label": "Channel"
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Worker"
+    },
+    {
+      "id": "native",
+      "type": "backend",
+      "label": "Native run"
+    },
+    {
+      "id": "inspector",
+      "type": "security",
+      "label": "Output gate"
+    }
+  ],
+  "segments": [
+    {
+      "from": 160,
+      "to": 430,
+      "label": "1 · Launch an owned attempt"
+    },
+    {
+      "from": 470,
+      "to": 920,
+      "label": "2 · Observe work and accept one terminal"
+    },
+    {
+      "from": 965,
+      "to": 1120,
+      "label": "3 · Inspect the draft against original input"
+    },
+    {
+      "from": 1170,
+      "to": 1390,
+      "label": "4 · Alternative exit at any active stage"
+    }
+  ],
+  "messages": [
+    {
+      "id": "owned-start",
+      "from": "session",
+      "to": "channel",
+      "y": 220,
+      "label": "Owned input + options",
+      "variant": "emphasis"
+    },
+    {
+      "id": "fresh-worker",
+      "from": "channel",
+      "to": "worker",
+      "y": 280,
+      "label": "Fresh module Worker"
+    },
+    {
+      "id": "ready",
+      "from": "worker",
+      "to": "channel",
+      "y": 340,
+      "label": "Pinned READY",
+      "variant": "return"
+    },
+    {
+      "id": "command",
+      "from": "channel",
+      "to": "worker",
+      "y": 400,
+      "label": "Identity + input",
+      "variant": "emphasis"
+    },
+    {
+      "id": "native-call",
+      "from": "worker",
+      "to": "native",
+      "y": 520,
+      "label": "Native generation"
+    },
+    {
+      "id": "stage-progress",
+      "from": "native",
+      "to": "worker",
+      "y": 580,
+      "label": "Stage / body bytes",
+      "variant": "return"
+    },
+    {
+      "id": "worker-progress",
+      "from": "worker",
+      "to": "channel",
+      "y": 640,
+      "label": "seq N: progress",
+      "variant": "return"
+    },
+    {
+      "id": "session-progress",
+      "from": "channel",
+      "to": "session",
+      "y": 700,
+      "label": "Checked progress",
+      "variant": "return"
+    },
+    {
+      "id": "native-receipt",
+      "from": "native",
+      "to": "worker",
+      "y": 760,
+      "label": "Receipt after cleanup",
+      "variant": "return"
+    },
+    {
+      "id": "worker-result",
+      "from": "worker",
+      "to": "channel",
+      "y": 820,
+      "label": "Full native artifact",
+      "variant": "return"
+    },
+    {
+      "id": "channel-result",
+      "from": "channel",
+      "to": "session",
+      "y": 880,
+      "label": "Checked terminal",
+      "variant": "return"
+    },
+    {
+      "id": "inspect-output",
+      "from": "session",
+      "to": "inspector",
+      "y": 1015,
+      "label": "EOS / JSON / citation IDs against original input",
+      "variant": "security"
+    },
+    {
+      "id": "inspection-result",
+      "from": "inspector",
+      "to": "session",
+      "y": 1085,
+      "label": "Unverified draft or refusal",
+      "variant": "return"
+    },
+    {
+      "id": "abort",
+      "from": "session",
+      "to": "channel",
+      "y": 1220,
+      "label": "If cancelled: abort",
+      "variant": "security"
+    },
+    {
+      "id": "terminate",
+      "from": "channel",
+      "to": "worker",
+      "y": 1290,
+      "label": "Abort / deadline: stop",
+      "variant": "security"
+    },
+    {
+      "id": "safe-error",
+      "from": "channel",
+      "to": "session",
+      "y": 1360,
+      "label": "Fixed terminal error",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Ownership precedes work",
+      "items": [
+        "Roles: Session is the main-thread owner; Channel is Worker transport; Worker owns a fresh SDK realm; Native run executes inside that Worker; Output gate is a pure shape/citation-identity check.",
+        "Only a configured generation adapter may run after an accepted query, with no active work. Preflight owns the document epoch and query before asynchronous imports or option getters.",
+        "Each attempt uses a fresh Worker. Session and transport independently check the same identity and contiguous event sequence. Late output from cancelled A cannot overwrite retry B.",
+        "Source: browser-rag/pdf-session.mjs:180-228,250-305; browser-rag/financial-generation-source.mjs:118-164,170-196."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "What the native run actually does",
+      "items": [
+        "Stages: adapter → assets → sdk → tokenizer → model → generate → reads → cleanup. Progress reports observed bytes or elapsed milliseconds; an unknown total stays unknown.",
+        "The exact chat template, complete prompt tokens and reserved output budget are checked before model construction. WebGPU/q4 generation consumes only verified same-origin assets.",
+        "The native core disposes input/result tensors and model, closes the cache, and destroys its owned GPU device before the successful receipt returns.",
+        "Source: browser-rag/financial-generator-runtime.mjs:15-28; generator-native-core.mjs:263-346; prompt-contract.mjs:150-180."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "A draft gate is not financial verification",
+      "items": [
+        "The session preserves the native invocation receipt separately from output inspection. EOS, complete JSON, schema and citation identity must pass before a draft is released.",
+        "The atomic terminal state is unverified-financial-draft or financial-output-refused. Claim support, factual correctness and evidence sufficiency remain unestablished; model abstention also remains unverified.",
+        "Source: browser-rag/pdf-session.mjs:291-328; financial-output-contract.mjs:129-159."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Failure has a bounded terminal outcome",
+      "items": [
+        "READY has at most 10 seconds; native work has at most 300 seconds. Receiving progress does not renew the hard work deadline.",
+        "Abort or timeout revokes the channel before listener removal and Worker termination. The session revokes output ownership before aborting or notifying subscribers.",
+        "Source: browser-rag/financial-generation-source.mjs:129-151,159-164,201-214; pdf-session.mjs:230-248."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Local source audit and delivery scope",
+      "items": [
+        "Inspected committed code at 10f962e4097f925eec87d4f783f4fb19ad0e922b. Source identities and SHA-256 values are preserved in .archify/sequence-owned-generation-20261011-090101/repository-evidence.json.",
+        "The staged repository has no origin remote. This is an inspected-code contract illustration, not Archify repository-provenance validation or evidence of a live model run.",
+        "Archify artifact delivery and strict provenance checks are separate from browser review. Its external Chrome browser gate is intentionally skipped under the Codex IAB-only requirement.",
+        "Readable rendering uses a task-local Archify 3.0.1 sequence adaptation: 16px message and role labels, 14px phase captions, with matching measured label boxes. Stock schema, SVG checker and artifact provenance are retained; policy and renderer hashes are in readable-renderer-policy.json."
+      ]
+    }
+  ]
+}

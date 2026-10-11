@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "b7378efc-b856-4e15-9f82-d29ae9753038",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\figures\\table-cell-selection.archify.json",
+  "output": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\figures\\table-cell-selection.archify.html",
+  "specification": {
+    "sha256": "7fe7e3cb4db700805fc207f3cdba96349d9c76d21681ac6de36975223fbe40bf",
+    "bytes": 7112
+  },
+  "artifact": {
+    "sha256": "145a5a0323ec5f9ea71eeed1722cfd184910b592b3c41c87b0ed2285a06e97f5",
+    "bytes": 772954
+  }
+}

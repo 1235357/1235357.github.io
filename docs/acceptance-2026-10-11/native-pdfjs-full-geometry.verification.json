@@ -1,0 +1,69 @@
+{
+  "schema": "native-geometry-projection-verification-v1",
+  "verifiedAt": "2026-10-11T15:46:41.780Z",
+  "inputs": {
+    "snapshot": {
+      "path": "docs/acceptance-2026-10-11/native-pdfjs-full-geometry.json",
+      "bytes": 231358,
+      "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d"
+    },
+    "capture": {
+      "path": "docs/acceptance-2026-10-11/native-pdfjs-full-geometry.capture.json",
+      "bytes": 1169,
+      "sha256": "ff5d1078290fc768ebc01f6831b303951fb76c0ce79a9317b9304fecf538c393"
+    },
+    "canonicalInput": {
+      "path": "docs/acceptance-2026-10-11/native-v4-replay-case1-revenue-three.original-input.json",
+      "bytes": 393274,
+      "sha256": "7711d782a4631a67462fa10ae3bfed4866ff3c887d6063b615df73fd5e049131"
+    },
+    "copier": {
+      "path": "browser-rag/financial-geometry-source.mjs",
+      "bytes": 3973,
+      "sha256": "c2fc22e4a12d564c89f8862df408fb3f70d74f68955772b8ffe21822cea2fd28"
+    },
+    "textOracle": {
+      "path": "browser-rag/compute-source.mjs",
+      "bytes": 21694,
+      "sha256": "6331de29a4e722f8179836203792a6453fdc75e96dd79cf82fd2f0421f4442cd"
+    }
+  },
+  "pass": true,
+  "completeTextSpanProjectionEqualsCanonical": true,
+  "deepFrozenCopy": true,
+  "pages": [
+    {
+      "physicalPageNumber": 1,
+      "pageLabel": "3",
+      "items": 239,
+      "utf16": 1161,
+      "geometry": {
+        "view": [
+          0,
+          0,
+          612,
+          792
+        ],
+        "rotation": 0,
+        "userUnit": 1
+      }
+    },
+    {
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "items": 106,
+      "utf16": 759,
+      "geometry": {
+        "view": [
+          0,
+          0,
+          612,
+          792
+        ],
+        "rotation": 0,
+        "userUnit": 1
+      }
+    }
+  ],
+  "scope": "Read-only replay of an actual IAB archive. Archive SHA identifies supplied bytes, not origin authentication. New capture owner differs from preserved model owners. No cell binding, currency normalization, parent-page lineage, model call, accuracy or human-gold claim."
+}

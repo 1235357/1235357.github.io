@@ -8,7 +8,7 @@ import { projectEmbeddingInput } from '../embedding-source.mjs';
 import { copyQueryPassages, copyQueryResult, queryResultReceipt } from '../query-source.mjs';
 import { rankCandidates } from '../retrieval.mjs';
 import { assembleProvenanceContext } from '../context-contract.mjs';
-import { prepareGenerationPrompt } from '../prompt-contract.mjs';
+import { prepareGenerationPrompt, PROMPT_SPEC } from '../prompt-contract.mjs';
 import { preflightGeneration } from '../generator-contract.mjs';
 
 // Real provenance/parser/chunker/ranker contracts and controlled SDK resources.
@@ -107,7 +107,9 @@ for(const length of [23,71]) test(`complete financial prompt drives dynamic nati
   assert.equal(receipt.outputInspection,'not-run');assert.equal(receipt.financialCorrectness,'unestablished');
   assert.deepEqual(receipt.preparedPrompt,expected);assert.deepEqual(receipt.preparedPrompt.context,assembleProvenanceContext(input));
   assert.equal(receipt.preparedPrompt.context.question,QUESTION);
-  assert.deepEqual(JSON.parse(receipt.preparedPrompt.messages[1].content),receipt.preparedPrompt.modelInput);
+  const userContent=receipt.preparedPrompt.messages[1].content;
+  assert.ok(userContent.startsWith(PROMPT_SPEC.userPrefix));assert.ok(userContent.endsWith(PROMPT_SPEC.userSuffix));
+  assert.deepEqual(JSON.parse(userContent.slice(PROMPT_SPEC.userPrefix.length,-PROMPT_SPEC.userSuffix.length)),receipt.preparedPrompt.modelInput);
   assert.deepEqual(receipt.preparedPrompt.modelInput.evidence.map(unit=>unit.text),receipt.preparedPrompt.context.evidenceUnits.map(unit=>unit.text));
   assert.equal(receipt.preparedPrompt.preflight.generationMode,'not-run');assert.equal(receipt.inspection.generationMode,'not-run');
   assert.deepEqual(f.calls.options.input_ids.dims,[1,length]);assert.deepEqual(f.calls.options.attention_mask.dims,[1,length]);

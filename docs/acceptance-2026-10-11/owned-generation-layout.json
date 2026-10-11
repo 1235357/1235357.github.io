@@ -1,0 +1,24 @@
+{
+  "wideFigureProof": {
+    "document": [
+      1265,
+      3275
+    ],
+    "svg": {
+      "height": 1893.9609375,
+      "viewBox": "0 0 920 1488",
+      "width": 1171
+    },
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  "iframeFigureProof": {
+    "height": 1167.75,
+    "viewBox": "0 0 920 1488",
+    "width": 722
+  },
+  "htmlSha256": "dfe2307b29d40a6685479f207b96e2f7f4610c56ea79000a41e0c31bc13157a0",
+  "review": "IAB visual review of both screenshot views passed; external Archify browser gate skipped"
+}

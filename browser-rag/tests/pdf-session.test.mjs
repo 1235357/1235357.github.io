@@ -14,6 +14,7 @@ import {queryInWorker,queryResultReceipt,QueryWorkerError} from '../query-source
 import {rankCandidates} from '../retrieval.mjs';
 import {createQueryCommandHandler} from '../query.worker.mjs';
 import {createContextView} from '../context-view.mjs';
+import {createGenerationView} from '../generation-view.mjs';
 import {ContextError} from '../context-contract.mjs';
 
 const deferred = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
@@ -596,6 +597,7 @@ class AppElement{
   addEventListener(type,listener){this.listeners.set(type,listener);}
   setAttribute(name,value){this[name]=String(value);}
   removeAttribute(name){if(name==='value')this.value=undefined;}
+  focus(){this.focused=true;}
   fire(type,event){this.listeners.get(type)?.(event);}
 }
 class AppFileInput extends AppElement{
@@ -613,10 +615,10 @@ function appHarness(harnessOptions={}){
   const dispatchWindow=(type,event={})=>{for(const listener of windowListeners.get(type)??[])listener({type,...event});};
   if(harnessOptions.restoredFile)restoreFile(harnessOptions.restoredFile);
   if(harnessOptions.restoredQuestion!==undefined)byId('question-input').value=harnessOptions.restoredQuestion;
-  const context={document:{getElementById:byId,createElement:tag=>new AppElement(tag)},window:{addEventListener(type,listener){
+  const context={document:{getElementById:byId,querySelector:selector=>byId(selector.slice(1)),createElement:tag=>new AppElement(tag)},window:{addEventListener(type,listener){
       if(!windowListeners.has(type))windowListeners.set(type,new Set());windowListeners.get(type).add(listener);}},
     URL,Worker:class{},pdfjs:{},extractPdf(){},chunkInWorker(){},embedInWorker(){},queryInWorker(){},getItemWindow,EMBEDDING_SPEC,
-    createContextView,ContextError,
+    createContextView,createGenerationView,ContextError,
     createPdfSession:options=>{session=createPdfSession({...options,runtimeId:'ui-parser',runtimeIdFactory:()=>`ui-${++incarnation}`,
       extract:(file,options)=>{extracts.push({file,options});return (harnessOptions.extract??(async selected=>extracted(selected.name)))(file,options);},compute:async(record,options)=>{
         computes.push({record,options});
@@ -624,8 +626,9 @@ function appHarness(harnessOptions={}){
       embed:(record,options)=>{const pending=deferred();embeds.push({record,options,...pending});return pending.promise;},
       query:(record,passages,question,options)=>{const pending=deferred();queries.push({record,passages,question,options,...pending});return pending.promise;}});return session;}};
   const code=readFileSync(new URL('../pdf-app.mjs',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'')
+    .replace(/^export function mountPdfApp/m,'function mountPdfApp')
     .replace(/import\.meta\.url/g,JSON.stringify('https://example.test/project/browser-rag/pdf-app.mjs'));
-  vm.runInNewContext(code,context);return {session,extracts,computes,embeds,queries,byId,restoreFile,chooseFile,dispatchWindow};
+  vm.runInNewContext(`${code}\nmountPdfApp();`,context);return {session,extracts,computes,embeds,queries,byId,restoreFile,chooseFile,dispatchWindow};
 }
 const appText=node=>[node.textContent,...node.children.map(appText)].join('\n');
 const appTick=()=>new Promise(resolve=>setImmediate(resolve));

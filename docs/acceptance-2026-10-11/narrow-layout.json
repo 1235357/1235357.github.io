@@ -1,0 +1,29 @@
+{
+  "bodyWidth": 375,
+  "regions": [
+    {
+      "bottom": 2303.359375,
+      "label": "input-title",
+      "left": 18.75,
+      "top": 309.4453125,
+      "width": 337.5
+    },
+    {
+      "bottom": 3532.796875,
+      "label": "generation-title",
+      "left": 18.75,
+      "top": 2327.359375,
+      "width": 337.5
+    },
+    {
+      "bottom": 3735.890625,
+      "label": "notebook-title",
+      "left": 18.75,
+      "top": 3556.796875,
+      "width": 337.5
+    }
+  ],
+  "scope": "Codex IAB DOM layout at temporary390px; screenshot scaling not used as visual proof",
+  "scrollWidth": 375,
+  "viewport": 390
+}

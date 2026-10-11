@@ -1,0 +1,1972 @@
+{
+  "schema": "native-source-cell-independent-root-replay-v1",
+  "createdAtUTC": "2026-10-11T16:53:36.923Z",
+  "scope": "actual IAB archives replayed offline from each own complete native source; no model/browser/PDF reparse in verifier",
+  "contractSha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db",
+  "iabMetadataSha256": "ee25dfc8b551537e681d98e2e41be86e0bd737f8fb5837b4ff815f49fdd7ca4f",
+  "cases": [
+    {
+      "path": "native-source-cell-case1.json",
+      "bytes": 291462,
+      "sha256": "9d9e007e4c88f9535c3651e3cba0a5b1e61e522a8b6a575ebbd24ef2498bd9fa",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Income",
+        "metric": "Net income",
+        "durationMonths": 3,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "16,599",
+      "physicalPageNumber": 1,
+      "pageLabel": "3",
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 11,
+        "attempt": 14
+      },
+      "snapshotSha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    },
+    {
+      "path": "native-source-cell-case2.json",
+      "bytes": 291456,
+      "sha256": "0834f1cf537ea695a47907f78269c365b32eaad4bdacc0fb629e94e5a94dc429",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Income",
+        "metric": "Net income",
+        "durationMonths": 3,
+        "periodEndLiteral": "Jul 30, 2023",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "6,188",
+      "physicalPageNumber": 1,
+      "pageLabel": "3",
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 19,
+        "attempt": 23
+      },
+      "snapshotSha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    },
+    {
+      "path": "native-source-cell-case3.json",
+      "bytes": 291457,
+      "sha256": "ca8ddcd1bcd3213455c9f9fa3bf2cd22352b43a5e9eea7193fb567bec7e59bc1",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "31,480",
+      "physicalPageNumber": 1,
+      "pageLabel": "3",
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 27,
+        "attempt": 32
+      },
+      "snapshotSha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    },
+    {
+      "path": "native-source-cell-case4.json",
+      "bytes": 291453,
+      "sha256": "bda7c9ead70e5ceab687c15a67a7cd5ef4ca226594d4556c4ce71dfdbb19e300",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 30, 2023",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "8,232",
+      "physicalPageNumber": 1,
+      "pageLabel": "3",
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 35,
+        "attempt": 41
+      },
+      "snapshotSha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    },
+    {
+      "path": "native-source-cell-case5.json",
+      "bytes": 291356,
+      "sha256": "d7640baa0802957fb852d2ee1a67024024d18d975f771471df94d4bbdfb34e0e",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 3,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "16,599",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 48,
+        "attempt": 56
+      },
+      "snapshotSha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    },
+    {
+      "path": "native-source-cell-case6.json",
+      "bytes": 291358,
+      "sha256": "5fa3a6dcb96676c72180554589173e04de3c6303e79719eb703e352b639ca2bc",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 3,
+        "periodEndLiteral": "Jul 30, 2023",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "6,188",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 56,
+        "attempt": 65
+      },
+      "snapshotSha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    },
+    {
+      "path": "native-source-cell-case7.json",
+      "bytes": 291354,
+      "sha256": "818fb8b0a49b3f5289f54d46d9ef26ff43d1731f492e8505c796bd699136fdbf",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "31,480",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 64,
+        "attempt": 74
+      },
+      "snapshotSha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    },
+    {
+      "path": "native-source-cell-case8.json",
+      "bytes": 291353,
+      "sha256": "cb7973d8639e293cc7f1d18e4e2fef739b425dc754952fa60887a7736c3567c1",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 30, 2023",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "8,232",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 72,
+        "attempt": 83
+      },
+      "snapshotSha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    },
+    {
+      "path": "native-source-cell-final-epoch7.json",
+      "bytes": 291357,
+      "sha256": "b34aabf2e75be4bec0b9165e94b8cd992d894e3711e2bf35227c5a5796a612df",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "31,480",
+      "physicalPageNumber": 2,
+      "pageLabel": "4",
+      "ownership": {
+        "documentEpoch": 7,
+        "coreRenderRevision": 25,
+        "requestRevision": 103,
+        "attempt": 133
+      },
+      "snapshotSha256": "44cbca876c3502763a84c319071669f5e5fb860c44902fe2218cb8396ef827bb",
+      "snapshotUtf8Bytes": 231358,
+      "itemReferences": 24
+    }
+  ],
+  "totalExactNativeReferences": 216,
+  "initialDisplayedSourceBytesEqual": true,
+  "finalDisplayedSourceBytesEqual": true,
+  "displayedBindingsEqual": true,
+  "reparseDiagnostic": {
+    "samePDFBytes": true,
+    "wholeSourceBytesEqual": false,
+    "changes": [
+      {
+        "path": "pages.0.textItems.0.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.1.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.2.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.3.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.4.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.5.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.6.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.7.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.8.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.9.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.10.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.11.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.12.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.13.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.14.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.15.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.16.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.17.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.18.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.19.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.20.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.0.textItems.21.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.22.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.23.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.24.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.25.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.26.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.27.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.28.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.29.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.30.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.31.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.32.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.33.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.34.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.35.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.36.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.37.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.38.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.39.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.40.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.41.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.42.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.43.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.44.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.45.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.46.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.47.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.48.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.49.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.50.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.51.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.52.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.53.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.54.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.55.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.56.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.57.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.58.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.59.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.60.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.61.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.62.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.63.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.64.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.65.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.66.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.67.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.68.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.69.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.70.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.71.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.72.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.73.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.74.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.75.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.76.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.77.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.78.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.79.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.80.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.81.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.82.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.83.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.84.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.85.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.86.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.87.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.88.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.89.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.90.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.91.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.92.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.93.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.94.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.95.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.96.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.97.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.98.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.99.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.100.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.101.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.102.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.103.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.104.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.105.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.106.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.107.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.108.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.109.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.110.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.111.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.112.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.113.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.114.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.115.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.116.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.117.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.118.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.119.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.120.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.121.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.122.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.123.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.124.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.125.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.126.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.127.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.128.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.129.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.130.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.131.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.132.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.133.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.134.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.135.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.136.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.137.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.138.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.139.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.140.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.141.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.142.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.143.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.144.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.145.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.146.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.147.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.148.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.149.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.150.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.151.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.152.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.153.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.154.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.155.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.156.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.157.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.158.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.159.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.160.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.161.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.162.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.163.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.164.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.165.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.166.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.167.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.168.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.169.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.170.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.171.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.172.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.173.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.174.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.175.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.176.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.177.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.178.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.179.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.180.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.181.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.182.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.183.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.184.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.185.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.186.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.187.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.188.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.189.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.190.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.191.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.192.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.193.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.194.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.195.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.196.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.197.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.198.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.199.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.200.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.201.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.202.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.203.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.204.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.205.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.206.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.207.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.208.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.209.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.210.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.211.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.212.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.213.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.214.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.215.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.216.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.217.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.218.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.219.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.220.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.221.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.222.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.223.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.224.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.225.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.226.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.227.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.228.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.229.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.230.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.231.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.232.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.233.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.234.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.235.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.236.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.237.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.0.textItems.238.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.0.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.1.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.2.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.3.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.4.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.5.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.6.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.7.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.8.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.9.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.10.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.11.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.12.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.13.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.14.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.15.fontName",
+        "initial": "g_d0_f1",
+        "final": "g_d4_f1"
+      },
+      {
+        "path": "pages.1.textItems.16.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.17.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.18.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.19.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.20.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.21.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.22.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.23.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.24.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.25.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.26.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.27.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.28.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.29.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.30.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.31.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.32.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.33.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.34.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.35.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.36.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.37.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.38.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.39.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.40.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.41.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.42.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.43.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.44.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.45.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.46.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.47.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.48.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.49.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.50.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.51.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.52.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.53.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.54.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.55.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.56.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.57.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.58.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.59.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.60.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.61.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.62.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.63.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.64.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.65.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.66.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.67.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.68.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.69.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.70.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.71.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.72.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.73.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.74.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.75.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.76.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.77.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.78.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.79.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.80.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.81.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.82.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.83.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.84.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.85.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.86.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.87.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.88.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.89.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.90.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.91.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.92.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.93.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.94.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.95.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.96.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.97.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.98.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.99.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.100.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.101.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.102.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.103.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.104.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      },
+      {
+        "path": "pages.1.textItems.105.fontName",
+        "initial": "g_d0_f2",
+        "final": "g_d4_f2"
+      }
+    ]
+  },
+  "humanAcceptance": false,
+  "financialCorrectness": "unadjudicated",
+  "normalizedCurrency": null
+}

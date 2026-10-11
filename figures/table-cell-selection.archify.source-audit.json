@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "figure": "table-cell-selection",
+  "scope": "artifact-backed local experimental cell/source and explicit-field contracts",
+  "repository_provenance": {
+    "status": "unsupported",
+    "reason": "Staged Python repository has no HEAD or origin; both cited scripts are untracked. No Git revision or native Archify repository-source verification is claimed."
+  },
+  "archify_pair_provenance": "Separate deliver/check receipt binds the diagram specification and HTML, not repository sources.",
+  "source_root": "D:/Desktop/GitHub-Staging/nvidia-financial-rag",
+  "inputs": [
+    {
+      "role": "extractor",
+      "path": "acceptance/table_cells_experiment.py",
+      "sha256": "ead976a3076536be1c81bd0b09e1f967e013dbf836b4995444221133c696ddac"
+    },
+    {
+      "role": "field_comparison",
+      "path": "acceptance/table_field_coverage_experiment.py",
+      "sha256": "a218402e3b677a7a2c24f796a82c96e8524b9cd8559b321ada472f722a12ff59"
+    },
+    {
+      "role": "cells",
+      "path": "artifacts/table-net-income-experiment-20261011-01/cells.jsonl",
+      "sha256": "3f6c35f8d7fcbf0b960be74fc168b0e97ff77e558b5ac63b3ff94fe3ac70d37f"
+    },
+    {
+      "role": "cell_receipt",
+      "path": "artifacts/table-net-income-experiment-20261011-01/receipt.json",
+      "sha256": "9169e4a03ea943c39d106ca3dc3c53663bf45a5b80ec86914b8de2d2f9042a7b"
+    },
+    {
+      "role": "cell_preservation_review",
+      "path": "artifacts/table-net-income-experiment-20261011-01/preservation-review.json",
+      "sha256": "0daf235b54df83b1c7f6cba65fe580ed139d673920487ec730f40ed4ae59412c"
+    },
+    {
+      "role": "comparison",
+      "path": "artifacts/table-field-coverage-experiment-20261011-01/comparison.json",
+      "sha256": "38576f1d7529ffeea3eadd7dbbe61f1b2ee1c2b0f4d70000f4b89fac96ebdfec"
+    },
+    {
+      "role": "comparison_receipt",
+      "path": "artifacts/table-field-coverage-experiment-20261011-01/receipt.json",
+      "sha256": "71261bfa07f8cb400970b93da34acb88aebeccc81ff82f7c190cfd5f1b86cee4"
+    },
+    {
+      "role": "comparison_review",
+      "path": "artifacts/table-field-coverage-experiment-20261011-01/review-preservation.json",
+      "sha256": "952dce4761f347ca2e6b8eee17868ba0f1885ec870203c99e988600d40d0d19f"
+    }
+  ],
+  "original_source": {
+    "document_id": "nvidia-fy2025-q2",
+    "physical_page": 3,
+    "pdf_sha256": "35d94221f0ed30f974b4fe6536fa54ff40945265d8b354b0ae17066c8856a861",
+    "page_text_sha256": "224e3c92eb9d84d69dff20d606f4b3e3286aff01719fbc114f29855179954d3d",
+    "profile": "PyMuPDF1.28.2 sorted text/words; Unicode code-point half-open text spans and PDF-point boxes"
+  },
+  "claim_map": [
+    {
+      "message_ids": [
+        "hash-read",
+        "duration-dates",
+        "row-unit-value",
+        "bound-cells"
+      ],
+      "evidence": "extractor",
+      "lines": [
+        74,
+        216
+      ],
+      "claim": "Unique statement/unit/Net income row, two duration groups, four dated columns, row values, spans/boxes and full source hash/profile are validated before four independent cells are emitted."
+    },
+    {
+      "message_ids": [
+        "raw-binding",
+        "raw-lexical"
+      ],
+      "evidence": "field_comparison",
+      "lines": [
+        111,
+        139
+      ],
+      "claim": "Reviewed raw value spans replay; raw row/duration/date/unit/value lexical counts are recorded separately from semantic field entailment and raw cell selection."
+    },
+    {
+      "message_ids": [
+        "net-profile",
+        "unique-cell",
+        "revenue-profile",
+        "no-cell"
+      ],
+      "evidence": "field_comparison",
+      "lines": [
+        27,
+        37,
+        93,
+        108,
+        213,
+        251
+      ],
+      "claim": "Frozen explicit metric/duration/end-date/unit profiles, no natural-language parsing or expected-answer selection. Net income current-year3/6month tuples uniquely select16,599/31,480; Revenue tuples are uncovered in this Net income-only sidecar."
+    },
+    {
+      "message_ids": [
+        "controls",
+        "control-refusal"
+      ],
+      "evidence": "field_comparison",
+      "lines": [
+        142,
+        177
+      ],
+      "claim": "Nine synthetic contract controls refuse absent/unsupported qualifiers and duplicate/conflicting cells; these are development controls, not financial negative labels."
+    }
+  ],
+  "results": {
+    "cell_count": 4,
+    "development_profiles": 4,
+    "raw_bound_values": 4,
+    "raw_complete_lexical_presence": 4,
+    "net_income_sidecar_exact_profile_matches": 2,
+    "uncovered_revenue_profiles": 2,
+    "synthetic_contract_controls": 9,
+    "synthetic_contract_controls_passed": 9,
+    "financial_negative_count": 0,
+    "financial_false_accept_rate": null
+  },
+  "review": {
+    "status": "AI-source-reviewed-experimental",
+    "reviewer": "CodexAI",
+    "human_acceptance": false,
+    "human_verdict": null,
+    "development_exposed": true,
+    "author_focused_tests": 45,
+    "independent_new_comparison_tests": 24,
+    "independent_SPEC_QUALITY": "no blocker within frozen scope",
+    "source_replay": "Author and independent actual-PDF/raw-corpus replay passed",
+    "preserved_files": 10
+  },
+  "limits": {
+    "model_runs": 0,
+    "embedding_runs": 0,
+    "retrieval_integration": "not-run",
+    "browser_lineage": "not-established; no PDF.js offset substitution",
+    "financial_correctness": "not-established",
+    "gold_labels": false
+  }
+}

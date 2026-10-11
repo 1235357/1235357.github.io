@@ -1,0 +1,54 @@
+{
+  "schema": "iab-figure-visual-review-v1",
+  "reviewedAt": "2026-10-11T15:48:56.071Z",
+  "browser": "Codex in-app browser",
+  "url": "http://127.0.0.1:8766/07-operational-receipts.html",
+  "frameTitle": "Archify sequence of source cells and explicit field selection",
+  "iframe": {
+    "width": 831,
+    "height": 850
+  },
+  "wideViewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "defaultTheme": "dark",
+  "observations": [
+    "Title, four roles and message arrows are readable.",
+    "Width fits the article frame; vertical scrolling exposes the lower phases.",
+    "Pair and source audit checks are separate from this native visual review."
+  ],
+  "inputs": [
+    {
+      "path": "figures/table-cell-selection.archify.html",
+      "bytes": 772954,
+      "sha256": "145a5a0323ec5f9ea71eeed1722cfd184910b592b3c41c87b0ed2285a06e97f5"
+    },
+    {
+      "path": "figures/table-cell-selection.archify.json",
+      "bytes": 7112,
+      "sha256": "7fe7e3cb4db700805fc207f3cdba96349d9c76d21681ac6de36975223fbe40bf"
+    },
+    {
+      "path": "figures/table-cell-selection.archify.delivery.json",
+      "bytes": 607,
+      "sha256": "dfe239b2cdece55620cc059531f000277707225055b807c405f272b7f43dec38"
+    },
+    {
+      "path": "figures/table-cell-selection.archify.strict-check.json",
+      "bytes": 3226,
+      "sha256": "ed772362c2c53daead5f4c2b1040beb608a82cfe60228f460836842f430dbafb"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/table-cell-selection-wide.jpg",
+      "bytes": 68135,
+      "sha256": "7580a0d13d9b86d17fdb5e7efda2e43ed0ea307a5c5405ff113d276c5e2c551f"
+    },
+    {
+      "path": "docs/acceptance-2026-10-11/table-cell-selection-article-iframe.jpg",
+      "bytes": 65733,
+      "sha256": "e4d088702819d437ebbfc5b9ea0b3d0845890252b985ac53ce4d7552eb5b398f"
+    }
+  ],
+  "scope": "Two desktop observations only. External Archify Chromium gate not run; mobile/perceptual acceptance is not implied."
+}

@@ -6,22 +6,24 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Question &amp; source inspector — local PDF lab</title>
   <link rel="stylesheet" href="inspector.css">
-  <script type="module" src="pdf-app.mjs"></script>
+  <script type="module" src="pdf-entry.mjs"></script>
 </head>
 <body>
-<header><a href="../index.html">ENGINEERING NOTES / SOURCE LAB</a><span>LOCAL DRAFT · CONTEXT NOT GENERATED</span></header>
+<header><a href="../index.html">ENGINEERING NOTES / SOURCE LAB</a><span id="header-stage">LOCAL DRAFT · CONTEXT NOT GENERATED</span></header>
 <main>
-  <section class="lead"><p class="eyebrow">01 / QUESTION TO SOURCE</p><h1>Ask a question.<br>Inspect its candidate sources.</h1>
+  <section class="lead"><p class="eyebrow">BROWSER RAG / EVIDENCE LAB</p><h1>Your PDF. Your question.<br>Every step in view.</h1>
   <p>Follow one local PDF from parser records to source-linked chunks, explicit encoder output, sourced candidates and their complete provenance context. Every accepted stage keeps its own receipt.</p></section>
+  <nav class="pipeline" aria-label="RAG stages — accepted artifacts, not an overall percentage"><ol id="pipeline-steps"><li>Waiting for the local session</li></ol></nav>
   <div class="workspace">
     <section class="controls panel" aria-labelledby="input-title">
-      <h2 id="input-title">Your document</h2>
+      <p class="eyebrow">01 / YOUR QUESTION</p><h2 id="input-title">Begin with a document</h2>
       <label class="file-label" for="pdf-file">Choose a local PDF <span>32 MiB maximum · selected bytes only</span></label>
       <input id="pdf-file" type="file" accept="application/pdf,.pdf">
-      <p class="hint">Parsed on this device in a native worker. No document upload or remote answering. Runtime assets are served by this same local site.</p>
+      <p class="hint">Parsed on this device in a native worker. This app does not upload selected PDF bytes or request remote answers. Runtime assets come from this site. Native model actions require a supported non-fallback WebGPU device; source-cell lookup needs only parsing.</p>
       <div class="buttons"><button id="cancel" disabled>Cancel work</button><button id="clear">Clear source</button></div>
       <button id="build-chunks" class="build-chunks" disabled>Build source-linked chunks</button>
       <p class="hint">Explicit next step: mechanical page windows in a native computation worker. No model download.</p>
+      <details class="encoder-contract"><summary>Encoder settings &amp; download contract</summary>
       <div class="model-contract"><p class="eyebrow">PINNED ENCODER / EXPLICIT ACTION</p>
         <p><strong>MiniLM L6 · FP32 · WebGPU</strong><br><span>113,629,084 bytes · model + paired runtime</span></p>
         <p class="hint">512 chunks · 256 tokens per chunk including special tokens · 131,072 total tokens. UTF-16 units are not tokens; oversized inputs are refused without silent truncation.</p>
@@ -30,6 +32,7 @@
           <p>The displayed bytes are verified asset body size, not a GPU memory estimate. A confirmed non-fallback WebGPU adapter is required; no automatic CPU fallback. Chunk text is limited to 4,096 UTF-16 units; the tokenizer then checks the separate token limits.</p>
         </details>
       </div>
+      </details>
       <button id="embed-chunks" class="embed-chunks" disabled>Download model &amp; embed chunks</button>
       <section class="query-controls" aria-labelledby="question-title">
         <p class="eyebrow">EXPLICIT QUESTION / RETAINED PASSAGES</p><h2 id="question-title">Your question</h2>
@@ -41,10 +44,10 @@
         <div class="buttons"><button id="run-query" disabled>Run question</button><button id="clear-query">Clear question</button></div>
         <p class="hint">Requires accepted passage vectors. A fresh worker verifies local assets, encodes this question and ranks the retained chunks. Inspection uses accepted artifacts.</p>
         <div class="buttons"><button id="assemble-context" disabled>Assemble context</button><button id="generate-answer" disabled>Generate answer</button></div>
-        <p class="hint">Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled. Sourced candidates are not a verified answer.</p>
+        <p id="generation-guidance" class="hint">Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled in this entry. Sourced candidates are not a verified answer.</p>
       </section>
-      <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">COMMIT BOUNDARY</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></div>
-      <dl id="receipt" class="receipt"></dl>
+
+      <details><summary>Accepted document &amp; stage receipt</summary><dl id="receipt" class="receipt"></dl></details>
       <details><summary>Historical accepted passage receipt</summary><dl id="embedding-receipt" class="receipt"></dl>
         <p>Verified, fetched and cached counts describe asset body bytes, not all network traffic. Attempt elapsed includes loading, initialization, encoding and disposal; it is not isolated GPU time. A WebGPU provider does not prove every operator ran on the GPU; mean pooling runs in JavaScript on the CPU.</p>
       </details>
@@ -56,10 +59,30 @@
         <p>Text is the original parser-extracted string, not a raw PDF byte offset. PDF.js can replace whitespace. Geometry describes a text item, not every character.</p>
         <p>Replacing a document first revokes the old operation's right to commit and clears its dependent artifacts. Cancelling chunk work preserves the accepted source; cancelling embedding preserves source and chunks; cancelling a query preserves source, chunks and passage vectors. No partial output is committed.</p>
       </details>
-      <details><summary>Accepted lifecycle trace</summary><pre id="trace">No accepted events yet.</pre></details>
       <p class="hint">NVIDIA sample mode remains unavailable until its source/permission review passes. This local-file inspector is not the complete RAG demo.</p>
     </section>
-    <section class="source panel" aria-labelledby="candidate-title">
+    <section class="generation panel" aria-labelledby="generation-title">
+      <p class="eyebrow">02 / ANSWER &amp; RECEIPT</p><h2 id="generation-title">The generated draft</h2>
+      <p id="generation-meta" class="hint" role="status" aria-live="polite">Generation remains disabled in the ordinary entry. No generation adapter is configured.</p>
+      <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">COMMIT BOUNDARY</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></div>
+      <div id="generation-detail"><p class="empty">No native generation receipt committed.</p></div>
+      <div id="source-cell-lookup" hidden></div>
+      <div id="generation-contract" class="model-contract" hidden>
+        <details><summary>Generator settings &amp; download contract</summary>
+        <p class="eyebrow">PAIRED QWEN / EXPLICIT ACTION</p>
+        <p><strong>Qwen2.5 0.5B Instruct · q4 · WebGPU</strong><br><span>815,725,938 bytes · five model and three paired runtime bodies</span></p>
+        <p class="hint">815.73 MB (777.94 MiB) of pinned model/runtime bodies: an explicit first run downloads uncached assets. This is not GPU memory or whole network traffic. Preparation verification and repeated SDK reads have separate receipts. No automatic CPU fallback. Generated drafts remain unverified; source-cell candidates are separately unadjudicated.</p>
+        <details><summary>Native financial generation boundary</summary>
+          <p>onnx-community/Qwen2.5-0.5B-Instruct · revision <code>22942cb7d7ba4cc81bb4673549ca4d4614469b5e</code>. The complete source question and selected evidence enter the prompt. Inputs that exceed the accepted text or token budget are refused without silent truncation.</p>
+          <p>Adapter → assets → SDK → tokenizer → model → generate → reads → cleanup. Measured elapsed stages with unknown totals remain indeterminate. This interface does not claim token streaming or time to first token.</p>
+        </details>
+        </details>
+      </div>
+      <details><summary>Accepted lifecycle trace</summary><pre id="trace">No accepted events yet.</pre></details>
+    </section>
+    <section class="source panel" aria-labelledby="notebook-title">
+      <details id="computation-notebook" class="computation-notebook">
+        <summary><span class="eyebrow">03 / COMPUTATION NOTEBOOK</span><span id="notebook-title">Follow the evidence, step by step</span><span class="hint">Candidates · prompt context · parser records · tokens · vectors</span></summary>
       <section class="query-inspection" aria-labelledby="candidate-title">
         <p class="eyebrow">QUESTION → REPRESENTATION → CANDIDATES</p><h2 id="candidate-title">Candidates; not an answer</h2>
         <p id="candidate-meta" class="hint" role="status" aria-live="polite">No candidates committed. An explicit query uses the retained passage vectors.</p>
@@ -74,7 +97,7 @@
         </details>
       </section>
       <section class="context-inspection" aria-labelledby="context-title">
-        <p class="eyebrow">COMPLETE PROVENANCE / NO GENERATED ANSWER</p><h2 id="context-title">Context; not generated</h2>
+        <p id="context-caption" class="eyebrow">COMPLETE PROVENANCE / NO GENERATED ANSWER</p><h2 id="context-title">Context; not generated</h2>
         <p id="context-meta" class="hint" role="status" aria-live="polite">No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.</p>
         <p class="hint">Citation IDs follow source chunk ordinals; retrieval rank is shown separately. Physical pages and PDF labels identify different things. Quotes retain the exact parser text, including whitespace.</p>
         <div id="context-detail"><p class="empty">No provenance context committed.</p></div>
@@ -105,7 +128,9 @@
         <div id="embedding-detail"></div>
         <p class="hint">The chunk selector controls this view. Changing selection inspects retained token IDs and vectors; it does not run inference again.</p>
       </section>
+      </details>
     </section>
+
   </div>
 </main>
 <footer>Source extraction ≠ retrieval ≠ a verified answer. <a href="../02-contracts-before-services.html#browser-work-has-a-commit-boundary-too">Read the ownership lesson ↗</a></footer>

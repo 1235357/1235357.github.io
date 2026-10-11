@@ -1,0 +1,8 @@
+{
+  "status": [
+    "Private generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer.",
+    "COMMIT BOUNDARYCommit rights revokedLate generation work cannot update this session. Source, accepted question, candidates and context retained for explicit retry."
+  ],
+  "generateEnabled": true,
+  "originalInputDisclosures": 0
+}

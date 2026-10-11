@@ -7,3 +7,11 @@ browser-rag/.model-cache/
 __pycache__/
 .venv/
 .env
+release-manifest.json
+# Task coordination and personal/source-review notes remain local. Public
+# consumer documentation and audited RAG acceptance artifacts are selected
+# separately from these records.
+docs/local-history/
+docs/superpowers/
+docs/2026-10-11-local-delivery.md
+docs/2026-10-11-reference-coverage.md

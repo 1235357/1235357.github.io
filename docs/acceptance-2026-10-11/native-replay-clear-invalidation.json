@@ -1,0 +1,33 @@
+{
+  "clearQuestion": {
+    "status": [
+      "Private generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer.",
+      "COMMIT BOUNDARYEmbedded; not retrieved5 chunks · 644 actual tokens · 384 dimensions. No retrieval or generated answer yet.",
+      "No candidates committed. An explicit query uses the retained passage vectors.",
+      "No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.",
+      "Showing items 1–100 of 106 · preview window 1 of 2",
+      "Chunk 4 of 5 · physical page 2 · label \"4\" · joined-page UTF-16 [0, 512)",
+      "Chunk 4 of 5 · 121 actual token IDs · 384 dimensions · L2 norm 1.000000"
+    ],
+    "inputDetails": 0,
+    "rawDetails": 0,
+    "question": "",
+    "runEnabled": true
+  },
+  "clearSource": {
+    "status": [
+      "Private generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer.",
+      "COMMIT BOUNDARYWaiting for a PDFNo source is stored. No embedding index or answer exists.",
+      "No candidates committed. An explicit query uses the retained passage vectors.",
+      "No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.",
+      "Showing 0 items of 0.",
+      "No chunks committed.",
+      "No vectors committed. Embed accepted chunks to inspect actual encoder output."
+    ],
+    "inputDetails": 0,
+    "rawDetails": 0,
+    "runEnabled": false,
+    "chunkEnabled": false,
+    "generateEnabled": false
+  }
+}

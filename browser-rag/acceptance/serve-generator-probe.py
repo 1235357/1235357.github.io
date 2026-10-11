@@ -1,9 +1,12 @@
 """Serve the C3 diagnostic locally, after verifying its fixed asset pins.
 
 This is an offline acceptance tool, separate from the static site build. It
-exposes five authored diagnostics, the generation contract, shared native core
-and its bounded receipt snapshot helper, five
+exposes five authored diagnostics, one exact private inspector entry, ten
+named authored generation modules, two private geometry-capture modules and two
+private source-cell lookup modules, five
 verified ignored-cache model files, and guarded regular files under ``dist``.
+The five exact public MiniLM model routes continue to resolve to their verified
+built assets; unknown model URLs never fall through to arbitrary ``dist`` files.
 It does not run a model or publish the diagnostic.
 """
 import argparse
@@ -27,10 +30,28 @@ MANIFEST_BYTE_LIMIT = 32768
 REVISION = '22942cb7d7ba4cc81bb4673549ca4d4614469b5e'
 MODEL_ID = 'onnx-community/Qwen2.5-0.5B-Instruct'
 MODEL_PREFIX = f'/browser-rag/models/{REVISION}/{MODEL_ID}/'
+EMBEDDING_MODEL_PREFIX = '/browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/'
+EMBEDDING_MODEL_NAMES = frozenset(('config.json', 'tokenizer.json', 'tokenizer_config.json',
+                                 'special_tokens_map.json', 'onnx/model.onnx'))
 ACCEPTANCE_PREFIX = '/browser-rag/acceptance/'
 DIAGNOSTICS = frozenset(('generator-probe.html', 'generator-probe.mjs',
     'generator-probe.worker.mjs', 'generator-probe-runtime.mjs', 'generator-probe-assets.json'))
-SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs', 'receipt-snapshot.mjs'))
+SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs', 'receipt-snapshot.mjs',
+    'financial-generation-input.mjs', 'financial-generation-source.mjs', 'financial-generation.worker.mjs',
+    'financial-generator-runtime.mjs', 'financial-generator-contract.mjs', 'prompt-contract.mjs', 'financial-output-contract.mjs',
+    'financial-geometry-source.mjs', 'financial-geometry-view.mjs',
+    'financial-table-contract.mjs', 'financial-lookup-view.mjs'))
+PRIVATE_ENTRY_ROUTE = '/browser-rag/pdf-entry.mjs'
+PRIVATE_ENTRY_FILE = 'pdf-private-entry.mjs'
+STATIC_QUERY_ROUTES = MappingProxyType({
+    '/figures/owned-generation.archify.html?theme=dark': '/figures/owned-generation.archify.html',
+})
+SHARED_INSPECTOR_FILES = frozenset(('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs',
+    'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',
+    'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs',
+    'embedding.worker.mjs', 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
+    'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs',
+    'verified-stream.mjs', 'verified-cache.mjs', 'vendor/build/pdf.mjs', 'vendor/build/pdf.worker.mjs'))
 
 # These pins are deliberately independent of the editable JSON manifest.
 # Tiny fixture descriptors may exercise verify_file/verify_stream, but cannot
@@ -169,6 +190,13 @@ def verify_startup(repository_root):
             raise ValueError('authored diagnostic is missing or not a regular file')
     for name in sorted(SOURCE_MODULES):
         resolve_request(root, f'/browser-rag/{name}')
+    resolve_request(root, PRIVATE_ENTRY_ROUTE)
+    # Check the built common inspector directly: the exact private route must
+    # not hide a missing ordinary entry or missing shared module in dist.
+    for name in sorted(SHARED_INSPECTOR_FILES):
+        path = guard_path(dist / 'browser-rag' / name, dist)
+        if not path.is_file():
+            raise ValueError(f'built inspector file is missing or not a regular file: {name}')
     resolve_request(root, '/')
     read_manifest(root)
     embedding = _read_registry(root / 'browser-rag' / 'embedding-assets.json', root)
@@ -186,6 +214,9 @@ def verify_startup(repository_root):
 def resolve_request(repository_root, target):
     """Resolve an exact origin path; URL aliases and directory indexes fail."""
     root = Path(repository_root).absolute()
+    if isinstance(target, str):
+        # One authored same-site figure parameter, never a general query alias.
+        target = STATIC_QUERY_ROUTES.get(target, target)
     if (not isinstance(target, str) or not target.startswith('/')
             or target.startswith('//') or any(char in target for char in '%?#\\:')
             or any(ord(char) < 32 or ord(char) == 127 for char in target)):
@@ -194,7 +225,11 @@ def resolve_request(repository_root, target):
         parts = target[1:].split('/')
         if any(part in ('', '.', '..') or part.endswith(('.', ' ')) for part in parts):
             raise ValueError('invalid request path')
-    if target.startswith(ACCEPTANCE_PREFIX):
+    if target == '/browser-rag/pdf-private-entry.mjs':
+        raise FileNotFoundError('the authored private entry has no direct route')
+    if target == PRIVATE_ENTRY_ROUTE:
+        path, allowed_root = root / 'browser-rag' / PRIVATE_ENTRY_FILE, root
+    elif target.startswith(ACCEPTANCE_PREFIX):
         name = target[len(ACCEPTANCE_PREFIX):]
         if name not in DIAGNOSTICS:
             raise FileNotFoundError('unknown diagnostic route')
@@ -203,10 +238,17 @@ def resolve_request(repository_root, target):
         name = target[len('/browser-rag/'):]
         path, allowed_root = root / 'browser-rag' / name, root
     elif target.startswith('/browser-rag/models/'):
-        name = target[len(MODEL_PREFIX):] if target.startswith(MODEL_PREFIX) else None
-        if name not in MODEL_FILES:
-            raise FileNotFoundError('unknown model route')
-        path, allowed_root = root / 'browser-rag' / '.model-cache' / REVISION / name, root
+        if target.startswith(EMBEDDING_MODEL_PREFIX):
+            name = target[len(EMBEDDING_MODEL_PREFIX):]
+            if name not in EMBEDDING_MODEL_NAMES:
+                raise FileNotFoundError('unknown embedding model route')
+            allowed_root = root / 'dist'
+            path = allowed_root / target[1:]
+        else:
+            name = target[len(MODEL_PREFIX):] if target.startswith(MODEL_PREFIX) else None
+            if name not in MODEL_FILES:
+                raise FileNotFoundError('unknown model route')
+            path, allowed_root = root / 'browser-rag' / '.model-cache' / REVISION / name, root
     else:
         allowed_root = root / 'dist'
         path = allowed_root / ('index.html' if target == '/' else target[1:])
@@ -260,11 +302,20 @@ class ProbeRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404, 'File not available')
             return
         with source:
+            authored_sha = None
+            if target == PRIVATE_ENTRY_ROUTE or target in {f'/browser-rag/{name}' for name in SOURCE_MODULES}:
+                digest = hashlib.sha256()
+                while block := source.read(FILE_BLOCK_BYTES):
+                    digest.update(block)
+                authored_sha = digest.hexdigest()
+                source.seek(0)
             self.send_response(200)
             self.send_header('Content-Type', content_type(path))
             self.send_header('Content-Length', str(details.st_size))
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')
+            if authored_sha is not None:
+                self.send_header('X-Content-SHA256', authored_sha)
             self.end_headers()
             if not head_only:
                 remaining = details.st_size

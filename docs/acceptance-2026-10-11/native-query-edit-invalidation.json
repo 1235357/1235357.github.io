@@ -1,0 +1,10 @@
+{
+  "status": [
+    "Private generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer.",
+    "COMMIT BOUNDARYEmbedded; not retrieved5 chunks · 644 actual tokens · 384 dimensions. No retrieval or generated answer yet."
+  ],
+  "run": true,
+  "assemble": false,
+  "generate": false,
+  "generationDetails": "No native generation receipt committed. An explicit private generation action follows an accepted query and assembled context."
+}

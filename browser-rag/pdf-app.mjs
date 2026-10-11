@@ -7,8 +7,29 @@ import {embedInWorker} from './embedding-source.mjs';
 import {queryInWorker} from './query-source.mjs';
 import {createContextView} from './context-view.mjs';
 import {ContextError} from './context-contract.mjs';
+import {createGenerationView} from './generation-view.mjs';
 
-const byId=id=>document.getElementById(id);
+const mounts=new WeakMap();
+export function mountPdfApp(options={}) {
+  if(options===null||typeof options!=='object'||Array.isArray(options)
+      ||![Object.prototype,null].includes(Object.getPrototypeOf(options)))throw new TypeError('Invalid PDF mount options');
+  const keys=Reflect.ownKeys(options);
+  if(keys.some(key=>!['document','root','generate','createGeometryView','createLookupView'].includes(key)))throw new TypeError('Unknown PDF mount option');
+  const captured={};for(const key of keys)captured[key]=options[key];
+  const document=captured.document===undefined?globalThis.document:captured.document;
+  const root=captured.root===undefined?document:captured.root,generate=captured.generate,createGeometryView=captured.createGeometryView,createLookupView=captured.createLookupView;
+  if(!document||typeof document.createElement!=='function'||!root||typeof root.querySelector!=='function'
+      ||(generate!==undefined&&typeof generate!=='function')
+      ||(createGeometryView!==undefined&&typeof createGeometryView!=='function')
+      ||(createLookupView!==undefined&&typeof createLookupView!=='function'))throw new TypeError('Invalid PDF mount configuration');
+  const window=document.defaultView??globalThis.window;
+  if(!window||typeof window.addEventListener!=='function')throw new TypeError('A PDF mount window is required');
+  if(mounts.has(root))throw new TypeError('PDF root is already mounted');
+  const byId=id=>root.querySelector(`#${id}`);
+  // Resolve the complete template before registering a single listener.
+  const required=['pdf-file','page-select','items','status-title','status-detail','operation-progress','pipeline-steps','computation-notebook','cancel','clear','build-chunks','embed-chunks','run-query','assemble-context','generate-answer','clear-query','question-input','query-top-k','trace','receipt','embedding-receipt','query-receipt','context-detail','context-meta','context-title','context-caption','generation-detail','generation-meta','generation-contract','generation-guidance','header-stage','candidate-results','candidate-meta','question-original','question-resolved','question-encoder','query-embedding-detail','query-embedding-meta','chunk-select','chunk-detail','chunk-meta','chunks-previous','chunks-next','embedding-detail','embedding-meta','items-range','items-first','items-previous','items-next','page-meta','source-cell-lookup'];
+  if(required.some(id=>byId(id)===null))throw new TypeError('Incomplete PDF mount template');
+  mounts.set(root,true);
 const fileInput=byId('pdf-file'),pageSelect=byId('page-select'),items=byId('items');
 const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
   EMPTY_DOCUMENT:'No selectable text was extracted. This lab does not perform OCR.',
@@ -38,12 +59,42 @@ const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
   QUERY_FAILED:'The query operation failed. Source, chunks and passage vectors are retained.',
   INVALID_CONTEXT_INPUT:'The provenance context input is invalid. Retry from an accepted retrieval.',
   INVALID_CONTEXT_ARTIFACT:'The accepted provenance artifacts are inconsistent. No context was accepted.',
-  CONTEXT_FAILED:'The provenance context could not be assembled safely. Retry from an accepted retrieval.'};
+  CONTEXT_FAILED:'The provenance context could not be assembled safely. Retry from an accepted retrieval.',
+  INVALID_GENERATION_SESSION:'The financial generation preflight did not accept this attempt. Source, question and context are retained.',
+  GENERATION_UNAVAILABLE:'This entry has no financial generation adapter.',
+  GENERATION_INPUT_LIMIT:'The full prompt exceeds the generation token budget. No evidence was silently truncated.',
+  PROMPT_INPUT_LIMIT:'The full prompt exceeds its text budget. No evidence was silently truncated.',
+  GENERATION_TIMEOUT:'The financial generation worker exceeded its time budget. Question and context are retained for retry.',
+  MODEL_LOAD_FAILED:'The pinned local generator could not initialize. Question and context are retained for retry.',
+  GENERATION_FAILED:'Native financial generation failed. Question and context are retained for retry.',
+  GPU_UNCAPTURED_ERROR:'The owned WebGPU device reported an error. Question and context are retained for retry.',
+  ASSET_CACHE_ERROR:'The verified generation asset cache could not complete. Question and context are retained for retry.',
+  TOKENIZER_MISMATCH:'The paired tokenizer frame did not match the pinned contract.',
+  INVALID_FINANCIAL_RECEIPT:'The complete native financial receipt did not satisfy its contract.'};
 let lastSource=null,lastChunks=null,lastEmbeddings=null,itemWindowIndex=0,chunkWindowIndex=0;
 let lastQuestion=undefined,lastQueryEmbedding=null,lastRetrieval=null;
 let lastContext=undefined,contextOwner=null,contextView;
-let uiActionNonce=0,embeddingRefusal=false,queryRefusal=false,contextRefusal=false;
-function beginUiAction(){uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal)render(session.snapshot());return uiActionNonce;}
+let lastGeneration=undefined,lastInspection=undefined,generationOwner=null,generationView;
+let generationReplay=null;
+let geometryView,lookupView;
+function renderLookup(state){lookupView?.render({source:session.document(),documentEpoch:state.lifecycle.documentEpoch,active:Boolean(state.lifecycle.active),cancelled:state.status==='cancelled'});}
+const GENERATION_IDENTITY_KEYS=['protocolVersion','runtimeId','operationId','documentEpoch','operation'];
+const sameGenerationAttempt=(identity,event)=>event!==null&&event!==undefined
+  &&GENERATION_IDENTITY_KEYS.every(key=>identity[key]===event[key]);
+let uiActionNonce=0,embeddingRefusal=false,queryRefusal=false,contextRefusal=false,generationRefusal=false;
+let lastOperation=null,cancelledOperation=null;
+function beginUiAction(){uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal||generationRefusal)render(session.snapshot());return uiActionNonce;}
+function currentGeneration(raw,inspection){
+  const terminal=session.snapshot().lifecycle.terminal;
+  return generationOwner!==null&&generationOwner.raw===raw&&generationOwner.inspection===inspection
+    &&(generationOwner.replay===null||generationOwner.replay===generationReplay)
+    &&raw===session.generation()&&inspection===session.generationInspection()
+    &&generationOwner.source===session.document()&&generationOwner.chunks===session.chunks()
+    &&generationOwner.question===session.question()&&generationOwner.query===session.queryEmbedding()
+    &&generationOwner.retrieval===session.retrieval()&&generationOwner.context===session.context()
+    &&terminal!==null&&['runtimeId','operationId','documentEpoch','operation','kind','stage','seq']
+      .every(key=>generationOwner.terminal[key]===terminal[key])&&session.snapshot().lifecycle.active===null;
+}
 function currentContext(artifact){
   return contextOwner!==null&&contextOwner.artifact===artifact&&artifact===session.context()
     &&contextOwner.source===session.document()&&contextOwner.chunks===session.chunks()
@@ -61,6 +112,7 @@ function inspectCandidate(candidate,source,chunks,retrieval){
   const firstSource=chunk.segments.find(segment=>segment.kind==='source');
   const itemIndex=firstSource?source.pages[pageIndex].textItems.findIndex(item=>item.itemIndex===firstSource.itemIndex):0;
   itemWindowIndex=Math.floor(Math.max(0,itemIndex)/100);showPage();
+  byId('computation-notebook').open=true;pageSelect.focus();
 }
 function showQuery(){
   const question=session.question(),query=session.queryEmbedding(),retrieval=session.retrieval();
@@ -179,16 +231,50 @@ function showChunkWindow(selectedIndex){
   showChunk();
 }
 function render(state){
-  uiActionNonce++;embeddingRefusal=false;queryRefusal=false;contextRefusal=false;
+  uiActionNonce++;embeddingRefusal=false;queryRefusal=false;contextRefusal=false;generationRefusal=false;
   const source=session.document(),chunks=session.chunks(),embeddings=session.embeddings();
-  const titles={idle:'Waiting for a PDF',parsing:'Reading selected bytes',chunking:'Building source-linked windows',embedding:'Embedding accepted chunks',querying:'Finding sourced candidates','query-candidates-only':'Query candidates; not an answer','context-not-generated':'Context assembled; not generated',cancelled:'Commit rights revoked','runtime-error':'No new result committed','extracted-not-indexed':'Extracted; not indexed','chunked-not-embedded':'Chunked; not embedded','embedded-not-retrieved':'Embedded; not retrieved'};
+  const raw=session.generation(),inspection=session.generationInspection();
+  const titles={idle:'Waiting for a PDF',parsing:'Reading selected bytes',chunking:'Building source-linked windows',embedding:'Embedding accepted chunks',querying:'Finding sourced candidates',generating:'Generating financial output','unverified-financial-draft':'UNVERIFIED financial draft','financial-output-refused':'Financial output refused','query-candidates-only':'Query candidates; not an answer','context-not-generated':'Context assembled; not generated',cancelled:'Commit rights revoked','runtime-error':'No new result committed','extracted-not-indexed':'Extracted; not indexed','chunked-not-embedded':'Chunked; not embedded','embedded-not-retrieved':'Embedded; not retrieved'};
   byId('status-title').textContent=titles[state.status];
   const active=state.lifecycle.active,progress=active?.progress,bar=byId('operation-progress');
+  if(generationReplay&&((!raw&&active?.operation!=='generate')
+      ||!sameGenerationAttempt(generationReplay.identity,active??state.lifecycle.terminal)
+      ||generationReplay.source!==source||generationReplay.chunks!==chunks
+      ||generationReplay.embeddings!==embeddings||generationReplay.question!==session.question()
+      ||generationReplay.query!==session.queryEmbedding()||generationReplay.retrieval!==session.retrieval()
+      ||generationReplay.context!==session.context()))generationReplay=null;
+  const pipeline=byId('pipeline-steps');pipeline.replaceChildren();
+  for(const [index,[name,title,accepted,running]]of [
+    ['parse','Read PDF',Boolean(source),state.status==='parsing'],
+    ['chunk','Build chunks',Boolean(chunks),state.status==='chunking'],
+    ['embed','Embed passages',Boolean(embeddings),active?.operation==='embed'],
+    ['query','Retrieve candidates',Boolean(session.retrieval()),active?.operation==='query'],
+    ['context','Assemble evidence',Boolean(session.context()),false],
+    ['generate','Generate draft',Boolean(raw),active?.operation==='generate'],
+  ].entries()){
+    const step=element('li',undefined,`pipeline-step ${running?'running':accepted?'accepted':'pending'}`);
+    step.setAttribute('data-stage',name);
+    if(running)step.setAttribute('aria-current','step');
+    const label=running?'running':accepted?'accepted artifact':name==='generate'&&!generate?'private entry only':'pending';
+    step.append(element('span',String(index+1).padStart(2,'0'),'pipeline-number'),element('span',title,'pipeline-title'),element('span',label,'pipeline-state'));
+    pipeline.append(step);
+  }
+  if(active)lastOperation=active.operation;
+  else if(state.status==='cancelled'){cancelledOperation=lastOperation;lastOperation=null;}
+  else{lastOperation=null;cancelledOperation=null;}
   bar.hidden=!active;
   if(progress?.total!==null&&progress?.total>0){bar.max=progress.total;bar.value=progress.completed;}
   else bar.removeAttribute('value');
   let progressText;
-  if(active?.operation==='query'){
+  if(active?.operation==='generate'){
+    const packet=session.generationProgress(),event=packet?.event,detail=packet?.detail;
+    if(detail){
+      // Each byte event describes one prepare/consume read. SDK rereads never
+      // accumulate into a one-only download percentage.
+      progressText=`${event.stage} · ${detail.stage} · asset ${detail.assetIndex+1} of 8 (index ${detail.assetIndex}) · ${detail.receivedBytes.toLocaleString()} received body bytes · ${detail.verifiedBytes.toLocaleString()} verified body bytes · ${detail.totalBytes.toLocaleString()} total asset body bytes · ${detail.elapsedMs.toFixed(1)} ms elapsed. ${detail.stage==='consume'?'SDK read; repeated reads are counted separately.':'Asset preparation; received bytes are not yet verified bytes.'}`;
+    }else progressText=event?`${event.stage} · ${event.payload.completed.toFixed(1)} ms measured elapsed · indeterminate stage. No token streaming or time-to-first-token measurement.`:
+      'Waiting for the fresh financial worker. Adapter, assets, SDK, tokenizer, model, generation, reads and cleanup follow.';
+  }else if(active?.operation==='query'){
     progressText=active.stage==='download'?`${progress.completed.toLocaleString()} / ${progress.total.toLocaleString()} verified asset body bytes for this query attempt.`:
       active.stage==='initialize'?'Query encoder initialization · indeterminate. No reliable initialization percentage.':
       active.stage==='encode'?`${progress.completed} / ${progress.total} actual query tokens encoded with the pinned WebGPU provider.`:
@@ -202,21 +288,22 @@ function render(state){
   }else if(progress){progressText=`${progress.completed} / ${progress.total??'unknown'} ${progress.unit} · ${active.stage==='index'?'chunking':active.stage==='parse'?'parsing':active.stage}.`;}
   byId('status-detail').textContent=state.error?(ERROR_HELP[state.error.code]||'Work failed. No new artifact was committed.'):
     progressText?progressText:
+    raw?`${raw.promptTokenIds.length} actual prompt tokens · ${raw.generatedTokenIds.length} generated token IDs · ${raw.inspection.termination} termination. Native execution is committed; output ${inspection.artifact?'shape and citation identity accepted, financial correctness unestablished':'inspection refused; complete raw output retained'}.`:
     state.status==='context-not-generated'?`${session.context().evidenceUnits.length} evidence units with complete source provenance. No prompt was built and no answer was generated.`:
-    state.status==='query-candidates-only'?`${session.retrieval().returnedCount} sourced candidates · ${session.queryEmbedding().counts.totalTokens} actual query tokens · ${session.queryEmbedding().counts.dimensions} dimensions. Assemble their complete provenance context to inspect the evidence. Generation remains disabled.`:
+    state.status==='query-candidates-only'?`${session.retrieval().returnedCount} sourced candidates · ${session.queryEmbedding().counts.totalTokens} actual query tokens · ${session.queryEmbedding().counts.dimensions} dimensions. Assemble their complete provenance context to inspect the evidence.${generate?' An explicit generation action then becomes available.':' Generation remains disabled in this entry.'}`:
     state.status==='embedded-not-retrieved'?`${embeddings.counts.chunks} chunks · ${embeddings.counts.totalTokens} actual tokens · ${embeddings.counts.dimensions} dimensions. No retrieval or generated answer yet.`:
     state.status==='chunked-not-embedded'?`${chunks.counts.chunks} chunks · ${chunks.counts.outputUtf16} output UTF-16 units · ${chunks.counts.fragments} mapping fragments. No vectors or generated answer.`:
     state.status==='extracted-not-indexed'?'Actual parser records below. No embedding index or generated answer exists.':
     state.status==='chunking'?'Waiting for the owned computation worker, then building page windows. No fabricated percentage.':
     state.status==='parsing'?'Hashing/loading/parsing are separate from accepting a result.':
-    state.status==='cancelled'?(embeddings?'Late query work cannot update this session. Source, chunks and passage vectors retained for retry.':chunks?'Late embedding work cannot update this session. Source and chunks retained for retry.':source?'Late chunk work cannot update this session. Source retained for retry.':'Late work cannot update this session. Owned worker cleanup follows.'):'No source is stored. No embedding index or answer exists.';
+    state.status==='cancelled'?(cancelledOperation==='generate'?'Late generation work cannot update this session. Source, accepted question, candidates and context retained for explicit retry.':cancelledOperation==='query'?'Late query work cannot update this session. Source, chunks and passage vectors retained for retry.':cancelledOperation==='embed'?'Late passage embedding work cannot update this session. Source and chunks retained for retry.':source?'Late chunk work cannot update this session. Source retained for retry.':'Late parsing work cannot update this session. Owned worker cleanup follows.'):'No source is stored. No embedding index or answer exists.';
   byId('cancel').disabled=!state.lifecycle.active;
   byId('build-chunks').disabled=!source||Boolean(state.lifecycle.active);
   byId('embed-chunks').disabled=!chunks||Boolean(state.lifecycle.active);
   byId('run-query').disabled=!embeddings||Boolean(active);
   byId('assemble-context').disabled=!session.retrieval()||Boolean(active);
-  byId('generate-answer').disabled=true;
-  byId('clear-query').disabled=Boolean(active)&&active.operation!=='query';
+  byId('generate-answer').disabled=!generate||!session.retrieval()||!session.context()||Boolean(active);
+  byId('clear-query').disabled=Boolean(active)&&!['query','generate'].includes(active.operation);
   byId('question-input').disabled=active?.operation==='query';
   byId('query-top-k').disabled=active?.operation==='query';
   byId('trace').textContent=JSON.stringify(state.lifecycle,null,2);
@@ -228,7 +315,9 @@ function render(state){
       showPage();
     }
   }
-  if(source)receipt([['File',source.source.name],['Bytes',source.source.size],['SHA-256',source.source.sha256],['Parser',`PDF.js ${source.parser.version}`],['Parse worker',source.workerMode],['Compute',chunks?'native · owned module worker':'no chunk result'],['Pages',source.numPages],['Epoch',state.lifecycle.documentEpoch],['Stage',session.context()?'context; not generated':session.retrieval()?'query candidates only':embeddings?'embedded; not retrieved':chunks?'chunked; not embedded':'extracted; not indexed']]);
+  const stage=raw?`native generation · ${inspection.artifact?'unverified financial draft':'output inspection refused'}`:active?.operation==='generate'?'generating financial output':session.context()?'context; not generated':session.retrieval()?'query candidates only':embeddings?'embedded; not retrieved':chunks?'chunked; not embedded':'extracted; not indexed';
+  byId('header-stage').textContent=raw?(inspection.artifact?'NATIVE RECEIPT · UNVERIFIED DRAFT':'NATIVE RECEIPT · OUTPUT REFUSED'):active?.operation==='generate'?'READER DEVICE · GENERATING':generate?'BROWSER LAB · CONTEXT NOT GENERATED':'LOCAL DRAFT · CONTEXT NOT GENERATED';
+  if(source)receipt([['File',source.source.name],['Bytes',source.source.size],['SHA-256',source.source.sha256],['Parser',`PDF.js ${source.parser.version}`],['Parse worker',source.workerMode],['Compute',chunks?'native · owned module worker':'no chunk result'],['Pages',source.numPages],['Epoch',state.lifecycle.documentEpoch],['Stage',stage]]);
   if(chunks!==lastChunks){lastChunks=chunks;chunkWindowIndex=0;showChunkWindow();}
   if(embeddings!==lastEmbeddings){
     lastEmbeddings=embeddings;showEmbedding();const list=byId('embedding-receipt');list.replaceChildren();
@@ -242,19 +331,53 @@ function render(state){
   }
   if(session.context()!==lastContext){
     lastContext=session.context();contextOwner=lastContext?{artifact:lastContext,source,chunks,retrieval:session.retrieval()}:null;
-    byId('context-meta').textContent=lastContext?`${lastContext.evidenceUnits.length} evidence units · requested top K ${lastContext.retrieval.requestedTopK} · context not generated. No selected evidence was omitted.`:
-      'No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.';
     contextView.render(lastContext);
   }
+  byId('context-title').textContent=raw?'Retained provenance context':'Context; not generated';
+  byId('context-caption').textContent=raw?'COMPLETE PROVENANCE / NATIVE OUTPUT INSPECTED SEPARATELY':'COMPLETE PROVENANCE / NO GENERATED ANSWER';
+  byId('context-meta').textContent=lastContext?`${lastContext.evidenceUnits.length} evidence units · requested top K ${lastContext.retrieval.requestedTopK} · ${raw?'retained after native generation':'context not generated'}. No selected evidence was omitted.`:'No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.';
+  if(raw!==lastGeneration||inspection!==lastInspection){
+    lastGeneration=raw;lastInspection=inspection;
+    generationOwner=raw&&inspection?{raw,inspection,source,chunks,question:session.question(),query:session.queryEmbedding(),retrieval:session.retrieval(),context:session.context(),terminal:state.lifecycle.terminal,replay:generationReplay}:null;
+    generationView.render(raw,inspection,generationOwner?.replay?.input??null);
+  }
+  byId('generation-meta').textContent=raw?`Complete native receipt accepted at cleanup · ${inspection.status} · financial support unestablished.`:generate?'Native generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer; its pinned model/runtime bodies total 815.73 MB (777.94 MiB). A first run downloads uncached assets to this device.':'Generation remains disabled in the ordinary entry. No generation adapter is configured.';
+  geometryView?.render({source,documentEpoch:state.lifecycle.documentEpoch,active:Boolean(active),cancelled:state.status==='cancelled'});
+  renderLookup(state);
+}
+function captureGenerationInput(input,settings,workerOptions){
+  // The session supplies its detached, deeply frozen canonical eight-field
+  // input. Retain that exact argument, never reconstruct it from prompt context.
+  generationReplay=Object.freeze({input,
+    identity:Object.freeze(Object.fromEntries(GENERATION_IDENTITY_KEYS.map(key=>[key,workerOptions.identity[key]]))),
+    source:session.document(),chunks:session.chunks(),embeddings:session.embeddings(),
+    question:session.question(),query:session.queryEmbedding(),retrieval:session.retrieval(),context:session.context()});
+  return generate(input,settings,workerOptions);
 }
 const session=createPdfSession({extract:extractPdf,parserOptions:{pdfjs,
   assetBaseUrl:new URL('./vendor/',import.meta.url).href,
   workerFactory:url=>new Worker(url,{type:'module'})},
   compute:chunkInWorker,computeOptions:{workerFactory:url=>new Worker(url,{type:'module'})},
   embed:embedInWorker,embeddingOptions:{workerFactory:url=>new Worker(url,{type:'module'})},
-  query:queryInWorker,queryOptions:{workerFactory:url=>new Worker(url,{type:'module'})},onState:render});
+  query:queryInWorker,queryOptions:{workerFactory:url=>new Worker(url,{type:'module'})},
+  generate:generate===undefined?undefined:captureGenerationInput,onState:render});
 contextView=createContextView({document,root:byId('context-detail'),isCurrent:currentContext,
   onInspect:(unit,artifact)=>{if(currentContext(artifact))inspectCandidate(unit,contextOwner.source,contextOwner.chunks,contextOwner.retrieval);}});
+generationView=createGenerationView({document,root:byId('generation-detail'),isCurrent:currentGeneration,
+  onInspect:(binding,raw,inspection)=>{if(currentGeneration(raw,inspection))inspectCandidate(binding,generationOwner.source,generationOwner.chunks,generationOwner.retrieval);}});
+// Only the private entry owns geometry imports. The shared app forwards its
+// accepted source/epoch to an explicitly configured presentation factory.
+if(createGeometryView!==undefined){
+  geometryView=createGeometryView({document,root:byId('computation-notebook')});
+  if(!geometryView||typeof geometryView.render!=='function')throw new TypeError('Invalid geometry view');
+}
+byId('source-cell-lookup').hidden=createLookupView===undefined;
+if(createLookupView!==undefined){
+  lookupView=createLookupView({document,root:byId('source-cell-lookup')});
+  if(!lookupView||typeof lookupView.render!=='function')throw new TypeError('Invalid lookup view');
+}
+byId('generation-contract').hidden=!generate;
+byId('generation-guidance').textContent=generate?'Assemble all selected evidence first, then explicitly generate with the paired Qwen model. Inspect the original native output and each cited source; a draft is unverified.':'Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled in this entry. Sourced candidates are not a verified answer.';
 fileInput.addEventListener('change',()=>{const file=fileInput.files?.[0];if(file){beginUiAction();void session.select(file);}});
 byId('cancel').addEventListener('click',()=>{beginUiAction();session.cancel();});
 byId('clear').addEventListener('click',()=>{beginUiAction();session.clear();fileInput.value='';});
@@ -303,8 +426,23 @@ byId('assemble-context').addEventListener('click',()=>{
     byId('status-detail').textContent=`${safe.code} · ${ERROR_HELP[safe.code]} Source, chunks and accepted query artifacts are retained.`;
   }
 });
-for(const id of ['question-input','query-top-k'])byId(id).addEventListener('input',()=>{beginUiAction();session.clearQuery();});
-byId('clear-query').addEventListener('click',()=>{beginUiAction();session.clearQuery();byId('question-input').value='';});
+byId('generate-answer').addEventListener('click',()=>{
+  const action=beginUiAction(),state=session.snapshot(),source=session.document(),chunks=session.chunks();
+  const question=session.question(),query=session.queryEmbedding(),retrieval=session.retrieval(),context=session.context();
+  if(!generate||!retrieval||!context||state.lifecycle.active!==null)return;
+  void session.generate().catch(()=>{
+    const current=session.snapshot();
+    if(action!==uiActionNonce||current.lifecycle.documentEpoch!==state.lifecycle.documentEpoch||current.lifecycle.active!==null
+      ||source!==session.document()||chunks!==session.chunks()||question!==session.question()
+      ||query!==session.queryEmbedding()||retrieval!==session.retrieval()||context!==session.context())return;
+    generationRefusal=true;byId('status-title').textContent='Generation did not start';
+    byId('status-detail').textContent=`INVALID_GENERATION_SESSION · ${ERROR_HELP.INVALID_GENERATION_SESSION}`;
+  });
+});
+// clearQuery can be a no-op before any query exists; the private comparator
+// still revokes its independent request/digest on every main-question edit.
+for(const id of ['question-input','query-top-k'])byId(id).addEventListener('input',()=>{beginUiAction();session.clearQuery();renderLookup(session.snapshot());});
+byId('clear-query').addEventListener('click',()=>{beginUiAction();session.clearQuery();byId('question-input').value='';renderLookup(session.snapshot());});
 byId('chunk-select').addEventListener('change',()=>{beginUiAction();showChunk();});
 byId('chunks-previous').addEventListener('click',()=>{beginUiAction();chunkWindowIndex--;showChunkWindow();});
 byId('chunks-next').addEventListener('click',()=>{beginUiAction();chunkWindowIndex++;showChunkWindow();});
@@ -317,3 +455,5 @@ window.addEventListener('pageshow',()=>{
 fileInput.value='';
 render(session.snapshot());
 showChunkWindow();
+return Object.freeze({root});
+}

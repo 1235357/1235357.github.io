@@ -138,7 +138,7 @@ class InspectorMarkupTest(unittest.TestCase):
         self.assertIn('Extracted; not indexed', markup)
         self.assertIn('Content-Security-Policy', markup)
         self.assertIn("form-action 'none'", markup)
-        self.assertIn('src="pdf-app.mjs"', markup)
+        self.assertIn('src="pdf-entry.mjs"', markup)
         self.assertNotIn('https://', markup)
 
     def test_chunk_inspection_is_explicit_bounded_and_not_an_embedding_claim(self):
@@ -170,7 +170,7 @@ class BrowserAssetsTest(unittest.TestCase):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs'):
+        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs'):
             if name.endswith('.mjs'):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
@@ -213,6 +213,11 @@ class BrowserAssetsTest(unittest.TestCase):
 
     def test_pdf_only_build_closes_the_real_static_module_graph_without_model_assets(self):
         # Real paired PDF.js module bodies also remain data-only build inputs.
+        # Private capture/lookup modules exist in authored input but must never be
+        # borrowed into the ordinary entry's graph or public output.
+        for name in ('financial-geometry-source.mjs', 'financial-geometry-view.mjs',
+                     'financial-table-contract.mjs', 'financial-lookup-view.mjs'):
+            (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
         for name in self.registry['moduleHashes']:
             data = (REPOSITORY_BROWSER / 'node_modules' / 'pdfjs-dist' / name).read_bytes()
             (self.package / name).write_bytes(data)
@@ -220,7 +225,13 @@ class BrowserAssetsTest(unittest.TestCase):
         (self.browser / 'pdf-assets.json').write_text(json.dumps(self.registry))
         build.build()
         output = self.root / 'dist' / 'browser-rag'
-        graph = static_mjs_graph(output, 'pdf-app.mjs')
+        # Walk the actual delivered HTML entry rather than guessing the app.
+        markup = (REPOSITORY_BROWSER / 'inspector.html').read_text(encoding='utf-8')
+        entries = re.findall(r'<script\s+type="module"\s+src="([^"]+)"', markup)
+        self.assertEqual(entries, ['pdf-entry.mjs'])
+        graph = static_mjs_graph(output, entries[0])
+        self.assertEqual(graph['pdf-entry.mjs'], {'./pdf-app.mjs'})
+        self.assertIn('./generation-view.mjs', graph['pdf-app.mjs'])
         self.assertIn('./pdf-session.mjs', graph['pdf-app.mjs'])
         self.assertIn('./context-view.mjs', graph['pdf-app.mjs'])
         self.assertEqual(graph['context-view.mjs'], {'./item-window.mjs'})
@@ -239,6 +250,16 @@ class BrowserAssetsTest(unittest.TestCase):
                          'generator.worker.mjs', 'generator-assets.json',
                          'models/qwen/model_q4.onnx', 'acceptance/c3-query-audit.json'):
             self.assertNotIn(relative, graph, relative)
+        for relative in ('pdf-private-entry.mjs', 'financial-generation-input.mjs', 'financial-generation-source.mjs',
+                         'financial-generation.worker.mjs', 'financial-generator-runtime.mjs', 'financial-generator-contract.mjs',
+                         'financial-output-contract.mjs', 'generator-native-core.mjs', 'receipt-snapshot.mjs',
+                         'financial-geometry-source.mjs', 'financial-geometry-view.mjs',
+                         'financial-table-contract.mjs', 'financial-lookup-view.mjs'):
+            self.assertNotIn(relative, graph)
+            self.assertFalse((output / relative).exists(), relative)
+        shared=(output / 'pdf-app.mjs').read_text(encoding='utf-8')
+        self.assertNotRegex(shared, r"(?:import|export)[^;]*['\"]\./financial-(?:geometry|table)[^'\"]*['\"]")
+        self.assertNotIn('Complete owned PDF.js geometry snapshot', shared)
         worker_graph = static_mjs_graph(output, 'embedding.worker.mjs')
         self.assertEqual(worker_graph, {
             'embedding.worker.mjs': {'./embedding-runtime.mjs', './embedding-source.mjs',
@@ -259,7 +280,9 @@ class BrowserAssetsTest(unittest.TestCase):
     def test_context_modules_are_named_runtime_while_generation_and_audit_inputs_stay_excluded(self):
         excluded = ('generator-contract.mjs', 'prompt-contract.mjs', 'generator-assets.json',
                     'generator-runtime.mjs', 'generator.worker.mjs',
-                    'acceptance/c3-query-audit.json', 'models/qwen/model_q4.onnx')
+                    'acceptance/c3-query-audit.json', 'models/qwen/model_q4.onnx',
+                    'financial-geometry-source.mjs', 'financial-geometry-view.mjs',
+                    'financial-table-contract.mjs', 'financial-lookup-view.mjs')
         for name in excluded:
             source = self.browser / name
             source.parent.mkdir(parents=True, exist_ok=True)

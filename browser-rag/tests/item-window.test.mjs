@@ -8,6 +8,7 @@ import {embedInWorker,embeddingReceipt} from '../embedding-source.mjs';
 import {queryInWorker,queryResultReceipt} from '../query-source.mjs';
 import {rankCandidates} from '../retrieval.mjs';
 import {ContextError} from '../context-contract.mjs';
+import {createGenerationView} from '../generation-view.mjs';
 import {EMBEDDING_SPEC} from '../embedding-contract.mjs';
 
 const windowModule = await import('../item-window.mjs').catch(error => {
@@ -94,6 +95,7 @@ class DomElement {
   dispatch(name) { for (const listener of this.listeners.get(name) ?? []) listener({target: this}); }
   setAttribute(name, value) { this[name] = String(value); }
   removeAttribute(name) { if (name === 'value') this._value = ''; }
+  focus() { this.focused = true; }
 }
 
 const appText = await readFile(new URL('../pdf-app.mjs', import.meta.url), 'utf8');
@@ -125,12 +127,14 @@ function appHarness(sources, computeOverride, {embed = embedInWorker,query = que
     'embed-chunks','embedding-detail','embedding-meta','embedding-receipt','operation-progress',
     'question-input','query-top-k','run-query','clear-query','question-original','question-resolved','question-encoder',
     'candidate-results','candidate-meta','query-embedding-detail','query-embedding-meta','query-receipt',
-    'assemble-context','generate-answer','context-detail','context-meta']) {
+    'assemble-context','generate-answer','context-detail','context-meta','context-title','context-caption',
+    'generation-detail','generation-meta','generation-contract','generation-guidance','header-stage',
+    'pipeline-steps','computation-notebook','source-cell-lookup']) {
     ids.set(id, new DomElement(['page-select','chunk-select'].includes(id) ? 'select' : 'div'));
   }
   ids.get('assemble-context').disabled=true;ids.get('generate-answer').disabled=true;
   ids.get('query-top-k').value=5;
-  const document = {getElementById: id => ids.get(id), createElement: tag => new DomElement(tag)};
+  const document = {getElementById: id => ids.get(id), querySelector: selector => ids.get(selector.slice(1)), createElement: tag => new DomElement(tag)};
   const allItems = new Set(sources.flatMap(source => source.pages.flatMap(page => page.textItems)));
   const serializedItems = [],serializedChunks=[];
   const checkedJson = {...JSON, stringify(value, ...args) {
@@ -140,10 +144,11 @@ function appHarness(sources, computeOverride, {embed = embedInWorker,query = que
   }};
   let session;
   const executable = appText.replace(/^import .*;\r?\n/gm, '')
+    .replace(/^export function mountPdfApp/m, 'function mountPdfApp')
     .replaceAll('import.meta.url', JSON.stringify(new URL('../pdf-app.mjs', import.meta.url).href));
   const run = new Function('document', 'window', 'Worker', 'pdfjs', 'extractPdf',
     'createPdfSession', 'getItemWindow', 'JSON', 'chunkInWorker', 'embedInWorker', 'queryInWorker',
-    'createContextView','ContextError',executable);
+    'createContextView','createGenerationView','ContextError',`${executable}\ndocument.defaultView=window;mountPdfApp({document,root:document});`);
   const compute=computeOverride??(async(source,{identity,onProgress,chunkOptions})=>{
     const packets=[];createComputeCommandHandler(packet=>packets.push(packet))({kind:'chunk-source',identity,source,options:chunkOptions??{}});
     onProgress(packets[0].event);
@@ -154,7 +159,7 @@ function appHarness(sources, computeOverride, {embed = embedInWorker,query = que
   run(document, {addEventListener() {}}, class {}, {}, async file => sources.find(source => source.source.name === file.name),
     options => { session = createPdfSession({...options,onState:state=>{options.onState(state);onState?.(state,session);},
       runtimeId: 'preview-test',runtimeIdFactory:runtimeIdFactory??(()=>`compute-test-${++runtimeNumber}`)}); return session; },
-    getItemWindow,checkedJson,compute,embed,query,createContextView,ContextError);
+    getItemWindow,checkedJson,compute,embed,query,createContextView,createGenerationView,ContextError);
   return {ids, serializedItems,serializedChunks, select: name => session.select({name}), source: () => session.document(),
     chunk:options=>session.chunk(options),embed:()=>session.embed(),query:(question,options)=>session.query(question,options),
     context:()=>session.context(),retrieval:()=>session.retrieval(),chunks:()=>session.chunks(),embeddings:()=>session.embeddings(),state:()=>session.snapshot(),

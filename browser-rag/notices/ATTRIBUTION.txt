@@ -25,17 +25,39 @@ Apache License 2.0), LONG-LICENSE.txt (long, Apache License 2.0),
 PLATFORM-LICENSE.txt (platform, MIT), and PROTOBUFJS-LICENSE.txt (protobufjs,
 BSD 3-Clause). The full upstream text in each named file controls.
 
-PUBLICATION GATE: GUID-TYPESCRIPT LICENSE PROVENANCE REMAINS UNRESOLVED
+INSTALLED DEPENDENCY / EXACT DISTRIBUTED RUNTIME INCLUSION — 2026-10-11
 The npm metadata for guid-typescript 1.0.9 declares ISC and author "nicolas",
-but the installed package has no bundled license text. The primary npm record
-identifies gitHead 1870de806c3db7ba46c5b8a1387c60fc9dda9284 and the repository
-https://github.com/NicolasDeveloper/guid-typescript. The pinned gitHead lookup
-for package.json returned 404/no commit found during the source audit; the
-repository listing was available. No missing license or copyright text has
-been reconstructed or invented. This unresolved provenance remains a gate
-before public distribution; this local asset build is not license clearance.
-Source: https://registry.npmjs.org/guid-typescript/1.0.9
-Repository: https://github.com/NicolasDeveloper/guid-typescript
+but its installed four-file package has no bundled license text. The recorded
+npm gitHead is 1870de806c3db7ba46c5b8a1387c60fc9dda9284. The earlier pinned-ref
+lookup failed; fresh GitHub reads after the repository redirect to
+snico-dev/guid-typescript returned 422/no commit and 404/no ref. The current
+upstream tree f110c1f42b5c784511e322531e97928c2d8ffb1c declares version 1.0.8
+and ISC, but has no LICENSE/NOTICE file. This does not authenticate a license
+notice for npm 1.0.9; no missing copyright or license text has been invented.
+
+Installed use is in the legacy onnxruntime-web/lib/onnxjs/tensor.ts. That module
+and guid-typescript are NOT redistributed in the exact pinned runtime below.
+The complete transformers.min.js.map has 131 source names and 131 string
+contents, no guid-typescript/onnxjs entries or GUID implementation signatures.
+Its mapped onnxruntime-web/dist/ort.bundle.min.mjs content byte-equals the
+installed 398170-byte file, SHA-256
+96e80b413dda387fbcefbd2bb0015f6708323767cc0dd5383260106582e77781.
+The inspected map SHA-256 is
+d269386859935e9eb88f719adabbc61a51fcf6503520338f56eb81fce328adee.
+
+This bounded inclusion finding applies only to the shipped transformers.min.js
+(aa5002b70e789798da263f5f99c62bd3e8fcd0c119258a493c40c180648365fa),
+ort-wasm-simd-threaded.jsep.mjs
+(08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9),
+and ort-wasm-simd-threaded.jsep.wasm
+(c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39).
+The build distributes their named allowlist, not node_modules, the npm package,
+source maps or legacy ONNXJS. The installed dependency's license-text provenance
+remains unresolved; this audit does not clear all installed dependencies or a
+future runtime graph, and does not establish complete network privacy.
+Full evidence and inclusion list: docs/2026-10-11-public-license-audit.md
+Primary npm metadata: https://registry.npmjs.org/guid-typescript/1.0.9
+Upstream: https://github.com/snico-dev/guid-typescript
 
 License preservation does not grant rights to publish a user's unreviewed PDF,
 its contents, or extraction output. Reader-selected PDFs and acceptance

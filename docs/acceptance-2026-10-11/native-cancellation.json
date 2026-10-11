@@ -1,0 +1,11 @@
+{
+  "assembleEnabled": true,
+  "candidateText": "3 sourced candidates · requested top K 3 · query norm 1.000000. Inspect each source before drawing a conclusion.",
+  "contextText": "3 evidence units · requested top K 3 · context not generated. No selected evidence was omitted.",
+  "detail": "Late generation work cannot update this session. Source, accepted question, candidates and context retained for explicit retry.",
+  "generateEnabled": true,
+  "generation": "No native generation receipt committed. An explicit private generation action follows an accepted query and assembled context.",
+  "question": "  What was revenue for the three months ended July 28, 2024?\n",
+  "status": "Commit rights revoked",
+  "trace": "{\n  \"runtimeId\": \"fa4a7a88-41e4-46b2-b78e-501c9e47122d\",\n  \"documentEpoch\": 1,\n  \"active\": null,\n  \"terminal\": {\n    \"protocolVersion\": 1,\n    \"runtimeId\": \"fa4a7a88-41e4-46b2-b78e-501c9e47122d\",\n    \"operationId\": \"op-1\",\n    \"documentEpoch\": 1,\n    \"operation\": \"generate\",\n    \"kind\": \"cancelled\",\n    \"stage\": \"assets\",\n    \"seq\": null,\n    \"payload\": {\n      \"reason\": \"user\"\n    }\n  }\n}"
+}

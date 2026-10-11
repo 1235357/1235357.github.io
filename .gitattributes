@@ -1,3 +1,6 @@
+# Pins and acceptance receipts refer to exact bytes. Disable platform EOL
+# conversion; ordinary source diffs remain available through Git's detection.
+* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Preserve generated artifacts and their byte-level delivery provenance on Windows.
 figures/*.archify.html -text
 figures/*.archify.json -text

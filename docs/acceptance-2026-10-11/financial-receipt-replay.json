@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "createdAtUTC": "2026-10-11T14:55:42.294Z",
+  "scope": "pure saved native receipt replay; format/citation identity only",
+  "humanAcceptance": false,
+  "financialCorrectness": "unestablished",
+  "modelRuns": 0,
+  "results": [
+    {
+      "archive": {
+        "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-financial-baseline.json",
+        "bytes": 254474,
+        "sha256": "f8462d7320f09ba20a441478ba8512a0651582be338dde540466de9e5adaf01a"
+      },
+      "scope": "saved native output contract replay; no new model run or quality score",
+      "humanAcceptance": false,
+      "financialCorrectness": "unestablished",
+      "claimSupport": "unestablished",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "model": {
+        "id": "onnx-community/Qwen2.5-0.5B-Instruct",
+        "revision": "22942cb7d7ba4cc81bb4673549ca4d4614469b5e",
+        "device": "webgpu",
+        "dtype": "q4"
+      },
+      "rawText": "```json\n{\n  \"answer\": \"30,040\",\n  \"citationId\": \"E1\",\n  \"rank\": 1,\n  \"ordinal\": 0,\n  \"chunkId\": \"8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428/pdfjs-6.4.299/text-items-v1/page-parser-order-v1/m512/o64",
+      "rawTextSha256": "340ddc5bf2de540724373c277439bc00069edc25c2891bff9a164e875296ec9d",
+      "renderedPromptSha256": "e8614ae36a2dd4ae27e782b0a5027c6c0cf164accda85cab76ed94108f9ac3fc",
+      "archivedElapsedMs": 49749.59999996424,
+      "originalInputArchive": null,
+      "originalInputContextMatch": null,
+      "needsOriginalInputMissing": true,
+      "computedTermination": "length",
+      "inputTokens": 1551,
+      "generatedTokens": 128,
+      "archiveStatus": "early-rejection-recomputed-original-input-missing",
+      "strictOutputStatus": "refused",
+      "disposition": "refused",
+      "errorCode": "INVALID_FINANCIAL_OUTPUT_TERMINATION",
+      "citationBindings": []
+    },
+    {
+      "archive": {
+        "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-financial-v2.json",
+        "bytes": 259296,
+        "sha256": "35ecd1342c7d318e2007d18ce06fb472b38ff8f9873e90fa5dc49c05a0e92945"
+      },
+      "scope": "saved native output contract replay; no new model run or quality score",
+      "humanAcceptance": false,
+      "financialCorrectness": "unestablished",
+      "claimSupport": "unestablished",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "model": {
+        "id": "onnx-community/Qwen2.5-0.5B-Instruct",
+        "revision": "22942cb7d7ba4cc81bb4673549ca4d4614469b5e",
+        "device": "webgpu",
+        "dtype": "q4"
+      },
+      "rawText": "brief answer from evidence",
+      "rawTextSha256": "f39765fada14d0e0f1811c7855955728252ba5811087b5f1c7987fe01cac1072",
+      "renderedPromptSha256": "59c07ac0b05421d34bb642ba8d2916fb7e3655ec1453cb32df3bacea8f9c7a99",
+      "archivedElapsedMs": 38928,
+      "originalInputArchive": null,
+      "originalInputContextMatch": null,
+      "needsOriginalInputMissing": true,
+      "computedTermination": "eos",
+      "inputTokens": 1664,
+      "generatedTokens": 5,
+      "archiveStatus": "early-rejection-recomputed-original-input-missing",
+      "strictOutputStatus": "refused",
+      "disposition": "refused",
+      "errorCode": "INVALID_FINANCIAL_OUTPUT_JSON",
+      "citationBindings": []
+    },
+    {
+      "archive": {
+        "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-financial-v3.json",
+        "bytes": 257120,
+        "sha256": "7f70a0e92f946aee2142933f836e91608e105be44f197beb4c6b29ec78b94061"
+      },
+      "scope": "saved native output contract replay; no new model run or quality score",
+      "humanAcceptance": false,
+      "financialCorrectness": "unestablished",
+      "claimSupport": "unestablished",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "model": {
+        "id": "onnx-community/Qwen2.5-0.5B-Instruct",
+        "revision": "22942cb7d7ba4cc81bb4673549ca4d4614469b5e",
+        "device": "webgpu",
+        "dtype": "q4"
+      },
+      "rawText": "Revenue for the three months ended July 28, 2024 is $30,040 million.",
+      "rawTextSha256": "30cb853a6818f71a2248e5d232df6ce86b10ee22497a0b2601a6aa45af4cb5e8",
+      "renderedPromptSha256": "be8ac45e0a49f9c8820eafbace41e4b94496f2faab970041fea252a6972b9579",
+      "archivedElapsedMs": 37737.69999998808,
+      "originalInputArchive": null,
+      "originalInputContextMatch": null,
+      "needsOriginalInputMissing": true,
+      "computedTermination": "eos",
+      "inputTokens": 1627,
+      "generatedTokens": 27,
+      "archiveStatus": "early-rejection-recomputed-original-input-missing",
+      "strictOutputStatus": "refused",
+      "disposition": "refused",
+      "errorCode": "INVALID_FINANCIAL_OUTPUT_JSON",
+      "citationBindings": []
+    },
+    {
+      "archive": {
+        "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-financial-v3-top1.json",
+        "bytes": 115846,
+        "sha256": "8b2de555e941f7fdfd914ae45a5e7d9e733e48d5732146d7f0c01392ce36015e"
+      },
+      "scope": "saved native output contract replay; no new model run or quality score",
+      "humanAcceptance": false,
+      "financialCorrectness": "unestablished",
+      "claimSupport": "unestablished",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "model": {
+        "id": "onnx-community/Qwen2.5-0.5B-Instruct",
+        "revision": "22942cb7d7ba4cc81bb4673549ca4d4614469b5e",
+        "device": "webgpu",
+        "dtype": "q4"
+      },
+      "rawText": "{\"answer\":\"30,040\"}",
+      "rawTextSha256": "04da16cf302307138f292833f365d9222564f23234b1d1df5a36f05274754b9d",
+      "renderedPromptSha256": "887ee60557c215e1f5c9ed59fad110185b454d32efa4fbaf7365c2a24066eb23",
+      "archivedElapsedMs": 29729.599999964237,
+      "originalInputArchive": null,
+      "originalInputContextMatch": null,
+      "needsOriginalInputMissing": true,
+      "computedTermination": "eos",
+      "inputTokens": 794,
+      "generatedTokens": 11,
+      "archiveStatus": "early-rejection-recomputed-original-input-missing",
+      "strictOutputStatus": "refused",
+      "disposition": "refused",
+      "errorCode": "INVALID_FINANCIAL_OUTPUT_SCHEMA",
+      "citationBindings": []
+    },
+    {
+      "archive": {
+        "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-financial-v4.json",
+        "bytes": 265093,
+        "sha256": "e04cd693834f6381e3f3f6a401e16882bcdeba3a4c36ae8187b543410c92ac7a"
+      },
+      "scope": "saved native output contract replay; no new model run or quality score",
+      "humanAcceptance": false,
+      "financialCorrectness": "unestablished",
+      "claimSupport": "unestablished",
+      "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "model": {
+        "id": "onnx-community/Qwen2.5-0.5B-Instruct",
+        "revision": "22942cb7d7ba4cc81bb4673549ca4d4614469b5e",
+        "device": "webgpu",
+        "dtype": "q4"
+      },
+      "rawText": "{\n  \"answer\": \"30,040\",\n  \"citations\": [\"E1\", \"E4\"],\n  \"insufficient_evidence\": false\n}",
+      "rawTextSha256": "a23f2a5afff48f3a574e51341de9069f87b69456f4c49785b17e6e996939810f",
+      "renderedPromptSha256": "2a673984401f239d6e996ece1586f9dfc95c662975de54d0174ff28ff562fcec",
+      "archivedElapsedMs": 40280.69999998808,
+      "originalInputArchive": null,
+      "originalInputContextMatch": null,
+      "needsOriginalInputMissing": true,
+      "computedTermination": "eos",
+      "inputTokens": 1726,
+      "generatedTokens": 37,
+      "archiveStatus": "incomplete-archive",
+      "strictOutputStatus": "cannot-replay-citation-identity-without-original-input",
+      "disposition": "unestablished",
+      "errorCode": "INVALID_FINANCIAL_OUTPUT_CONTEXT",
+      "citationBindings": []
+    }
+  ],
+  "limitations": [
+    "Without actual original eight-field input, early output refusal can be recomputed but canonical citation acceptance cannot.",
+    "Archive and sidecar hashes identify supplied bytes; this replay does not authenticate their original production.",
+    "No tokenizer roundtrip, PDF reparse, model inference, answer entailment, human adjudication, or performance benchmark runs here."
+  ]
+}

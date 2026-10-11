@@ -1,0 +1,9 @@
+{
+  "status": [
+    "Private generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer.",
+    "COMMIT BOUNDARYWaiting for a PDFNo source is stored. No embedding index or answer exists."
+  ],
+  "chunk": false,
+  "run": false,
+  "generate": false
+}

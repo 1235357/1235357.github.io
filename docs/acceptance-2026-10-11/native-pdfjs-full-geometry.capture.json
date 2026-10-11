@@ -1,0 +1,13 @@
+{
+  "schema": "native-geometry-capture-receipt-v1",
+  "capturedAt": "2026-10-11T15:45:19.021Z",
+  "url": "http://127.0.0.1:8766/07-operational-receipts.html",
+  "frameTitle": "Question, answer and expandable RAG computation notebook",
+  "displayedMetadata": [
+    "pdfjs-source-geometry-capture-v1 · document epoch 1 · parse worker native · 231,358 UTF-8 bytes · SHA-256 dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+    "Digest covers exactly the UTF-8 bytes of the JSON displayed below, without a trailing newline. It identifies this capture; it does not authenticate PDF origin or parent-page lineage. The text/span projection was independently validated. All pages and items, including whitespace and zero-area items, remain present."
+  ],
+  "sourceFile": "C:\\Users\\zye12\\AppData\\Local\\Temp\\rag-context-oct11\\local-nvidia-fy2025-q2-original-pages-3-4.pdf",
+  "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+  "scope": "New parse and capture owner; not the owner of prior model runs. Geometry capture only; no table binding or financial interpretation. Parent-page lineage is not authenticated."
+}

@@ -1,0 +1,883 @@
+{
+  "schema": "native-private-source-cell-iab-v1",
+  "capturedAtUTC": "2026-10-11T16:50:24.051Z",
+  "url": "http://127.0.0.1:8766/07-operational-receipts.html",
+  "frameTitle": "Question, answer and expandable RAG computation notebook",
+  "cases": [
+    {
+      "case": 1,
+      "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-source-cell-case1.json",
+      "amount": "16,599",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Income",
+        "metric": "Net income",
+        "durationMonths": 3,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "page": 1,
+      "pageLabel": "3",
+      "snapshot": {
+        "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+        "utf8Bytes": 231358
+      },
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 11,
+        "attempt": 14
+      },
+      "status": "Source-cell candidate committed · financial correctness unadjudicated."
+    },
+    {
+      "case": 2,
+      "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-source-cell-case2.json",
+      "amount": "6,188",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Income",
+        "metric": "Net income",
+        "durationMonths": 3,
+        "periodEndLiteral": "Jul 30, 2023",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "page": 1,
+      "pageLabel": "3",
+      "snapshot": {
+        "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+        "utf8Bytes": 231358
+      },
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 19,
+        "attempt": 23
+      },
+      "status": "Source-cell candidate committed · financial correctness unadjudicated."
+    },
+    {
+      "case": 3,
+      "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-source-cell-case3.json",
+      "amount": "31,480",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "page": 1,
+      "pageLabel": "3",
+      "snapshot": {
+        "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+        "utf8Bytes": 231358
+      },
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 27,
+        "attempt": 32
+      },
+      "status": "Source-cell candidate committed · financial correctness unadjudicated."
+    },
+    {
+      "case": 4,
+      "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-source-cell-case4.json",
+      "amount": "8,232",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 30, 2023",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "page": 1,
+      "pageLabel": "3",
+      "snapshot": {
+        "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+        "utf8Bytes": 231358
+      },
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 35,
+        "attempt": 41
+      },
+      "status": "Source-cell candidate committed · financial correctness unadjudicated."
+    },
+    {
+      "case": 5,
+      "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-source-cell-case5.json",
+      "amount": "16,599",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 3,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "page": 2,
+      "pageLabel": "4",
+      "snapshot": {
+        "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+        "utf8Bytes": 231358
+      },
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 48,
+        "attempt": 56
+      },
+      "status": "Source-cell candidate committed · financial correctness unadjudicated."
+    },
+    {
+      "case": 6,
+      "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-source-cell-case6.json",
+      "amount": "6,188",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 3,
+        "periodEndLiteral": "Jul 30, 2023",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "page": 2,
+      "pageLabel": "4",
+      "snapshot": {
+        "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+        "utf8Bytes": 231358
+      },
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 56,
+        "attempt": 65
+      },
+      "status": "Source-cell candidate committed · financial correctness unadjudicated."
+    },
+    {
+      "case": 7,
+      "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-source-cell-case7.json",
+      "amount": "31,480",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 28, 2024",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "page": 2,
+      "pageLabel": "4",
+      "snapshot": {
+        "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+        "utf8Bytes": 231358
+      },
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 64,
+        "attempt": 74
+      },
+      "status": "Source-cell candidate committed · financial correctness unadjudicated."
+    },
+    {
+      "case": 8,
+      "path": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\docs\\acceptance-2026-10-11\\native-source-cell-case8.json",
+      "amount": "8,232",
+      "request": {
+        "statement": "Condensed Consolidated Statements of Comprehensive Income",
+        "metric": "Net income",
+        "durationMonths": 6,
+        "periodEndLiteral": "Jul 30, 2023",
+        "unitHeadingLiteral": "(In millions)",
+        "currencyGlyph": "$"
+      },
+      "page": 2,
+      "pageLabel": "4",
+      "snapshot": {
+        "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+        "utf8Bytes": 231358
+      },
+      "ownership": {
+        "documentEpoch": 1,
+        "coreRenderRevision": 5,
+        "requestRevision": 72,
+        "attempt": 83
+      },
+      "status": "Source-cell candidate committed · financial correctness unadjudicated."
+    }
+  ],
+  "ownershipAndRefusalChecks": [
+    {
+      "label": "metric edit revokes prior candidate",
+      "status": "Fields changed. Run lookup explicitly to bind this request.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Revenue"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 30, 2023"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "unsupported Revenue request refused",
+      "status": "UNSUPPORTED_LOOKUP_REQUEST · Choose supported explicit statement, metric, duration, date, unit literal and currency glyph fields.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Revenue"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 30, 2023"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "unsupported normalized unit refused",
+      "status": "UNSUPPORTED_LOOKUP_REQUEST · Choose supported explicit statement, metric, duration, date, unit literal and currency glyph fields.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 30, 2023"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "USD millions"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "period edit leaves no old candidate",
+      "status": "Fields changed. Run lookup explicitly to bind this request.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "explicit current-year six-month retry commits",
+      "status": "Source-cell candidate committed · financial correctness unadjudicated.",
+      "details": 3,
+      "amounts": [
+        "31,480"
+      ],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "clear result revokes disclosures and retains fields",
+      "status": "Result cleared. Field selections retained; run explicitly to retry.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "clear then explicit retry commits",
+      "status": "Source-cell candidate committed · financial correctness unadjudicated.",
+      "details": 3,
+      "amounts": [
+        "31,480"
+      ],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "main question edit before any query revokes comparator",
+      "status": "Owned parsed source ready. Choose all six fields and run explicitly.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "clear main question preserves source and leaves comparator revoked",
+      "status": "Owned parsed source ready. Choose all six fields and run explicitly.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "explicit retry after main question clear commits",
+      "status": "Source-cell candidate committed · financial correctness unadjudicated.",
+      "details": 3,
+      "amounts": [
+        "31,480"
+      ],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "replacement starts and revokes previous source candidate",
+      "status": "No owned parsed source. Select a PDF first.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": ""
+        },
+        {
+          "id": "source-cell-metric",
+          "value": ""
+        },
+        {
+          "id": "source-cell-duration",
+          "value": ""
+        },
+        {
+          "id": "source-cell-date",
+          "value": ""
+        },
+        {
+          "id": "source-cell-unit",
+          "value": ""
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "label": "replacement accepted under a new source owner",
+      "status": "Owned parsed source ready. Choose all six fields and run explicitly.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": ""
+        },
+        {
+          "id": "source-cell-metric",
+          "value": ""
+        },
+        {
+          "id": "source-cell-duration",
+          "value": ""
+        },
+        {
+          "id": "source-cell-date",
+          "value": ""
+        },
+        {
+          "id": "source-cell-unit",
+          "value": ""
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "label": "source clear leaves no candidate and empty fields",
+      "status": "No owned parsed source. Select a PDF first.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": ""
+        },
+        {
+          "id": "source-cell-metric",
+          "value": ""
+        },
+        {
+          "id": "source-cell-duration",
+          "value": ""
+        },
+        {
+          "id": "source-cell-date",
+          "value": ""
+        },
+        {
+          "id": "source-cell-unit",
+          "value": ""
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "label": "original source reaccepted at epoch4 after replacement clear",
+      "status": "Owned parsed source ready. Choose all six fields and run explicitly.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": ""
+        },
+        {
+          "id": "source-cell-metric",
+          "value": ""
+        },
+        {
+          "id": "source-cell-duration",
+          "value": ""
+        },
+        {
+          "id": "source-cell-date",
+          "value": ""
+        },
+        {
+          "id": "source-cell-unit",
+          "value": ""
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "label": "fresh source epoch4 current-six-month candidate",
+      "status": "Source-cell candidate committed · financial correctness unadjudicated.",
+      "details": 3,
+      "amounts": [
+        "31,480"
+      ],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    },
+    {
+      "label": "second replacement immediately revokes epoch4 candidate",
+      "status": "No owned parsed source. Select a PDF first.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": ""
+        },
+        {
+          "id": "source-cell-metric",
+          "value": ""
+        },
+        {
+          "id": "source-cell-duration",
+          "value": ""
+        },
+        {
+          "id": "source-cell-date",
+          "value": ""
+        },
+        {
+          "id": "source-cell-unit",
+          "value": ""
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "label": "replacement epoch5 accepted with exact same PDF digest and no old result",
+      "status": "Owned parsed source ready. Choose all six fields and run explicitly.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": ""
+        },
+        {
+          "id": "source-cell-metric",
+          "value": ""
+        },
+        {
+          "id": "source-cell-duration",
+          "value": ""
+        },
+        {
+          "id": "source-cell-date",
+          "value": ""
+        },
+        {
+          "id": "source-cell-unit",
+          "value": ""
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "label": "accepted epoch5 replacement cleared",
+      "status": "No owned parsed source. Select a PDF first.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": ""
+        },
+        {
+          "id": "source-cell-metric",
+          "value": ""
+        },
+        {
+          "id": "source-cell-duration",
+          "value": ""
+        },
+        {
+          "id": "source-cell-date",
+          "value": ""
+        },
+        {
+          "id": "source-cell-unit",
+          "value": ""
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "label": "original source accepted at epoch7 after replacement clear",
+      "status": "Owned parsed source ready. Choose all six fields and run explicitly.",
+      "details": 0,
+      "amounts": [],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": ""
+        },
+        {
+          "id": "source-cell-metric",
+          "value": ""
+        },
+        {
+          "id": "source-cell-duration",
+          "value": ""
+        },
+        {
+          "id": "source-cell-date",
+          "value": ""
+        },
+        {
+          "id": "source-cell-unit",
+          "value": ""
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "label": "final epoch7 explicit six-month current-year retry commits",
+      "status": "Source-cell candidate committed · financial correctness unadjudicated.",
+      "details": 3,
+      "amounts": [
+        "31,480"
+      ],
+      "fields": [
+        {
+          "id": "source-cell-statement",
+          "value": "Condensed Consolidated Statements of Comprehensive Income"
+        },
+        {
+          "id": "source-cell-metric",
+          "value": "Net income"
+        },
+        {
+          "id": "source-cell-duration",
+          "value": "6"
+        },
+        {
+          "id": "source-cell-date",
+          "value": "Jul 28, 2024"
+        },
+        {
+          "id": "source-cell-unit",
+          "value": "(In millions)"
+        },
+        {
+          "id": "source-cell-glyph",
+          "value": "$"
+        }
+      ]
+    }
+  ],
+  "cancellationObservation": {
+    "pendingCancelObservable": false,
+    "status": "Source-cell candidate committed · financial correctness unadjudicated.",
+    "scope": "Native snapshot digest completed before a cancellable pending state was observed; deferred digest cancellation is independently covered by DOM tests."
+  },
+  "replacementReceiptDOM": "Filelocal-nvidia-fy2025-q2-source-replacement.pdfBytes74085SHA-2568e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428ParserPDF.js 6.4.299Parse workernativeComputeno chunk resultPages2Epoch5Stageextracted; not indexed",
+  "finalSourceReceiptDOM": "Filelocal-nvidia-fy2025-q2-original-pages-3-4.pdfBytes74085SHA-2568e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428ParserPDF.js 6.4.299Parse workernativeComputeno chunk resultPages2Epoch7Stageextracted; not indexed",
+  "finalStageStatuses": [
+    "Private generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer.",
+    "COMMIT BOUNDARYExtracted; not indexedActual parser records below. No embedding index or generated answer exists.",
+    "Source-cell candidate committed · financial correctness unadjudicated."
+  ],
+  "trace": "{\n  \"runtimeId\": \"43ea1148-c529-437b-8bcb-4df4f4ee1083\",\n  \"documentEpoch\": 7,\n  \"active\": null,\n  \"terminal\": {\n    \"protocolVersion\": 1,\n    \"runtimeId\": \"43ea1148-c529-437b-8bcb-4df4f4ee1083\",\n    \"operationId\": \"op-5\",\n    \"documentEpoch\": 7,\n    \"operation\": \"ingest\",\n    \"kind\": \"result\",\n    \"stage\": \"parse\",\n    \"seq\": 3,\n    \"payload\": {\n      \"data\": {\n        \"sourceSha256\": \"8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428\",\n        \"parserVersion\": \"6.4.299\",\n        \"pageCount\": 2,\n        \"status\": \"extracted-not-indexed\"\n      }\n    }\n  }\n}",
+  "scope": "Eight explicit development requests in the actual Codex IAB. No chunk, encoder, retrieval or generator action was invoked. Native fast digest cancellation was not observed; deferred cancellation/races are synthetic DOM evidence. Normalized currency unset, financial correctness unadjudicated, no human acceptance.",
+  "incidentalRefusal": "During case5 field entry the observed glyph was $z; strict request validation refused without a candidate. Corrected to $ and reran; accepted complete receipts all retain the exact $ field. A closed receipt visibility wait was also unsuitable; read-back used textContent of the existing disclosure DOM."
+}

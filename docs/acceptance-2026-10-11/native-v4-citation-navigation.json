@@ -1,0 +1,32 @@
+{
+  "e1Navigation": {
+    "selections": [
+      {
+        "id": "page-select",
+        "selected": "1 · 3",
+        "value": "0"
+      },
+      {
+        "id": "chunk-select",
+        "selected": "#1 · p1 · [0, 512)",
+        "value": "0"
+      }
+    ],
+    "sameReceipt": true
+  },
+  "e4Navigation": {
+    "selections": [
+      {
+        "id": "page-select",
+        "selected": "2 · 4",
+        "value": "1"
+      },
+      {
+        "id": "chunk-select",
+        "selected": "#4 · p2 · [0, 512)",
+        "value": "3"
+      }
+    ],
+    "sameReceipt": true
+  }
+}

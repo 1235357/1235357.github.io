@@ -12,12 +12,14 @@ import re
 import markdown
 import json
 import hashlib
+import browser_release_assets as release
 
 ROOT = Path(__file__).resolve().parent
 FILE_BLOCK_BYTES = 1024 * 1024
+PUBLIC_SITE_MAX_BYTES = 1_000_000_000
 
 
-def render_page(title, content, *, section='SERIES', outline=''):
+def render_page(title, content, *, section='SERIES', outline='', public_release=False):
     desktop_outline = f'<nav aria-label="Article sections">{outline}</nav>' if outline else ''
     if outline:
         mobile_outline = ('<details class="mobile-outline"><summary>On this page</summary>'
@@ -31,11 +33,12 @@ def render_page(title, content, *, section='SERIES', outline=''):
         part if part.startswith('<figure class="architecture-figure"')
         else f'<article>{part}</article>' for part in parts if part.strip()
     )
+    publication_label = 'Documentation · browser lab' if public_release else 'Local draft · not published'
     return f'''<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{escape(title)} — Zhentong Ye</title><link rel="stylesheet" href="style.css">
 <header><a href="index.html">ZHENTONG YE / ENGINEERING NOTES</a>
-<span>Local draft · not published</span></header>
+<span>{publication_label}</span></header>
 <main><aside><p>FIELD NOTES / {escape(section)}</p><p>Evidence, interfaces,<br>and engineering decisions.</p>
 <a href="index.html">Series index ↗</a>{desktop_outline}</aside>{article_layout}</main>
 <footer>Implementation evidence ≠ financial accuracy ≠ personal mastery.</footer></html>'''
@@ -148,8 +151,8 @@ def validate_local_references(output):
                 raise ValueError(f'Missing HTML fragment in {path.name}: {reference}')
 
 
-def render_site(root, output):
-    copy_browser_assets(root, output)
+def render_site(root, output, *, public_release=False):
+    copy_browser_assets(root, output, public_release=public_release)
     figure_output = output / 'figures'
     figure_output.mkdir()
     for figure in guard_path(root / 'figures', root).iterdir():
@@ -179,21 +182,41 @@ def render_site(root, output):
         html = renderer.convert(raw)
         name = source.stem + '.html'
         (output / name).write_text(render_page(title, html, section=source.stem.split('-', 1)[0],
-                                              outline=renderer.toc), encoding='utf-8')
+                                              outline=renderer.toc, public_release=public_release), encoding='utf-8')
         links.append(f'<li><a href="{escape(name)}">{escape(title)}</a></li>')
-    intro = '<h1>Building systems.<br>Checking evidence.</h1><p>A technical learning series on financial retrieval, software boundaries and evaluation. Drafts describe verified implementation and unresolved limitations separately.</p><h2>Read the series</h2><ol>' + ''.join(links) + '</ol>'
-    (output / 'index.html').write_text(render_page('Engineering notes', intro), encoding='utf-8')
+    featured = ''
+    if (output / '07-operational-receipts.html').is_file():
+        featured = '''<section class="featured-project" aria-label="Financial RAG project">
+<p class="project-kicker">PROJECT / FINANCIAL RAG</p>
+<h2>Ask a document. Inspect the evidence.</h2>
+<p>Follow an NVIDIA document workflow from source pages to retrieval, model execution and an answer gate. Explore the browser lab and the engineering decisions behind a separately packaged Python API.</p>
+<div class="project-variants">
+<div><h3>Browser lab</h3><p>Choose your own local PDF. Inspect chunks, tokens, vectors and exact source spans. Native answer generation is enabled in the private local acceptance entry.</p><a href="browser-rag/inspector.html">Open the lab ↗</a></div>
+<div><h3>Service contract</h3><p>Authenticated Python queries preserve request IDs and distinguish semantic refusals from dependency failures. Review the status contract and its installed-package checks.</p><a href="07-operational-receipts.html#an-enterprise-caller-needs-failure-semantics">Read the API decisions ↗</a></div>
+</div>
+<a href="07-operational-receipts.html">Read the execution-contract chapter ↗</a>
+<p class="project-boundary">Local implementation and acceptance evidence. Financial accuracy, scale measurements and public release remain separate gates.</p>
+</section>'''
+        if public_release:
+            featured = featured.replace('Native answer generation is enabled in the private local acceptance entry.',
+                'Native generation and explicit Net income source-cell lookup are available through reader actions.')
+            featured = featured.replace('Local implementation and acceptance evidence. Financial accuracy, scale measurements and public release remain separate gates.',
+                'Reader-device browser lab and exposed development evidence. Native drafts and source-cell candidates remain unadjudicated; no held-out accuracy or broad-device performance claim.')
+    intro = '<h1>Building systems.<br>Checking evidence.</h1><p>A technical learning series on financial retrieval, software boundaries and evaluation. Drafts describe verified implementation and unresolved limitations separately.</p>' + featured + '<h2>Read the series</h2><ol>' + ''.join(links) + '</ol>'
+    (output / 'index.html').write_text(render_page('Engineering notes', intro, public_release=public_release), encoding='utf-8')
     (output / 'style.css').write_text(guard_path(root / 'style.css', root).read_text(encoding='utf-8'), encoding='utf-8')
     return len(links)
 
 
-def copy_browser_assets(root, output):
+def copy_browser_assets(root, output, *, public_release=False):
     """Named runtime modules and pinned parser resources; not a general npm copy."""
     browser = guard_path(root / 'browser-rag', root)
     if not browser.exists():
         return
     # Pure-controller-only sites do not yet have a runtime entry point.
     if not (browser / 'inspector.html').exists():
+        if public_release:
+            raise ValueError('Public browser inspector is missing')
         return
     registry = json.loads(guard_path(browser / 'pdf-assets.json', root).read_text(encoding='utf-8'))
     package = guard_path(browser / 'node_modules' / 'pdfjs-dist', root)
@@ -211,12 +234,12 @@ def copy_browser_assets(root, output):
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, destination)
 
-    for name in ('inspector.html', 'inspector.css', 'pdf-app.mjs', 'pdf-session.mjs',
+    for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs',
                  'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs',
                  'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs',
                  'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs',
                  'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
-                 'context-contract.mjs', 'context-view.mjs',
+                 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs',
                  'pdf-assets.json'):
         copy(browser / name, target / name)
     for name, expected_hash in registry['moduleHashes'].items():
@@ -240,6 +263,57 @@ def copy_browser_assets(root, output):
     if (guard_path(browser / 'verified-stream.mjs', root).exists()
             or guard_path(browser / 'verified-cache.mjs', root).exists()):
         copy_stream_assets(browser, target, root)
+    if public_release:
+        copy_public_generation_assets(browser, target, root)
+
+
+def copy_public_generation_assets(browser, target, root):
+    """Explicit production closure; diagnostics/receipts never choose assets."""
+    for name in release.PUBLIC_MODULES:
+        source = guard_path(browser / name, root)
+        destination = guard_path(target / name, root)
+        shutil.copyfile(source, destination)
+    entry = target / 'inspector.html'
+    markup = entry.read_text(encoding='utf-8')
+    ordinary = '<script type="module" src="pdf-entry.mjs"></script>'
+    if markup.count(ordinary) != 1:
+        raise ValueError('Public inspector entry differs from the reviewed template')
+    markup = markup.replace(ordinary, '<script type="module" src="pdf-public-entry.mjs"></script>')
+    markup = markup.replace('LOCAL DRAFT · CONTEXT NOT GENERATED', 'BROWSER LAB · CONTEXT NOT GENERATED')
+    markup = markup.replace('<p class="eyebrow">PAIRED QWEN / EXPLICIT ACTION</p>',
+        '<p class="eyebrow">PAIRED QWEN / EXPLICIT ACTION</p><p class="hint">'
+        '<a href="notices/QWEN-MODEL-CARD.txt">Pinned conversion model card</a> · '
+        '<a href="notices/QWEN-LICENSE.txt">Upstream model license</a> · '
+        '<a href="notices/QWEN-ATTRIBUTION.txt">Source attribution</a></p>')
+    entry.write_text(markup, encoding='utf-8')
+    registry_path = guard_path(browser / 'acceptance/generator-probe-assets.json', root)
+    with registry_path.open('rb') as registry_stream:
+        registry_bytes = registry_stream.read(32769)
+    if len(registry_bytes) > 32768:
+        raise ValueError('Public generator registry exceeds its byte limit')
+    registry = json.loads(registry_bytes)
+    if type(registry) is not dict or type(registry.get('schemaVersion')) is not int or registry != release.qwen_registry():
+        raise ValueError('Public generator registry differs from fixed pins')
+    # The two profiles share exactly one paired runtime; do not duplicate it.
+    for name, pin in release.RUNTIME_FILES.items():
+        actual = file_fingerprint(guard_path(target / 'vendor/transformers' / name, root))
+        if actual != (pin['bytes'], pin['sha256']):
+            raise ValueError(f'Shared public runtime differs from pins: {name}')
+    cache = browser / '.model-cache' / release.QWEN_REVISION
+    for name, pin in release.QWEN_MODEL_FILES.items():
+        copy_verified_asset(cache / name, target / 'models' / release.QWEN_REVISION / release.QWEN_MODEL_ID / name,
+                            pin['bytes'], pin['sha256'], root, f'Qwen model: {name}')
+    for name, pin in release.QWEN_NOTICE_FILES.items():
+        copy_verified_asset(cache / pin['cacheName'], target / 'notices' / name,
+                            pin['bytes'], pin['sha256'], root, f'Qwen notice: {name}')
+    sources = '\n'.join(f'{name}: {pin["url"]}' for name, pin in release.QWEN_NOTICE_FILES.items())
+    (target / 'notices/QWEN-ATTRIBUTION.txt').write_text(
+        f'Qwen2.5-0.5B-Instruct ONNX q4\nConversion: {release.QWEN_MODEL_ID} @ {release.QWEN_REVISION}\n'
+        'Base model: Qwen/Qwen2.5-0.5B-Instruct. Upstream Apache-2.0 license included unchanged.\n'
+        'The conversion model card is preserved separately; it identifies its base model.\n' + sources + '\n', encoding='utf-8')
+    (target / 'acceptance').mkdir()
+    (target / 'acceptance/generator-probe-assets.json').write_bytes(registry_bytes)
+    shutil.copyfile(guard_path(root / 'LICENSE', root), target.parent / 'SITE-LICENSE.txt')
 
 
 def copy_stream_assets(browser, target, root):
@@ -363,7 +437,9 @@ def copy_embedding_assets(browser, target, root):
     (target / 'embedding-assets.json').write_bytes(registry_bytes)
 
 
-def build():
+def build(*, public_release=False):
+    if type(public_release) is not bool:
+        raise ValueError('Invalid public build profile')
     root = ROOT.absolute()
     if root == root.parent or root != root.resolve():
         raise ValueError(f'Build root must be an explicit real directory: {root}')
@@ -374,7 +450,11 @@ def build():
     stage_identity = (stage.stat().st_dev, stage.stat().st_ino)
     recovery = None
     try:
-        count = render_site(root, stage)
+        count = render_site(root, stage, public_release=True) if public_release else render_site(root, stage)
+        if public_release:
+            (stage / '.nojekyll').write_bytes(b'')
+            if sum(value[0] for value in manifest(stage, root).values() if value is not None) >= PUBLIC_SITE_MAX_BYTES:
+                raise ValueError('Public site reaches the 1 GB artifact budget')
         validate_local_references(stage)
         if output.exists():
             if not output.is_dir():
@@ -416,4 +496,8 @@ def build():
 
 
 if __name__ == '__main__':
-    build()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--public', action='store_true', help='Build the explicit same-origin public generation/lookup profile')
+    arguments = parser.parse_args()
+    build(public_release=arguments.public)

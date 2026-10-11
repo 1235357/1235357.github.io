@@ -23,6 +23,9 @@ SPEC.loader.exec_module(probe)
 REVISION = '22942cb7d7ba4cc81bb4673549ca4d4614469b5e'
 MODEL_ID = 'onnx-community/Qwen2.5-0.5B-Instruct'
 MODEL_PREFIX = f'/browser-rag/models/{REVISION}/{MODEL_ID}/'
+EMBEDDING_PREFIX = '/browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/'
+EMBEDDING_NAMES = frozenset(('config.json', 'tokenizer.json', 'tokenizer_config.json',
+                           'special_tokens_map.json', 'onnx/model.onnx'))
 MODEL_FILES = {
     'config.json': (678, '777e01f0fbb3346eb229cb6fb278ed6533c1e4dcb9ebf4bed0f6e94ef17fa1b5'),
     'tokenizer.json': (7031673, 'a8506e7111b80c6d8635951a02eab0f4e1a8e4e5772da83846579e97b16f61bf'),
@@ -37,7 +40,11 @@ RUNTIME_FILES = {
 }
 DIAGNOSTICS = frozenset(('generator-probe.html', 'generator-probe.mjs',
     'generator-probe.worker.mjs', 'generator-probe-runtime.mjs', 'generator-probe-assets.json'))
-SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs', 'receipt-snapshot.mjs'))
+SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs', 'receipt-snapshot.mjs',
+    'financial-generation-input.mjs', 'financial-generation-source.mjs', 'financial-generation.worker.mjs',
+    'financial-generator-runtime.mjs', 'financial-generator-contract.mjs', 'prompt-contract.mjs', 'financial-output-contract.mjs',
+    'financial-geometry-source.mjs', 'financial-geometry-view.mjs',
+    'financial-table-contract.mjs', 'financial-lookup-view.mjs'))
 
 
 def pinned_manifest():
@@ -63,6 +70,14 @@ class ProbeFixture(unittest.TestCase):
             self.write(self.acceptance / name, b'authored diagnostic')
         for name in SOURCE_MODULES:
             self.write(self.browser / name, b'authored module')
+        self.write(self.browser / 'pdf-private-entry.mjs', b'authored private entry')
+        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs',
+                     'pdf-source.mjs', 'protocol.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',
+                     'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs',
+                     'embedding.worker.mjs', 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
+                     'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs',
+                     'verified-stream.mjs', 'verified-cache.mjs', 'vendor/build/pdf.mjs', 'vendor/build/pdf.worker.mjs'):
+            self.write(self.dist / 'browser-rag' / name, b'built shared inspector')
         for name in MODEL_FILES:
             self.write(self.browser / '.model-cache' / REVISION / name, b'tiny route fixture')
         self.write_manifest(pinned_manifest())
@@ -141,6 +156,28 @@ class ConfigurationTest(ProbeFixture):
     def test_startup_fails_when_dist_is_missing(self):
         shutil.rmtree(self.dist)
         with self.assertRaises(ValueError):
+            probe.verify_startup(self.root)
+
+    def test_startup_accepts_actual_public_inspector_inventory_and_authored_private_routes(self):
+        # Inventory check only: do not read the large model bodies or bind a
+        # socket. The real build/module closure is used instead of fabricated
+        # shared fixture names; separate tests enforce production asset pins.
+        with patch.object(probe, 'verify_file', return_value=None):
+            probe.verify_startup(ROOT)
+        self.assertTrue(probe.SOURCE_MODULES.isdisjoint(probe.SHARED_INSPECTOR_FILES))
+        for name in probe.SOURCE_MODULES:
+            with self.subTest(private=name):
+                self.assertFalse((ROOT / 'dist' / 'browser-rag' / name).exists())
+                self.assertEqual(probe.resolve_request(ROOT, '/browser-rag/' + name),
+                                 ROOT / 'browser-rag' / name)
+        self.assertFalse((ROOT / 'dist' / 'browser-rag' / 'pdf-private-entry.mjs').exists())
+        self.assertEqual(probe.resolve_request(ROOT, '/browser-rag/pdf-entry.mjs'),
+                         ROOT / 'browser-rag' / 'pdf-private-entry.mjs')
+
+    def test_private_entry_does_not_hide_a_missing_built_ordinary_entry(self):
+        (self.dist / 'browser-rag' / 'pdf-entry.mjs').unlink()
+        with patch.object(probe, 'verify_file', return_value=None), \
+                self.assertRaisesRegex(ValueError, 'built inspector.*pdf-entry.mjs'):
             probe.verify_startup(self.root)
 
     def test_startup_does_not_accept_tiny_files_under_real_production_pins(self):
@@ -254,8 +291,7 @@ class RoutingTest(ProbeFixture):
                                  self.browser / name)
 
     def test_unknown_source_modules_and_cache_paths_are_not_exposed(self):
-        for name in ('financial-generator-runtime.mjs', 'financial-generator-contract.mjs',
-                     'prompt-contract.mjs', 'private.mjs', 'private.json',
+        for name in ('pdf-private-entry.mjs', 'private.mjs', 'private.json',
                      '.model-cache/private.onnx'):
             self.write(self.browser / name, b'private source module')
             with self.subTest(name=name), self.assertRaises((ValueError, FileNotFoundError)):
@@ -333,6 +369,101 @@ class HandlerTest(ProbeFixture):
         self.assertEqual(headers['Content-Type'], 'application/javascript')
         self.assertEqual(body, data)
 
+    def test_owned_generation_figure_exact_dark_query_and_json_get_head_use_public_dist(self):
+        for target,relative in (('/figures/owned-generation.archify.html','figures/owned-generation.archify.html'),
+                                ('/figures/owned-generation.archify.html?theme=dark','figures/owned-generation.archify.html'),
+                                ('/figures/owned-generation.archify.json','figures/owned-generation.archify.json')):
+            data=(ROOT / 'dist' / relative).read_bytes()
+            for method in ('GET','HEAD'):
+                with self.subTest(target=target,method=method):
+                    status,headers,body=self.request(method,target,repository_root=ROOT)
+                    self.assertEqual(status,200)
+                    self.assertEqual(probe.resolve_request(ROOT,target),ROOT / 'dist' / relative)
+                    self.assertEqual(headers['Content-Length'],str(len(data)))
+                    self.assertEqual(headers['Content-Type'],'application/json' if relative.endswith('.json') else 'text/html; charset=utf-8')
+                    self.assertEqual(body,data if method=='GET' else b'')
+        for target in ('/figures/owned-generation.archify.html?theme=light',
+                       '/figures/owned-generation.archify.html?theme=dark&private=1',
+                       '/figures/owned-generation.archify.html?theme=dark#fragment',
+                       '/figures/owned-generation.archify.json?theme=dark',
+                       '/figures/%6fwned-generation.archify.html?theme=dark',
+                       '/figures/./owned-generation.archify.html?theme=dark',
+                       '/figures/other.archify.html?theme=dark'):
+            for method in ('GET','HEAD'):
+                with self.subTest(alias=target,method=method):
+                    self.assertEqual(self.request(method,target,repository_root=ROOT)[0],404)
+
+    def test_real_public_encoder_closure_get_head_preserve_verified_bytes_and_mime(self):
+        # Stream into a digest sink, never retain the 90 MB ONNX body. These
+        # are real delivered files and the real handler, with no bound socket.
+        class DigestConnection(MemoryConnection):
+            def __init__(self, request):
+                super().__init__(request)
+                self.header_buffer = bytearray()
+                self.headers = None
+                self.body_bytes = 0
+                self.body_sha = hashlib.sha256()
+                self.max_body_block = 0
+
+            def sendall(self, data):
+                if self.headers is None:
+                    self.header_buffer.extend(data)
+                    split = self.header_buffer.find(b'\r\n\r\n')
+                    if split < 0:
+                        if len(self.header_buffer) > 16384:
+                            raise AssertionError('unbounded HTTP header')
+                        return
+                    self.headers = bytes(self.header_buffer[:split])
+                    data = bytes(self.header_buffer[split + 4:])
+                    self.header_buffer.clear()
+                self.body_bytes += len(data)
+                self.body_sha.update(data)
+                self.max_body_block = max(self.max_body_block, len(data))
+
+        registry = json.loads((ROOT / 'dist' / 'browser-rag' / 'embedding-assets.json').read_bytes())
+        self.assertEqual(set(registry['modelFiles']), EMBEDDING_NAMES)
+        for name, descriptor in registry['modelFiles'].items():
+            for method in ('GET', 'HEAD'):
+                with self.subTest(name=name, method=method):
+                    target = EMBEDDING_PREFIX + name
+                    connection = DigestConnection(f'{method} {target} HTTP/1.0\r\nHost: localhost\r\n\r\n'.encode('ascii'))
+                    server = types.SimpleNamespace(repository_root=ROOT, server_name='localhost', server_port=8766)
+                    class QuietHandler(probe.ProbeRequestHandler):
+                        def log_message(self, format, *args):
+                            pass
+                    QuietHandler(connection, ('127.0.0.1', 54321), server)
+                    lines = connection.headers.decode('iso-8859-1').split('\r\n')
+                    self.assertEqual(int(lines[0].split()[1]), 200)
+                    headers = dict(line.split(': ', 1) for line in lines[1:])
+                    self.assertEqual(headers['Content-Length'], str(descriptor['bytes']))
+                    self.assertEqual(headers['Content-Type'], 'application/octet-stream' if name.endswith('.onnx') else 'application/json')
+                    self.assertEqual(headers['Cache-Control'], 'no-store')
+                    self.assertEqual(headers['X-Content-Type-Options'], 'nosniff')
+                    self.assertEqual(probe.resolve_request(ROOT, target), ROOT / 'dist' / target[1:])
+                    self.assertEqual(connection.body_bytes, descriptor['bytes'] if method == 'GET' else 0)
+                    self.assertLessEqual(connection.max_body_block, probe.FILE_BLOCK_BYTES)
+                    if method == 'GET':
+                        self.assertEqual(connection.body_sha.hexdigest(), descriptor['sha256'])
+
+    def test_unknown_encoder_and_generator_models_do_not_fall_through_to_public_dist(self):
+        targets = (EMBEDDING_PREFIX + 'private.json', EMBEDDING_PREFIX + 'onnx/model_q4.onnx',
+                   EMBEDDING_PREFIX.replace('751bff37182d3f1213fa05d7196b954e230abad9', 'a' * 40) + 'config.json',
+                   EMBEDDING_PREFIX.replace('Xenova/', 'Other/') + 'config.json',
+                   MODEL_PREFIX + 'onnx/model.onnx', MODEL_PREFIX + 'private.json')
+        for target in targets:
+            self.write(self.dist / target[1:], b'PRIVATE dist bytes')
+            for method in ('GET', 'HEAD'):
+                with self.subTest(target=target, method=method):
+                    status, headers, body = self.request(method, target)
+                    self.assertEqual(status, 404)
+                    self.assertNotIn(b'PRIVATE dist bytes', body)
+        for target in (EMBEDDING_PREFIX + 'config.json?cache=1', EMBEDDING_PREFIX + '%63onfig.json',
+                       EMBEDDING_PREFIX + './config.json', EMBEDDING_PREFIX + 'config.json.bak',
+                       EMBEDDING_PREFIX + 'onnx/../config.json', EMBEDDING_PREFIX + 'config.json/'):
+            for method in ('GET', 'HEAD'):
+                with self.subTest(alias=target, method=method):
+                    self.assertEqual(self.request(method, target)[0], 404)
+
     def test_get_and_head_native_core_read_the_same_exact_authored_file(self):
         data = b'export const nativeCore = "fixture, not a model run";\n'
         self.write(self.browser / 'generator-native-core.mjs', data)
@@ -344,6 +475,88 @@ class HandlerTest(ProbeFixture):
                 self.assertEqual(headers['Content-Type'], 'application/javascript')
                 self.assertEqual(headers['Cache-Control'], 'no-store')
                 self.assertEqual(body, data if method == 'GET' else b'')
+
+    def test_exact_entry_get_head_uses_authored_private_bytes_before_dist(self):
+        data = b'import {mountPdfApp} from "./pdf-app.mjs";\n// private exact route\n'
+        self.write(self.browser / 'pdf-private-entry.mjs', data)
+        self.write(self.dist / 'browser-rag' / 'pdf-entry.mjs', b'PUBLIC ENTRY BYTES')
+        for method in ('GET', 'HEAD'):
+            status, headers, body = self.request(method, '/browser-rag/pdf-entry.mjs')
+            self.assertEqual(status, 200)
+            self.assertEqual(headers['Content-Length'], str(len(data)))
+            self.assertEqual(headers['Content-Type'], 'application/javascript')
+            self.assertEqual(headers.get('X-Content-SHA256'), hashlib.sha256(data).hexdigest())
+            self.assertEqual(body, data if method == 'GET' else b'')
+        self.write(self.dist / 'browser-rag' / 'pdf-private-entry.mjs', b'PRIVATE BYTES')
+        for target in ('/browser-rag/pdf-private-entry.mjs', '/browser-rag/pdf-entry.mjs?private=1',
+                       '/browser-rag/%70df-entry.mjs', '/browser-rag/./pdf-entry.mjs'):
+            self.assertEqual(self.request('GET', target)[0], 404)
+        (self.browser / 'pdf-private-entry.mjs').unlink()
+        self.assertEqual(self.request('GET', '/browser-rag/pdf-entry.mjs')[0], 404)
+
+    def test_exact_financial_source_get_head_bytes_mime_length_and_hash(self):
+        for name in SOURCE_MODULES:
+            data = (ROOT / 'browser-rag' / name).read_bytes()
+            self.write(self.browser / name, data)
+            for method in ('GET', 'HEAD'):
+                with self.subTest(name=name, method=method):
+                    status, headers, body = self.request(method, '/browser-rag/' + name)
+                    self.assertEqual(status, 200)
+                    self.assertEqual(headers['Content-Type'], 'application/javascript')
+                    self.assertEqual(headers['Content-Length'], str(len(data)))
+                    self.assertEqual(headers.get('X-Content-SHA256'), hashlib.sha256(data).hexdigest())
+                    self.assertEqual(body, data if method == 'GET' else b'')
+
+    def test_geometry_and_lookup_routes_are_exact_private_authored_modules_and_deny_aliases(self):
+        for name in ('financial-geometry-source.mjs', 'financial-geometry-view.mjs',
+                     'financial-table-contract.mjs', 'financial-lookup-view.mjs'):
+            data = (ROOT / 'browser-rag' / name).read_bytes()
+            self.write(self.browser / name, data)
+            self.write(self.dist / 'browser-rag' / name, b'PRIVATE FALLTHROUGH TRAP')
+            for method in ('GET', 'HEAD'):
+                status, headers, body = self.request(method, '/browser-rag/' + name)
+                self.assertEqual(status, 200)
+                self.assertEqual(headers['Content-Length'], str(len(data)))
+                self.assertEqual(headers.get('X-Content-SHA256'), hashlib.sha256(data).hexdigest())
+                self.assertEqual(body, data if method == 'GET' else b'')
+            for target in ('/browser-rag/' + name + '?capture=1', '/browser-rag/./' + name,
+                           '/browser-rag/%66' + name[1:], '/browser-rag//'+name,
+                           '/browser-rag/financial-table-contract-private.mjs',
+                           '/browser-rag/financial-lookup-view-private.mjs'):
+                self.assertEqual(self.request('GET', target)[0], 404, target)
+            (self.browser / name).unlink()
+            self.assertEqual(self.request('GET', '/browser-rag/' + name)[0], 404)
+
+    def test_private_inspector_actual_dependency_graph_including_workers_and_session_imports(self):
+        html = (ROOT / 'dist' / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
+        entries = re.findall(r'<script\s+type="module"\s+src="([^"]+)"', html)
+        self.assertEqual(entries, ['pdf-entry.mjs'])
+        pending = ['/browser-rag/' + entries[0]]
+        static = re.compile(r'^\s*(?:import|export)\s+(?:[^;]*?\bfrom\s+)?[\'"]([^\'"]+)[\'"]\s*;', re.MULTILINE)
+        worker = re.compile(r'new\s+URL\s*\(\s*[\'"]([^\'"]+\.mjs)[\'"]\s*,\s*import\.meta\.url')
+        dynamic = re.compile(r'import\(\s*[\'"]([^\'"]+)[\'"]\s*\)')
+        visited = set()
+        while pending:
+            target = pending.pop()
+            if target in visited:
+                continue
+            visited.add(target)
+            status, headers, body = self.request('GET', target, repository_root=ROOT)
+            self.assertEqual(status, 200, target)
+            path = probe.resolve_request(ROOT, target)
+            self.assertEqual(body, path.read_bytes(), target)
+            source = body.decode('utf-8')
+            references = static.findall(source) + worker.findall(source)
+            if target == '/browser-rag/pdf-session.mjs':
+                references += dynamic.findall(source)
+            for reference in references:
+                self.assertTrue(reference.startswith(('./', '../')), reference)
+                pending.append(posixpath.normpath(posixpath.join(posixpath.dirname(target), reference)))
+        self.assertTrue({'/browser-rag/' + name for name in SOURCE_MODULES}.issubset(visited))
+        self.assertIn('/browser-rag/financial-generation.worker.mjs', visited)
+        self.assertIn('/browser-rag/financial-generator-runtime.mjs', visited)
+        self.assertIn('/browser-rag/generation-view.mjs', visited)
+        self.assertNotIn('/browser-rag/pdf-private-entry.mjs', visited)
 
     def test_get_and_head_receipt_snapshot_serve_exact_local_bytes_and_sha(self):
         data = (ROOT / 'browser-rag' / 'receipt-snapshot.mjs').read_bytes()
@@ -398,9 +611,8 @@ class HandlerTest(ProbeFixture):
         self.assertIn('/browser-rag/generator-contract.mjs', visited)
         self.assertFalse((ROOT / 'dist' / 'browser-rag' / 'receipt-snapshot.mjs').exists())
 
-    def test_private_financial_modules_and_snapshot_aliases_remain_404(self):
-        for name in ('financial-generator-runtime.mjs', 'financial-generator-contract.mjs',
-                     'prompt-contract.mjs', 'receipt-snapshot-private.mjs', 'private.mjs',
+    def test_private_aliases_remain_404(self):
+        for name in ('pdf-private-entry.mjs', 'receipt-snapshot-private.mjs', 'private.mjs',
                      '.model-cache/private.onnx'):
             self.write(self.browser / name, b'PRIVATE source bytes')
             for repository_root in (self.root, ROOT):

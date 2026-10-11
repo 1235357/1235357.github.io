@@ -1,0 +1,21 @@
+{
+  "createdAtUTC": "2026-10-11T16:43:31.117744+00:00",
+  "scope": "full Node compatibility using test doubles/pure contracts; no browser/parser/model acceptance",
+  "command": "node --test tests/*.test.mjs",
+  "cwd": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\browser-rag",
+  "tests": 2635,
+  "pass": 2635,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "durationMs": 2752.3389,
+  "sourceHashes": {
+    "browser-rag/financial-lookup-view.mjs": "393cb13b3ceb40430e3f6e656bfbb26d6ff552918c7868906aa4d2cfb2bac705",
+    "browser-rag/pdf-app.mjs": "c54e8066f3d24842dae9bb9d2159e455680c52943385d274f2b28a8c2a85837a",
+    "browser-rag/pdf-private-entry.mjs": "626b6f3195df055d7edb571f325adf05feefab1eef54857d2a0e4f20c6de2d26",
+    "browser-rag/tests/item-window.test.mjs": "0fc865f817d24e08e4323ee52171f752b7786234be71c5e46827e7719fbdf000"
+  },
+  "initialCompatibilityFailure": "Legacy item-window test template lacked newly reserved empty source-cell-lookup host; adding that host only restored focused40/full2635 compatibility; reviewed implementation unchanged.",
+  "pairedPythonReceipt": "private-source-cell-stage4-compatibility.json"
+}
