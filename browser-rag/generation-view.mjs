@@ -21,7 +21,7 @@ export function createGenerationView({document,root,isCurrent,onInspect}) {
   }
   return {render(raw,inspection,canonicalInput=null){
     renderedRaw=raw;renderedInspection=inspection;renderedInput=canonicalInput;root.replaceChildren();
-    if(raw===null||inspection===null){root.append(element('p','No native generation receipt committed. An explicit private generation action follows an accepted query and assembled context.','empty'));return;}
+    if(raw===null||inspection===null){root.append(element('p','No native generation receipt committed. An explicit generation action follows an accepted query and assembled context.','empty'));return;}
     if(!current(raw,inspection))return;
     root.append(element('p','Exact captured question','eyebrow'),element('p',raw.preparedPrompt.context.question,'context-question'));
     if(!current(raw,inspection))return;

@@ -77,8 +77,16 @@ function acquireReader(response, config) {
     const headers = responseGetters.headers.call(response);
     if (status !== 200 || redirected || (url && url !== config.url)
         || bodyUsed || !body || body.locked) throw new Error();
+    const encoding = headers.get('Content-Encoding');
+    const encoded = encoding !== null && encoding.trim().toLowerCase() !== 'identity';
+    if (encoded && encoding.toLowerCase().split(',').some(value =>
+      !['gzip', 'br', 'deflate'].includes(value.trim()))) throw new Error();
+    // Fetch exposes decoded bytes; an encoded Content-Length counts wire bytes.
+    // EOF verification still requires the exact decoded length and pinned SHA.
     const length = headers.get('Content-Length');
-    if (length !== null && length !== String(config.bytes)) throw new Error();
+    if (length !== null && (encoded
+      ? !/^(0|[1-9]\d*)$/.test(length) || !Number.isSafeInteger(Number(length))
+      : length !== String(config.bytes))) throw new Error();
     return body.getReader();
   } catch {
     throw new VerifiedStreamError('ASSET_INTEGRITY_ERROR');

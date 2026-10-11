@@ -1,0 +1,19 @@
+{
+  "runtimeId": "cf3f2e39-ae49-4652-9f26-9c891afcf1e5",
+  "documentEpoch": 1,
+  "active": null,
+  "terminal": {
+    "protocolVersion": 1,
+    "runtimeId": "cf3f2e39-ae49-4652-9f26-9c891afcf1e5",
+    "operationId": "op-1",
+    "documentEpoch": 1,
+    "operation": "embed",
+    "kind": "error",
+    "stage": "download",
+    "seq": 2,
+    "payload": {
+      "code": "ASSET_INTEGRITY_ERROR",
+      "message": "The local embedding assets could not be verified."
+    }
+  }
+}

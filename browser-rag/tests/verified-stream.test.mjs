@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { runInNewContext } from 'node:vm';
+import { gzipSync, brotliCompressSync, deflateSync } from 'node:zlib';
 import { verifyAssetResponse, VerifiedStreamError } from '../verified-stream.mjs';
 
 const URL = 'https://example.test/models/weights.bin';
@@ -34,14 +35,17 @@ function sourceResponse(chunks, { headers, status = 200,
   return { response, body, state };
 }
 
-async function nativeFetchServer(t) {
+async function nativeFetchServer(t, { encoding, data = bytesOf('abc') } = {}) {
+  const wire = (encoding?.split(',') ?? []).reduce((bytes, value) => value.trim() === 'gzip'
+    ? gzipSync(bytes) : value.trim() === 'br' ? brotliCompressSync(bytes) : deflateSync(bytes), data);
   const server = createServer((request, response) => {
     if (request.url === '/redirect') {
       response.writeHead(302, { Location: '/asset' });
       response.end();
     } else {
-      response.writeHead(200, { 'Content-Length': '3' });
-      response.end('abc');
+      response.writeHead(200, { 'Content-Length': String(wire.length),
+        ...(encoding ? { 'Content-Encoding': encoding } : {}) });
+      response.end(wire);
     }
   });
   server.listen(0, '127.0.0.1');
@@ -152,6 +156,88 @@ test('accepts exact content length or an absent header and supplies a trusted le
     await result.response.arrayBuffer();
     await result.completion;
   }
+});
+
+for (const encoding of ['gzip', 'br', 'deflate', 'gzip, br']) {
+  test(`verifies decoded bytes for ${encoding} without treating wire length as the asset length`, async () => {
+    const data = bytesOf('abc');
+    for (const wireLength of ['1', '30', null]) {
+      // Fetch supplies the decoded body while preserving the encoded HTTP headers.
+      const source = sourceResponse([data], { headers: { 'Content-Encoding': encoding,
+        ...(wireLength === null ? {} : { 'Content-Length': wireLength }) } });
+      const result = verifyAssetResponse(source.response, expectedFor(data));
+      assert.deepEqual(new Uint8Array(await result.response.arrayBuffer()), data);
+      assert.deepEqual(await result.completion, { bytes: data.length, sha256: digestOf(data) });
+      assert.equal(result.response.headers.get('Content-Length'), String(data.length));
+      assert.equal(result.response.headers.get('Content-Encoding'), null);
+      assert.equal(source.body.locked, false);
+    }
+  });
+}
+
+for (const encoding of ['gzip', 'br', 'deflate', 'gzip, br']) {
+  for (const data of [bytesOf('abc'), bytesOf('a'.repeat(4096))]) {
+    test(`accepts native Fetch decoding ${encoding} with ${data.length} decoded bytes`, async t => {
+      const base = await nativeFetchServer(t, { encoding, data });
+      const url = `${base}/asset`, response = await fetch(url);
+      const wireLength = Number(response.headers.get('Content-Length'));
+      assert.equal(response.headers.get('Content-Encoding'), encoding);
+      assert.ok(data.length === 3 ? wireLength > data.length : wireLength < data.length);
+      const result = verifyAssetResponse(response, { ...expectedFor(data), url });
+      assert.deepEqual(new Uint8Array(await result.response.arrayBuffer()), data);
+      assert.deepEqual(await result.completion, { bytes: data.length, sha256: digestOf(data) });
+    });
+  }
+}
+
+for (const headers of [
+  { 'Content-Encoding': 'identity', 'Content-Length': '2' },
+  { 'Content-Encoding': 'identity', 'Content-Length': '+3' },
+  { 'Content-Encoding': 'gzip', 'Content-Length': '+2' },
+  { 'Content-Encoding': 'br', 'Content-Length': '02' },
+  { 'Content-Encoding': 'gzip', 'Content-Length': '2, 2' },
+  { 'Content-Encoding': 'br', 'Content-Length': '9007199254740992' },
+  { 'Content-Encoding': 'unknown', 'Content-Length': '3' },
+  { 'Content-Encoding': 'gzip, unknown', 'Content-Length': '3' },
+  { 'Content-Encoding': 'gzip,', 'Content-Length': '3' },
+  { 'Content-Encoding': '', 'Content-Length': '3' },
+]) {
+  test(`refuses ambiguous encoded metadata ${JSON.stringify(headers)} before reading`, () => {
+    const source = sourceResponse([bytesOf('abc')], { headers });
+    assert.throws(() => verifyAssetResponse(source.response, validConfig()), canonical('ASSET_INTEGRITY_ERROR'));
+    assert.equal(source.state.pulls, 0);
+    assert.equal(source.body.locked, false);
+  });
+}
+
+for (const [name, chunks] of [
+  ['short decoded body', [bytesOf('ab')]],
+  ['corrupt decoded body', [bytesOf('abd')]],
+  ['decoded overflow', [bytesOf('abcd')]],
+]) {
+  test(`compressed transport still refuses ${name}`, async () => {
+    const source = sourceResponse(chunks, { headers: { 'Content-Encoding': 'br', 'Content-Length': '1' } });
+    const result = verifyAssetResponse(source.response, validConfig());
+    await assert.rejects(result.response.arrayBuffer(), canonical('ASSET_INTEGRITY_ERROR'));
+    await assert.rejects(result.completion, canonical('ASSET_INTEGRITY_ERROR'));
+    await tick();
+    assert.equal(source.body.locked, false);
+    if (name === 'decoded overflow') assert.equal(source.state.cancellations.length, 1);
+  });
+}
+
+test('abort of a pending decoded compressed stream still cancels and releases its reader', async () => {
+  const source = sourceResponse([], { pending: true,
+    headers: { 'Content-Encoding': 'gzip', 'Content-Length': '1' } });
+  const controller = new AbortController();
+  const result = verifyAssetResponse(source.response, validConfig(), { signal: controller.signal });
+  const reading = result.response.arrayBuffer();
+  await tick(); controller.abort();
+  await assert.rejects(reading, canonical('ABORTED'));
+  await assert.rejects(result.completion, canonical('ABORTED'));
+  await tick();
+  assert.equal(source.state.cancellations.length, 1);
+  assert.equal(source.body.locked, false);
 });
 
 test('accepts null prototype configurations and captures supported fields exactly once', async () => {

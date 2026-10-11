@@ -155,9 +155,16 @@ async function readBytes(response, url, limit, exact, scope) {
   try {
     if (!response?.ok || response.redirected || (response.url && response.url !== url)
       || typeof response.body?.getReader !== 'function') fail('ASSET_INTEGRITY_ERROR');
+    const encoding = response.headers.get('content-encoding');
+    const encoded = encoding !== null && encoding.trim().toLowerCase() !== 'identity';
+    if (encoded && encoding.toLowerCase().split(',').some(value =>
+      !['gzip', 'br', 'deflate'].includes(value.trim()))) fail('ASSET_INTEGRITY_ERROR');
+    // Fetch decodes supported content codings but preserves the wire length.
+    // The bounded decoded stream and its pinned SHA remain authoritative.
     const length = response.headers.get('content-length');
     if (length !== null && (!/^\d+$/.test(length) || !Number.isSafeInteger(Number(length))
-      || Number(length) > limit || (exact && Number(length) !== limit))) fail('ASSET_INTEGRITY_ERROR');
+      || (encoded ? length !== String(Number(length))
+        : Number(length) > limit || (exact && Number(length) !== limit)))) fail('ASSET_INTEGRITY_ERROR');
     reader = response.body.getReader();
     const buffer = new Uint8Array(limit); let count = 0;
     while (true) {

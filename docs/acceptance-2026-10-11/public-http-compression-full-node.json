@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "scope": "Full Node controlled contract tests after HTTP compression fix; no browser GPU inference",
+  "exitCode": 0,
+  "counts": {
+    "tests": 2680,
+    "pass": 2680,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "logBytes": 215978,
+  "logSHA256": "83cd32a22583b7659e96e741e4e67c38bc5c6cea3137d61038c23069549dcade",
+  "sourceSHA256": {
+    "browser-rag/embedding-runtime.mjs": "0bbdaea974ae8eb083151cc9182af5bb7c29a04e7812cc7895f63b159ba8c8d9",
+    "browser-rag/verified-stream.mjs": "aa5dfa9c987fa247caa7e6866e23db87b5289203fd0b2ff3ac43950e0d6bafed",
+    "browser-rag/generation-view.mjs": "b54d3698db26e787f9d1a603a15271322ed202ac227469fd9e727e0f32121e1d"
+  }
+}

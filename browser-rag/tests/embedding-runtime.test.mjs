@@ -313,6 +313,57 @@ test('asset length, declared Content-Length and hash must all match', async () =
   }
 });
 
+for (const encoding of ['gzip', 'br', 'deflate', 'gzip, br']) {
+  for (const overhead of [false, true]) {
+    test(`verifies all decoded ${encoding} assets with wire ${overhead ? 'overhead' : 'compression'}`, async () => {
+      const fixture = await assetFixture(), original = fixture.opts.fetch;
+      fixture.opts.fetch = async (url, req) => {
+        const response = await original(url, req), bytes = new Uint8Array(await response.arrayBuffer());
+        // This is Fetch's already decoded body, including the registry response.
+        return new Response(bytes, { headers: { 'Content-Encoding': encoding,
+          'Content-Length': String(overhead ? bytes.length + 31 : 1) } });
+      };
+      await loadingStopped(fixture);
+      assert.equal(fixture.requests.length, 9); assert.equal(fixture.stored.size, 8);
+      assert.equal(fixture.imports.length, 1);
+      const events = fixture.progress.filter(([stage]) => stage === 'download').map(([, payload]) => payload);
+      assert.equal(events.at(-1).completed, fixture.total);
+      assert.equal(events.at(-1).total, fixture.total);
+      for (const [url, response] of fixture.stored) {
+        assert.deepEqual(new Uint8Array(await response.clone().arrayBuffer()), fixture.bodies.get(url));
+        assert.equal(response.headers.get('Content-Encoding'), null);
+      }
+    });
+  }
+}
+
+for (const mode of ['short', 'long', 'hash', 'malformed-header', 'unsafe-header',
+  'identity-mismatch', 'identity-malformed', 'unknown-encoding', 'unknown-chain', 'empty-chain']) {
+  test(`encoded embedding transport refuses ${mode} without import or cache writes`, async () => {
+    const fixture = await assetFixture(), original = fixture.opts.fetch; let cancelled = 0;
+    fixture.opts.fetch = (url, req) => {
+      if (url.endsWith('embedding-assets.json')) return original(url, req);
+      const expected = fixture.bodies.get(url);
+      const bytes = mode === 'short' ? expected.slice(1) : mode === 'long'
+        ? new Uint8Array(expected.length + 1) : mode === 'hash' ? new Uint8Array(expected.length) : expected;
+      const body = new ReadableStream({
+        start(controller) { controller.enqueue(bytes); if (mode !== 'long') controller.close(); },
+        cancel() { cancelled++; },
+      });
+      return new Response(body, { headers: {
+        'Content-Encoding': mode.startsWith('identity-') ? 'identity' : mode === 'unknown-encoding'
+          ? 'unknown' : mode === 'unknown-chain' ? 'gzip, unknown' : mode === 'empty-chain' ? 'gzip,' : 'br',
+        'Content-Length': mode === 'malformed-header' || mode === 'identity-malformed' ? '+1' : mode === 'unsafe-header'
+          ? '9007199254740992' : '1',
+      } });
+    };
+    await assert.rejects(encodeChunks(artifact(), fixture.opts), safeError('ASSET_INTEGRITY_ERROR'));
+    assert.equal(fixture.imports.length, 0);
+    assert.equal(fixture.cacheCalls.filter(([op]) => op === 'put').length, 0);
+    if (mode === 'long') assert.equal(cancelled, 1);
+  });
+}
+
 test('stream overflow cancels further asset reads at the declared byte bound', async () => {
   const fixture = await assetFixture(), original = fixture.opts.fetch; let cancelled = 0;
   fixture.opts.fetch = (url, req) => {

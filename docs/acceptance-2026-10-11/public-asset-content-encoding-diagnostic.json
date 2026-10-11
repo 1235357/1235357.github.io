@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "scope": "Bounded public HTTPS config transport diagnostic; no PDF, model execution, browser state or response body recorded.",
+  "expectedDecodedBody": {
+    "bytes": 650,
+    "sha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7"
+  },
+  "observations": [
+    {
+      "observedAt": "2026-10-11T18:03:16.832813+00:00",
+      "requestAcceptEncoding": "identity",
+      "status": 200,
+      "url": "https://1235357.github.io/browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/config.json",
+      "finalUrl": "https://1235357.github.io/browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/config.json",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Content-Length": "650",
+        "Content-Encoding": null,
+        "Vary": "Accept-Encoding",
+        "ETag": "\"6acbcb7f-28a\"",
+        "Cache-Control": "max-age=600",
+        "Server": "GitHub.com"
+      },
+      "wireBytes": 650,
+      "wireSha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7",
+      "decodedBytes": 650,
+      "decodedSha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7",
+      "matchesPinnedDecodedBody": true
+    },
+    {
+      "observedAt": "2026-10-11T18:03:23.110637+00:00",
+      "requestAcceptEncoding": "gzip",
+      "status": 200,
+      "url": "https://1235357.github.io/browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/config.json",
+      "finalUrl": "https://1235357.github.io/browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/config.json",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Content-Length": "364",
+        "Content-Encoding": "gzip",
+        "Vary": "Accept-Encoding",
+        "ETag": "W/\"6acbcb7e-28a\"",
+        "Cache-Control": "max-age=600",
+        "Server": "GitHub.com"
+      },
+      "wireBytes": 364,
+      "wireSha256": "ad052c75a66112979a62615266ca35ae32500c15f8d7f66ef2c737e07e104fc9",
+      "decodedBytes": 650,
+      "decodedSha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7",
+      "matchesPinnedDecodedBody": true
+    }
+  ],
+  "conclusion": "Both served representations decode to the pinned asset. Encoded Content-Length measures wire bytes; Fetch body verification must use the exact decoded length and SHA.",
+  "browserAcceptance": "Public native embedding/generation retry remains a separate root-owned gate."
+}
