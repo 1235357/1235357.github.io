@@ -2139,6 +2139,100 @@ independent gold/judge evaluation and public delivery are still open.
 & 'C:\ProgramData\anaconda3\python.exe' -u -m unittest discover
 ```
 
+##### C4.4 complete decoded output and source-bound citation inspection
+
+**Goal:** After genuine native generation, inspect the entire JSON answer and
+resolve its citations against the same owned selected evidence. Successful
+inspection yields an explicitly unverified draft or abstention, not a correct
+financial answer. This is the next contract within the approved architecture.
+
+**Architecture:** One pure, synchronous boundary reuses canonical token and
+original eight-field provenance checks. A narrow non-recursive JSON parser
+detects decoded duplicate keys and exact field types. Native runtime, future
+Worker ownership, display and independent financial evaluation stay separate.
+
+**Files:** create `browser-rag/financial-output-contract.mjs` and
+`browser-rag/tests/financial-output-contract.test.mjs`. No runtime, SDK,
+protocol, session, UI or public build allowlist changes in this task. Keep the
+plan and eventual verification in this README rather than another status file.
+
+```js
+inspectFinancialOutput(generatedText, fullSequenceIds, acceptedPreflight,
+  originalContextInput)
+// Pure result: generationMode: 'not-run', financialCorrectness: 'unestablished'.
+// source IDs refer to selected context units, not retrieval ranks.
+```
+
+- [x] **RED complete text and termination:** tests first, then observe the
+  absent export fail. Test exact 16,384 UTF-16 units and one over; reordered
+  root fields, JSON whitespace and raw/escaped Unicode retain the full original
+  string. Valid-looking JSON paired with length, incomplete or empty generated
+  tokens refuses. Recompute `inspectGeneratedSequence` rather than trust a
+  caller termination label; wrong prefix/settings/interior EOS still refuse.
+- [x] **RED schema and duplicates:** accept exactly `answer` string,
+  `citations` string array and `insufficient_evidence` boolean. Reject duplicate
+  decoded root keys (including escaped aliases), extra/missing fields, wrong
+  types, BOM, comments, invalid escapes, raw control characters, trailing
+  commas/prose, adjacent objects and outer Markdown fences. Literal braces and
+  fences inside a JSON answer string are ordinary data and must survive.
+- [x] **RED source identity and ownership:** non-abstaining answers must be
+  nonblank with at least one unique selected ID. Abstentions may contain an
+  empty or explanatory answer but require no citations. Reject duplicate
+  decoded IDs, unknown/unselected IDs, padding/case variations and generated
+  URLs. Use real provenance/parser/chunker/ranker fixtures, including rank
+  `E2/E1/E3`, topK-one selected `E2`, nullable/duplicate PDF labels, overlaps
+  and source/presentation segments. Later input mutation cannot retarget the
+  frozen bindings. Shape-valid invented financial prose must still have every
+  correctness/claim-support marker unestablished.
+- [x] **GREEN bounded pure inspector:** require primitive text and its cap
+  before parsing or provenance traversal. Parse only the three permitted JSON
+  value shapes, track decoded root keys before assignment, accept only JSON
+  whitespace and reject nesting rather than build a generic recursive parser.
+  Decode isolated string tokens with `JSON.parse`; never use whole-object
+  last-key-wins parsing. Bound citations to 512 before reading entries and to
+  the validated selected evidence count. Reuse `assembleProvenanceContext`
+  with the exact original eight fields, never its assembled projection.
+- [x] **GREEN truthful receipt:** retain the complete text/answer/citation
+  order/abstention field, owned source `{sha256,name,size}`, parser/chunker,
+  and only cited unit bindings `{citationId,rank,ordinal,chunkId,
+  physicalPageNumber,pageLabel,startUtf16,endUtf16,text,segments}`. No vectors,
+  cosine scores, uncited context or SDK/cache receipts. Deep-freeze detached
+  values, not caller inputs. Receipt status is `unverified-financial-draft`,
+  disposition `draft` or `abstained`, termination `eos`, outputInspection
+  `shape-and-citation-identity-accepted`, generationMode `not-run`, and
+  financialCorrectness/claimSupport `unestablished`. Fixed safe failures must
+  not echo questions, filenames, citations, text, URLs or parser diagnostics.
+- [x] **Verify and review:** focused tests, then all Node and Python suites,
+  six-article build and diff check; independent SPEC then QUALITY before a
+  root local commit. This pure gate is not native financial inference or a
+  financial-quality benchmark. Future transport must own one original input
+  before await and use it for both generation and inspection, separately
+  checking epoch/identity/cancellation before any visible commit.
+
+```powershell
+& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test --test-reporter=spec browser-rag/tests/financial-output-contract.test.mjs
+& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test --test-reporter=tap 'browser-rag/tests/*.test.mjs'
+& 'C:\ProgramData\anaconda3\python.exe' -u -m unittest discover
+```
+
+C4.4 accepted locally on October 11 after independent SPEC followed by QUALITY.
+The root reran all 2,164 Node tests (0 failures, 1,461.4471 ms), all 124 Python
+tests (25.096 s), the six-article build and whitespace checks. Both reviewers
+independently reran the 180 focused tests and full Node suite; SPEC additionally
+reran Python. Their read-only positive checks reached 512 citations against 512
+selected units. QUALITY also checked malformed grammar against a separate schema
+oracle. These are synthetic contract checks, not native financial predictions.
+
+The implementer observed an absent-export RED before implementing. SPEC's isolated
+missing-boundary reconstruction separately confirms the tests detect an absent
+implementation; it does not replay or prove the original chronological TDD run.
+The existing evaluation article now explains the implemented boundary, with a
+fabricated synthetic claim deliberately retaining unestablished truth/support.
+QUALITY approved that scoped lesson and its small answer-field wording correction.
+The financial Generate control remains disabled. Fresh Worker/session ownership,
+native selected-PDF generation, independent gold/judge/human evaluation and the
+remaining full-product gates below are still required.
+
 ##### Remaining C4 integration gates
 
 C4.2 accepted locally on October 11 after independent SPEC then QUALITY. The

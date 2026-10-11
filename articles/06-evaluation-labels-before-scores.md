@@ -135,6 +135,83 @@ false refusals and false accepts as different outcomes. Calibration controls
 with deliberately wrong years or units can test a judge, but cannot be reported
 as real model accuracy or human-calibrated judgment without the actual reviews.
 
+## Valid structure is not verified content
+
+The browser implementation now has a pure `inspectFinancialOutput` boundary.
+It inspects the complete decoded string, recomputes termination from the full
+token sequence and canonical generation configuration, parses exactly the
+three required JSON fields, and resolves citation IDs against the original
+selected provenance input. It does not invoke a model or determine whether a
+financial claim follows from the evidence. The financial Generate button has
+not yet been connected to this boundary. This is post-generation inspection,
+not token-level constrained decoding.
+
+Consider this deliberately fabricated output from a synthetic test, not a
+native-model prediction or a quotation from NVIDIA:
+
+```json
+{
+  "answer": "Revenue was $999999999 billion in fiscal 2099.",
+  "citations": ["E2"],
+  "insufficient_evidence": false
+}
+```
+
+In that fixture, `E2` is a selected source unit. The object has the required
+types, a nonblank answer and a recognized citation, so it can pass shape and
+citation-identity inspection. Its receipt still says
+`financialCorrectness: "unestablished"` and `claimSupport: "unestablished"`.
+The fixture's source does not supply this financial fact. A correct citation
+identity cannot turn an invented claim into a supported one.
+
+| Boundary | What is checked | What remains unproven |
+| --- | --- | --- |
+| Full sequence | Prompt prefix, vocabulary, effective settings and terminal EOS | Decoded answer meaning or financial truth |
+| Decoded object | Complete bounded JSON, unique decoded keys and exact field types | Whether the explanation follows from evidence |
+| Citation identity | Unique selected source-ordinal IDs and their exact retained mappings | Correct fiscal period, row, column, amount and unit |
+| Financial review | Source-supported fields and claim-level verdicts | This review has not yet been completed for browser predictions |
+
+Termination matters before parsing. Even a valid-looking object is withheld
+when the token sequence ended at its output-length limit rather than EOS.
+The inspector does not cut out a convenient object, strip outer code fences,
+repair a missing brace or accept a second object after the first. Escaped
+duplicate keys also fail: `"answer"` and `"\u0061nswer"` name the same decoded
+field. Otherwise a last-key-wins parser could silently replace the answer that
+a reviewer thought was inspected.
+
+Source ordinal and retrieval rank are also different identities. In the test
+ordering `[E2, E1, E3]`, the highest-ranked unit is still `E2`; selecting only
+that unit does not rename it `E1`. Accepted bindings retain physical page,
+nullable PDF label, complete quote and source/presentation segments. Inserted
+presentation newlines are not invented PDF source spans. Later mutation of a
+caller input cannot retarget the detached, frozen receipt.
+
+An explicit `insufficient_evidence: true` disposition requires an empty citation
+array, but it is still a model-declared abstention, not an independently judged
+appropriate refusal. An explanatory sentence in the `answer` field could itself be
+wrong. A format rejection, cancellation, dependency error and appropriate
+evidence refusal must therefore remain distinct evaluation outcomes.
+
+This is a concrete CS381 responsibility boundary: presentation displays the
+labelled outcome, while the contract owns structure and identity checks. CS310
+adds the separate question of whether the asynchronous attempt still owns the
+right to commit. The session/Worker integration for that financial attempt is
+the next implementation step, not a result established by this pure inspector.
+CS461 supplies another distinction: model token IDs, decoded UTF-16 units and
+financial claims are three different representations with different checks.
+
+Run the synthetic contract exercise locally:
+
+```powershell
+& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test browser-rag/tests/financial-output-contract.test.mjs
+```
+
+Before reading its expectations, predict why an unknown citation, a length-ended
+sequence and a fabricated number with a recognized citation have different
+outcomes. Then identify which fields in a primary PDF would be needed to judge
+the fabricated claim. Passing this test suite is inspection-contract evidence,
+not browser inference, calibrated financial evaluation or personal mastery.
+
 ## Pair quality with operational measurements
 
 ### Course connection: measure interfaces and stages, not one success flag
@@ -198,7 +275,8 @@ not a complete end-to-end benchmark.
 3. Check all five financial fields, then explain one plausible wrong-column answer.
 4. Design an unseen question and state how it will stay outside tuning.
 
-No new quality score, independent review, latency benchmark or acceptance result
-is claimed by this chapter. It records the audited registration boundaries and
-the next measurement design. The source labels, browser predictions and judge
+No new financial-quality score, independent financial review, latency benchmark
+or financial acceptance result is claimed by this chapter. It records the
+audited registration boundaries, the pure output-inspection contract and the
+next measurement design. The source labels, browser predictions and judge
 implementation still need their own verification before a quality claim.
