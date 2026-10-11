@@ -1,0 +1,19 @@
+{
+  "runtimeId": "830ddc35-e88e-4719-a6a1-cdbece828f97",
+  "documentEpoch": 1,
+  "active": null,
+  "terminal": {
+    "protocolVersion": 1,
+    "runtimeId": "830ddc35-e88e-4719-a6a1-cdbece828f97",
+    "operationId": "op-1",
+    "documentEpoch": 1,
+    "operation": "embed",
+    "kind": "error",
+    "stage": "download",
+    "seq": 3,
+    "payload": {
+      "code": "EMBEDDING_TIMEOUT",
+      "message": "The embedding worker exceeded its time budget."
+    }
+  }
+}

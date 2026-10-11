@@ -2,7 +2,7 @@
 
 A technical blog with an executable browser lab for financial-document retrieval. Choose a PDF, ask a question, and inspect the source and computation behind the result. A separate explicit-field comparator binds a Net income source-cell candidate to native PDF table geometry. The companion Python API is a different runtime and integration surface.
 
-**Release status:** preparing the authorized GitHub Pages user site `1235357.github.io`. Local development and native browser evidence are recorded; the public push, workflow and served HTTPS read-back must be recorded separately. Publication does not establish independent financial correctness.
+**Release status:** published at [1235357.github.io](https://1235357.github.io/). The [execution-contract article](https://1235357.github.io/07-operational-receipts.html) includes the browser lab. Runtime commit `a47a89e` passed the [Pages build, Windows contracts and deployment workflow](https://github.com/1235357/1235357.github.io/actions/runs/38162427872). Actual HTTPS PDF parsing, chunking and one explicit six-month source-cell candidate were observed. Public model preparation exceeded its cold-download deadline; public embedding, retrieval and generation acceptance remain pending. Local native generation receipts remain separate evidence. Publication does not establish independent financial correctness.
 
 ## Start locally
 
@@ -29,9 +29,12 @@ python build.py
 
 ## What the reader can inspect
 
+The preparation control described below is the local next increment after the deployed `a47a89e` baseline. Its independent review, full CI and actual public native acceptance must be recorded separately before updating the current deployment identity.
+
 - PDF.js parsing preserves physical page numbers, displayed PDF labels, source identity and exact original item text/spans.
 - Page-window chunking keeps original UTF-16 source fragments separate from presentation separators.
-- Explicit MiniLM preparation exposes actual token IDs and ordered 384-dimensional vectors; passage and query operations have separate attempt receipts.
+- Explicit asset preparation verifies the fixed model/runtime files in browser cache without invoking a model; its receipt is separate from loading and inference.
+- Passage and query encoding expose actual token IDs and ordered 384-dimensional vectors, with separate attempt receipts.
 - Retrieval exposes ranked candidates and source fragments. A cosine score is not an answer-confidence probability.
 - Context assembly preserves the selected evidence identities and complete model input.
 - The public profile can run the pinned Qwen/WebGPU generator explicitly, preserve its complete raw output/receipt, and inspect output shape and citation identity separately from truth.
@@ -61,7 +64,7 @@ The built site contains seven chapters. Start with [A RAG answer needs an execut
 
 ## Companion API
 
-The planned companion release is [1235357/nvidia-financial-rag](https://github.com/1235357/nvidia-financial-rag). Its publication status is independent of this site. It accepts injected retriever/generator services behind authenticated HTTP contracts, preserves request IDs, and distinguishes semantic refusals from dependency timeout/unavailability. It has its own package, CLI, installation checks, corpus provisioning and deployment requirements.
+The companion [1235357/nvidia-financial-rag](https://github.com/1235357/nvidia-financial-rag) source release is published at commit `082c208`. [API workflow 38160052284](https://github.com/1235357/nvidia-financial-rag/actions/runs/38160052284) passed Linux/Windows checkout and fresh installed-package checks, plus Linux nonroot container HTTP. It accepts injected retriever/generator services, preserves request IDs and distinguishes semantic refusals from dependency failures. The API has its own AGPL-3.0-or-later license, package, corpus preparation and runtime requirements; no public API service is hosted by this site.
 
 GitHub Pages hosts the static browser application. It does not run the Python API. The browser's Qwen result and source-cell comparator do not call that service or turn this site into a backend deployment. API packaging tests do not establish production capacity or financial accuracy.
 

@@ -1,6 +1,6 @@
 # Public source review — 2026-10-11
 
-This is a public derivative of the dated source review. It keeps the RAG documentation, interface observations and original course-to-project connections; it does not replace the preserved review record or reproduce private classroom materials. The pages below were reviewed through Codex In-app Browser on October 11, 2026. These are reading observations and project decisions, not execution of upstream notebooks or replication of external benchmarks. No additional browsing was performed to prepare this derivative.
+This is a public derivative of the dated source review. It keeps the RAG documentation, interface observations and original course-to-project connections; it does not replace the preserved review record or reproduce private classroom materials. The pages below were reviewed through Codex In-app Browser on October 11, 2026. These are reading observations and project decisions, not execution of upstream notebooks or replication of external benchmarks. The initial derivative used the preserved review; the later official course-page and inference-lecture read is dated separately below.
 
 ## Ten official RAG documentation pages
 
@@ -40,7 +40,9 @@ The [execution-contract chapter](../articles/07-operational-receipts.md) develop
 
 ## Additional course-page observation
 
-The [Hung-yi Lee 2026 Spring course page](https://speech.ee.ntu.edu.tw/~hylee/ml/2026-spring.php) was opened during the review. A navigation timeout left the official navigation and Machine Learning 2026 Spring heading readable, but no lecture, schedule or assignment content was readable. Course navigation also timed out, and screenshot capture was unavailable. This is a partial page observation, not a full course review or evidence that materials are absent. It is not used to justify new theory or claim completion of that course.
+The first opening of the [Hung-yi Lee 2026 Spring course page](https://speech.ee.ntu.edu.tw/~hylee/ml/2026-spring.php) timed out after showing the navigation and course heading. A later October 11 IAB read reached the complete visible schedule, homework table and footer. The schedule includes AI Agent, Context Engineering, Flash Attention/KV Cache, positional embeddings, Harness Engineering, Self-Correction and Self-Improving; the homework list includes instruction defense, fast inference and test-time scaling. This updates current page accessibility while preserving the earlier timeout observation. Listing those topics does not establish that their lectures, assignments or linked tools were all read or executed.
+
+The official linked [inference lecture](https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/inference.pdf) was downloaded through IAB: 2,201,819 bytes, 55 physical pages, title `inference (v6)`, SHA-256 `f2eea056580ae5a14ee3de1697033041e9ebe9f1776190d73d593dfa3d434844`. Text extraction and root visual checks of physical pages 5, 35 and 55 support a bounded connection. Page 5 separates prompt prefill from autoregressive decode; the browser's current wall-clock receipt includes preparation, initialization and cleanup and supplies neither isolated prefill/decode time nor time to first token. Pages 29–35 and 55 explain KV-state reuse and its memory tradeoff. That cache is distinct from this site's SHA-verified static-file cache, which reduces repeated transfer and still requires verification before invocation. The lecture's architecture/hardware example is not a Qwen/WebGPU memory measurement. No video, linked notebook, assignment or hardware benchmark was executed for this review, and it establishes no learner-mastery claim.
 
 ## Browser application example
 

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "status": "SPEC_AND_QUALITY_PASS",
+  "scope": "Independent source and contract review; no model, browser, network or performance acceptance",
+  "modules": {
+    "asset-preparation-source.mjs": "3dbbcfcaa3b20ae16f027b989ba080245e7b2e6dc004a886c7e5380cfcbb4fff",
+    "asset-preparation.worker.mjs": "a624d0209bc94352ebb02be8a90b4de72b57583f530c1865ad4ae3e1b6e7f1a1",
+    "asset-preparation-view.mjs": "a74c842c5748d32bdce6186ff6b06d401b664a316ede3c947fbb0f85708980b0",
+    "pdf-app.mjs": "34e6a61f3b66f985d0fda04b8d3b7db468eb137ab039bd6853bedfaafb1de50f"
+  },
+  "exactPinnedBodiesCompared": 16,
+  "encoderBytes": 113629084,
+  "generatorBytes": 815725938,
+  "absolutePreparationBudgetMs": 1800000,
+  "readinessBudgetMs": 10000,
+  "originalInferenceBudgetsMs": [120000, 120000, 300000],
+  "reviewed": [
+    "Exact receipt and packet shapes, identity, sequence and packet bounds",
+    "Static-only command with no PDF, question, context, GPU, SDK or model invocation",
+    "Fixed clock includes readiness and is not renewed by progress",
+    "Revocation precedes cleanup; late and reentrant results cannot publish",
+    "Encoder retained responses released; generator verified cache closed",
+    "Optional host retains legacy mount compatibility",
+    "Advisory cache, later revalidation and missing-body network fallback disclosed"
+  ],
+  "blockers": []
+}

@@ -53,6 +53,7 @@ const RUNTIME_PINS=Object.freeze({
   'ort-wasm-simd-threaded.jsep.mjs':Object.freeze({bytes:44484,sha256:'08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9'}),
   'ort-wasm-simd-threaded.jsep.wasm':Object.freeze({bytes:21596019,sha256:'c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39'}),
 });
+export const GENERATOR_PREPARATION_PINS=Object.freeze({...MODEL_PINS,...RUNTIME_PINS});
 export const PROBE_ASSET_BYTES=Object.values({...MODEL_PINS,...RUNTIME_PINS}).reduce((total,pin)=>total+pin.bytes,0);
 const ASSET_SIZES=Object.freeze(Object.values({...MODEL_PINS,...RUNTIME_PINS}).map(pin=>pin.bytes));
 export const PROBE_MAX_PACKETS=4096;
@@ -226,6 +227,26 @@ async function readRegistry(config,scope) {
     finished=true;return generatorAssetPlan(registry,config.baseURL);
   } catch(error){if(error instanceof ProbeError)throw error;fail('ASSET_INTEGRITY_ERROR');}
   finally {if(!finished)quiet(()=>reader?reader.cancel():response?.body?.cancel());quiet(()=>reader?.releaseLock());}
+}
+
+// Preparation has its own outer deadline/receipt. It never enters the native
+// generation clock, requests a GPU adapter/device or imports the SDK.
+export async function prepareGeneratorAssets(options={}) {
+  if(!record(options)||Reflect.ownKeys(options).some(key=>
+    !['baseURL','fetch','cacheStorage','signal','onProgress'].includes(key)))fail('INVALID_PROBE_CONFIG');
+  const config=dependencies({...options,gpu:Object.freeze({}),importer:()=>{fail('MODEL_LOAD_FAILED');}}),scope=lifecycle(config);
+  let prepared;
+  try {
+    const plan=await readRegistry(config,scope),total=plan.assets.reduce((sum,asset)=>sum+asset.bytes,0);
+    prepared=await scope.wait(()=>prepareVerifiedAssetCache(plan,{fetch:config.fetch,cacheStorage:config.cacheStorage,signal:scope.signal,
+      onProgress:event=>{
+        const prefix=plan.assets.slice(0,event.assetIndex).reduce((sum,asset)=>sum+asset.bytes,0);
+        config.onProgress?.(Object.freeze({completed:prefix+event.completed,verified:prefix+(event.verified?event.completed:0),
+          total,unit:'bytes',estimated:false,mode:'streamed-body'}));
+      }}),'ASSET_CACHE_ERROR',value=>value?.close());
+    scope.check();
+    return Object.freeze({...prepared.receipt,assetPins:Object.freeze(plan.assets.map(({url,bytes,sha256})=>Object.freeze({url,bytes,sha256})))});
+  } finally {try {prepared?.close();}finally {scope.close();}}
 }
 // Only trusted local entry points supply this callback. Recreate and compare
 // the complete canonical preflight before constructing the native model.

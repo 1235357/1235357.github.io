@@ -1,0 +1,19 @@
+{
+  "runtimeId": "9412bac2-7cb5-4820-98ff-1e2c2ed7dd29",
+  "documentEpoch": 1,
+  "active": null,
+  "terminal": {
+    "protocolVersion": 1,
+    "runtimeId": "9412bac2-7cb5-4820-98ff-1e2c2ed7dd29",
+    "operationId": "op-1",
+    "documentEpoch": 1,
+    "operation": "embed",
+    "kind": "error",
+    "stage": "download",
+    "seq": 3,
+    "payload": {
+      "code": "EMBEDDING_TIMEOUT",
+      "message": "The embedding worker exceeded its time budget."
+    }
+  }
+}

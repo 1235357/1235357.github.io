@@ -1,0 +1,99 @@
+{
+  "schema": "public-source-cell-runtime-readonly-replay-v1",
+  "reviewer": "CodexAI",
+  "createdAtUTC": "2026-10-11T18:31:58.285Z",
+  "status": "passed",
+  "scope": "Fresh archived public runtime source-cell result, replayed offline; no browser/model/PDF parser/API or source modification",
+  "input": {
+    "path": "public-source-cell-runtime-6m.json",
+    "bytes": 291355,
+    "sha256": "68800b53aeeda8b071da1486ebf7e988523a2a55b3b955a67fddf52c0199e4dc"
+  },
+  "contract": {
+    "path": "browser-rag/financial-table-contract.mjs",
+    "sha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db"
+  },
+  "checks": {
+    "completeGeometryValidated": true,
+    "wholePureResultEqual": true,
+    "ownFullSnapshotSHAAndUTF8CountEqual": true,
+    "exactJSON2NoTrailingNewline": true,
+    "explicitSixFieldRequestEqual": true,
+    "expectedSelectedPDFIdentityEqual": true,
+    "selectedNativeReferences": 8,
+    "allColumnNativeReferences": 16
+  },
+  "snapshot": {
+    "utf8Bytes": 231358,
+    "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d"
+  },
+  "source": {
+    "sha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+    "name": "local-nvidia-fy2025-q2-original-pages-3-4.pdf",
+    "size": 74085
+  },
+  "request": {
+    "statement": "Condensed Consolidated Statements of Comprehensive Income",
+    "metric": "Net income",
+    "durationMonths": 6,
+    "periodEndLiteral": "Jul 28, 2024",
+    "unitHeadingLiteral": "(In millions)",
+    "currencyGlyph": "$"
+  },
+  "cell": {
+    "amountLiteral": "31,480",
+    "physicalPageNumber": 2,
+    "pageLabel": "4",
+    "itemIndices": {
+      "statement": 1,
+      "unit": 2,
+      "annotation": 3,
+      "metric": 17,
+      "duration": 7,
+      "date": 13,
+      "currency": 27,
+      "value": 29
+    }
+  },
+  "allDatedColumns": [
+    {
+      "durationMonths": 3,
+      "periodEndLiteral": "Jul 28, 2024",
+      "amountLiteral": "16,599"
+    },
+    {
+      "durationMonths": 3,
+      "periodEndLiteral": "Jul 30, 2023",
+      "amountLiteral": "6,188"
+    },
+    {
+      "durationMonths": 6,
+      "periodEndLiteral": "Jul 28, 2024",
+      "amountLiteral": "31,480"
+    },
+    {
+      "durationMonths": 6,
+      "periodEndLiteral": "Jul 30, 2023",
+      "amountLiteral": "8,232"
+    }
+  ],
+  "recordedViewOwnership": {
+    "documentEpoch": 1,
+    "coreRenderRevision": 14,
+    "requestRevision": 11,
+    "attempt": 23
+  },
+  "historicalOwnerComparison": {
+    "path": "public-source-cell-comprehensive-6m.json",
+    "sha256": "fbad0a09ce63915dbfd94ae1bef113b5645ede770e0593f218093f65a8c46e15",
+    "differentRecordedOwner": true
+  },
+  "normalizedCurrency": null,
+  "financialCorrectness": "unadjudicated",
+  "humanAcceptance": false,
+  "limits": [
+    "Exact supplied-source/contract agreement is not financial adjudication or authenticated parent-report lineage.",
+    "Offline replay checks recorded ownership fields, not browser lifecycle actions.",
+    "Static model preparation, embedding and generation budgets are independent of this source-cell action."
+  ]
+}

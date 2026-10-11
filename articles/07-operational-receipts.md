@@ -98,6 +98,26 @@ ownership and cleanup, but warm model assets do not mean the model remains loade
 between attempts. Repeated model initialization can dominate an interactive run.
 We need measurements before choosing a reusable worker/model lifetime.
 
+Three caches belong to different lifetimes. The official 2026
+[inference lecture](https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/inference.pdf#page=29)
+connects KV reuse to causal decoding and live memory. In this implementation,
+`use_cache: true` requests within-attempt KV reuse, while model/device cleanup
+ends that attempt. A warm file cache establishes neither a loaded model nor
+cross-attempt prompt reuse.
+
+| Cache | Reused object | Current project boundary |
+| --- | --- | --- |
+| Verified browser asset cache | Pinned model, tokenizer and runtime response bodies | Every later invocation verifies files again; eviction can require another transfer |
+| Model KV cache | Computed key/value tensors from earlier causal tokens | Requested within a native generation attempt; no persistent app-level KV store |
+| Prefix cache across requests | State for an identical causal token prefix | Not implemented; repeated words after a changed prefix do not establish a hit |
+
+The lecture's [prefill/decode split](https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/inference.pdf#page=5)
+also clarifies a measurement gap: our bulk model-call interval supplies no separate
+prefill or first-token timestamp. FlashAttention concerns attention data movement;
+the current ONNX/WebGPU setting does not prove that an executed kernel uses it.
+Those are bounded future instrumentation and runtime experiments, with the frozen
+financial input/output baseline preserved.
+
 ## Progress has units, timing has boundaries
 
 A percentage is meaningful only when numerator and denominator describe the
@@ -240,7 +260,7 @@ natural-language retrieval score.
 <figure class="architecture-figure" aria-label="Source-bound Net income cells and explicit field selection">
 <div class="figure-heading"><span class="figure-status">EXECUTED LOCAL EXPERIMENT / ARTIFACT DIGEST AUDIT</span><h3>Bind the column before selecting the value</h3><p>The bounded Python experiment separates raw lexical coverage, source-cell geometry and exact metric/period/date/unit selection. The Net income sidecar explicitly leaves Revenue uncovered.</p></div>
 <iframe src="figures/table-cell-selection.archify.html" title="Archify sequence of source cells and explicit field selection" loading="lazy"></iframe>
-<figcaption>Figure 3 · Original Archify illustration of the two executed Python increments. Strict specification/HTML delivery provenance passes; the separate local source audit binds current scripts and immutable receipts by SHA-256. The staged Python checkout has no Git HEAD/origin, so native repository-source provenance is unsupported. Browser lookup integration remains a later experiment. <a href="figures/table-cell-selection.archify.html">Open full-size ↗</a> · <a href="figures/table-cell-selection.archify.json">Editable JSON</a>.</figcaption>
+<figcaption>Figure 3 · Original Archify illustration of the two executed Python increments. Its creation-stage audit bound local scripts and immutable receipts by SHA-256; the source was uncommitted at that delivery, so native Archify repository-source verification was unsupported. The experiment scripts are now published in <a href="https://github.com/1235357/nvidia-financial-rag/tree/082c208a120a54090a186f16b530fe45859e056f/acceptance">API source commit 082c208</a>. The separate browser PDF.js lookup is implemented below; these PyMuPDF cells are not fed into browser retrieval or generation. <a href="figures/table-cell-selection.archify.html">Open full-size ↗</a> · <a href="figures/table-cell-selection.archify.json">Editable JSON</a>.</figcaption>
 </figure>
 
 The [official ingestion guide](https://docs.anyscale.com/rag/quality-improvement/data-ingestion-strategies)
@@ -253,8 +273,8 @@ attached when a table spans pages. Keep the existing text baseline as a comparis
 
 The canonical generation input deliberately projects the PDF source to exact
 text and UTF-16 attribution. It drops geometry. A complete model receipt therefore
-cannot prove which dated column a value occupies. The private notebook now has a
-separate explicit disclosure of every retained PDF.js page and item field. Its
+cannot prove which dated column a value occupies. During private acceptance, the notebook exposed a
+separate disclosure of every retained PDF.js page and item field. That capability is also available in the public profile. Its dated private
 actual browser archive contains 231,358 UTF-8 bytes and all 345 items on two pages,
 including whitespace and zero-area records. An independent copier validates
 dense arrays, finite geometry, positive page extents, source identities and exact
@@ -307,7 +327,7 @@ native archive. Every selected role and all four column proofs map to exact
 source item records. This is exposed development evidence, with no model call,
 PDF reparse or independent human acceptance.
 
-The private notebook now exposes this comparator beside the generated outcome.
+During private acceptance, the notebook exposed this comparator beside the generated outcome. The public profile later enabled the same explicit-field capability; its actual public case and replay are recorded separately below.
 All six fields start empty; choosing a statement does not fill its unit or date.
 After parsing, an explicit lookup derives the complete frozen result and computes
 the snapshot digest before committing the scalar amount. Source, exact role and
@@ -492,9 +512,52 @@ integration defects in shared-file inventory and exact encoder routing; those
 were repaired before these model runs. Contract tests and a diagram alone had
 not exposed them.
 
-The site is statically buildable for GitHub Pages, while the current generator
-delivery is private and local. Public model/sample distribution, independent
-financial gold, calibrated judging, load measurements and publication remain
-separate work. That distinction lets an interviewer examine a real engineering
-decision and a real result without being asked to trust a diagram as deployment
-evidence.
+The site and reviewed browser profile are now published on
+[GitHub Pages](https://1235357.github.io/07-operational-receipts.html). The
+[runtime release workflow](https://github.com/1235357/1235357.github.io/actions/runs/38162427872)
+passed its Linux build, Windows contracts and deployment jobs. The public lab
+composes the generator and source-cell comparator explicitly; the private
+diagnostic server and complete acceptance archives are outside the deployed tree.
+Actual public model execution remains a separate gate from those local native
+receipts and the successful static deployment.
+
+## What the HTTPS release exposed
+
+The first public reader path accepted the two-page excerpt and five chunks. Its
+explicit Comprehensive Income / Net income / six months / July 28, 2024 lookup
+returned source literal `31,480`, with 24 selected-role and complete-column item
+references independently replayed against its own frozen snapshot. The result
+remains a source-cell candidate with financial correctness unadjudicated.
+
+The first model preparation then refused a correct config body. GitHub Pages
+sent a 364-byte gzip representation of the 650-byte pinned MiniLM config. Fetch
+decoded the body but retained the wire `Content-Length`; our reader had compared
+that header to the decoded pin. The repaired reader distinguishes supported wire
+encoding metadata from decoded-body identity and keeps the exact decoded length,
+SHA, size limit and cancellation checks. Real gzip, Brotli, deflate and chained
+encoding regressions passed. On the next deployed version the 650-byte config
+passed, exposing the next operational limit.
+
+Two public embedding attempts reached the download stage and exceeded the
+120-second whole-operation deadline before new vectors committed. Independent
+local reads of the public tokenizer returned HTTP 200 and the exact decoded pin,
+but took approximately 116 seconds without compression and 77 seconds with gzip.
+Those reads do not locate the delay in Pages, the CDN or the local network path,
+and a verified-byte total does not reveal how many unverified stream bytes were
+already received by the browser.
+
+The subsequent implementation gives static-file preparation its own explicit
+worker and receipt. The reader starts the encoder or generator download, sees
+verified decoded-body progress, and can cancel. Preparation receives no PDF,
+question or context and invokes neither the SDK nor a GPU. Its fixed 30-minute
+deadline includes worker readiness and is never renewed by progress. A complete
+receipt means the eight exact pinned bodies were verified and written to cache;
+it does not mean the model loaded or inference succeeded. Completed entries may
+survive cancellation, and the browser may later evict them. Every model action
+still verifies its cache bodies, with the original 120-second encoder/query and
+300-second generation limits. Asset bytes are distinct from browser heap, GPU
+allocation and live KV state.
+
+Public GPU acceptance, independent financial gold, calibrated judging and load
+measurements remain open. These preserved failures let a reader examine a real
+release boundary and its subsequent engineering work.

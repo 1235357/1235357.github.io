@@ -14,23 +14,26 @@ export function mountPdfApp(options={}) {
   if(options===null||typeof options!=='object'||Array.isArray(options)
       ||![Object.prototype,null].includes(Object.getPrototypeOf(options)))throw new TypeError('Invalid PDF mount options');
   const keys=Reflect.ownKeys(options);
-  if(keys.some(key=>!['document','root','generate','createGeometryView','createLookupView'].includes(key)))throw new TypeError('Unknown PDF mount option');
+  if(keys.some(key=>!['document','root','generate','createGeometryView','createLookupView','createAssetPreparationView'].includes(key)))throw new TypeError('Unknown PDF mount option');
   const captured={};for(const key of keys)captured[key]=options[key];
   const document=captured.document===undefined?globalThis.document:captured.document;
-  const root=captured.root===undefined?document:captured.root,generate=captured.generate,createGeometryView=captured.createGeometryView,createLookupView=captured.createLookupView;
+  const root=captured.root===undefined?document:captured.root,generate=captured.generate,createGeometryView=captured.createGeometryView,createLookupView=captured.createLookupView,createAssetPreparationView=captured.createAssetPreparationView;
   if(!document||typeof document.createElement!=='function'||!root||typeof root.querySelector!=='function'
       ||(generate!==undefined&&typeof generate!=='function')
       ||(createGeometryView!==undefined&&typeof createGeometryView!=='function')
-      ||(createLookupView!==undefined&&typeof createLookupView!=='function'))throw new TypeError('Invalid PDF mount configuration');
+      ||(createLookupView!==undefined&&typeof createLookupView!=='function')
+      ||(createAssetPreparationView!==undefined&&typeof createAssetPreparationView!=='function'))throw new TypeError('Invalid PDF mount configuration');
   const window=document.defaultView??globalThis.window;
   if(!window||typeof window.addEventListener!=='function')throw new TypeError('A PDF mount window is required');
   if(mounts.has(root))throw new TypeError('PDF root is already mounted');
   const byId=id=>root.querySelector(`#${id}`);
   // Resolve the complete template before registering a single listener.
   const required=['pdf-file','page-select','items','status-title','status-detail','operation-progress','pipeline-steps','computation-notebook','cancel','clear','build-chunks','embed-chunks','run-query','assemble-context','generate-answer','clear-query','question-input','query-top-k','trace','receipt','embedding-receipt','query-receipt','context-detail','context-meta','context-title','context-caption','generation-detail','generation-meta','generation-contract','generation-guidance','header-stage','candidate-results','candidate-meta','question-original','question-resolved','question-encoder','query-embedding-detail','query-embedding-meta','chunk-select','chunk-detail','chunk-meta','chunks-previous','chunks-next','embedding-detail','embedding-meta','items-range','items-first','items-previous','items-next','page-meta','source-cell-lookup'];
-  if(required.some(id=>byId(id)===null))throw new TypeError('Incomplete PDF mount template');
+  const preparationHost=byId('asset-preparation');
+  if(required.some(id=>byId(id)==null)||(createAssetPreparationView!==undefined&&preparationHost==null))throw new TypeError('Incomplete PDF mount template');
   mounts.set(root,true);
 const fileInput=byId('pdf-file'),pageSelect=byId('page-select'),items=byId('items');
+fileInput.disabled=true;
 const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
   EMPTY_DOCUMENT:'No selectable text was extracted. This lab does not perform OCR.',
   PDF_PASSWORD_REQUIRED:'Password-protected PDFs are not supported by this inspector.',
@@ -76,14 +79,14 @@ let lastQuestion=undefined,lastQueryEmbedding=null,lastRetrieval=null;
 let lastContext=undefined,contextOwner=null,contextView;
 let lastGeneration=undefined,lastInspection=undefined,generationOwner=null,generationView;
 let generationReplay=null;
-let geometryView,lookupView;
+let geometryView,lookupView,preparationView;
 function renderLookup(state){lookupView?.render({source:session.document(),documentEpoch:state.lifecycle.documentEpoch,active:Boolean(state.lifecycle.active),cancelled:state.status==='cancelled'});}
 const GENERATION_IDENTITY_KEYS=['protocolVersion','runtimeId','operationId','documentEpoch','operation'];
 const sameGenerationAttempt=(identity,event)=>event!==null&&event!==undefined
   &&GENERATION_IDENTITY_KEYS.every(key=>identity[key]===event[key]);
 let uiActionNonce=0,embeddingRefusal=false,queryRefusal=false,contextRefusal=false,generationRefusal=false;
 let lastOperation=null,cancelledOperation=null;
-function beginUiAction(){uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal||generationRefusal)render(session.snapshot());return uiActionNonce;}
+function beginUiAction(){preparationView?.revoke();uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal||generationRefusal)render(session.snapshot());return uiActionNonce;}
 function currentGeneration(raw,inspection){
   const terminal=session.snapshot().lifecycle.terminal;
   return generationOwner!==null&&generationOwner.raw===raw&&generationOwner.inspection===inspection
@@ -233,6 +236,7 @@ function showChunkWindow(selectedIndex){
 function render(state){
   uiActionNonce++;embeddingRefusal=false;queryRefusal=false;contextRefusal=false;generationRefusal=false;
   const source=session.document(),chunks=session.chunks(),embeddings=session.embeddings();
+  preparationView?.render({source,documentEpoch:state.lifecycle.documentEpoch,active:Boolean(state.lifecycle.active)});
   const raw=session.generation(),inspection=session.generationInspection();
   const titles={idle:'Waiting for a PDF',parsing:'Reading selected bytes',chunking:'Building source-linked windows',embedding:'Embedding accepted chunks',querying:'Finding sourced candidates',generating:'Generating financial output','unverified-financial-draft':'UNVERIFIED financial draft','financial-output-refused':'Financial output refused','query-candidates-only':'Query candidates; not an answer','context-not-generated':'Context assembled; not generated',cancelled:'Commit rights revoked','runtime-error':'No new result committed','extracted-not-indexed':'Extracted; not indexed','chunked-not-embedded':'Chunked; not embedded','embedded-not-retrieved':'Embedded; not retrieved'};
   byId('status-title').textContent=titles[state.status];
@@ -361,6 +365,11 @@ const session=createPdfSession({extract:extractPdf,parserOptions:{pdfjs,
   embed:embedInWorker,embeddingOptions:{workerFactory:url=>new Worker(url,{type:'module'})},
   query:queryInWorker,queryOptions:{workerFactory:url=>new Worker(url,{type:'module'})},
   generate:generate===undefined?undefined:captureGenerationInput,onState:render});
+if(preparationHost!=null)preparationHost.hidden=createAssetPreparationView===undefined;
+if(createAssetPreparationView!==undefined){
+  preparationView=createAssetPreparationView({document,root:preparationHost});
+  if(!preparationView||typeof preparationView.render!=='function'||typeof preparationView.revoke!=='function')throw new TypeError('Invalid asset preparation view');
+}
 contextView=createContextView({document,root:byId('context-detail'),isCurrent:currentContext,
   onInspect:(unit,artifact)=>{if(currentContext(artifact))inspectCandidate(unit,contextOwner.source,contextOwner.chunks,contextOwner.retrieval);}});
 generationView=createGenerationView({document,root:byId('generation-detail'),isCurrent:currentGeneration,
@@ -455,5 +464,7 @@ window.addEventListener('pageshow',()=>{
 fileInput.value='';
 render(session.snapshot());
 showChunkWindow();
+// Allow selection only after this mount owns its listeners and initial view.
+fileInput.disabled=false;
 return Object.freeze({root});
 }

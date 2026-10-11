@@ -118,6 +118,18 @@ function quiet(task) {
 
 const MODEL_FILES = Object.freeze(['config.json', 'tokenizer.json', 'tokenizer_config.json', 'special_tokens_map.json', 'onnx/model.onnx']);
 const RUNTIME_FILES = Object.freeze(['transformers.min.js', 'ort-wasm-simd-threaded.jsep.mjs', 'ort-wasm-simd-threaded.jsep.wasm']);
+// Fixed preparation metadata supplements the existing loader registry contract.
+// Ordinary encode/query behavior is unchanged; preparation receipts use these pins.
+export const EMBEDDING_PREPARATION_PINS = Object.freeze(Object.fromEntries(Object.entries({
+  'config.json': { bytes: 650, sha256: '7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7' },
+  'tokenizer.json': { bytes: 711661, sha256: 'da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0' },
+  'tokenizer_config.json': { bytes: 366, sha256: '9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3' },
+  'special_tokens_map.json': { bytes: 125, sha256: 'b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3' },
+  'onnx/model.onnx': { bytes: 90387606, sha256: '759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e' },
+  'transformers.min.js': { bytes: 888173, sha256: 'aa5002b70e789798da263f5f99c62bd3e8fcd0c119258a493c40c180648365fa' },
+  'ort-wasm-simd-threaded.jsep.mjs': { bytes: 44484, sha256: '08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9' },
+  'ort-wasm-simd-threaded.jsep.wasm': { bytes: 21596019, sha256: 'c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39' },
+}).map(([name,pin])=>[name,Object.freeze(pin)])));
 const NOTICE_FILES = Object.freeze(['TRANSFORMERS-LICENSE.txt', 'JINJA-LICENSE.txt', 'FLATBUFFERS-LICENSE.txt',
   'LONG-LICENSE.txt', 'PLATFORM-LICENSE.txt', 'PROTOBUFJS-LICENSE.txt', 'MODEL-CARD.txt',
   'ONNXRUNTIME-LICENSE.txt', 'ONNXRUNTIME-ThirdPartyNotices.txt', 'ATTRIBUTION.txt']);
@@ -182,7 +194,7 @@ async function readBytes(response, url, limit, exact, scope) {
   }
 }
 
-async function verifyAssets(config, scope) {
+async function verifyAssets(config, scope, fixedPreparation = false) {
   const registryURL = new URL('embedding-assets.json', config.baseURL).href;
   const request = url => scope.wait(() => config.fetch(url, { redirect: 'error', credentials: 'omit', signal: scope.signal }),
     'ASSET_INTEGRITY_ERROR', response => response?.body?.cancel());
@@ -191,6 +203,12 @@ async function verifyAssets(config, scope) {
   try { registry = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); }
   catch { fail('ASSET_INTEGRITY_ERROR'); }
   const { assets, total } = assetPlan(registry, config.baseURL);
+  if (fixedPreparation) for (const asset of assets) {
+    const name = asset.url.includes('/vendor/transformers/') ? asset.url.split('/').at(-1)
+      : asset.url.split(`${EMBEDDING_SPEC.modelId}/`)[1];
+    const fixed = EMBEDDING_PREPARATION_PINS[name];
+    if (!fixed || asset.bytes !== fixed.bytes || asset.sha256 !== fixed.sha256) fail('ASSET_INTEGRITY_ERROR');
+  }
   const cache = config.cacheStorage == null ? null : await scope.wait(() => config.cacheStorage.open(
     `financial-rag-embedding-${EMBEDDING_SPEC.revision}-v1`), 'ASSET_INTEGRITY_ERROR');
   if (config.cacheStorage != null && (!cache || typeof cache.match !== 'function' || typeof cache.put !== 'function')) {
@@ -214,7 +232,27 @@ async function verifyAssets(config, scope) {
     receipt.verifiedBytes += buffer.length; receipt[cached ? 'cacheBytes' : 'networkBytes'] += buffer.length;
     progress();
   }
-  return { verified, receipt };
+  return { verified, receipt, assetPins: assets.map(asset => Object.freeze({ ...asset })) };
+}
+
+// Explicit static preparation owns no PDF, tokenizer, SDK or GPU resources.
+// Persistent cache bodies remain advisory: every later operation verifies again.
+export async function prepareEmbeddingAssets(options = {}) {
+  if (!record(options) || Reflect.ownKeys(options).some(key =>
+    !['baseURL', 'fetch', 'cacheStorage', 'crypto', 'now', 'signal', 'onProgress'].includes(key))) {
+    fail('INVALID_EMBEDDING_CONFIG');
+  }
+  const config = dependencies({ ...options, gpu: null, importer: () => { fail('EMBEDDING_LOAD_FAILED'); } });
+  if (config.cacheStorage == null) fail('ASSET_INTEGRITY_ERROR');
+  const scope = lifecycle(config); let prepared;
+  try {
+    prepared = await verifyAssets(config, scope, true); scope.check();
+    return Object.freeze({ assets: prepared.assetPins.length, ...prepared.receipt,
+      assetPins: Object.freeze(prepared.assetPins) });
+  } finally {
+    if (prepared) { for (const response of prepared.verified.values()) quiet(() => response.body?.cancel()); prepared.verified.clear(); }
+    scope.close();
+  }
 }
 
 function configureLibrary(library, config, adapter, verified) {

@@ -18,8 +18,9 @@
     <section class="controls panel" aria-labelledby="input-title">
       <p class="eyebrow">01 / YOUR QUESTION</p><h2 id="input-title">Begin with a document</h2>
       <label class="file-label" for="pdf-file">Choose a local PDF <span>32 MiB maximum · selected bytes only</span></label>
-      <input id="pdf-file" type="file" accept="application/pdf,.pdf">
+      <input id="pdf-file" type="file" accept="application/pdf,.pdf" disabled>
       <p class="hint">Parsed on this device in a native worker. This app does not upload selected PDF bytes or request remote answers. Runtime assets come from this site. Native model actions require a supported non-fallback WebGPU device; source-cell lookup needs only parsing.</p>
+      <div id="asset-preparation" hidden></div>
       <div class="buttons"><button id="cancel" disabled>Cancel work</button><button id="clear">Clear source</button></div>
       <button id="build-chunks" class="build-chunks" disabled>Build source-linked chunks</button>
       <p class="hint">Explicit next step: mechanical page windows in a native computation worker. No model download.</p>

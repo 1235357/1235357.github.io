@@ -1,10 +1,10 @@
 # Public site release guide
 
-This is the release procedure for the engineering-notes site and browser financial-RAG lab. The selected destination is the GitHub Pages user site `1235357.github.io`. Publishing authorization is current; a repository push, successful workflow or served HTTPS page must be recorded separately before describing deployment as complete. Dated local and native acceptance records remain historical evidence, not a live service-status monitor.
+This is the release procedure for the [published engineering-notes site and browser financial-RAG lab](https://1235357.github.io/). Runtime commit `a47a89e2df3aeb819b9d9fa2a55716b60c0f4599` passed all three jobs in [workflow 38162427872](https://github.com/1235357/1235357.github.io/actions/runs/38162427872), after rerunning the failed Linux job. Its initial model-card download failed; the precise cause remains unestablished. The deployed Linux artifact has 306 files, 918,425,062 bytes and 16 pinned asset bodies. Actual HTTPS parsing, chunking and explicit source-cell lookup were observed; the cold model-download path timed out before embedding, so public GPU/model acceptance remains pending. Dated local native receipts are separate evidence and are not a live service-status monitor.
 
 ## Consumer setup
 
-Use Python 3.11 or later and Node.js 24 for the current checked toolchain. From the repository root:
+The accepted CI toolchain is Python 3.13 and Node.js 24. API metadata permitting Python `>=3.11` is a separate compatibility declaration; that metadata does not establish a Python 3.11 CI run. From the repository root:
 
 ```powershell
 python -m venv .venv
@@ -16,7 +16,7 @@ python build.py --public
 python -m http.server 8765 --directory dist --bind 127.0.0.1
 ```
 
-Open `http://127.0.0.1:8765/`. The model materializer and public-build profile are the bounded release implementation; use these commands after that implementation's final compatibility and delivery review. The materializer downloads exact fixed-revision model/card bytes into ignored `browser-rag/.model-cache/`, verifies their sizes and SHA-256 values, and refuses mismatches. Model weights are not Git blobs. `npm ci` preserves the lockfile's runtime versions; model/runtime revisions are not chosen from an unpinned latest alias.
+Open `http://127.0.0.1:8765/`. These are the clean-checkout commands used by the public-build profile. The materializer downloads exact fixed-revision model/card bytes into ignored `browser-rag/.model-cache/`, verifies their sizes and SHA-256 values, and refuses mismatches. Model weights are not Git blobs. `npm ci` preserves the lockfile's runtime versions; model/runtime revisions are not chosen from an unpinned latest alias.
 
 For the ordinary inspector profile, materialize only MiniLM and omit the public switch:
 
@@ -31,9 +31,11 @@ The default profile retains generation OFF and omits private geometry/table/look
 
 The reader chooses a local PDF and starts each model action explicitly. PDF parsing and source-cell lookup use that accepted local source. Passage/query embeddings and native generation run on the reader's device with the supported WebGPU profile. State the selected-PDF upload behavior and the first-run download separately: the app's browser computation is local, while model/runtime assets are fetched from the site. No blanket all-network, universal offline, every-device or financial-accuracy claim follows from this architecture.
 
+The explicit preparation worker verifies static files without receiving a PDF, question or context or invoking a model/GPU. Its fixed 30-minute absolute budget includes a 10-second readiness limit and is not renewed by progress. A complete receipt covers eight pinned bodies and successful cache writes. Later model actions verify the cache again and retain their original 120-second encoder/query and 300-second generator limits. Cache eviction or a missing body can still affect a later action. Preparation, model loading and inference have separate receipts and acceptance gates.
+
 The accepted generator manifest contains **793,197,262 model bytes + 22,528,676 shared runtime bytes = 815,725,938 bytes** (815.73 decimal MB; approximately 777.94 MiB), before notices/registry/HTTP overhead. MiniLM has 91,100,408 model bytes and uses the same runtime. The two models plus one runtime total 906,826,346 bytes. Model-cache and browser-cache availability can change what a particular run downloads; distinguish first/cached runs rather than call the same transfer size a latency measurement.
 
-The inspected ordinary `dist` had 280 files / 125,094,183 bytes. Adding the accepted Qwen model files once gives 918,291,445 bytes before newly authored public modules, registry and Qwen notices. This is an audit estimate, not the final Pages artifact size or hosting-limit acceptance. Measure the final artifact, preserve its inventory/digests, and compare it with the hosting limits root verifies from official documentation. Do not duplicate the shared runtime or commit the 786,156,820-byte weight file to Git.
+During the 2026-10-11 pre-release audit, the ordinary `dist` had 280 files / 125,094,183 bytes. Adding the accepted Qwen model files once gave an estimate of 918,291,445 bytes before new public modules, registry and Qwen notices. The later accepted `a47a89e` Linux Pages artifact measured **306 files / 918,425,062 bytes / 16 pinned bodies**. Each increment must preserve its measured inventory/digests and pass the conservative 1,000,000,000-byte build limit. Do not duplicate the shared runtime or commit the 786,156,820-byte weight file to Git.
 
 Native generation produces an **unverified financial draft** only when the unchanged output contract accepts its shape and citation identities. A source-cell lookup produces a separately labeled **source-cell candidate · financial correctness unadjudicated**. It requires explicit statement, metric, duration, period-end date, exact unit heading and currency glyph; it does not parse natural-language questions or fix a Qwen draft. Preserve literal `$`, the exact unit heading and `normalizedCurrency: null`. Existing exposed development cases and synthetic refusals are not an independently adjudicated accuracy score.
 
@@ -41,9 +43,9 @@ Native generation produces an **unverified financial draft** only when the uncha
 
 The GitHub repository and Pages artifact have different boundaries. `build.py` constructs the deployed tree from articles/styles, accepted figure HTML/editable JSON and license notices, and the reviewed named browser/model/runtime assets. It does not copy `docs/`, acceptance probes/archives, source maps, tests, npm trees, model caches, credentials or original source PDFs into Pages.
 
-Before the first public commit, select public repository files deliberately. `.gitignore` currently excludes dist/staging/recovery folders, `.archify/`, node_modules, the model cache and local environments; it does **not** exclude `docs/acceptance-2026-10-11/` or every local coordination document. Static-build exclusion alone does not keep a file private in a public Git repository. Preserve original artifacts locally while reviewing the public source set.
+The 2026-10-11 pre-release audit selected public repository files deliberately, and each increment receives the same source review. `.gitignore` excludes dist/staging/recovery folders, `.archify/`, node_modules, the model cache and local environments; it does **not** exclude `docs/acceptance-2026-10-11/` or every local coordination document. Static-build exclusion alone does not keep a file private in a public Git repository. Preserve original artifacts locally while reviewing the public source set.
 
-The following records need a separate public-repository decision rather than an automatic `git add .`:
+The reviewed source partitions below retain separate public-repository decisions; stage each increment's selected files explicitly:
 
 - `docs/acceptance-2026-10-11/`: full native inputs, PDF-derived text/geometry, raw outputs, host URLs, ownership records and screenshots.
 - `docs/2026-10-11-reference-coverage.md`: internal mentor/course review and personal-planning context; use the public article's original explanations and bounded citations instead of redistributing private records.
@@ -68,4 +70,4 @@ A Pages workflow should build from the locked source, materialize verified ignor
 
 After a successful push/workflow, record the actual commit, workflow URL/result, Pages URL and served artifact identity. Then use Codex IAB for the actual reader path: site/article/figures, PDF selection, explicit supported source-cell request/refusal, model download, query/context/native generation and source disclosure. Preserve device/browser, cache state, scope and observed failures. Desktop evidence is not mobile evidence; fast digest completion does not fabricate an observed pending cancellation.
 
-Only after that read-back should current prose change from local draft/preparing release to released at a named URL/commit. Update current status in README, the build's draft header/index and article 07's public/private description to match the delivered profile. Keep dated failure histories, the wrong six-month Qwen diagnostics, unadjudicated currency/cell claims, privacy limits and pending independent financial quality work explicit. Publication alone does not close those gates.
+Record static publication after successful CI/deployment and HTTPS read-back at a named URL/commit. Record public embedding, retrieval and generation acceptance separately; these remain pending until their native receipts complete. Update current status in README, the build's header/index and article 07's public/private description to match the delivered profile. Keep dated failure histories, the wrong six-month Qwen diagnostics, unadjudicated currency/cell claims, privacy limits and pending independent financial quality work explicit. Publication alone does not close those gates.

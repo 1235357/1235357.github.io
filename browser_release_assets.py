@@ -35,6 +35,7 @@ PUBLIC_MODULES = (
     'financial-generation-input.mjs', 'financial-generation-source.mjs', 'financial-generation.worker.mjs',
     'financial-generator-runtime.mjs', 'financial-generator-contract.mjs', 'prompt-contract.mjs', 'financial-output-contract.mjs',
     'financial-geometry-source.mjs', 'financial-geometry-view.mjs', 'financial-table-contract.mjs', 'financial-lookup-view.mjs',
+    'asset-preparation-source.mjs', 'asset-preparation.worker.mjs', 'asset-preparation-view.mjs',
 )
 
 def qwen_registry():

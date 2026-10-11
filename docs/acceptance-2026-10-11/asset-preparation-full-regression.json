@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "scope": "Local full contract/build regression; no public browser model acceptance",
+  "node": {
+    "exitCode": 0,
+    "elapsedSeconds": 3.392,
+    "logBytes": 220556,
+    "logSha256": "f83b7409cf1336bf11ffccf8a52c70e0172698b88a89583d2c0c9fb55cddb168"
+  },
+  "python": {
+    "exitCode": 0,
+    "elapsedSeconds": 35.963,
+    "logBytes": 8625,
+    "logSha256": "d59b17ff1bb152a75a43826e8cebc757cbd636ef8de58641437c94ab48ed15c1"
+  },
+  "counts": {
+    "nodePass": 2721,
+    "nodeFailure": 0,
+    "nodeSkip": 0,
+    "pythonPass": 155
+  },
+  "preservedInitialFailure": {
+    "nodeLogSha256": "ffd5526a323ff3922aafb86eab3d473f0548eaa8287e3e153107d11a65b8c4de",
+    "nodeFailures": 35,
+    "reason": "Optional preparation host was required in legacy templates; guarded by configured factory before broad rerun"
+  },
+  "preparation": {
+    "deadlineMs": 1800000,
+    "readinessMs": 10000,
+    "receiptStatus": "static-assets-prepared-not-loaded",
+    "inferenceDeadlinesMs": [
+      120000,
+      120000,
+      300000
+    ],
+    "pinChange": false,
+    "publicNativeAcceptance": "pending"
+  }
+}

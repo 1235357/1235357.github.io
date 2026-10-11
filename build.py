@@ -34,6 +34,14 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
         else f'<article>{part}</article>' for part in parts if part.strip()
     )
     publication_label = 'Documentation · browser lab' if public_release else 'Local draft · not published'
+    footer_html = (
+        '© 2026 Zhentong Ye · '
+        '<a href="https://github.com/1235357/1235357.github.io">Source</a> · '
+        '<a href="SITE-LICENSE.txt">Site license</a> · '
+        'Native drafts and source-cell candidates remain unadjudicated.'
+        if public_release else
+        'Implementation evidence ≠ financial accuracy ≠ personal mastery.'
+    )
     return f'''<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{escape(title)} — Zhentong Ye</title><link rel="stylesheet" href="style.css">
@@ -41,7 +49,7 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
 <span>{publication_label}</span></header>
 <main><aside><p>FIELD NOTES / {escape(section)}</p><p>Evidence, interfaces,<br>and engineering decisions.</p>
 <a href="index.html">Series index ↗</a>{desktop_outline}</aside>{article_layout}</main>
-<footer>Implementation evidence ≠ financial accuracy ≠ personal mastery.</footer></html>'''
+<footer>{footer_html}</footer></html>'''
 
 
 class PageReferences(HTMLParser):

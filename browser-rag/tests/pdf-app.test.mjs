@@ -13,10 +13,10 @@ const fixture=new URL('./pdf-app-dom-fixture.mjs',import.meta.url).href;
 const hooks=registerHooks({resolve(specifier,context,next){if(context.parentURL?.endsWith('/pdf-app.mjs')){if(specifier==='./vendor/build/pdf.mjs')return {url:'data:text/javascript,export const version="6.4.299";',shortCircuit:true};if(['./pdf-source.mjs','./compute-source.mjs','./embedding-source.mjs','./query-source.mjs'].includes(specifier))return {url:fixture,shortCircuit:true};}return next(specifier,context);}});
 let app,importError;try{app=await import('../pdf-app.mjs');}catch(error){importError=error;}
 hooks.deregister();
-function mount(extra={}){assert.equal(importError,undefined,'import must not touch DOM or mount');assert.equal(typeof app.mountPdfApp,'function');const d=dom(),mounted=app.mountPdfApp({document:d.document,root:d.root,...extra});return {...d,mounted};}
+function mount(extra={}){assert.equal(importError,undefined,'import must not touch DOM or mount');assert.equal(typeof app.mountPdfApp,'function');const d=dom();d.get('pdf-file').disabled=true;const mounted=app.mountPdfApp({document:d.document,root:d.root,...extra});assert.equal(d.get('pdf-file').disabled,false,'completed mount enables the PDF chooser');assert.equal(d.get('pdf-file').listeners.get('change').length,1,'enabled chooser has its owned handler');return {...d,mounted};}
 async function accepted(d){d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));d.get('question-input').value='READER question';await act(d.get('run-query'));await act(d.get('assemble-context'));}
 test('import without a document has no DOM/session/mount side effects',()=>{assert.equal(importError,undefined,'Node import is inert');assert.equal(typeof app.mountPdfApp,'function');});
-test('unknown/invalid options and duplicate roots fail before listener registration',()=>{const d=mount();const count=[...d.root.nodes.values()].reduce((n,node)=>n+[...node.listeners.values()].flat().length,0);assert.throws(()=>app.mountPdfApp({document:d.document,root:d.root,generate}),/mount|already/i);assert.equal([...d.root.nodes.values()].reduce((n,node)=>n+[...node.listeners.values()].flat().length,0),count);for(const options of [{evil:1},{generate:true},{createGeometryView:true},{createLookupView:true},{document:null},{root:null}]){const e=dom();assert.throws(()=>app.mountPdfApp({document:e.document,root:e.root,...options}),TypeError);assert.equal([...e.root.nodes.values()].flatMap(n=>[...n.listeners.values()].flat()).length,0);}});
+test('unknown/invalid options and duplicate roots fail before listener registration',()=>{const d=mount();const count=[...d.root.nodes.values()].reduce((n,node)=>n+[...node.listeners.values()].flat().length,0);assert.throws(()=>app.mountPdfApp({document:d.document,root:d.root,generate}),/mount|already/i);assert.equal([...d.root.nodes.values()].reduce((n,node)=>n+[...node.listeners.values()].flat().length,0),count);for(const options of [{evil:1},{generate:true},{createGeometryView:true},{createLookupView:true},{createAssetPreparationView:true},{document:null},{root:null}]){const e=dom();assert.throws(()=>app.mountPdfApp({document:e.document,root:e.root,...options}),TypeError);assert.equal([...e.root.nodes.values()].flatMap(n=>[...n.listeners.values()].flat()).length,0);}});
 test('ordinary entry is OFF while private entry composes one shared mount',async()=>{const d=mount();await accepted(d);assert.equal(d.get('generate-answer').disabled,true);const ordinary=readFileSync(new URL('../pdf-entry.mjs',import.meta.url),'utf8'),privateEntry=readFileSync(new URL('../pdf-private-entry.mjs',import.meta.url),'utf8');assert.match(ordinary,/mountPdfApp\(\)/);assert.match(privateEntry,/mountPdfApp\(\{generate:generateFinancialInWorker,createGeometryView:createFinancialGeometryView,createLookupView:createFinancialLookupView\}\)/);assert.equal(d.get('pdf-file').value,'');assert.equal(byTag(d.get('computation-notebook'),'details').length,0);assert.equal(d.get('source-cell-lookup').hidden,true);assert.equal(d.get('source-cell-lookup').children.length,0);});
 test('private generation requires explicit context/button and updates native evidence captions',async()=>{let calls=0;const d=mount({generate:async(...args)=>{calls++;return generate(...args);}});await accepted(d);assert.equal(calls,0);assert.equal(d.get('generate-answer').disabled,false);await act(d.get('generate-answer'));await tick();assert.equal(calls,1);assert.match(d.get('status-title').textContent,/unverified/i);assert.match(d.get('generation-detail').textContent,/UNVERIFIED/);assert.match(d.get('receipt').textContent,/native generation/i);assert.match(d.get('header-stage').textContent,/UNVERIFIED/);assert.doesNotMatch(d.get('context-meta').textContent,/context not generated/);await act(d.get('assemble-context'));assert.doesNotMatch(d.get('generation-detail').textContent,/invented/);});
 test('clear/edit/pagehide revoke generation and release same file selection',async()=>{for(const action of ['clear','edit','pagehide']){const d=mount({generate});await accepted(d);await act(d.get('generate-answer'));await tick();assert.match(d.get('generation-detail').textContent,/invented/);d.get('pdf-file').value='restored.pdf';if(action==='edit')await act(d.get('question-input'),'input');else if(action==='pagehide')await act(d.window,'pagehide');else await act(d.get('clear'));assert.doesNotMatch(d.get('generation-detail').textContent,/invented/);if(action!=='edit')assert.equal(d.get('pdf-file').value,'');}});
@@ -50,12 +50,29 @@ test('inspect native citation opens the computation notebook at its retained phy
 
 test('reader document order presents question then draft then the expandable computation notebook',()=>{
   const html=readFileSync(new URL('../inspector.html',import.meta.url),'utf8');
+  assert.match(html,/<input id="pdf-file"[^>]*\bdisabled(?:\s|>)/,'unmounted HTML cannot accept an unhandled file selection');
+  assert.match(html,/<div id="asset-preparation" hidden><\/div>/);
+  assert.ok(html.indexOf('This app does not upload selected PDF bytes')<html.indexOf('id="asset-preparation"'));
   assert.ok(html.indexOf('id="question-input"')<html.indexOf('id="generation-title"'));
   assert.ok(html.indexOf('id="generation-detail"')<html.indexOf('id="computation-notebook"'));
   assert.ok(html.indexOf('id="source-cell-lookup"')>html.indexOf('id="generation-detail"'));
   assert.ok(html.indexOf('id="source-cell-lookup"')<html.indexOf('id="computation-notebook"'));
   assert.match(html,/<div id="source-cell-lookup" hidden><\/div>/);
   assert.match(html,/<details id="computation-notebook" class="computation-notebook">/);
+});
+
+test('asset preparation factory is optional, stays isolated from generation and receives core invalidation/pagehide',async()=>{
+  const events=[];let revokes=0,injectedRoot;
+  const d=mount({createAssetPreparationView:({root})=>{injectedRoot=root;return {render:value=>events.push(value),revoke:()=>{revokes++;}};}});
+  assert.equal(injectedRoot,d.get('asset-preparation'));
+  assert.equal(d.get('asset-preparation').hidden,false);assert.equal(events.at(-1).source,null);assert.equal(events.at(-1).documentEpoch,0);
+  const before=revokes;await act(d.get('question-input'),'input');assert.ok(revokes>before);
+  d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');assert.equal(events.at(-1).source.source.name,'READER.pdf');assert.equal(events.at(-1).documentEpoch,1);
+  await act(d.window,'pagehide');assert.equal(events.at(-1).source,null);assert.ok(revokes>before+1);
+  const ordinary=mount();assert.equal(ordinary.get('asset-preparation').hidden,true);assert.equal(ordinary.get('asset-preparation').children.length,0);
+  const legacy=dom();legacy.root.nodes.delete('asset-preparation');assert.doesNotThrow(()=>app.mountPdfApp({document:legacy.document,root:legacy.root}));
+  const missing=dom();missing.root.nodes.delete('asset-preparation');assert.throws(()=>app.mountPdfApp({document:missing.document,root:missing.root,createAssetPreparationView:()=>({render(){},revoke(){}})}),/Incomplete/);
+  assert.equal([...missing.root.nodes.values()].flatMap(node=>[...node.listeners.values()].flat()).length,0);
 });
 
 test('private source-cell comparator needs only source parse and main-question no-op edits still revoke its receipt',async()=>{

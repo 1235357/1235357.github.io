@@ -1,0 +1,118 @@
+- banner:
+  - link "ENGINEERING NOTES / SOURCE LAB":
+    - /url: ../index.html
+  - generic: BROWSER LAB · CONTEXT NOT GENERATED
+- main:
+  - paragraph: BROWSER RAG / EVIDENCE LAB
+  - heading "Your PDF. Your question. Every step in view." [level=1]:
+    - text: Your PDF. Your question.
+    - text: Every step in view.
+  - paragraph: Follow one local PDF from parser records to source-linked chunks, explicit encoder output, sourced candidates and their complete provenance context. Every accepted stage keeps its own receipt.
+  - navigation "RAG stages — accepted artifacts, not an overall percentage":
+    - list:
+      - generic: "01"
+      - generic: Read PDF
+      - text: accepted artifact
+      - generic: "02"
+      - generic: Build chunks
+      - text: accepted artifact
+      - generic: "03"
+      - generic: Embed passages
+      - text: pending
+      - generic: "04"
+      - generic: Retrieve candidates
+      - text: pending
+      - generic: "05"
+      - generic: Assemble evidence
+      - text: pending
+      - generic: "06"
+      - generic: Generate draft
+      - text: pending
+  - region "Begin with a document":
+    - paragraph: 01 / YOUR QUESTION
+    - heading "Begin with a document" [level=2]
+    - text: Choose a local PDF
+    - generic: 32 MiB maximum · selected bytes only
+    - button "Choose a local PDF 32 MiB maximum · selected bytes only"
+    - paragraph: Parsed on this device in a native worker. This app does not upload selected PDF bytes or request remote answers. Runtime assets come from this site. Native model actions require a supported non-fallback WebGPU device; source-cell lookup needs only parsing.
+    - button "Cancel work" [disabled]
+    - button "Clear source"
+    - button "Build source-linked chunks"
+    - paragraph: "Explicit next step: mechanical page windows in a native computation worker. No model download."
+    - generic "Encoder settings & download contract"
+    - button "Download model & embed chunks"
+    - region "Your question":
+      - paragraph: EXPLICIT QUESTION / RETAINED PASSAGES
+      - heading "Your question" [level=2]
+      - generic: Question text
+      - textbox "Question text" [active]:
+        - /placeholder: Ask about the selected PDF
+        - text: According to NVIDIA's fiscal 2025 second-quarter report, what was net income for the three-month period ended July 28, 2024, in millions of dollars?
+      - paragraph: Nonblank · at most 4,096 UTF-16 units. Your exact text is captured at Run; no rewrite, prefix or silent truncation. Editing after a result clears only that query.
+      - generic: Top K candidates
+      - spinbutton "Top K candidates": "3"
+      - button "Run question" [disabled]
+      - button "Clear question"
+      - paragraph: Requires accepted passage vectors. A fresh worker verifies local assets, encodes this question and ranks the retained chunks. Inspection uses accepted artifacts.
+      - button "Assemble context" [disabled]
+      - button "Generate answer" [disabled]
+      - paragraph: Assemble all selected evidence first, then explicitly generate with the paired Qwen model. Inspect the original native output and each cited source; a draft is unverified.
+    - generic "Accepted document & stage receipt"
+    - generic "Historical accepted passage receipt"
+    - generic "Query attempt receipt"
+    - generic "What this lab does — and does not do"
+    - paragraph: NVIDIA sample mode remains unavailable until its source/permission review passes. This local-file inspector is not the complete RAG demo.
+  - region "The generated draft":
+    - paragraph: 02 / ANSWER & RECEIPT
+    - heading "The generated draft" [level=2]
+    - status: Native generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer; its pinned model/runtime bodies total 815.73 MB (777.94 MiB). A first run downloads uncached assets to this device.
+    - status:
+      - paragraph: COMMIT BOUNDARY
+      - heading "No new result committed" [level=3]
+      - paragraph: The embedding worker exceeded its readiness/work budget. Source and chunks are retained.
+    - paragraph: No native generation receipt committed. An explicit generation action follows an accepted query and assembled context.
+    - paragraph: INDEPENDENT SOURCE COMPARATOR
+    - heading "Source-cell lookup · explicit fields" [level=2]
+    - paragraph: Bind one Net income cell from the accepted PDF.js source. Choose every field explicitly. This action needs no chunks, encoder or generator. It preserves the native generation result separately.
+    - generic: Statement
+    - combobox "Statement":
+      - option "Choose explicitly"
+      - option "Condensed Consolidated Statements of Income"
+      - option "Condensed Consolidated Statements of Comprehensive Income" [selected]
+    - generic: Metric
+    - textbox "Metric": Net income
+    - generic: Duration (months)
+    - combobox "Duration (months)":
+      - option "Choose explicitly"
+      - option "3 months"
+      - option "6 months" [selected]
+    - generic: Period-end date (exact PDF text)
+    - textbox "Period-end date (exact PDF text)": Jul 28, 2024
+    - generic: Unit heading (exact PDF text)
+    - textbox "Unit heading (exact PDF text)": (In millions)
+    - generic: Currency glyph
+    - textbox "Currency glyph": $
+    - paragraph: "Supported metric: Net income. Use the exact dated heading, exact unit heading and currency glyph from your source. Missing or unsupported fields refuse; $ does not establish USD."
+    - button "Run source-cell lookup"
+    - button "Cancel lookup" [disabled]
+    - button "Clear result"
+    - status: Owned parsed source ready. Choose all six fields and run explicitly.
+    - generic "Generator settings & download contract"
+    - generic "Accepted lifecycle trace"
+  - region "Follow the evidence, step by step":
+    - generic "03 / COMPUTATION NOTEBOOK Follow the evidence, step by step Candidates · prompt context · parser records · tokens · vectors +":
+      - generic: 03 / COMPUTATION NOTEBOOK
+      - generic: Follow the evidence, step by step
+      - generic: Candidates · prompt context · parser records · tokens · vectors
+      - text: +
+    - option "1 · 3" [selected]
+    - option "2 · 4"
+    - option "#1 · p1 · [0, 512)" [selected]
+    - option "#2 · p1 · [448, 960)"
+    - option "#3 · p1 · [896, 1377)"
+    - option "#4 · p2 · [0, 512)"
+    - option "#5 · p2 · [448, 857)"
+- contentinfo:
+  - text: Source extraction ≠ retrieval ≠ a verified answer.
+  - link "Read the ownership lesson ↗":
+    - /url: ../02-contracts-before-services.html#browser-work-has-a-commit-boundary-too

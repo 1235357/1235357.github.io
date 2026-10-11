@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "workflowRun": 38162427872,
+  "workflowURL": "https://github.com/1235357/1235357.github.io/actions/runs/38162427872",
+  "acceptedRuntimeCommit": "a47a89e2df3aeb819b9d9fa2a55716b60c0f4599",
+  "jobResults": {
+    "build": "success",
+    "windows-contracts": "success",
+    "deploy": "success"
+  },
+  "archiveSHA256": "6b4f48314d9eb63a0bea657f7e67c886bee0a7b2440b73383709d8c83c072ac6",
+  "manifestBytes": 54576,
+  "manifestSHA256": "2cc4fa0c22a7e4cb6a311f3e713609ac5e76fe095abd8f1c86667c5e0cc2b82d",
+  "scope": "Actual successful static CI/Pages runtime build identity; native acceptance separate",
+  "preservedFailure": {
+    "firstAttemptJob": 114537957823,
+    "failedStep": "Reconstruct and verify immutable model assets",
+    "message": "Asset download/install failed: README.md",
+    "historicalRootCause": "Unestablished because the original exception was canonicalized",
+    "retry": "Only failed jobs rerun without pin changes; successful current attempt"
+  },
+  "artifactSummary": {
+    "fileCount": 306,
+    "totalBytes": 918425062,
+    "verifiedPinnedAssetCount": 16
+  }
+}
