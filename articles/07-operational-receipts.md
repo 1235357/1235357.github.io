@@ -513,13 +513,17 @@ were repaired before these model runs. Contract tests and a diagram alone had
 not exposed them.
 
 The site and reviewed browser profile are now published on
-[GitHub Pages](https://1235357.github.io/07-operational-receipts.html). The
-[runtime release workflow](https://github.com/1235357/1235357.github.io/actions/runs/38165566626)
-passed its Linux build, Windows contracts and deployment jobs. The public lab
-composes the generator and source-cell comparator explicitly; the private
-diagnostic server and complete acceptance archives are outside the deployed tree.
-Actual public model execution remains a separate gate from those local native
-receipts and the successful static deployment.
+[GitHub Pages](https://1235357.github.io/07-operational-receipts.html). Current
+archived delivery `e497b2f` passed all three jobs in
+[workflow 38166407011](https://github.com/1235357/1235357.github.io/actions/runs/38166407011).
+Its recorded manifest inventory contains 309 files / 918,460,230 bytes / 16 pins.
+The preparation runtime was introduced at `5a673bc`; its
+[original release workflow](https://github.com/1235357/1235357.github.io/actions/runs/38165566626)
+and measured artifact remain separate records. The public lab composes the
+generator and source-cell comparator explicitly; the private diagnostic server
+and complete acceptance archives are outside the deployed tree. Public encoder
+execution is recorded below; public Qwen execution remains a separate pending gate
+from the earlier local native receipts and static deployment.
 
 ## What the HTTPS release exposed
 
@@ -560,10 +564,45 @@ allocation and live KV state.
 
 The preparation increment passed the clean Linux/Windows contracts and deployed
 at runtime commit `5a673bc`. Actual public cancellation removed the pending
-preparation result and re-enabled an explicit retry. Its complete public cache
-receipt and subsequent model path are still separate acceptance work; a
-successful deployment or partial byte counter does not close them.
+preparation result and re-enabled an explicit retry. Encoder preparation later
+completed all eight pinned bodies: 113,629,084 verified bytes in 1,176,598.5 ms.
+The archived `static-assets-prepared-not-loaded` result records 113,628,434
+verified decoded body bytes sourced from fetch and 650 from CacheStorage. Those
+are body-source counts, not measured wire traffic or a wholly uncached transfer.
+An independent offline replay passed its exact receipt/profile/pin metadata.
+That replay did not independently rehash browser bodies, and the preparation
+receipt itself loaded no model.
 
-Public GPU acceptance, independent financial gold, calibrated judging and load
-measurements remain open. These preserved failures let a reader examine a real
-release boundary and its subsequent engineering work.
+The next public native path parsed the two-page excerpt and built five chunks,
+retaining 2,426 UTF-16 units and 687 mapping fragments. Explicit passage encoding
+and query encoding then reported the same WebGPU/FP32 representation. Their
+individual observations were:
+
+| Operation | Token count | Vector dimensions | Reported attempt elapsed | Saved evidence scope |
+| --- | --- | --- | --- | --- |
+| Passage encoding | 644 | 384 | 3,851.2 ms | Visible DOM metadata; no complete passage terminal archive in that file |
+| Query encoding | 39 | 384 | 1,300.2 ms | Current query terminal with query/retrieval receipt summary |
+
+Both operations reported 113,629,084 verified CacheStorage body bytes and zero
+fetched asset-body bytes. Top K 3 returned three candidates in the order E4, E1
+and E2; context assembled three complete evidence units with no omissions.
+The saved public encoder view is explicitly DOM metadata. The separate query
+terminal is 1,199 bytes; it does not supply a missing complete passage terminal.
+These records establish the observed preparation/encoding/retrieval/context
+boundary, rather than a latency distribution, speedup, isolated GPU timing or
+proof that every operation ran on the GPU. Ranked candidates and complete context
+still require source review before a financial answer can be accepted.
+
+The desktop read-back also exposed a presentation failure. The sticky answer
+panel extended across the later full-width notebook row and intercepted a query
+token disclosure. A native DOM hit test landed inside the answer panel at the
+disclosure's center. The bounded stylesheet correction lets the answer scroll
+with its question row. In the local native browser, a parser-item disclosure then
+opened and its center hit the source panel; the answer ended above the notebook.
+The question/answer columns, dark theme and computation data remain unchanged.
+Public interaction read-back follows deployment of that correction.
+
+Generator preparation and actual public Qwen generation remain pending.
+Independent financial gold, calibrated judging and load measurements remain
+open. The earlier wrong six-month outputs and zero independent human gold are
+preserved alongside this new public encoder evidence.

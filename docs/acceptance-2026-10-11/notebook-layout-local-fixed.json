@@ -1,0 +1,20 @@
+{
+  "kind": "observed-native-local-layout-after-css-fix",
+  "url": "http://127.0.0.1:8765/browser-rag/inspector.html",
+  "cssSHA256": "17113f6db0c6bf0c1ea7c25b40a618e21d5b1827b063e0a94910e2872870bc11",
+  "state": {
+    "answerBottom": -1929.59375,
+    "control": {
+      "height": 44,
+      "width": 1057.5,
+      "x": 92.25,
+      "y": 337.9140625
+    },
+    "firstItemExpanded": true,
+    "hitWithinSource": true,
+    "notebookTop": -992.296875,
+    "position": "static",
+    "sourceItemJSONPresent": true
+  },
+  "scope": "Native IAB source disclosure interaction and DOM hit test; no model run; public recheck follows deployment"
+}

@@ -1,0 +1,108 @@
+{
+  "schema": "public-embedded-source-cell-readonly-replay-v1",
+  "reviewer": "CodexAI",
+  "createdAtUTC": "2026-10-11T19:12:46.232Z",
+  "status": "passed",
+  "scope": "Fresh archived public article-iframe source-cell result, replayed offline against its own complete source; no browser/model/PDF parser/API or source modification",
+  "input": {
+    "path": "public-embedded-source-cell-3m.json",
+    "bytes": 291463,
+    "sha256": "8b66d2950141410839e3dc3f999b281453f1de31e3f53dc563ac57ea25873e81"
+  },
+  "contract": {
+    "path": "browser-rag/financial-table-contract.mjs",
+    "sha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db"
+  },
+  "checks": {
+    "completeGeometryValidated": true,
+    "wholePureResultEqual": true,
+    "ownFullSnapshotSHAAndUTF8CountEqual": true,
+    "exactJSON2NoTrailingNewline": true,
+    "explicitSixFieldRequestEqual": true,
+    "expectedSelectedPDFIdentityEqual": true,
+    "selectedNativeReferences": 8,
+    "allColumnNativeReferences": 16
+  },
+  "snapshot": {
+    "utf8Bytes": 231358,
+    "sha256": "dd085550f8a6acbd0d0d2ca411fd8e13052ce969ad936eacf6dec5dd4903888d",
+    "pages": 2,
+    "textItems": 345,
+    "fontNames": [
+      "g_d0_f1",
+      "g_d0_f2"
+    ]
+  },
+  "source": {
+    "sha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+    "name": "local-nvidia-fy2025-q2-original-pages-3-4.pdf",
+    "size": 74085
+  },
+  "request": {
+    "statement": "Condensed Consolidated Statements of Income",
+    "metric": "Net income",
+    "durationMonths": 3,
+    "periodEndLiteral": "Jul 28, 2024",
+    "unitHeadingLiteral": "(In millions, except per share data)",
+    "currencyGlyph": "$"
+  },
+  "cell": {
+    "amountLiteral": "16,599",
+    "physicalPageNumber": 1,
+    "pageLabel": "3",
+    "itemIndices": {
+      "statement": 6,
+      "unit": 7,
+      "annotation": 8,
+      "metric": 161,
+      "duration": 10,
+      "date": 14,
+      "currency": 163,
+      "value": 165
+    }
+  },
+  "allDatedColumns": [
+    {
+      "durationMonths": 3,
+      "periodEndLiteral": "Jul 28, 2024",
+      "amountLiteral": "16,599"
+    },
+    {
+      "durationMonths": 3,
+      "periodEndLiteral": "Jul 30, 2023",
+      "amountLiteral": "6,188"
+    },
+    {
+      "durationMonths": 6,
+      "periodEndLiteral": "Jul 28, 2024",
+      "amountLiteral": "31,480"
+    },
+    {
+      "durationMonths": 6,
+      "periodEndLiteral": "Jul 30, 2023",
+      "amountLiteral": "8,232"
+    }
+  ],
+  "recordedViewOwnership": {
+    "documentEpoch": 1,
+    "coreRenderRevision": 10,
+    "requestRevision": 11,
+    "attempt": 19
+  },
+  "historicalArchiveComparison": {
+    "path": "public-source-cell-runtime-6m.json",
+    "sha256": "68800b53aeeda8b071da1486ebf7e988523a2a55b3b955a67fddf52c0199e4dc",
+    "differentRecordedOwner": true,
+    "ownSnapshotExactlyEqualsHistoricalSnapshot": true,
+    "fontNameChangedReferences": 0,
+    "normalizationApplied": false
+  },
+  "normalizedCurrency": null,
+  "financialCorrectness": "unadjudicated",
+  "humanAcceptance": false,
+  "limits": [
+    "Exact supplied-source/contract agreement is not financial adjudication or authenticated parent-report lineage.",
+    "Offline replay checks recorded ownership fields, not browser lifecycle actions or deployment origin.",
+    "Source-cell agreement is independent of pending static asset preparation, embedding or model generation."
+  ]
+}

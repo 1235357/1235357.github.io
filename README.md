@@ -2,7 +2,7 @@
 
 A technical blog with an executable browser lab for financial-document retrieval. Choose a PDF, ask a question, and inspect the source and computation behind the result. A separate explicit-field comparator binds a Net income source-cell candidate to native PDF table geometry. The companion Python API is a different runtime and integration surface.
 
-**Release status:** published at [1235357.github.io](https://1235357.github.io/). The [execution-contract article](https://1235357.github.io/07-operational-receipts.html) includes the browser lab. Runtime commit `5a673bc` passed the [Pages build, Windows contracts and deployment workflow](https://github.com/1235357/1235357.github.io/actions/runs/38165566626), adding explicit static-file preparation after the two preserved cold-download timeouts. Actual HTTPS PDF parsing, chunking and one explicit six-month source-cell candidate were observed on the preceding runtime. Public preparation and model-path acceptance remain pending. Local native generation receipts remain separate evidence. Publication does not establish independent financial correctness.
+**Release status:** published at [1235357.github.io](https://1235357.github.io/). Archived delivery `e497b2f60ae5d1e79623715e5bdd59f3bce54f6e` passed all three jobs in [workflow 38166407011](https://github.com/1235357/1235357.github.io/actions/runs/38166407011); its [manifest receipt](docs/acceptance-2026-10-11/public-handoff-delivery-ci.json) records 309 files / 918,460,230 bytes / 16 pins. The preparation runtime was introduced at `5a673bc`; its [original workflow and measured artifact](https://github.com/1235357/1235357.github.io/actions/runs/38165566626) remain separate records. Actual public parsing/chunking, source-cell lookup, encoder file preparation and one passage/query/retrieval/context path were observed. Generator preparation and public Qwen generation acceptance remain pending. Local native generation receipts remain separate evidence. Publication does not establish independent financial correctness.
 
 ## Start locally
 
@@ -29,7 +29,9 @@ python build.py
 
 ## What the reader can inspect
 
-The preparation control passed independent source review and full local/CI checks. Its actual public native receipt and subsequent model results have separate acceptance gates.
+The preparation control passed independent source review and full local/CI checks. The public encoder preparation completed eight pinned bodies / 113,629,084 verified bytes in 1,176,598.5 ms; its [static receipt](docs/acceptance-2026-10-11/public-encoder-preparation.json) and [offline receipt-contract replay PASS](docs/acceptance-2026-10-11/public-encoder-preparation-replay.json) establish a preparation result. That receipt does not load a model or run inference.
+
+The subsequent public native path parsed two pages into five chunks, retaining 2,426 UTF-16 text units and 687 mapping fragments. WebGPU/FP32 passage encoding reported 644 tokens / 384 dimensions and 3,851.2 ms in the [visible DOM metadata](docs/acceptance-2026-10-11/public-native-encoder-view.json); that file is not a complete passage terminal archive. The [current query terminal](docs/acceptance-2026-10-11/public-native-query-prepared.json) records 39 tokens / 384 dimensions and 1,300.2 ms. Both operations reported 113,629,084 verified CacheStorage body bytes and zero fetched asset-body bytes. Top K 3 returned E4, E1 and E2; context retained three complete evidence units with no omissions. These are individual operation observations, without a latency distribution, isolated GPU timing or financial-answer acceptance.
 
 - PDF.js parsing preserves physical page numbers, displayed PDF labels, source identity and exact original item text/spans.
 - Page-window chunking keeps original UTF-16 source fragments separate from presentation separators.

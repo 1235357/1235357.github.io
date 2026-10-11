@@ -1,0 +1,163 @@
+{
+  "schema": "public-handoff-delivery-ci-readonly-proof-v1",
+  "reviewer": "CodexAI",
+  "createdAtUTC": "2026-10-11T19:30:15.394242+00:00",
+  "status": "passed",
+  "repository": "1235357/1235357.github.io",
+  "workflow": {
+    "runId": 38166407011,
+    "url": "https://github.com/1235357/1235357.github.io/actions/runs/38166407011",
+    "headCommit": "e497b2f60ae5d1e79623715e5bdd59f3bce54f6e",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "observationSource": "Actual GitHub REST metadata through the existing task-local release helper"
+  },
+  "jobs": [
+    {
+      "id": 114549767857,
+      "name": "windows-contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38166407011/job/114549767857"
+    },
+    {
+      "id": 114549768135,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38166407011/job/114549768135"
+    },
+    {
+      "id": 114550108577,
+      "name": "deploy",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38166407011/job/114550108577"
+    }
+  ],
+  "manifestArtifact": {
+    "id": 11711853015,
+    "name": "browser-release-manifest",
+    "githubReportedBytes": 15995,
+    "githubReportedDigest": "sha256:a4b2eaec2efb39dcb982e33371c48b146d26c403aebd927378f1d37e6d61ce84",
+    "downloadedArchiveDigestMatchesGitHub": true,
+    "archiveBytes": 15995,
+    "archiveSHA256": "a4b2eaec2efb39dcb982e33371c48b146d26c403aebd927378f1d37e6d61ce84",
+    "manifestBytes": 55100,
+    "manifestSHA256": "e1ff2658ece0b78de535761bee8986196d1704fd4334a585de58f83378af412c",
+    "zipEntryNames": [
+      "release-manifest.json"
+    ],
+    "zipCRCValid": true
+  },
+  "pagesArtifactMetadataOnly": {
+    "id": 11712097397,
+    "name": "github-pages",
+    "githubReportedBytes": 525721047,
+    "githubReportedDigest": "sha256:14c3c43c182d379754cf808f6f53c85e5639a393a7a8d1c8a552612a71b8eb35",
+    "downloaded": false
+  },
+  "inventory": {
+    "fileCount": 309,
+    "totalBytes": 918460230,
+    "limitBytes": 1000000000,
+    "uniqueCanonicalPaths": true,
+    "entryByteSumMatches": true,
+    "excludedPrivatePathCheckPassed": true,
+    "matchingPublishedPins": 16,
+    "pinCategories": {
+      "modelBodies": 10,
+      "sharedRuntimeBodies": 3,
+      "modelCardAndLicenseBodies": 3
+    }
+  },
+  "productionModuleChecks": [
+    {
+      "path": "browser-rag/asset-preparation-source.mjs",
+      "bytes": 11495,
+      "sha256": "3dbbcfcaa3b20ae16f027b989ba080245e7b2e6dc004a886c7e5380cfcbb4fff",
+      "equalsCurrentLocalSource": true,
+      "equalsOriginalPreparationDelivery": true
+    },
+    {
+      "path": "browser-rag/asset-preparation.worker.mjs",
+      "bytes": 4364,
+      "sha256": "a624d0209bc94352ebb02be8a90b4de72b57583f530c1865ad4ae3e1b6e7f1a1",
+      "equalsCurrentLocalSource": true,
+      "equalsOriginalPreparationDelivery": true
+    },
+    {
+      "path": "browser-rag/asset-preparation-view.mjs",
+      "bytes": 7374,
+      "sha256": "a74c842c5748d32bdce6186ff6b06d401b664a316ede3c947fbb0f85708980b0",
+      "equalsCurrentLocalSource": true,
+      "equalsOriginalPreparationDelivery": true
+    },
+    {
+      "path": "browser-rag/pdf-app.mjs",
+      "bytes": 43440,
+      "sha256": "34e6a61f3b66f985d0fda04b8d3b7db468eb137ab039bd6853bedfaafb1de50f",
+      "equalsCurrentLocalSource": true,
+      "equalsOriginalPreparationDelivery": true
+    },
+    {
+      "path": "browser-rag/embedding-runtime.mjs",
+      "bytes": 26101,
+      "sha256": "d966c9292651e1f3dc3f0e2afec71b0175ed4342fbda10d6bfd2d76c97666570",
+      "equalsCurrentLocalSource": true,
+      "equalsOriginalPreparationDelivery": true
+    },
+    {
+      "path": "browser-rag/generator-native-core.mjs",
+      "bytes": 29395,
+      "sha256": "ead9aef61d91f758eb198db70fd98a2256c7e8f3874d6f63d73dc0b6214f03f6",
+      "equalsCurrentLocalSource": true,
+      "equalsOriginalPreparationDelivery": true
+    }
+  ],
+  "originalPreparationDeliveryComparison": {
+    "runId": 38165566626,
+    "commit": "5a673bc76b5f984fc93182ebc01efc83f0cbcccf",
+    "archiveBytes": 15996,
+    "archiveSHA256": "5cbe1c7b312d5b8823f7242ace5c2e610839ff478ae5af85fe1508cc588b474a",
+    "manifestBytes": 55100,
+    "manifestSHA256": "60874dea94d1a0ee768d4e62f39e007bf2ab2b3c11ab315879ade923236748fc",
+    "fileCount": 309,
+    "totalBytes": 918459894,
+    "inventoryPathsUnchanged": true,
+    "totalBytesDelta": 336,
+    "allSixReviewedProductionModulesUnchanged": true,
+    "allSixteenPublishedPinsUnchanged": true,
+    "changedEntries": [
+      {
+        "path": "07-operational-receipts.html",
+        "before": {
+          "bytes": 46300,
+          "sha256": "f9fbaa30e31e865870ffb50dc19389996f2b1f9afd3f9347416b8515e93b6248"
+        },
+        "after": {
+          "bytes": 46692,
+          "sha256": "3ecbb6ec72031d599a690184c719c732e67939eb087f96c6ca4d6d27e4a7d56a"
+        }
+      },
+      {
+        "path": "browser-rag/inspector.html",
+        "before": {
+          "bytes": 15364,
+          "sha256": "1c6f268888c4d55026299e7a543d1a2ca7d061f416616e759c8072567a353095"
+        },
+        "after": {
+          "bytes": 15308,
+          "sha256": "2ca52d532bdc3a2634d17724e51a039a67258031a4aa4afae6926daaab4221ef"
+        }
+      }
+    ]
+  },
+  "limits": [
+    "Only the small manifest ZIP was downloaded; full Pages artifact and model bodies were not downloaded or independently rehashed.",
+    "Published asset checks compare CI inventory metadata with fixed local pins; six production module body hashes were computed from current local source.",
+    "CI job success and static artifact identity are separate from native browser preparation, model inference and financial quality acceptance.",
+    "No build, CI rerun, push, browser action or credential output occurred."
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "runtimeId": "969c544f-9564-4de4-8453-4c279fffa46d",
+  "documentEpoch": 1,
+  "active": null,
+  "terminal": {
+    "protocolVersion": 1,
+    "runtimeId": "969c544f-9564-4de4-8453-4c279fffa46d",
+    "operationId": "op-1",
+    "documentEpoch": 1,
+    "operation": "query",
+    "kind": "result",
+    "stage": "rank",
+    "seq": 15,
+    "payload": {
+      "data": {
+        "query": {
+          "representationId": "miniLM-fp32-mean-l2-webgpu-v1",
+          "status": "query-embedded-not-retrieved",
+          "backend": "webgpu",
+          "dtype": "fp32",
+          "counts": {
+            "totalTokens": 39,
+            "dimensions": 384
+          },
+          "receipt": {
+            "verifiedBytes": 113629084,
+            "networkBytes": 0,
+            "cacheBytes": 113629084,
+            "elapsedMs": 1300.199999988079
+          }
+        },
+        "retrieval": {
+          "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+          "representationId": "miniLM-fp32-mean-l2-webgpu-v1",
+          "status": "candidates-only",
+          "requestedTopK": 3,
+          "returnedCount": 3,
+          "queryNorm": 1.0000001404099168
+        }
+      }
+    }
+  }
+}

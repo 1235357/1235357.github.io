@@ -1,0 +1,11 @@
+{
+  "kind": "observed-public-native-view-metadata",
+  "source": "visible DOM in HTTPS Codex IAB",
+  "modelReceiptStatus": "prepared; embedded; queried; context assembled; generation not run",
+  "embedding": "RepresentationminiLM-fp32-mean-l2-webgpu-v1Backendwebgpu · fp32Verified body113,629,084 bytesFetched body0 bytesCached body113,629,084 bytesAttempt elapsed3851.2 ms",
+  "query": "RepresentationminiLM-fp32-mean-l2-webgpu-v1Backendwebgpu · fp32Verified body113,629,084 bytesFetched body0 bytesCached body113,629,084 bytesAttempt elapsed1300.2 ms",
+  "context": "3 evidence units · requested top K 3 · context not generated. No selected evidence was omitted.",
+  "question": "According to NVIDIA's fiscal 2025 second-quarter report, what was net income for the three-month period ended July 28, 2024, in millions of dollars?",
+  "sourceReceipt": "Filelocal-nvidia-fy2025-q2-original-pages-3-4.pdfBytes74085SHA-2568e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428ParserPDF.js 6.4.299Parse workernativeComputenative · owned module workerPages2Epoch1Stagecontext; not generated",
+  "status": "Context assembled; not generated"
+}

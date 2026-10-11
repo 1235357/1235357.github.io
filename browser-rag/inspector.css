@@ -42,7 +42,7 @@ h1 { font-size: clamp(36px, 4.8vw, 62px); letter-spacing: -.04em; }
   gap: 24px;
 }
 .controls { grid-area: question; }
-.generation { grid-area: answer; position: sticky; top: 20px; max-height: none; overflow: visible; }
+.generation { grid-area: answer; position: static; top: auto; max-height: none; overflow: visible; }
 .source { grid-area: notebook; }
 .pipeline { margin: 0 0 28px; }
 .pipeline ol { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }

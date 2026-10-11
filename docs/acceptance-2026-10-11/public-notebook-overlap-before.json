@@ -1,0 +1,40 @@
+{
+  "kind": "observed-native-dom-hit-test",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "controlLabel": "Inspect all 39 query token IDs including CLS / SEP",
+  "beforeScroll": {
+    "queryControl": {
+      "x": 92.25,
+      "y": 1595.6953125,
+      "width": 1080.5,
+      "height": 44
+    },
+    "answerPanel": {
+      "x": 564.890625,
+      "y": 20,
+      "width": 636.859375,
+      "height": 1481.5703125
+    },
+    "notebook": {
+      "x": 63.25,
+      "y": 470.359375,
+      "width": 1138.5,
+      "height": 6264.390625
+    },
+    "answerPosition": "sticky"
+  },
+  "afterDocumentScroll": {
+    "control": {
+      "height": 44,
+      "width": 1080.5,
+      "x": 92.25,
+      "y": 155.6953125
+    },
+    "hit": {
+      "insideAnswer": true,
+      "tag": "P",
+      "text": "Native generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer; its pinned model/runtime bodies total 815.73 MB (777.94 MiB)"
+    }
+  },
+  "scope": "DOM geometry and hit test; no app state or style mutation"
+}
