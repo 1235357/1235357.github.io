@@ -362,7 +362,7 @@ not turn a literal field match into a cosine score.
 <figure class="architecture-figure" id="quarterly-source-selection" aria-label="Source-only quarterly income-statement index and literal query selection">
 <div class="figure-heading"><span class="figure-status">08 / SOURCE-PINNED PYTHON PATH · DEVELOPMENT CANDIDATES</span><h3>A value travels with its row and column.</h3><p>Build the source index first. Parse the original question and report scope. Select one candidate, or expose the reason it cannot be selected.</p></div>
 <iframe src="figures/structured-income-selection.archify.html?theme=dark" title="Quarterly source index and literal selection architecture" loading="lazy"></iframe>
-<figcaption>Figure 8 · Logical responsibilities inside the opt-in Python source-selection path. Source locations are pinned to the reviewed implementation; the illustration is not a financial verdict, a deployment topology or a browser execution trace. <a href="figures/structured-income-selection.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/structured-income-selection.archify.json">Editable JSON</a>.</figcaption>
+<figcaption>Figure 8 · Quarterly checkpoint <code>224d02d</code>: logical responsibilities inside the opt-in Python source-selection path. Source locations are pinned to that reviewed implementation; the illustration is not a financial verdict, a deployment topology or a browser execution trace. <a href="figures/structured-income-selection.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/structured-income-selection.archify.json">Editable JSON</a>.</figcaption>
 </figure>
 
 The actual local build registered all ten reports. Four quarterly statements
@@ -403,17 +403,67 @@ adapter must make “Basic” earnings per share distinct from “Basic” share
 This is an opt-in Python development path. The published browser notebook and
 default HTTP service have not yet been connected to it. That integration needs
 its own visible state transitions, source review and runtime checks. The local
-checkout passed **646 tests**; actual model encoding, generation and independent
+checkout at quarterly checkpoint `224d02d` passed **646 tests**; actual model encoding, generation and independent
 human gold were all zero in this source-index experiment. Financial readiness
 remains unestablished.
 
-The companion [source-selection guide and reproducible command](https://github.com/1235357/nvidia-financial-rag/blob/main/docs/structured-income-selection.md)
+The companion [source-selection guide and reproducible command at that checkpoint](https://github.com/1235357/nvidia-financial-rag/blob/224d02d912152b6e1c66d3e0ee6b211790913c5e/docs/structured-income-selection.md)
 explain the operator inputs and completion guards. Its
-[sanitized observation](https://github.com/1235357/nvidia-financial-rag/blob/main/docs/acceptance/structured-income-development-20261012.json)
+[sanitized observation](https://github.com/1235357/nvidia-financial-rag/blob/224d02d912152b6e1c66d3e0ee6b211790913c5e/docs/acceptance/structured-income-development-20261012.json)
 preserves exact input and implementation hashes and all 35 dispositions. This
 connects the software-design responsibility to a concrete outcome: report
 availability, table layout, query interpretation and financial judgment can
 now fail separately and be improved separately.
+
+## An annual period needs its own representation
+
+The quarterly experiment and diagram above retain checkpoint `224d02d`. The
+later annual extension at `00dc452` addresses a different source structure.
+An annual `Year Ended` header does not establish twelve calendar months.
+NVIDIA's [FY2021 Fiscal Year note, physical PDF page 52](https://s201.q4cdn.com/141608511/files/doc_financials/2021/q4/0ec16816-55e2-4812-8f77-75cab5909247.pdf#page=52)
+identifies fiscal 2021 as 53 weeks, while 2020 and 2019 contain 52. Its
+[FY2026 note, physical page 144](https://s201.q4cdn.com/141608511/files/doc_financials/2026/ar/2026-Annual-Report-Web.pdf#page=144)
+records 52 weeks for fiscal 2026, 2025 and 2024. Those conventions qualify the
+period; an end date alone cannot supply its length.
+
+Annual cells therefore retain `duration_months=None`. Their `period_kind`
+property derives `fiscal_year` from the annual extraction profile; it is not
+an added serialized field. This preserves the earlier quarterly cell bodies
+and IDs while keeping the literal period header in the source bindings.
+A twelve-month request cannot silently match an annual cell, and combining
+annual and month-duration instructions requires clarification. The parser
+does not calculate a period-start date or week count for each cell.
+
+Date representation also follows the PDF. FY2021–FY2023 use separate month/day
+and year groups, bound as `date` and `date_year` with their own native slices
+and rectangles. FY2024–FY2026 use a complete date group. Both layouts produce
+an ISO end date without inventing a contiguous quotation. Three descending
+columns retain one current and two prior-comparison roles; column numbers
+distinguish the comparisons without changing the source report's identity.
+
+The ten-report build now contains **531 cells: 204 preserved quarterly cells
+and 327 annual cells**. Six printed placeholders receive explicit column
+omissions; neighboring supported values survive. A dash still never becomes
+zero. This annual policy preserves the quarterly parser's existing whole-row
+withholding when a value is unsupported.
+
+The original **35 question/scope rows** retain 24 source candidates, five
+refusals, four clarifications and two unsupported outcomes. A separate freeze
+derives eighteen questions from inspected annual dates, uses global and
+explicit report scopes, and adds six controls. Its **42 requests** return
+36 candidates, two refusals, three clarifications and one unsupported result.
+These are exposed, source-derived development questions, with held-out and
+human-gold counts both zero.
+
+The local checkout passed **661 tests**. Separately,
+[workflow 38284747999](https://github.com/1235357/nvidia-financial-rag/actions/runs/38284747999)
+completed its Linux, Windows and container jobs at `00dc452`. Packaging and
+synthetic API checks do not establish financial correctness. The
+[fixed annual guide](https://github.com/1235357/nvidia-financial-rag/blob/00dc45211f4703e49a53a6e9635d195ff69a0b0a/docs/annual-income-selection.md)
+and [sanitized development receipt](https://github.com/1235357/nvidia-financial-rag/blob/00dc45211f4703e49a53a6e9635d195ff69a0b0a/docs/acceptance/annual-income-development-20261012.json)
+preserve the scope and identities. This source-only path runs no encoder or
+generator and remains separate from the default HTTP service and browser
+notebook; its candidates still need independent financial review.
 
 ## Reproduce this reasoning
 
