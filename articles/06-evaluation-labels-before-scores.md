@@ -3,7 +3,7 @@ title: Labels before scores
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-11
+updated: 2026-10-12
 source_type: implementation-and-course-review
 tags: [rag, evaluation, evidence]
 ---
@@ -142,9 +142,10 @@ It inspects the complete decoded string, recomputes termination from the full
 token sequence and canonical generation configuration, parses exactly the
 three required JSON fields, and resolves citation IDs against the original
 selected provenance input. It does not invoke a model or determine whether a
-financial claim follows from the evidence. The financial Generate button has
-not yet been connected to this boundary. This is post-generation inspection,
-not token-level constrained decoding.
+financial claim follows from the evidence. This section describes the initial
+pure inspection increment. The later owned browser integration and native draft
+observations are described in [generation is not verification](05-generation-is-not-verification.html).
+The boundary remains post-generation inspection, not token-level constrained decoding.
 
 Consider this deliberately fabricated output from a synthetic test, not a
 native-model prediction or a quotation from NVIDIA:
@@ -195,8 +196,8 @@ evidence refusal must therefore remain distinct evaluation outcomes.
 This is a concrete CS381 responsibility boundary: presentation displays the
 labelled outcome, while the contract owns structure and identity checks. CS310
 adds the separate question of whether the asynchronous attempt still owns the
-right to commit. The session/Worker integration for that financial attempt is
-the next implementation step, not a result established by this pure inspector.
+right to commit. Session/Worker integration and its later native observations
+require their own evidence; they are not established by the pure inspector alone.
 CS461 supplies another distinction: model token IDs, decoded UTF-16 units and
 financial claims are three different representations with different checks.
 
@@ -267,6 +268,73 @@ assembly and generation timing; record hardware, model/index revision, concurren
 and cold/warm state. An HTTP process-time header is one measurement boundary,
 not a complete end-to-end benchmark.
 
+## October 12: reproduce a real failure before choosing a repair
+
+Consider a question asking for NVIDIA's fiscal 2035 second-quarter revenue.
+That report is absent from the frozen ten-report registry. Nevertheless, the
+global dense search returned a FY2024 annual-report passage from physical page
+160 with cosine **0.780718**, just above the fixed **0.78** gate. The service
+accepted evidence. It had no financial fact from the requested report.
+
+This is an actual observed development trace from the local Python variant,
+not a browser prediction or a fabricated teaching example. The complete query,
+scope, frozen input identities, source IDs and unrounded score are preserved in the
+[expanded diagnostic metadata](https://github.com/1235357/nvidia-financial-rag/blob/main/docs/acceptance/expanded-development-runtime-20261012.json).
+The example shows why a similarity threshold cannot establish that a requested
+report exists. Raising or lowering it would need its own evaluation; the
+diagnostic retained the original setting.
+
+Before that run, eighteen cases were frozen: twelve previously exposed positive
+source-cell candidates, four refusal candidates and two clarification candidates.
+The source replay verified the original PDF hashes, selected row/date/duration
+and column/value boxes, and mapped their essential roles into the corpus's
+unsorted text coordinates. A number appearing on the right page could not pass
+that check by itself. Sorted review offsets were never reused against differently
+ordered corpus text.
+
+The producer executed 35 case/scope requests and saved both the returned float32
+query vectors and the actual normalized float64 vectors consumed by retrieval.
+A separate tool, with no model, retriever, service or PDF imports, reconstructed
+all scoped scores, candidates, evidence, citations and context digests. All 35
+rows and 175 scalar Top-5 dot-product checks matched. That establishes a
+reproducible calculation, including a reproducible wrong-report retrieval.
+
+| Observed scope | Positive cases with complete fields in Top-5 | Positive cases with complete fields after the gate | Provisional negative candidates accepted |
+| --- | ---: | ---: | ---: |
+| All ten reports | 1 / 12 | 0 / 12 | 5 / 6 |
+| Explicit requested report | 10 / 12 | 0 / 12 | 2 / 5 |
+
+“Complete fields” here means the union of selected chunks contains every required
+source range from the same cell and page: statement, unit, currency glyph,
+duration, date, metric row and selected value. A header from a different page
+cannot fill the gap. This is mechanical source-candidate coverage, with provisional
+currency normalization; it is not independent financial adjudication.
+
+The unavailable-report case has only a global scope, explaining the different
+negative denominators. The other negative candidates test a wrong date, unsupported
+one-month amount, absent FX evidence, missing duration and contradictory column
+instructions. Their labels were frozen before querying and remain exposed
+assistant-reviewed development material. A gate accepting them is a provisional
+failure observation, not a calibrated financial false-accept rate.
+
+The [source-cell selection figure](figures/table-cell-selection.archify.html) illustrates
+the earlier Python source-bound selection experiment. It depicts a logical sequence
+within one Python process. The expanded replay checks twelve distinct source
+bindings; the illustration alone does not prove those bindings. Its PyMuPDF
+coordinates are separate from the browser's PDF.js bindings and lookup profile.
+
+The useful next changes follow the failing responsibilities: verify report
+selection, preserve table headers and dated columns, and compare same-scope
+lexical/structured candidates on this same frozen set. Each variant needs its
+own score semantics and refusal policy. The current run generated no answer and
+has zero independent human gold. Its financial-readiness result remains **FAILED**.
+
+To reproduce the diagnostic, start with the companion repository's
+[exact producer and no-model replay commands](https://github.com/1235357/nvidia-financial-rag/blob/main/docs/expanded-financial-comparator.md),
+retain fresh output directories, and inspect the failures before changing a gate.
+The published metadata contains no original PDFs, corpus text, tensors or weights;
+those prepared inputs require their own acquisition and identity checks.
+
 ## Reproduce this reasoning
 
 1. Inspect one registered development question and its original PDF locator.
@@ -275,8 +343,8 @@ not a complete end-to-end benchmark.
 3. Check all five financial fields, then explain one plausible wrong-column answer.
 4. Design an unseen question and state how it will stay outside tuning.
 
-No new financial-quality score, independent financial review, latency benchmark
-or financial acceptance result is claimed by this chapter. It records the
-audited registration boundaries, the pure output-inspection contract and the
-next measurement design. The source labels, browser predictions and judge
-implementation still need their own verification before a quality claim.
+The registration audit, browser output contract and actual Python diagnostic
+answer different questions. The October 12 trace adds a measured failure
+breakdown and independently reproducible arithmetic, while financial accuracy,
+calibrated judge performance, latency/load benchmarks and human acceptance remain
+open. Use the exact preserved observations to decide what to improve next.
