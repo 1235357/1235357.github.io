@@ -543,10 +543,20 @@ class NavigationTest(unittest.TestCase):
             output = (build.ROOT / 'dist' / (source.stem + '.html')).read_text(encoding='utf-8')
             self.assertIn('FIELD NOTES / ' + number + '</p>', output)
 
-    def test_index_has_series_label_not_chapter_one(self):
+    def test_personal_entry_preserves_complete_journal_and_project_access(self):
         build.build()
         output = (build.ROOT / 'dist' / 'index.html').read_text(encoding='utf-8')
-        self.assertIn('FIELD NOTES / SERIES</p>', output)
+        self.assertIn('id="personal-title"', output)
+        for project in ('nvidia-rag', 'llava-gi', 'osef', 'artisk', 'ecommerce-agents', 'lead-qualification'):
+            self.assertIn(f'id="{project}"', output)
+        self.assertIn('href="browser-rag/inspector.html"', output)
+        self.assertIn('href="journal.html"', output)
+        journal = (build.ROOT / 'dist' / 'journal.html').read_text(encoding='utf-8')
+        self.assertIn('FIELD NOTES / SERIES</p>', journal)
+        for source in (build.ROOT / 'articles').glob('*.md'):
+            self.assertIn(f'href="{source.stem}.html"', journal)
+            article = (build.ROOT / 'dist' / (source.stem + '.html')).read_text(encoding='utf-8')
+            self.assertIn('href="journal.html">Series index', article)
 
     def test_article_has_generated_section_navigation(self):
         # Removing the generated outline should fail even if headings still render.

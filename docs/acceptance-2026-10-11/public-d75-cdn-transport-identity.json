@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-10-11T23:32:00.521Z",
+  "release": "d75cc26a8fdf547537b3310e351a0a3fbbc7f9c5",
+  "url": "https://1235357.github.io/browser-rag/asset-preparation-transport.mjs",
+  "status": 200,
+  "bytes": 12428,
+  "sha256": "2254785e52f00ac9e309ce10ef7bf75e2986c01753054d7d20768b7b6a962f79",
+  "scope": "Native IAB completed served transport module body only; event buffer truncated, no full graph claim"
+}

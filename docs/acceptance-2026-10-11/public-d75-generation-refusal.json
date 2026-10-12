@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "release": "d75cc26a8fdf547537b3310e351a0a3fbbc7f9c5",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "startedAtUtc": "2026-10-11T23:45:01.856Z",
+  "capturedAtUtc": "2026-10-11T23:46:00.352Z",
+  "statusTitle": "No new result committed",
+  "statusDetail": "The financial generation worker exceeded its time budget. Question and context are retained for retry.",
+  "trace": "{\n  \"runtimeId\": \"a14d53cc-9992-430a-9d18-b7e17a341108\",\n  \"documentEpoch\": 1,\n  \"active\": null,\n  \"terminal\": {\n    \"protocolVersion\": 1,\n    \"runtimeId\": \"a14d53cc-9992-430a-9d18-b7e17a341108\",\n    \"operationId\": \"op-1\",\n    \"documentEpoch\": 1,\n    \"operation\": \"generate\",\n    \"kind\": \"error\",\n    \"stage\": \"adapter\",\n    \"seq\": 1,\n    \"payload\": {\n      \"code\": \"GENERATION_TIMEOUT\",\n      \"message\": \"The financial generation worker exceeded its time budget.\"\n    }\n  }\n}",
+  "contextRetained": true,
+  "scope": "Actual native generation client timeout; existing error does not distinguish timer branch; no full native receipt or answer committed"
+}

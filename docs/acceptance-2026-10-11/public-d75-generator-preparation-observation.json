@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "release": "d75cc26a8fdf547537b3310e351a0a3fbbc7f9c5",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "startedAtUtc": "2026-10-11T23:39:18.061Z",
+  "capturedAtUtc": "2026-10-11T23:39:48.376Z",
+  "scope": "Actual native current-v3 accepted unchanged complete static schema2 receipt; no model loading/inference/financial acceptance",
+  "status": "Generator static cache verification complete · 815,725,938 body bytes · 9.9 seconds of preparation. Model loading and inference have not run.",
+  "receiptFilename": "public-d75-generator-preparation.json"
+}

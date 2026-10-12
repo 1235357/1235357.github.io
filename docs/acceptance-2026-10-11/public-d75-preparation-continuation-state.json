@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "release": "d75cc26a8fdf547537b3310e351a0a3fbbc7f9c5",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "capturedAtUtc": "2026-10-11T23:39:18.010Z",
+  "previousStartedAtUtc": "2026-10-11T23:32:00.539Z",
+  "status": "No current preparation receipt. Choose a profile explicitly; previous verified cache entries may remain.",
+  "prepareEnabled": true,
+  "scope": "Continuation read-back: current page has no active preparation or receipt; previous partial observations do not establish terminal completion; cause not established"
+}

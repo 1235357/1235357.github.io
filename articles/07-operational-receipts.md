@@ -625,7 +625,7 @@ The embedded public generator preparation subsequently ended with
 at its fixed 30-minute budget. Previously completed verified cache entries may
 remain, but no complete preparation receipt was committed. This attempt supplies
 no public generator loading or financial output evidence. Generator preparation
-completion and actual public Qwen generation remain open; no alternative download
+completion and actual public Qwen generation remained open at that historical checkpoint; no alternative download
 transport has native acceptance in these records.
 Independent financial gold, calibrated judging and load measurements remain
 open. The earlier wrong six-month outputs and zero independent human gold are
@@ -693,8 +693,7 @@ and actual
 passed independent pure source/chunk/context/native-output replay. The output
 gate accepted `16,599` / E4 as an unverified draft. A separately requested
 three-month source-cell candidate also retained literal `16,599`; agreement on
-this exposed example is not an independent accuracy score. Public generator
-completion, financial evaluation and human acceptance remain open. Earlier
+this exposed example is not an independent accuracy score. At that checkpoint public generator completion was open. Financial evaluation and human acceptance remain open. Earlier
 successes and failures retain their original scope.
 
 ## Make a failure boundary inspectable
@@ -733,11 +732,21 @@ that hostname as a current CDN endpoint; the native observation supplies this
 particular Xet bridge path. The correction adds only that exact HTTPS origin
 under the existing anchored path grammar, preserving full decoded-body length
 and SHA pins. The failing test first reproduced the refusal; 62 focused controls
-then passed, followed by 2,892 Node and 155 Python checks. Fresh deployment and a
-complete native body receipt are still required for the correction.
+then passed, followed by 2,892 Node and 155 Python checks. The correction subsequently passed d75 CI and the fresh public native chain recorded below.
 
 This record does not explain older failures. The same current public session
 also exceeded the separate 120-second PDF script preparation budget before
 starting its native parser. Neither observation supplies an answer-quality
 score or a performance distribution. They give the next engineering action a
 specific owner, stage and preserved refusal.
+
+
+## A public model run with its evidence preserved
+
+The next served release, `d75cc26`, passed all three jobs in [workflow 38184423254](https://github.com/1235357/1235357.github.io/actions/runs/38184423254). It adds the exact observed HF US CDN origin, retaining the fixed path grammar and body pins. A fresh browser session then asked: “According to NVIDIA's fiscal 2025 second-quarter report, what was net income for the three-month period ended July 28, 2024, in millions of dollars?” The model's JSON draft answered `16,599`, citing E4. The interface kept it **UNVERIFIED**. A number and valid citation are the start of financial evaluation, rather than a correctness certificate.
+
+The reader path now has a complete operation record. Static preparation reverified eight cached bodies totaling 815,725,938 bytes, without fetching asset bodies. The selected two-page excerpt parsed with PDF labels 3/4 and became five chunks, retaining all source spans. Passage encoding produced 644 token IDs and five 384-dimensional vectors. The query produced 39 token IDs and a vector of the same dimension; canonical cosine ranking selected E4/E1/E2. Three complete evidence units became the prompt context. Qwen's explicit retry consumed 1,745 input IDs and produced 33 output IDs, reached EOS, and disposed its inputs, result, model, cache and owned device. Its 88,347.8 ms elapsed value describes this single attempt.
+
+Why retain all that detail when the interface can just display a number? Each transformation can introduce a different error. The wrong source page is a retrieval problem; a lost column heading is a context problem; a malformed JSON response is an output-contract problem. Binding the exact PDF bytes, text geometry, chunk ranges, vector rows, question, context and output lets another developer inspect which input actually reached the model. It also keeps a later replay from silently substituting a different question or source. The [complete RAW receipt](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-d75-native-raw.json) and [original eight-field input](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-d75-original8.json) passed [28 independent archive-consistency and canonical-replay checks](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-d75-independent-archive-audit.md).
+
+The retry did not erase the first generation timeout. Its specific timer branch remains unknown, and the earlier partial preparation has no complete terminal. Both records remain separate. The successful preparation describes cache verification, and the six sealed SDK reads describe local consumption, not six network downloads. Likewise, archive consistency does not authenticate full-report lineage, judge financial column meaning or establish human gold. The next evaluation step must compare the draft against independently reviewed report evidence and include refusals and misleading nearby periods. Expanding the Python corpus and checking installed-package retrieval are separate engineering gates underway in the companion project.

@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS-with-generated-text-line-ending-differences",
+  "createdAtUtc": "2026-10-11T23:32:10.737142+00:00",
+  "scope": "Independent actual CI metadata and small manifest artifact audit for exact US HF CDN transport compatibility; static identity and distribution only",
+  "repository": "1235357/1235357.github.io",
+  "workflow": {
+    "runId": 38184423254,
+    "url": "https://github.com/1235357/1235357.github.io/actions/runs/38184423254",
+    "headCommit": "d75cc26a8fdf547537b3310e351a0a3fbbc7f9c5",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "authoredWorkflowSha256": "c83905f9e8bec724620611f7dad01e1cb3df6a9ced1860d96660642afa6a4319",
+    "observationSource": "Actual GitHub REST through the existing task-local helper"
+  },
+  "jobs": [
+    {
+      "id": 114603603559,
+      "name": "windows-contracts",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38184423254/job/114603603559",
+      "status": "completed",
+      "conclusion": "success",
+      "successfulStepCount": 14,
+      "allReportedStepsSucceeded": true
+    },
+    {
+      "id": 114603603760,
+      "name": "build",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38184423254/job/114603603760",
+      "status": "completed",
+      "conclusion": "success",
+      "successfulStepCount": 18,
+      "allReportedStepsSucceeded": true
+    },
+    {
+      "id": 114603977502,
+      "name": "deploy",
+      "url": "https://github.com/1235357/1235357.github.io/actions/runs/38184423254/job/114603977502",
+      "status": "completed",
+      "conclusion": "success",
+      "successfulStepCount": 3,
+      "allReportedStepsSucceeded": true
+    }
+  ],
+  "manifestArtifact": {
+    "id": 11718947338,
+    "name": "browser-release-manifest",
+    "size_in_bytes": 16296,
+    "expired": false,
+    "digest": "sha256:fefedff276804b492d9e84a3e1037020d87dd4fe9f932484422c36634c9a77b5",
+    "downloaded": true,
+    "downloadedBytes": 16296,
+    "downloadedSha256": "fefedff276804b492d9e84a3e1037020d87dd4fe9f932484422c36634c9a77b5",
+    "digestMatchesGitHubMetadata": true,
+    "downloadBoundary": "Official HTTPS blob.core.windows.net artifact redirect; no Authorization forwarded; 100 MB hard cap; no signed redirect URL retained"
+  },
+  "innerManifest": {
+    "name": "release-manifest.json",
+    "bytes": 55974,
+    "sha256": "f80d3b5a36de31c976f0d94bde37a316d2bfebf33b25339937d6f9c1dc8acfd2",
+    "schemaVersion": 1,
+    "status": "public-build-hashed",
+    "commit": "d75cc26a8fdf547537b3310e351a0a3fbbc7f9c5",
+    "scope": "Static file identity and distribution boundary; no GPU or financial quality check",
+    "fileCount": 314,
+    "totalBytes": 919318338,
+    "limitBytes": 1000000000,
+    "verifiedPinnedAssetCount": 16
+  },
+  "pagesArtifact": {
+    "id": 11718977245,
+    "name": "github-pages",
+    "size_in_bytes": 525937922,
+    "expired": false,
+    "digest": "sha256:b96d4009af21c7f4135efa52fe2c1911ca0429b81af3f91d5f7b5a75223e8573",
+    "downloaded": false,
+    "scope": "Metadata only; archive body and public served bytes not independently inspected in this audit"
+  },
+  "localComparison": {
+    "manifestBytes": 57518,
+    "manifestSha256": "e47f6e0facc84292495300b3e642266edd5a4d5baaea3ca8372c03c1f78a02f6",
+    "schemaVersion": 1,
+    "status": "public-build-hashed",
+    "commit": null,
+    "scope": "Static file identity and distribution boundary; no GPU or financial quality check",
+    "fileCount": 314,
+    "totalBytes": 919322141,
+    "limitBytes": 1000000000,
+    "verifiedPinnedAssetCount": 16,
+    "uniqueSamePaths": 314,
+    "exactMetadataMatches": 303,
+    "nonPinBodiesIndependentlyRehashed": 298,
+    "fixedPinsMetadataMatched": 16,
+    "largePinnedBodiesRereadByReviewer": false,
+    "readonlyCrLfPairSum": 3803,
+    "readonlyGeneratedTextDifferences": [
+      {
+        "path": "01-two-lifecycles.html",
+        "localBytes": 49020,
+        "ciBytes": 48340,
+        "localSha256": "553d5c5b857561628597bba0da9bfa784218ae7e20eaf840fbb8d7a91f8057d1",
+        "ciSha256": "47951b596d711bef6e0a7044213aef78349c3fe42a25b11707a0094ab131e23a",
+        "readonlyCrLfPairs": 680,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "02-contracts-before-services.html",
+        "localBytes": 48666,
+        "ciBytes": 47983,
+        "localSha256": "06768b675d6986f0ddcea18eb2222d9fdbb067665c5d24fc8c29d756e8a68d0c",
+        "ciSha256": "e64bade7793e6600ddce80b8c7f68576f363d2d3b19f10cdfe7a12a58850cac8",
+        "readonlyCrLfPairs": 683,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "03-ranking-is-not-confidence.html",
+        "localBytes": 26236,
+        "ciBytes": 25922,
+        "localSha256": "f2439352c25cbe6622d65066143e9bf3fb0c20c5ead55165e7c91881312c5f23",
+        "ciSha256": "3f34720ec4671789c912790bd2794053abb712e13ca0e98fa12a08a41485f73c",
+        "readonlyCrLfPairs": 314,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "04-preserve-evidence-before-embedding.html",
+        "localBytes": 23293,
+        "ciBytes": 22970,
+        "localSha256": "6741bdb4f19562a5590124a63c983d6971004c50b6a7013de5891ea5ecb73261",
+        "ciSha256": "322cb9c3c983de0fd0f4934b776e9b54d2bb86654efb2ca8cd8063a98597a07f",
+        "readonlyCrLfPairs": 323,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "05-generation-is-not-verification.html",
+        "localBytes": 30024,
+        "ciBytes": 29655,
+        "localSha256": "92b0c2e7c2ae160fba11a1859697b2b173fd1098a3de8567138eeade5c49476c",
+        "ciSha256": "424e7d24ccfbb35c6d2599caaf71e8084d0c50745a04e0e3a7fef8866f73dc2f",
+        "readonlyCrLfPairs": 369,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "06-evaluation-labels-before-scores.html",
+        "localBytes": 21242,
+        "ciBytes": 20931,
+        "localSha256": "73fb9e2f0481ee64ea6edf13b8d84a4adb545b5930695be0ab79d5631006aeb2",
+        "ciSha256": "934c5b1142dbd17db069f085d3a6cb445143c9a80d7232c678c4928f5c4a7c7b",
+        "readonlyCrLfPairs": 311,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "07-operational-receipts.html",
+        "localBytes": 62050,
+        "ciBytes": 61133,
+        "localSha256": "82b372cabbb33c2eae489157dc3a77a1bf2ad8a488626fa7251be3e5fbbe0205",
+        "ciSha256": "76e8e705905b3d2df717e1a7bfd9b9858d166349a62a6c34b7675063072803b4",
+        "readonlyCrLfPairs": 917,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "browser-rag/inspector.html",
+        "localBytes": 15446,
+        "ciBytes": 15308,
+        "localSha256": "ee5df3081770ed9ffec0cdf5cb4798717fd5d57554d9e40d5a1f7051573e4269",
+        "ciSha256": "2ca52d532bdc3a2634d17724e51a039a67258031a4aa4afae6926daaab4221ef",
+        "readonlyCrLfPairs": 138,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "browser-rag/notices/QWEN-ATTRIBUTION.txt",
+        "localBytes": 562,
+        "ciBytes": 556,
+        "localSha256": "2f8e7d28e3d51393277a602aec2e64a4dd619e2a909d6fab11b036a456742af5",
+        "ciSha256": "b402078182eade7faec8ceea773096cef4c5cb8d13dbe780ee2d8f2f6a3aa5f0",
+        "readonlyCrLfPairs": 6,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "index.html",
+        "localBytes": 2946,
+        "ciBytes": 2929,
+        "localSha256": "5d954218f22af63297a37755563ba79430e1ccb19215a6037876345f455daabf",
+        "ciSha256": "9e8880dc3cb7e89abcf1753cd55e341d1fe616b0728220fa482b5e96cf0608d6",
+        "readonlyCrLfPairs": 17,
+        "readonlyLfDiagnosticMatches": true
+      },
+      {
+        "path": "style.css",
+        "localBytes": 4552,
+        "ciBytes": 4507,
+        "localSha256": "e2f32d6324c461654b6a36d4cde73f93c1fd6b9cd3c09731258db981cb357e59",
+        "ciSha256": "875ea0d4cfbe5d8868bbe025953c760284fce346e8aa728723d5d1657d20b52a",
+        "readonlyCrLfPairs": 45,
+        "readonlyLfDiagnosticMatches": true
+      }
+    ],
+    "lineEndingDiagnosticScope": "In-memory CRLF-to-LF comparison reproduces all differing CI byte counts and SHA-256 values; no source/dist normalization written; no complete byte-reproducibility claim"
+  },
+  "fixedPins": [
+    {
+      "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/config.json",
+      "bytes": 650,
+      "sha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/tokenizer.json",
+      "bytes": 711661,
+      "sha256": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/tokenizer_config.json",
+      "bytes": 366,
+      "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/special_tokens_map.json",
+      "bytes": 125,
+      "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/751bff37182d3f1213fa05d7196b954e230abad9/Xenova/all-MiniLM-L6-v2/onnx/model.onnx",
+      "bytes": 90387606,
+      "sha256": "759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/config.json",
+      "bytes": 678,
+      "sha256": "777e01f0fbb3346eb229cb6fb278ed6533c1e4dcb9ebf4bed0f6e94ef17fa1b5",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/tokenizer.json",
+      "bytes": 7031673,
+      "sha256": "a8506e7111b80c6d8635951a02eab0f4e1a8e4e5772da83846579e97b16f61bf",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/tokenizer_config.json",
+      "bytes": 7849,
+      "sha256": "6a14243f0ae04884e597b3f032c05e15de9f417318fdcac24ab4e2680e691430",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/generation_config.json",
+      "bytes": 242,
+      "sha256": "f7e7ce458658b2d40d9eb213b91b77a8bf698845ab89360976722d7ac46928a3",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/models/22942cb7d7ba4cc81bb4673549ca4d4614469b5e/onnx-community/Qwen2.5-0.5B-Instruct/onnx/model_q4.onnx",
+      "bytes": 786156820,
+      "sha256": "09235a3b1c135cd04ef570e5053b5c079e028078a2cc5f76ba6a251e91bf3296",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/vendor/transformers/transformers.min.js",
+      "bytes": 888173,
+      "sha256": "aa5002b70e789798da263f5f99c62bd3e8fcd0c119258a493c40c180648365fa",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/vendor/transformers/ort-wasm-simd-threaded.jsep.mjs",
+      "bytes": 44484,
+      "sha256": "08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/vendor/transformers/ort-wasm-simd-threaded.jsep.wasm",
+      "bytes": 21596019,
+      "sha256": "c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/notices/QWEN-MODEL-CARD.txt",
+      "bytes": 545,
+      "sha256": "d7312dfc364cad2634eefaaf3aefd9cfda3cc27cda03332e18d09e600394ed75",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/notices/QWEN-LICENSE.txt",
+      "bytes": 11343,
+      "sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+      "matchesFixedPublicationPin": true
+    },
+    {
+      "path": "browser-rag/notices/MODEL-CARD.txt",
+      "bytes": 1767,
+      "sha256": "63ea99bf681a2e9eda4f6a537d5ed8fda95d1677111656da37e9cfd080c3af02",
+      "matchesFixedPublicationPin": true
+    }
+  ],
+  "fixedPinsUnchangedFromDad0b721": true,
+  "publicOptionalModuleCount": 20,
+  "committedSourceModuleMatches": [
+    {
+      "path": "browser-rag/pdf-public-entry.mjs",
+      "bytes": 588,
+      "sha256": "fb17d9f29320922c1cf15b39965e9af092e0be48a73e0197f2c5a06ae7398fd2",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/generator-contract.mjs",
+      "bytes": 10836,
+      "sha256": "aad979e6297b67496311225931c6b6c7fe021884757d1fbf5ed957baf90cbf91",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/generator-native-core.mjs",
+      "bytes": 31025,
+      "sha256": "f2c5bf3fce31bd6f71b256a624235bd9aa145a0a519c46740143aae2eb60250b",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/receipt-snapshot.mjs",
+      "bytes": 4572,
+      "sha256": "af50e9a3e65b221743677eb0ec8e7ab7a6366de4b74000334cf370de81e48316",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-generation-input.mjs",
+      "bytes": 1671,
+      "sha256": "8c18e1e03b4a266d0ad3bbcf974eefb32b13408439058e2ca0ebd264a8855a9e",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-generation-source.mjs",
+      "bytes": 15581,
+      "sha256": "e81ce9d9eff2be61ba939c73e711201a87a47c9673ef9a66ee4f14cec1516878",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-generation.worker.mjs",
+      "bytes": 6535,
+      "sha256": "dde0f5b5e027cf4281717ea8b20c412f6aa94aacfd5349e3083921b33c361bc8",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-generator-runtime.mjs",
+      "bytes": 1712,
+      "sha256": "d0a8a956d156e943170b9555a18dc6889ce268880051e15ba58a397e6e72a898",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-generator-contract.mjs",
+      "bytes": 1876,
+      "sha256": "9e289f2b817d88ff52ab87fe1c3e67c0866c3b7e23abdf7c36fe927c9c9a4ba5",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/prompt-contract.mjs",
+      "bytes": 11381,
+      "sha256": "b92d118a2e52fc11ef3e6d0d811b10c5a2160e33296a020ec40f57af80342023",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-output-contract.mjs",
+      "bytes": 7825,
+      "sha256": "9fec00232a9842c1ce0495a3877be9372b210a4de43d13d311ca43dc51a10a7c",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-geometry-source.mjs",
+      "bytes": 3973,
+      "sha256": "c2fc22e4a12d564c89f8862df408fb3f70d74f68955772b8ffe21822cea2fd28",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-geometry-view.mjs",
+      "bytes": 3828,
+      "sha256": "c483ba9bf8f21d61df9f978bb562113e30210cc56b38c0655c00eb5123818761",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-table-contract.mjs",
+      "bytes": 10979,
+      "sha256": "cb25d02d86b339facc429058f67d92e85023d5650b37e09261616ffc44ecb5db",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/financial-lookup-view.mjs",
+      "bytes": 9868,
+      "sha256": "393cb13b3ceb40430e3f6e656bfbb26d6ff552918c7868906aa4d2cfb2bac705",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/asset-preparation-source.mjs",
+      "bytes": 14381,
+      "sha256": "98431de41e85c6e2c8b22b550e84cf0add71ba534e74c894c0d49932fa355be3",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/asset-preparation.worker.mjs",
+      "bytes": 6109,
+      "sha256": "22bfd5515a53e659f2c3fb290179cd757e7b92d0f619948656c7023ebff39658",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/asset-preparation-view.mjs",
+      "bytes": 10195,
+      "sha256": "c045566f41074e847b284f7a15dfcbcb4be529060a43a92bd42b1ab9d63d765c",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/asset-preparation-transport.mjs",
+      "bytes": 12428,
+      "sha256": "2254785e52f00ac9e309ce10ef7bf75e2986c01753054d7d20768b7b6a962f79",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/pdf-worker-preparation.mjs",
+      "bytes": 6758,
+      "sha256": "04218ec71804efdfff1aed8d12fea630ffcc5e1e02a813f3cadee3a72994f932",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/runtime-failure-contract.mjs",
+      "bytes": 8194,
+      "sha256": "125e464684fa1d76db60117dca0ef7b8331aafb3908fe6f6f0dd9432ba8a7c49",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/embedding-runtime.mjs",
+      "bytes": 28770,
+      "sha256": "2d07511387256b7299c21d9c55399b02341171dccb3f930d538c97361bb6207c",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/embedding-source.mjs",
+      "bytes": 20561,
+      "sha256": "e2e3646bd9d0049b63957c9094187f9f3fb5d3897a119a98020c254423755317",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/embedding.worker.mjs",
+      "bytes": 5022,
+      "sha256": "f45371fe54a11da6862d4dcb492a215e8d56f52ce0861320d305448295dd1edc",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/query-source.mjs",
+      "bytes": 22003,
+      "sha256": "b9d7cbaebdd47e75fbc36195715e5a74934f4ad04d47575a56f8c81fe89e3ea8",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/pdf-session.mjs",
+      "bytes": 37681,
+      "sha256": "64041ff9693886d02c79244eaf75702e8619933e0f2b4075d6a54f31699c9af8",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/pdf-app.mjs",
+      "bytes": 50482,
+      "sha256": "73f2c04f3050385481f9d000f8a6873c61f89bc10e66b77625354a21694a36bf",
+      "matchesCommittedSource": true
+    },
+    {
+      "path": "browser-rag/verified-cache.mjs",
+      "bytes": 14385,
+      "sha256": "0098649b16c1027abd162730b6af1a086f05738818c2dfdb70942aa97271d19c",
+      "matchesCommittedSource": true
+    }
+  ],
+  "newSharedCore": "browser-rag/runtime-failure-contract.mjs",
+  "newFigurePairMatches": [
+    {
+      "path": "figures/reader-owned-rag.archify.html",
+      "bytes": 783348,
+      "sha256": "ab342793394b3dadf3d81f6610d5cd9909eb2624443745c48de206df53b4a452"
+    },
+    {
+      "path": "figures/reader-owned-rag.archify.json",
+      "bytes": 7900,
+      "sha256": "aa3c118045ed1d57af9a906fd3a5023851a09278a82d62fe44a66d65a6108a18"
+    }
+  ],
+  "transportModule": {
+    "path": "browser-rag/asset-preparation-transport.mjs",
+    "bytes": 12428,
+    "sha256": "2254785e52f00ac9e309ce10ef7bf75e2986c01753054d7d20768b7b6a962f79",
+    "matchesCommittedSource": true
+  },
+  "publicationBoundary": {
+    "excludedDistributionPaths": [],
+    "generatorRegistryMatchesFixedPublicationContract": true,
+    "figureDeliveryAuditAndStrictCheckRecordsExcluded": true,
+    "sourceDocumentsAndDevelopmentTreesExcluded": true
+  },
+  "acceptanceLimits": [
+    "Successful CI jobs cover controlled Node contracts, Python build/delivery/routing tests, public static build/manifest and Pages deploy",
+    "This audit does not infer exact CI test counts from job names or green metadata",
+    "Exact source transport identity does not establish actual CORS availability, decoded-body completion or successful native model preparation",
+    "No GPU inference, native browser model initialization, answer generation, financial accuracy, human acceptance or dot checkout established",
+    "All pins were compared against the actual CI manifest; reviewer did not download large model/runtime bodies or the Pages archive"
+  ]
+}

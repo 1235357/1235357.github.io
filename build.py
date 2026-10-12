@@ -13,13 +13,14 @@ import markdown
 import json
 import hashlib
 import browser_release_assets as release
+from portfolio import render_home
 
 ROOT = Path(__file__).resolve().parent
 FILE_BLOCK_BYTES = 1024 * 1024
 PUBLIC_SITE_MAX_BYTES = 1_000_000_000
 
 
-def render_page(title, content, *, section='SERIES', outline='', public_release=False):
+def render_page(title, content, *, section='SERIES', outline='', public_release=False, has_portfolio=False):
     desktop_outline = f'<nav aria-label="Article sections">{outline}</nav>' if outline else ''
     if outline:
         mobile_outline = ('<details class="mobile-outline"><summary>On this page</summary>'
@@ -34,6 +35,7 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
         else f'<article>{part}</article>' for part in parts if part.strip()
     )
     publication_label = 'Documentation · browser lab' if public_release else 'Local draft · not published'
+    series_url = 'journal.html' if has_portfolio else 'index.html'
     footer_html = (
         '© 2026 Zhentong Ye · '
         '<a href="https://github.com/1235357/1235357.github.io">Source</a> · '
@@ -48,7 +50,7 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
 <header><a href="index.html">ZHENTONG YE / ENGINEERING NOTES</a>
 <span>{publication_label}</span></header>
 <main><aside><p>FIELD NOTES / {escape(section)}</p><p>Evidence, interfaces,<br>and engineering decisions.</p>
-<a href="index.html">Series index ↗</a>{desktop_outline}</aside>{article_layout}</main>
+<a href="{series_url}">Series index ↗</a>{desktop_outline}</aside>{article_layout}</main>
 <footer>{footer_html}</footer></html>'''
 
 
@@ -160,6 +162,8 @@ def validate_local_references(output):
 
 
 def render_site(root, output, *, public_release=False):
+    profile_path = root / 'portfolio.json'
+    has_portfolio = profile_path.is_file()
     copy_browser_assets(root, output, public_release=public_release)
     figure_output = output / 'figures'
     figure_output.mkdir()
@@ -190,7 +194,8 @@ def render_site(root, output, *, public_release=False):
         html = renderer.convert(raw)
         name = source.stem + '.html'
         (output / name).write_text(render_page(title, html, section=source.stem.split('-', 1)[0],
-                                              outline=renderer.toc, public_release=public_release), encoding='utf-8')
+                                              outline=renderer.toc, public_release=public_release,
+                                              has_portfolio=has_portfolio), encoding='utf-8')
         links.append(f'<li><a href="{escape(name)}">{escape(title)}</a></li>')
     featured = ''
     if (output / '07-operational-receipts.html').is_file():
@@ -211,7 +216,13 @@ def render_site(root, output, *, public_release=False):
             featured = featured.replace('Local implementation and acceptance evidence. Financial accuracy, scale measurements and public release remain separate gates.',
                 'Reader-device browser lab and exposed development evidence. Native drafts and source-cell candidates remain unadjudicated; no held-out accuracy or broad-device performance claim.')
     intro = '<h1>Building systems.<br>Checking evidence.</h1><p>A technical learning series on financial retrieval, software boundaries and evaluation. Drafts describe verified implementation and unresolved limitations separately.</p>' + featured + '<h2>Read the series</h2><ol>' + ''.join(links) + '</ol>'
-    (output / 'index.html').write_text(render_page('Engineering notes', intro, public_release=public_release), encoding='utf-8')
+    if has_portfolio:
+        profile = json.loads(guard_path(profile_path, root).read_text(encoding='utf-8'))
+        (output / 'index.html').write_text(render_home(profile, public_release=public_release), encoding='utf-8')
+        (output / 'journal.html').write_text(render_page('Engineering notes', intro,
+            public_release=public_release, has_portfolio=True), encoding='utf-8')
+    else:
+        (output / 'index.html').write_text(render_page('Engineering notes', intro, public_release=public_release), encoding='utf-8')
     (output / 'style.css').write_text(guard_path(root / 'style.css', root).read_text(encoding='utf-8'), encoding='utf-8')
     return len(links)
 

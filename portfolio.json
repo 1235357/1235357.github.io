@@ -1,0 +1,89 @@
+{
+  "name": "Zhentong (Tony) Ye",
+  "location": "Evanston, Illinois",
+  "intro": "I'm a Northwestern M.S. Computer Science student building AI tools for practical workflows. My projects connect language models, retrieval and evaluation with interfaces that make their behavior easier to inspect.",
+  "availability": "Seeking Summer 2027 internships in applied AI and software engineering",
+  "education": [
+    {"school": "Northwestern University", "degree": "M.S. in Computer Science", "period": "September 2026–March 2028 (expected)", "detail": "Current study: Large Language Models, Agent AI, Scalable Software Architectures, and Software Design Principles and Practices."},
+    {"school": "Wenzhou-Kean University", "degree": "B.A. in Mathematical Sciences · Data Analytics Option · Computer Science minor", "period": "September 2022–June 2026", "detail": "GPA 3.822/4.00 · Magna Cum Laude. Completed coursework includes Applied Machine Learning, Algorithms and Operating Systems."}
+  ],
+  "projects": [
+    {
+      "id": "nvidia-rag", "category": "RETRIEVAL / SOFTWARE ENGINEERING", "title": "NVIDIA Financial RAG",
+      "role": "AI-assisted engineering project", "period": "September 2026–present", "phase": "Working browser lab · ongoing evaluation",
+      "description": "Ask a local document a question, then inspect how its pages become chunks, vectors, retrieved evidence and a model-generated draft. A separately packaged Python API explores integration with other applications.",
+      "details": [
+        "Developing an offline Python document index with dense retrieval and source-linked evidence over NVIDIA reports.",
+        "Building a reader-device browser workflow with visible parsing, tokenization, vector search, context assembly and native generation stages. The lab lets you choose your own local PDF.",
+        "Investigating query formulation, citations, abstention and evaluation against original report evidence. A successful model run produces a draft; financial answer quality still needs evaluation.",
+        "Writing the engineering decisions and debugging history as a continuing series, with editable architecture figures and reproducible acceptance records."
+      ],
+      "stack": ["Python", "JavaScript", "PDF.js", "Transformers.js", "WebGPU", "Dense retrieval"],
+      "links": [{"label": "Try the browser lab", "href": "browser-rag/inspector.html"}, {"label": "Read the project journal", "href": "journal.html"}, {"label": "Python API source", "href": "https://github.com/1235357/nvidia-financial-rag"}]
+    },
+    {
+      "id": "llava-gi", "category": "MULTIMODAL / FINE-TUNING", "title": "Fine-Tuning LLaVA-GI",
+      "role": "Collaborative research · WKU Student Partnering with Faculty", "period": "September 2024–September 2025", "phase": "Medical visual question answering study",
+      "description": "Collaboratively fine-tuned LLaVA-13B with LoRA/PEFT on Kvasir-VQA, connecting image–question–answer preparation to inference and evaluation.",
+      "details": [
+        "Prepared image–question–answer data, configured training and developed inference scripts with PyTorch and Hugging Face on Linux.",
+        "Contributed to generated-answer evaluation with ROUGE-1 and CIDEr and analyzed comparisons with the baseline. The project report records the team's results; they are specific to that experiment.",
+        "The SpF final report records ROUGE-1 recall 0.7512 and CIDEr 2.5701 on Kvasir-VQA. These are reported team experiment results, rather than a new reproduction or clinical validation.",
+        "Worked with faculty and teammates; a teammate published the code and checkpoint. This is a research prototype, with no clinical deployment claim."
+      ],
+      "stack": ["PyTorch", "Hugging Face", "LLaVA-13B", "LoRA / PEFT", "VQA evaluation"], "links": []
+    },
+    {
+      "id": "osef", "category": "RESEARCH / VIDEO EVIDENCE", "title": "OSEF: One-Step Evidence Fusion",
+      "role": "First author · Wenzhou-Kean University", "period": "September 2025–present", "phase": "arXiv preprint · July 2026",
+      "description": "Study how a planner can retrieve the right video evidence and predict an action sequence from an answer-redacted start–goal query.",
+      "details": [
+        "Investigated a query-conditioned cell-and-span evidence lattice that passes soft evidence to the planner before selecting a single video window.",
+        "Compared nine planner families with frozen retrieval, hard negatives and leakage checks, measuring evidence selection and procedure planning separately.",
+        "The preprint reports a 2.9–10.7 percentage-point FULL-SR gain on four matched same-task COIN/CrossTask settings. FULL-SR requires the correct video and complete action plan together.",
+        "In its hard same-task COIN-T3 intervention, masking 48 high-attention cells lowered PLAN-SR from 65.74% to 24.89%; masking 48 random cells left 65.60%, with retrieval unchanged. These are reported study results; read the paper for the setting and limitations."
+      ],
+      "stack": ["Multimodal retrieval", "Procedure planning", "Benchmark design", "Ablation studies"],
+      "links": [{"label": "Read the arXiv preprint", "href": "https://arxiv.org/abs/2607.29401"}]
+    },
+    {
+      "id": "artisk", "category": "AGENTS / PRODUCT INTERFACE", "title": "Artisk AI-Agent Product Project",
+      "role": "Project experience · Artisk Inc.", "period": "June–August 2026", "phase": "Implemented interface and grounding contract",
+      "description": "Built a tool-using agent interface with four expert views, shared context and explicit prompt/tool handoffs in React and TypeScript.",
+      "details": [
+        "Implemented the four-view product interface and shared context so expert workflows could pass information through explicit handoffs.",
+        "Modeled a knowledge graph spanning 68 concepts, with 180 nodes, 571 edges and 21 relation types; linked sources through graph expansion and alias matching.",
+        "Blocked citations to nonexistent source text and checked the grounding contract with 41 tests. These are project contract checks, rather than a general model-accuracy measure."
+      ],
+      "stack": ["React", "TypeScript", "Knowledge graphs", "Tool handoffs", "Citation grounding"], "links": []
+    },
+    {
+      "id": "ecommerce-agents", "category": "UNIVERSITY–INDUSTRY / WORKFLOW DESIGN", "title": "E-Commerce LLM Agent Platform",
+      "role": "Agent Engineer / AI Technical Lead · university–industry project", "period": "August 2026–present", "phase": "Requirements, data audit and system design",
+      "description": "Translating an anonymous cross-border e-commerce client's customer support, inventory and content needs into a proposed shared agent platform.",
+      "details": [
+        "Designing retrieval, policy checks, order/logistics tools, human handoff and auditable customer-support responses, alongside scenarios for citation, privacy and unsafe-action checks.",
+        "Identified nine SKUs repeated across sales channels and a replenishment-rule ambiguity that needs resolution before forecasting.",
+        "Designing SKU × channel × fulfillment-node P50/P80/P90 forecasts and rolling backtests that account for stockouts and promotions.",
+        "Defining product- and brand-grounded image, video-script and social-content workflows with human approval and traceable versions. These workflows remain in design."
+      ],
+      "stack": ["Agent architecture", "Requirements analysis", "SKU reconciliation", "Forecast evaluation"], "links": []
+    },
+    {
+      "id": "lead-qualification", "category": "UNIVERSITY–INDUSTRY / SOURCE-BACKED DATA", "title": "Overseas Lead Qualification",
+      "role": "Technical contributor · university–industry research", "period": "August 2026–present", "phase": "Provider comparison and prototype design",
+      "description": "Exploring source-backed prospect screening and an AI-assisted qualification workflow for an anonymous B2B manufacturing client.",
+      "details": [
+        "Compared five trade-data providers and prepared source-linked samples and a weighted proof-of-concept scorecard, separating product relevance, buyer identity and contact verification.",
+        "Contributed dashboard work, CSV templates and CRM field mapping for a founder-delivered demo.",
+        "Designing lead scoring, multilingual product content, RFQ intake and human-reviewed outreach. Provider comparison and prototype work do not establish a deployed sales service."
+      ],
+      "stack": ["Source verification", "Data evaluation", "Dashboard prototyping", "CRM field mapping"], "links": []
+    }
+  ],
+  "skills": [
+    {"title": "Models & retrieval", "text": "PyTorch · Hugging Face Transformers · LoRA/PEFT · LLaVA · source-linked RAG · dense retrieval"},
+    {"title": "Interfaces & software", "text": "Python · React/TypeScript · Linux · tool handoffs · shared context · API contracts"},
+    {"title": "Evaluation & data", "text": "Citation and abstention checks · VQA evaluation · video-to-plan benchmarks · SKU reconciliation · rolling-backtest design"}
+  ]
+}

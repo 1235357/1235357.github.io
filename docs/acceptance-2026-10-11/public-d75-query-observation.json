@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "release": "d75cc26a8fdf547537b3310e351a0a3fbbc7f9c5",
+  "url": "https://1235357.github.io/browser-rag/inspector.html",
+  "startedAtUtc": "2026-10-11T23:44:07.871Z",
+  "capturedAtUtc": "2026-10-11T23:44:26.810Z",
+  "statusTitle": "Query candidates; not an answer",
+  "statusDetail": "3 sourced candidates · 39 actual query tokens · 384 dimensions. Assemble their complete provenance context to inspect the evidence. An explicit generation action then becomes available.",
+  "queryReceiptText": "RepresentationminiLM-fp32-mean-l2-webgpu-v1Backendwebgpu · fp32Verified body113,629,084 bytesFetched body0 bytesCached body113,629,084 bytesAttempt elapsed1327.5 ms",
+  "trace": "{\n  \"runtimeId\": \"e3af958f-1cf5-44e8-9691-909034b6fdfd\",\n  \"documentEpoch\": 1,\n  \"active\": null,\n  \"terminal\": {\n    \"protocolVersion\": 1,\n    \"runtimeId\": \"e3af958f-1cf5-44e8-9691-909034b6fdfd\",\n    \"operationId\": \"op-1\",\n    \"documentEpoch\": 1,\n    \"operation\": \"query\",\n    \"kind\": \"result\",\n    \"stage\": \"rank\",\n    \"seq\": 15,\n    \"payload\": {\n      \"data\": {\n        \"query\": {\n          \"representationId\": \"miniLM-fp32-mean-l2-webgpu-v1\",\n          \"status\": \"query-embedded-not-retrieved\",\n          \"backend\": \"webgpu\",\n          \"dtype\": \"fp32\",\n          \"counts\": {\n            \"totalTokens\": 39,\n            \"dimensions\": 384\n          },\n          \"receipt\": {\n            \"verifiedBytes\": 113629084,\n            \"networkBytes\": 0,\n            \"cacheBytes\": 113629084,\n            \"elapsedMs\": 1327.5\n          }\n        },\n        \"retrieval\": {\n          \"sourceSha256\": \"8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428\",\n          \"representationId\": \"miniLM-fp32-mean-l2-webgpu-v1\",\n          \"status\": \"candidates-only\",\n          \"requestedTopK\": 3,\n          \"returnedCount\": 3,\n          \"queryNorm\": 1.0000001404099168\n        }\n      }\n    }\n  }\n}",
+  "scope": "Actual accepted native query/ranking lifecycle summary; original full artifacts require generator disclosure"
+}

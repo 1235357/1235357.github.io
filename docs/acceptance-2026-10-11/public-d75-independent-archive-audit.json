@@ -1,0 +1,537 @@
+{
+  "schemaVersion": 1,
+  "createdAtUTC": "2026-10-11T23:59:57.182Z",
+  "reviewer": "independent read-only subagent /root/public_native_archive_review",
+  "release": "d75cc26a8fdf547537b3310e351a0a3fbbc7f9c5",
+  "status": "PASS_SCOPED_ARCHIVE_CONSISTENCY_AND_CANONICAL_REPLAY",
+  "scope": "Existing supplied public IAB captures, complete original-input/receipt consistency and pure saved-output replay; no fresh browser/model/network execution",
+  "modelRuns": 0,
+  "browserActions": 0,
+  "networkRequests": 0,
+  "humanAcceptance": false,
+  "humanGoldAdjudications": 0,
+  "financialCorrectness": "unestablished",
+  "claimSupport": "unestablished",
+  "checks": [
+    {
+      "id": "exact-original-eight-fields",
+      "status": "PASS",
+      "note": "Exactly the canonical eight original-input fields are present, without substitutions."
+    },
+    {
+      "id": "source-pdf-bytes",
+      "status": "PASS",
+      "note": "Selected local PDF body is 74,085 bytes and has the same SHA-256 and basename as the archived source."
+    },
+    {
+      "id": "source-excerpt-pages",
+      "status": "PASS",
+      "note": "The artifact contains two physical excerpt pages with PDF labels 3 and 4; no full-report lineage is inferred."
+    },
+    {
+      "id": "geometry-exact-contract",
+      "status": "PASS",
+      "note": "Every retained PDF.js page and text-item geometry record passes the current exact copier unchanged."
+    },
+    {
+      "id": "geometry-text-projection",
+      "status": "PASS",
+      "note": "Removing geometry through the canonical source projection yields exactly the original-input source record."
+    },
+    {
+      "id": "all-chunks-exact-contract",
+      "status": "PASS",
+      "note": "All five mechanical UTF-16 windows, source-span identifiers, quotes and inserted presentation segments pass the complete source/chunk copier."
+    },
+    {
+      "id": "all-five-open-disclosures",
+      "status": "PASS",
+      "note": "The five separately archived disclosure objects exactly equal every chunk in the original input."
+    },
+    {
+      "id": "independent-joined-page-quotes",
+      "status": "PASS",
+      "note": "Every chunk is the declared JS UTF-16 slice of nonempty parser-item text joined by one newline; every source segment also maps to an exact retained geometry item span."
+    },
+    {
+      "id": "full-five-embedding-rows",
+      "status": "PASS",
+      "note": "Five complete finite 384-dimensional rows, matching chunk IDs and token rows, are present; all row norms are within 1e-4 of one."
+    },
+    {
+      "id": "full-query-vector",
+      "status": "PASS",
+      "note": "The archived query contains all 39 token IDs and all 384 finite dimensions; the calculated norm exactly equals the retrieval norm."
+    },
+    {
+      "id": "canonical-source-vector-rank-context",
+      "status": "PASS",
+      "note": "The shared canonical constructor revalidates source, chunks, embedding/query token budgets, metadata and every exact cosine-ranked candidate before assembling all three evidence units."
+    },
+    {
+      "id": "embedding-lifecycle-summary",
+      "status": "PASS",
+      "note": "Native terminal embed summary matches all archive identities, counts, backend and byte accounting; terminal is result/encode with no active operation."
+    },
+    {
+      "id": "query-lifecycle-summary",
+      "status": "PASS",
+      "note": "The native result/rank terminal exactly matches the original eight-field query metadata, with no active operation."
+    },
+    {
+      "id": "chunk-lifecycle-summary",
+      "status": "PASS",
+      "note": "The native result/index terminal has the same source digest, parser, page count, chunker and complete chunk counts."
+    },
+    {
+      "id": "complete-context-open-disclosures",
+      "status": "PASS",
+      "note": "All three opened context disclosures contain the exact full quotes and all exact segment arrays in rank order."
+    },
+    {
+      "id": "preparation-current-schema-two",
+      "status": "PASS",
+      "note": "The exact current schema-2 generator receipt passes the transport-aware canonical copier with all eight unchanged pins."
+    },
+    {
+      "id": "preparation-byte-scope",
+      "status": "PASS",
+      "note": "The complete later preparation records 815,725,938 cache bytes, zero network bytes and no external reads; no remote-transfer claim is made for this cached run."
+    },
+    {
+      "id": "earlier-preparation-unknown-preserved",
+      "status": "PASS",
+      "note": "The continuation capture explicitly states there is no active preparation or current receipt and that the first attempt terminal/cause are unestablished; later preparation started after this observation."
+    },
+    {
+      "id": "first-generation-timeout-preserved",
+      "status": "PASS",
+      "note": "The first generation remains a result-free GENERATION_TIMEOUT error at adapter/seq 1 with retained context; its timer branch and cause are not inferred."
+    },
+    {
+      "id": "full-native-financial-receipt",
+      "status": "PASS",
+      "note": "The full detached native financial receipt passes the canonical exact copier unchanged, including original context, prompt/preflight, token sequence, eight stages, byte totals and disposal."
+    },
+    {
+      "id": "prompt-and-generated-token-identity",
+      "status": "PASS",
+      "note": "All 1,745 prompt IDs agree across full preflight/prepared prompt; all 33 generated IDs form exactly the suffix of the 1,778-ID full sequence, which terminates at EOS."
+    },
+    {
+      "id": "generation-terminal-bindings",
+      "status": "PASS",
+      "note": "The result/cleanup terminal at seq 221 with no active operation exactly projects the full native receipt. The failed and successful runtime identities are different and retry began after the failure capture."
+    },
+    {
+      "id": "pure-output-inspection-identity",
+      "status": "PASS",
+      "note": "The existing strict inspector recomputes EOS, complete JSON/schema and source-backed citation identity, yielding exactly the separately archived UNVERIFIED financial draft."
+    },
+    {
+      "id": "citation-e4-complete-provenance",
+      "status": "PASS",
+      "note": "E4 binds rank 1, zero-based chunk ordinal 3, excerpt physical page 2/PDF label 4, UTF-16 [0,512), exact quote and all 105 segments; its page is comprehensive income, labelled In millions."
+    },
+    {
+      "id": "fresh-cli-canonical-replay",
+      "status": "PASS",
+      "note": "A newly executed existing CLI command returns canonical-output-replayed, EOS, draft, no error, no missing input; its complete result exactly equals a fresh exported-function replay and the root prior result."
+    },
+    {
+      "id": "served-transport-identity-only",
+      "status": "PASS",
+      "note": "The recorded completed public transport module body matches the current module bytes and digest, while the archive explicitly disclaims a complete request graph."
+    },
+    {
+      "id": "observations-one-release",
+      "status": "PASS",
+      "note": "All wrapper observations with a release field identify the same public d75 commit and inspector URL."
+    },
+    {
+      "id": "archives-unchanged-during-audit",
+      "status": "PASS",
+      "note": "Every supplied archive and screenshot still has its original byte length and SHA-256 after the read-only verification."
+    }
+  ],
+  "sourcePdf": {
+    "file": "local-nvidia-fy2025-q2-original-pages-3-4.pdf",
+    "bytes": 74085,
+    "sha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+    "path": "[local source path withheld]",
+    "scope": "Hash/size identity of selected two-page local excerpt only; no fresh PDF extraction or original full-report authentication"
+  },
+  "archives": [
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-all-chunk-disclosures.json",
+      "bytes": 166707,
+      "sha256": "39e86cd7b6a2ba93de09230458f5b050d1706423341b65efbeef41d8d441ecaf"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-cdn-transport-identity.json",
+      "bytes": 440,
+      "sha256": "09df6f0ae4f65e80e3686664bd9ad229d46d604e34844312a76e2671b2059517"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-chunk-observation.json",
+      "bytes": 2234,
+      "sha256": "aee59f34ea9413268023abaeea597f6256b6a75f9dd3dc2a7e198a785cf46c1f"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-context-observation.json",
+      "bytes": 186067,
+      "sha256": "14315b2a271690b143c08da49444f3d2fc9d092095d48d45bf3bf9cb502913be"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-encoder-observation.json",
+      "bytes": 1740,
+      "sha256": "a1d46271ea5cbbe2d06e08708832180e7de1dddb4868bd8e29271d33c920029a"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-generation-observation.json",
+      "bytes": 3274,
+      "sha256": "dca8891faaaf10d454604a3380e7efa33b3972b001c90e854785a4b378e4a255"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-generation-refusal.json",
+      "bytes": 1138,
+      "sha256": "b9262383d6f2f88c98181f3dc0c0bfd732ee01cedd6cfc8db26dcf39e0718844"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-generator-preparation-observation.json",
+      "bytes": 600,
+      "sha256": "0bc3024978a7dca6d49077e4f053eb67243e519fc10d375af31acd269ba7a29f"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-generator-preparation.json",
+      "bytes": 2520,
+      "sha256": "1fe1eb019a3792be6583c51ea5c3f08f6b427db8624dae766d9b4e619cd6eb3c"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-geometry.json",
+      "bytes": 231359,
+      "sha256": "ece2e998893fc5c3776a39fe625902d33cce6985c149d7934ef7242acbfd836d"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-independent-canonical-replay.json",
+      "bytes": 33572,
+      "sha256": "6860eee1db29e1b53610b2dd983a5c875ab7987aa3ae8328bde08549163feda4"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-native-draft.png",
+      "bytes": 89731,
+      "sha256": "5f2542f031455986f1f28cfc47f0c2d0a4a8ee26bc214b376bb7519bbb03e584"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-native-raw.json",
+      "bytes": 266927,
+      "sha256": "948073864d701edfe24145f938c208cb94d172a3167497d5e855320045ed1e9e"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-native-replay.json",
+      "bytes": 33572,
+      "sha256": "856cc9fc91b4cfb5b446be3b3074f3c42a8e8abfd2f6ee065b7a59771cb453b1"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-original8.json",
+      "bytes": 393262,
+      "sha256": "cc52381f9ebca33c4252be42180ede43ec6b0350f9e16164665fe33bd9bf80e6"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-output-inspection.json",
+      "bytes": 28601,
+      "sha256": "fe0f191321a0758a5b4f123277e30eda81d2219d477b1f1e86021e53b0c19fbe"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-preparation-continuation-state.json",
+      "bytes": 573,
+      "sha256": "ef269bd5f49ba280e1175a0c1579355d1087420c842e41f99fcc300b7b2e1f86"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-query-observation.json",
+      "bytes": 2154,
+      "sha256": "9a32ff4af5d0de74b30396438ae85930ed94c0d9a9dbb15efbf2b4518a277cc8"
+    },
+    {
+      "file": "docs/acceptance-2026-10-11/public-d75-source-observation.json",
+      "bytes": 1457,
+      "sha256": "500eeef916ba9be3c176f2e33cbafa8a49cac240f9d0b392886a48b0eb6f6fc4"
+    }
+  ],
+  "verifierModules": [
+    {
+      "file": "browser-rag/acceptance/replay-financial-receipts.mjs",
+      "bytes": 8634,
+      "sha256": "7e2d8807e867a2f25993abca03cbdebd90f6850881b5e63dbcac6e0c8b1bdde4"
+    },
+    {
+      "file": "browser-rag/financial-output-contract.mjs",
+      "bytes": 7825,
+      "sha256": "9fec00232a9842c1ce0495a3877be9372b210a4de43d13d311ca43dc51a10a7c"
+    },
+    {
+      "file": "browser-rag/context-contract.mjs",
+      "bytes": 4351,
+      "sha256": "078eee55d140a6ed4b703b2fd86849eb7a6dd0510cd6e96adefbac10876e1314"
+    },
+    {
+      "file": "browser-rag/compute-source.mjs",
+      "bytes": 21694,
+      "sha256": "6331de29a4e722f8179836203792a6453fdc75e96dd79cf82fd2f0421f4442cd"
+    },
+    {
+      "file": "browser-rag/embedding-source.mjs",
+      "bytes": 20561,
+      "sha256": "e2e3646bd9d0049b63957c9094187f9f3fb5d3897a119a98020c254423755317"
+    },
+    {
+      "file": "browser-rag/embedding-contract.mjs",
+      "bytes": 3236,
+      "sha256": "32d97024241b6ef7fb127742e3ca5dfc1bc08e0f488e7114ad4f10d514ac0869"
+    },
+    {
+      "file": "browser-rag/query-source.mjs",
+      "bytes": 22003,
+      "sha256": "b9d7cbaebdd47e75fbc36195715e5a74934f4ad04d47575a56f8c81fe89e3ea8"
+    },
+    {
+      "file": "browser-rag/retrieval.mjs",
+      "bytes": 3542,
+      "sha256": "f8da1a7d20206f1bd7b1d463a0eb629f937ebc9026e5ca0696eecb66c74a18a1"
+    },
+    {
+      "file": "browser-rag/financial-geometry-source.mjs",
+      "bytes": 3973,
+      "sha256": "c2fc22e4a12d564c89f8862df408fb3f70d74f68955772b8ffe21822cea2fd28"
+    },
+    {
+      "file": "browser-rag/financial-generator-contract.mjs",
+      "bytes": 1876,
+      "sha256": "9e289f2b817d88ff52ab87fe1c3e67c0866c3b7e23abdf7c36fe927c9c9a4ba5"
+    },
+    {
+      "file": "browser-rag/prompt-contract.mjs",
+      "bytes": 11381,
+      "sha256": "b92d118a2e52fc11ef3e6d0d811b10c5a2160e33296a020ec40f57af80342023"
+    },
+    {
+      "file": "browser-rag/generator-contract.mjs",
+      "bytes": 10836,
+      "sha256": "aad979e6297b67496311225931c6b6c7fe021884757d1fbf5ed957baf90cbf91"
+    },
+    {
+      "file": "browser-rag/generator-native-core.mjs",
+      "bytes": 31025,
+      "sha256": "f2c5bf3fce31bd6f71b256a624235bd9aa145a0a519c46740143aae2eb60250b"
+    },
+    {
+      "file": "browser-rag/financial-generation-source.mjs",
+      "bytes": 15581,
+      "sha256": "e81ce9d9eff2be61ba939c73e711201a87a47c9673ef9a66ee4f14cec1516878"
+    },
+    {
+      "file": "browser-rag/receipt-snapshot.mjs",
+      "bytes": 4572,
+      "sha256": "af50e9a3e65b221743677eb0ec8e7ab7a6366de4b74000334cf370de81e48316"
+    },
+    {
+      "file": "browser-rag/asset-preparation-source.mjs",
+      "bytes": 14381,
+      "sha256": "98431de41e85c6e2c8b22b550e84cf0add71ba534e74c894c0d49932fa355be3"
+    },
+    {
+      "file": "browser-rag/asset-preparation-transport.mjs",
+      "bytes": 12428,
+      "sha256": "2254785e52f00ac9e309ce10ef7bf75e2986c01753054d7d20768b7b6a962f79"
+    }
+  ],
+  "observed": {
+    "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+    "parser": {
+      "name": "pdfjs",
+      "version": "6.4.299",
+      "policyVersion": "text-items-v1",
+      "disableNormalization": true
+    },
+    "physicalPages": 2,
+    "pageLabels": [
+      "3",
+      "4"
+    ],
+    "sourceItems": [
+      {
+        "physicalPage": 1,
+        "pageLabel": "3",
+        "items": 239
+      },
+      {
+        "physicalPage": 2,
+        "pageLabel": "4",
+        "items": 106
+      }
+    ],
+    "chunkCounts": {
+      "chunks": 5,
+      "outputUtf16": 2426,
+      "fragments": 687
+    },
+    "embeddingRows": 5,
+    "embeddingTokens": 644,
+    "dimensions": 384,
+    "vectorNorms": [
+      0.9999999754798107,
+      1.0000002356052182,
+      0.9999999659512733,
+      1.0000001784772694,
+      1.0000002469896763
+    ],
+    "queryTokens": 39,
+    "queryNorm": 1.0000001404099168,
+    "question": "According to NVIDIA's fiscal 2025 second-quarter report, what was net income for the three-month period ended July 28, 2024, in millions of dollars?",
+    "topK": 3,
+    "candidates": [
+      {
+        "citationId": "E4",
+        "rank": 1,
+        "ordinal": 3,
+        "physicalPageNumber": 2,
+        "pageLabel": "4",
+        "startUtf16": 0,
+        "endUtf16": 512,
+        "cosine": 0.741380158080515,
+        "quoteSha256": "098792f3e77702273b863ae36295c259b0c3f42a483a4d2dad902ae7fddf6ca4",
+        "segments": 105
+      },
+      {
+        "citationId": "E1",
+        "rank": 2,
+        "ordinal": 0,
+        "physicalPageNumber": 1,
+        "pageLabel": "3",
+        "startUtf16": 0,
+        "endUtf16": 512,
+        "cosine": 0.7049746810351984,
+        "quoteSha256": "caf6269dc40b77554fb1cc137b58b7d5d047ec97ac1c1d43f175dee2022b7717",
+        "segments": 117
+      },
+      {
+        "citationId": "E2",
+        "rank": 3,
+        "ordinal": 1,
+        "physicalPageNumber": 1,
+        "pageLabel": "3",
+        "startUtf16": 448,
+        "endUtf16": 960,
+        "cosine": 0.42529162273219806,
+        "quoteSha256": "29909db1340af2d852237ca46d54c43ca21fdb6a6e2fd15724aeeba254d45c13",
+        "segments": 173
+      }
+    ],
+    "preparation": {
+      "assets": 8,
+      "verifiedBytes": 815725938,
+      "cacheBytes": 815725938,
+      "networkBytes": 0,
+      "externalReads": [],
+      "elapsedMs": 9883
+    },
+    "native": {
+      "modelId": "onnx-community/Qwen2.5-0.5B-Instruct",
+      "revision": "22942cb7d7ba4cc81bb4673549ca4d4614469b5e",
+      "device": "webgpu",
+      "dtype": "q4",
+      "inputTokens": 1745,
+      "generatedTokens": 33,
+      "termination": "eos",
+      "elapsedMs": 88347.80000001192,
+      "stages": [
+        {
+          "stage": "adapter",
+          "elapsedMs": 0
+        },
+        {
+          "stage": "assets",
+          "elapsedMs": 242.19999998807907
+        },
+        {
+          "stage": "sdk",
+          "elapsedMs": 9874.900000035763
+        },
+        {
+          "stage": "tokenizer",
+          "elapsedMs": 58335
+        },
+        {
+          "stage": "model",
+          "elapsedMs": 58664.10000002384
+        },
+        {
+          "stage": "generate",
+          "elapsedMs": 72333.90000003576
+        },
+        {
+          "stage": "reads",
+          "elapsedMs": 88331.19999998808
+        },
+        {
+          "stage": "cleanup",
+          "elapsedMs": 88331.40000003576
+        }
+      ],
+      "cachePreparation": {
+        "assets": 8,
+        "verifiedBytes": 815725938,
+        "networkBytes": 0,
+        "cacheBytes": 815725938
+      },
+      "sdkReads": {
+        "reads": 6,
+        "verifiedBytes": 814793281
+      },
+      "cleanup": {
+        "inputsDisposed": 2,
+        "resultDisposed": true,
+        "modelDisposed": true,
+        "cacheClosed": true,
+        "devicesDestroyed": 1
+      },
+      "terminalSeq": 221,
+      "answer": "16,599",
+      "citation": "E4",
+      "disposition": "draft"
+    }
+  },
+  "canonicalReplay": {
+    "command": "node browser-rag/acceptance/replay-financial-receipts.mjs --out docs/acceptance-2026-10-11/public-d75-independent-canonical-replay.json --original-input docs/acceptance-2026-10-11/public-d75-native-raw.json docs/acceptance-2026-10-11/public-d75-original8.json docs/acceptance-2026-10-11/public-d75-native-raw.json",
+    "exitCode": 0,
+    "archiveStatus": "canonical-output-replayed",
+    "strictOutputStatus": "shape-and-citation-identity-accepted",
+    "disposition": "draft",
+    "errorCode": null,
+    "modelRuns": 0,
+    "originalInputContextMatch": true,
+    "needsOriginalInputMissing": false
+  },
+  "limitations": [
+    "This audit did not observe or reproduce the browser/model run. Supplied DOM/lifecycle captures record the native execution; pure copier/replay checks prove archive consistency and contract validity, not authenticity of production.",
+    "Matching local PDF bytes and archived text/geometry does not authenticate full NVIDIA report lineage or reparse the PDF. Physical excerpt pages 1/2 have PDF labels 3/4; they are not the complete report.",
+    "Embedding vectors/token IDs and query vectors pass identity/ranking contracts, but this audit does not perform tokenizer roundtrip, encoder inference or semantic question/vector correspondence.",
+    "The full native receipt records 1,745 input IDs, 33 output IDs and EOS with disposal. This audit does not re-decode token IDs or run Qwen. Pure preflight/output inspection generationMode not-run is distinct from the full native receipt native-run.",
+    "E4 quote contains the requested date, In millions and 16,599 in a comprehensive-income statement; citation identity/quote mapping alone does not establish financial entailment, column interpretation, correctness, human gold acceptance or a quality score.",
+    "The first preparation terminal/cause remains unknown, and the first generation GEN_TIMEOUT timer branch/cause remains unestablished. Both observations are preserved without retrospective inference.",
+    "The later preparation is entirely cache verification with zero network bytes/external reads. SDK verified body/read totals are sealed local-consumption accounting, not six wire downloads.",
+    "The completed public transport-module identity does not establish a complete served module/network graph because the capture event buffer was truncated.",
+    "One native generation elapsed value and eight monotonic stage offsets are a single observation, not throughput, latency distribution, regression benchmark or production readiness.",
+    "No deployment, CI, hosted API, expanded-corpus, new wheel, security, source rights, legal redistribution or user mastery acceptance is established by this archive audit."
+  ],
+  "publicationProjection": {
+    "scope": "Two local absolute source-PDF path fields withheld; all verification assertions, archive/module identities and source PDF byte/hash identity preserved",
+    "originalAuditBytes": 21262,
+    "originalAuditSha256": "97d9f5896670ac6624a35b0e2e9767e5f32f28d87839af297025ec69ee2c5050",
+    "originalAuditPreservedLocally": true,
+    "changedFields": [
+      "sourcePdf.file",
+      "sourcePdf.path"
+    ]
+  }
+}
