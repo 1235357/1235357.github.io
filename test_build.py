@@ -551,6 +551,12 @@ class NavigationTest(unittest.TestCase):
             self.assertIn(f'id="{project}"', output)
         self.assertIn('href="browser-rag/inspector.html"', output)
         self.assertIn('href="journal.html"', output)
+        self.assertIn('id="demo"', output)
+        self.assertIn('id="project-demo"', output)
+        self.assertIn('src="browser-rag/inspector.html" loading="lazy"', output)
+        self.assertIn('https://www.linkedin.com/in/tony-zhentong-ye/', output)
+        self.assertIn('media.licdn.com/dms/image/', output)
+        self.assertTrue((build.ROOT / 'dist' / 'portfolio-demo.mjs').is_file())
         journal = (build.ROOT / 'dist' / 'journal.html').read_text(encoding='utf-8')
         self.assertIn('FIELD NOTES / SERIES</p>', journal)
         for source in (build.ROOT / 'articles').glob('*.md'):

@@ -1,5 +1,7 @@
 # Dot handoff - 2026-10-11
 
+The current homepage implementation uses a default light editorial layout, the requested linked LinkedIn portrait and a complete bottom demo frame. [Design notes](light-home-design.md) bind the installed Emil skills and scoped checks. `index.html` introduces six CV-selected experiences; `journal.html` retains all seven dark chapters. Add future manual demo choices to `portfolio.json` without creating simultaneous model frames. The previous homepage was publicly accepted at `e86c50d63ffd80c935e41d56391dece306f92971`, with [workflow 38190839016](https://github.com/1235357/1235357.github.io/actions/runs/38190839016) and [historical acceptance](acceptance-2026-10-11/public-personal-home-acceptance.json); that record does not accept the newer layout. Preserve native generation/evaluation boundaries and use a fresh checkout below. A documented handoff does not prove Dot has pulled or reproduced a commit.
+
 ## Release checkpoint
 
 - Historical diagnostic site: [1235357/1235357.github.io](https://github.com/1235357/1235357.github.io), deployment `dad0b721279497e1badd3ab686bf98f2af013e99`; [Actions 38180951673](https://github.com/1235357/1235357.github.io/actions/runs/38180951673): all three jobs **PASS**. [Manifest](acceptance-2026-10-11/public-owned-diagnostics-ci.json): **314 files / 919,316,456 bytes / 16 pins**. Historical `7c7a2c3` and earlier `368ba196`, `e497b2f`, `5a673bc` inventories remain dated records; their module-equality statement does not cover changed loaders.

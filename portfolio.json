@@ -1,6 +1,8 @@
 {
   "name": "Zhentong (Tony) Ye",
   "location": "Evanston, Illinois",
+  "portrait": {"src": "https://media.licdn.com/dms/image/v2/D4E03AQHTNhDehYj1lg/profile-displayphoto-crop_800_800/B4EZ2g44zkJwAI-/0/1776520793196?e=1793232000&v=beta&t=ByCs7QokMdqGG2rm3zPR2V_AXSl2MUcUM0SkB15JzfQ", "profile": "https://www.linkedin.com/in/tony-zhentong-ye/"},
+  "demos": [{"id": "nvidia-rag", "title": "NVIDIA Financial RAG", "src": "browser-rag/inspector.html"}],
   "intro": "I'm a Northwestern M.S. Computer Science student building AI tools for practical workflows. My projects connect language models, retrieval and evaluation with interfaces that make their behavior easier to inspect.",
   "availability": "Seeking Summer 2027 internships in applied AI and software engineering",
   "education": [

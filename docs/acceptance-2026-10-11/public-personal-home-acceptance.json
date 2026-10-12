@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS-scoped-personal-home-publication",
+  "observedAtUtc": "2026-10-12T01:24:25.681737+00:00",
+  "scope": "Reviewed public professional copy, six native project disclosures, preserved journal/lab navigation, actual CI manifest and observed stylesheet/finite desktop-mobile rendering",
+  "repository": "1235357/1235357.github.io",
+  "commit": "e86c50d63ffd80c935e41d56391dece306f92971",
+  "workflow": {
+    "runId": 38190839016,
+    "url": "https://github.com/1235357/1235357.github.io/actions/runs/38190839016",
+    "jobs": [
+      {
+        "id": 114623061082,
+        "name": "windows-contracts",
+        "conclusion": "success"
+      },
+      {
+        "id": 114623061219,
+        "name": "build",
+        "conclusion": "success"
+      },
+      {
+        "id": 114623511929,
+        "name": "deploy",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "publicUrl": "https://1235357.github.io/",
+  "ciArtifact": {
+    "files": 315,
+    "bytes": 919345093,
+    "pins": 16,
+    "smallManifestArchive": {
+      "id": 11721298727,
+      "bytes": 16336,
+      "sha256": "1bf6a63f4db5fec01fb1aad0d3a68ba76bdcca0c7fae170dcb6b287f1fd3969e",
+      "githubDigestMatch": true
+    },
+    "innerManifestBytes": 56123,
+    "innerManifestSha256": "2901aa5cef4f77a5014d477a85becaec2303f8bd2c42a3cc64dc3671993b6c75",
+    "pagesArtifact": {
+      "id": 11720824611,
+      "bytes": 525933396,
+      "scope": "GitHub metadata only; not independently downloaded or body-rehashed"
+    }
+  },
+  "localComparison": {
+    "exactMetadataMatches": 303,
+    "generatedTextDifferences": 12,
+    "crlfPairs": 3939,
+    "readOnlyLfComparison": true,
+    "completeByteReproducibilityClaimed": false
+  },
+  "observedStylesheet": {
+    "url": "https://1235357.github.io/style.css?v=320914d98fc2eea6",
+    "bytes": 12395,
+    "sha256": "320914d98fc2eea6986990c7724ab2b8cc32bf0e5d720e1feaa32c9af9044f8c",
+    "equalsCiBody": true,
+    "actualCssRules": 127,
+    "actualHeroDisplay": "grid",
+    "actualMainDisplay": "block"
+  },
+  "desktop": {
+    "viewportWidth": 908,
+    "documentWidth": 893,
+    "stylesheetHref": "https://1235357.github.io/style.css?v=320914d98fc2eea6",
+    "cssRules": 127,
+    "heroDisplay": "grid",
+    "mainDisplay": "block"
+  },
+  "mobile": {
+    "viewportWidth": 390,
+    "height": 844,
+    "documentWidth": 375,
+    "projects": 6,
+    "noHorizontalOverflow": true,
+    "temporaryViewportReset": true
+  },
+  "nativeActions": [
+    "Explicit reload after previous old stylesheet observation",
+    "Opened all six native project details and read their complete contributions",
+    "Homepage Journal link navigated to journal.html with seven chapters",
+    "Chapter07 opened and current public-native-run heading read back",
+    "Chapter header returned to personal index",
+    "Personal feature opened browser inspector",
+    "Mounted public runtime enabled PDF input/model preparation/native-generation contract",
+    "Inspector header returned to personal index"
+  ],
+  "sourceReview": {
+    "sixFormalCvExperiences": "PASS-independent",
+    "employmentAttribution": "project/research; no formal employment claim",
+    "currentEducation": "March2028 expected; not institutional authorization",
+    "privateContactsAndAttachments": "excluded",
+    "reviewedPublicProfessionalSource": "portfolio.json",
+    "sourceHtmlEscaping": "PASS",
+    "nativeDetails": 6
+  },
+  "nativeGenerationActionsThisVerification": 0,
+  "limitations": [
+    "Initial inspector DOM was observed before async public mount; separately preserved mounted DOM supplies acceptance",
+    "This verification did not repeat the already archived d75 native model run",
+    "Observed CSS body equals CI; no complete served HTML/model-module network-body graph was captured",
+    "Desktop/mobile geometry and screenshots are these finite viewports only",
+    "Financial gold, expanded-source/BGE/API release and dot reproduction remain separate requirements"
+  ],
+  "cacheFailureHistory": {
+    "initialCommit": "5b59ef03259fee624bccc00029efae2c81b85ae4",
+    "initialObservedStylesheetBytes": 4507,
+    "initialObservedStylesheetSha256": "875ea0d4cfbe5d8868bbe025953c760284fce346e8aa728723d5d1657d20b52a",
+    "equalsPriorD75Stylesheet": true,
+    "exactCacheLayerDiagnosed": false,
+    "correction": "Content version in personal homepage stylesheet URL",
+    "originalObservationAndScreenshotPreservedLocally": true
+  }
+}

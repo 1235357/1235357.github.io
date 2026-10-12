@@ -131,3 +131,7 @@ button, input::file-selector-button, select { border-radius: 3px; }
   .generation-answer, .generation-abstention { padding: 16px; font-size: 18px; }
   .generation-metrics { grid-template-columns: 82px minmax(0, 1fr); gap: 7px 12px; }
 }
+/* Native focus stays readable without disabling browser zoom. */
+input, input[type=file], textarea, select,
+.query-controls input, .query-controls textarea,
+.lookup-fields input, .lookup-fields select { font-size: 16px; }
