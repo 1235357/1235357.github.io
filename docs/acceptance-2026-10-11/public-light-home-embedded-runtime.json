@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "status": "PARTIAL-native-public-embedded-runtime",
+  "sourceCommit": "b4037fdf21563080ab3aa45a76659b20a354cdc3",
+  "publicUrl": "https://1235357.github.io/#demo",
+  "scope": "Actual retained IAB tab: local selected excerpt, parsing, chunks, explicit encoder attempts and current-demo selection",
+  "input": {"bytes": 74085, "sha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428", "physicalPages": 2, "pdfLabels": ["3", "4"]},
+  "source": {"accepted": true},
+  "chunks": {
+    "accepted": true,
+    "count": 5,
+    "outputUtf16Units": 2426,
+    "mappingFragments": 687,
+    "displayedSpans": [
+      {"physicalPage": 1, "start": 0, "end": 512},
+      {"physicalPage": 1, "start": 448, "end": 960},
+      {"physicalPage": 1, "start": 896, "end": 1377},
+      {"physicalPage": 2, "start": 0, "end": 512},
+      {"physicalPage": 2, "start": 448, "end": 857}
+    ]
+  },
+  "encoderAttempts": [
+    {"attempt": 1, "result": "EMBEDDING_TIMEOUT", "displayedDetail": "The embedding worker exceeded its readiness/work budget. Source and chunks are retained.", "vectorsAccepted": false},
+    {"attempt": 2, "action": "explicit retry from retained chunks", "result": "EMBEDDING_TIMEOUT", "observedIntermediate": "Encoder initialization · indeterminate. No reliable initialization percentage.", "vectorsAccepted": false}
+  ],
+  "currentDemoSelection": {"didReload": false, "fiveDisplayedChunksRetained": true, "sameTerminalStatusRetained": true},
+  "newQueryActions": 0,
+  "newGeneratorActions": 0,
+  "completeEmbeddedChainAccepted": false,
+  "humanGoldCount": 0,
+  "history": "Earlier public first chunk attempt timed out; its separate retry terminal was not captured before that tab became missing. This retained-tab success does not rewrite the earlier attempts.",
+  "limitations": [
+    "DOM observations and selected input hash; not a complete parser/chunk/encoder raw archive",
+    "Encoder timer branch and delay cause are not independently established",
+    "Source/chunk acceptance is separate from encoding, query, generation and financial correctness",
+    "Historical d75 full native draft retains its own earlier source/device scope",
+    "No physical-phone or performance-distribution acceptance"
+  ]
+}

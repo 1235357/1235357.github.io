@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS-scoped-light-design-publication",
+  "observedAtUtc": "2026-10-12T05:34:27.7115790Z",
+  "scope": "Light design, actual installed/applied skills, portrait, bottom demo frame, responsive layout, CI and observed stylesheet; not complete embedded-runtime acceptance",
+  "repository": "1235357/1235357.github.io",
+  "commit": "b4037fdf21563080ab3aa45a76659b20a354cdc3",
+  "publicUrl": "https://1235357.github.io/",
+  "workflow": {
+    "runId": 38205206414,
+    "url": "https://github.com/1235357/1235357.github.io/actions/runs/38205206414",
+    "jobs": [
+      {
+        "id": 114667056311,
+        "name": "windows-contracts",
+        "conclusion": "success"
+      },
+      {
+        "id": 114667056496,
+        "name": "build",
+        "conclusion": "success"
+      },
+      {
+        "id": 114667571437,
+        "name": "deploy",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "ciArtifact": {
+    "files": 316,
+    "bytes": 919354215,
+    "pins": 16,
+    "manifestArchive": {
+      "id": 11727346121,
+      "bytes": 16390,
+      "sha256": "8009a04f9b3db70a6602cdecac5521302f57de8af4eaafd7d32df6b07f98730f",
+      "officialDigestMatch": true
+    },
+    "innerManifest": {
+      "bytes": 56275,
+      "sha256": "58a8c9655bd78d8e337bc91f27c766008ac3877bf5f029c9d495df7dd9618f25"
+    },
+    "pagesArtifact": {
+      "id": 11727251384,
+      "bytes": 525938312,
+      "scope": "official metadata only; not body downloaded/rehashed"
+    }
+  },
+  "localComparison": {
+    "exactMetadataMatches": 304,
+    "readOnlyLfDifferences": 12,
+    "crlfPairs": 4040,
+    "completeByteReproducibilityClaimed": false
+  },
+  "observedStylesheet": {
+    "url": "https://1235357.github.io/style.css?v=0c5f4aa5ec898a64",
+    "path": "style.css",
+    "bytes": 18945,
+    "sha256": "0c5f4aa5ec898a641de6bb73cb349c4ff3f624d0769d78a2b94a69a8087db352",
+    "equalsCiBody": true
+  },
+  "skills": {
+    "source": "https://github.com/emilkowalski/skills",
+    "commit": "2d228630ba1446365f614a108cb8252f1feda202",
+    "installedFolders": 15,
+    "verifiedInstalledFiles": 23,
+    "used": [
+      "emil-design-eng",
+      "mobile-native",
+      "review-animations"
+    ],
+    "method": "official installer; full applicable instructions/standards read",
+    "independentApprovalSha256": "c6facdc77e576471221d5913d393ba187157b35ad7ce4da06a7320ee4ea3005d"
+  },
+  "design": {
+    "colorScheme": "light",
+    "portraitLoadedNaturalWidth": 800,
+    "portraitUrl": "exact supplied LinkedIn image URL",
+    "portraitProfile": "https://www.linkedin.com/in/tony-zhentong-ye/",
+    "professionalRecords": 6,
+    "bottomDemoFrames": 1,
+    "manualConfiguration": "portfolio.json demos array; current one entry",
+    "captionGap": "8px 16px",
+    "pressMs": 120,
+    "releaseMs": 80,
+    "keyboardPressMovement": false,
+    "reducedMotion": true,
+    "hoverCapabilityGated": true
+  },
+  "desktop": {
+    "viewportWidth": 908,
+    "documentWidth": 893,
+    "heroOpacity": 1,
+    "portraitLoaded": true
+  },
+  "responsiveViewport": {
+    "width": 390,
+    "height": 844,
+    "documentWidth": 375,
+    "frameWidth": 341,
+    "projects": 6,
+    "noPageHorizontalOverflow": true,
+    "viewportReset": true
+  },
+  "embeddedRuntime": {
+    "initialMount": "delayed module responses; initially static/disabled, later public mount and file input enabled",
+    "responseObservation": "later named scripts received HTTP200; exact delay cause unknown",
+    "actualPublicControls16px": 12,
+    "actualPublicPdfParse": "accepted two-page excerpt, labels3/4",
+    "actualPublicChunkFirstAttempt": "COMPUTE_TIMEOUT; retained source, no accepted chunks",
+    "explicitChunkRetry": "started; terminal uncaptured before tab handle became missing",
+    "separateLocalEmbeddedChunks": 5,
+    "publicEmbeddedModelActionsAtThisSnapshot": 0,
+    "completePublicChainAccepted": false
+  },
+  "journalNavigation": "homepage Journal opened journal; its header returned home",
+  "limitations": [
+    "PASS applies only to design/static-publication scope",
+    "Public chunk timeout and unknown retry terminal remain open",
+    "No physical-phone, broad-device, financial/human-gold or production-API acceptance",
+    "No complete served HTML/script/model body graph captured",
+    "Historical d75 native draft retains prior commit/device scope",
+    "Third-party LinkedIn hotlink has expiration parameter"
+  ]
+}
