@@ -86,15 +86,19 @@ class ReleaseBoundaryTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "1 GB"):
                 release.main()
 
-    def test_refuses_missing_and_same_size_corrupt_weight(self):
-        name = next(name for name in release.PINNED_ASSETS if name.endswith("model_q4.onnx"))
-        weight = self.dist / name
-        weight.unlink()
-        with self.assertRaisesRegex(ValueError, "complete public entry"):
-            release.main()
-        weight.write_bytes(b"X" * len(b"controlled static fixture"))
-        with self.assertRaisesRegex(ValueError, "immutable publication pins"):
-            release.main()
+    def test_refuses_missing_and_same_size_corrupt_pinned_assets(self):
+        names = (next(name for name in release.PINNED_ASSETS if name.endswith("model_q4.onnx")),
+                 "assets/typography/Manrope-Variable.ttf", "assets/typography/Manrope-OFL.txt")
+        for name in names:
+            with self.subTest(name=name):
+                asset = self.dist / name
+                asset.unlink()
+                with self.assertRaisesRegex(ValueError, "complete public entry"):
+                    release.main()
+                asset.write_bytes(b"X" * len(b"controlled static fixture"))
+                with self.assertRaisesRegex(ValueError, "immutable publication pins"):
+                    release.main()
+                asset.write_bytes(b"controlled static fixture")
 
     def test_refuses_registry_descriptor_change(self):
         path = self.dist / "browser-rag/acceptance/generator-probe-assets.json"

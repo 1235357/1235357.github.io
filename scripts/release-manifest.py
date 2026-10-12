@@ -17,9 +17,11 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import browser_release_assets as assets
+from site_typography_assets import TYPOGRAPHY_FILES
 DIST = ROOT / "dist"
 LIMIT_BYTES = 1_000_000_000
 PINNED_ASSETS = {
+    **{f"assets/typography/{name}": pin for name, pin in TYPOGRAPHY_FILES.items()},
     **{f"browser-rag/models/{revision}/{model}/{name}": pin
        for revision, model, pins in (
            (assets.MINILM_REVISION, assets.MINILM_MODEL_ID, assets.MINILM_MODEL_FILES),

@@ -165,6 +165,7 @@ def render_site(root, output, *, public_release=False):
     profile_path = root / 'portfolio.json'
     has_portfolio = profile_path.is_file()
     copy_browser_assets(root, output, public_release=public_release)
+    copy_typography_assets(root, output)
     figure_output = output / 'figures'
     figure_output.mkdir()
     for figure in guard_path(root / 'figures', root).iterdir():
@@ -229,6 +230,17 @@ def render_site(root, output, *, public_release=False):
         (output / 'index.html').write_text(render_page('Engineering notes', intro, public_release=public_release), encoding='utf-8')
     (output / 'style.css').write_text(guard_path(root / 'style.css', root).read_text(encoding='utf-8'), encoding='utf-8')
     return len(links)
+
+
+def copy_typography_assets(root, output):
+    """Copy only the named font and OFL notice; synthetic sites may omit them."""
+    from site_typography_assets import TYPOGRAPHY_FILES
+    source = guard_path(root / 'assets' / 'typography', root)
+    if not source.exists():
+        return
+    for name, pin in TYPOGRAPHY_FILES.items():
+        copy_verified_asset(source / name, output / 'assets' / 'typography' / name,
+                            pin['bytes'], pin['sha256'], root, f'UI typography: {name}')
 
 
 def copy_browser_assets(root, output, *, public_release=False):
