@@ -71,6 +71,8 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         (self.qwen/'onnx/model.onnx').write_bytes(b'UNPINNED MODEL')
         self.public();out=self.root/'dist/browser-rag'
         markup=(out/'inspector.html').read_text(encoding='utf-8');self.assertIn('src="pdf-public-entry.mjs"',markup);self.assertNotIn('src="pdf-entry.mjs"',markup)
+        css=(out/'inspector.css').read_bytes().replace(b'\r\n',b'\n')
+        self.assertIn(f'href="inspector.css?v={hashlib.sha256(css).hexdigest()[:16]}"',markup)
         graph=existing.static_mjs_graph(out,'pdf-public-entry.mjs');self.assertIn('financial-lookup-view.mjs',graph);self.assertIn('financial-generation-source.mjs',graph)
         for name in ('asset-preparation-source.mjs','asset-preparation-view.mjs','asset-preparation-transport.mjs','pdf-worker-preparation.mjs','runtime-failure-contract.mjs'):
             self.assertIn(name,graph)

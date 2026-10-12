@@ -265,6 +265,17 @@ def copy_browser_assets(root, output, *, public_release=False):
                  'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs',
                  'pdf-assets.json'):
         copy(browser / name, target / name)
+    # A newly deployed entry selects its matching CSS instead of stale lab UI.
+    inspector_entry = target / 'inspector.html'
+    inspector_markup = inspector_entry.read_text(encoding='utf-8')
+    css_reference = 'href="inspector.css"'
+    if public_release and inspector_markup.count(css_reference) != 1:
+        raise ValueError('Public inspector stylesheet reference differs from template')
+    if inspector_markup.count(css_reference) == 1:
+        css_body = (target / 'inspector.css').read_bytes().replace(b'\r\n', b'\n')
+        css_version = hashlib.sha256(css_body).hexdigest()[:16]
+        inspector_entry.write_text(inspector_markup.replace(css_reference,
+            f'href="inspector.css?v={css_version}"'), encoding='utf-8')
     for name, expected_hash in registry['moduleHashes'].items():
         source = guard_path(package / name, root)
         copy_verified_asset(source, target / 'vendor' / name, source.stat().st_size,

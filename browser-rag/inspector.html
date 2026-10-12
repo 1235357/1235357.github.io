@@ -2,28 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f7f4ed">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>Question &amp; source inspector — local PDF lab</title>
+  <title>NVIDIA Financial RAG — Tony Ye</title>
   <link rel="stylesheet" href="inspector.css">
   <script type="module" src="pdf-entry.mjs"></script>
 </head>
 <body>
-<header><a href="../index.html">ENGINEERING NOTES / SOURCE LAB</a><span id="header-stage">LOCAL DRAFT · CONTEXT NOT GENERATED</span></header>
+<a class="skip-link" href="#lab-workspace">Skip to the workspace</a>
+<header>
+  <a class="brand" href="../index.html" target="_top" aria-label="Tony Ye — personal profile"><span class="brand-name">NVIDIA Financial RAG</span><span class="brand-byline">by Tony Ye</span></a>
+  <nav class="lab-navigation" aria-label="Project navigation"><a href="#lab-workspace">Workspace</a><a href="#computation-notebook">Notebook</a><a href="../index.html" target="_top">Profile ↗</a></nav>
+  <span id="header-stage" class="header-status">LOCAL DRAFT · CONTEXT NOT GENERATED</span>
+</header>
 <main>
-  <section class="lead"><p class="eyebrow">BROWSER RAG / EVIDENCE LAB</p><h1>Your PDF. Your question.<br>Every step in view.</h1>
-  <p>Follow one local PDF from parser records to source-linked chunks, explicit encoder output, sourced candidates and their complete provenance context. Every accepted stage keeps its own receipt.</p></section>
+  <section class="lead" aria-labelledby="lab-title">
+    <div class="lead-copy"><p class="eyebrow">A DOCUMENT WORKSPACE / ON YOUR DEVICE</p><h1 id="lab-title">Ask your document.<br>Follow the evidence.</h1>
+    <p>Choose a PDF, ask a question and inspect the sources behind a generated draft. Explore each step in the notebook as you go.</p></div>
+    <div class="lead-actions"><a class="primary-link" href="#lab-workspace">Open the workspace ↓</a><a href="#computation-notebook">Explore the notebook ↓</a></div>
+    <p class="lead-note">Your document stays on this device. You choose when to prepare a model.</p>
+  </section>
   <nav class="pipeline" aria-label="RAG stages — accepted artifacts, not an overall percentage"><ol id="pipeline-steps"><li>Waiting for the local session</li></ol></nav>
-  <div class="workspace">
+  <div class="workspace" id="lab-workspace" tabindex="-1">
     <section class="controls panel" aria-labelledby="input-title">
-      <p class="eyebrow">01 / YOUR QUESTION</p><h2 id="input-title">Begin with a document</h2>
-      <label class="file-label" for="pdf-file">Choose a local PDF <span>32 MiB maximum · selected bytes only</span></label>
-      <input id="pdf-file" type="file" accept="application/pdf,.pdf" disabled>
+      <p class="eyebrow">01 / DOCUMENT &amp; QUESTION</p><h2 id="input-title">Begin with a document</h2>
+      <label class="file-label" for="pdf-file">Choose a local PDF <span>32 MiB maximum</span></label>
+      <input id="pdf-file" type="file" accept="application/pdf,.pdf" aria-describedby="pdf-privacy" disabled>
+      <p id="pdf-privacy" class="hint">Your PDF stays on this device. Select a document with readable text to get started.</p>
+      <details class="document-contract"><summary>Privacy &amp; browser requirements</summary>
       <p class="hint">Parsed on this device in a native worker. This app does not upload selected PDF bytes or request remote answers. Runtime assets come from this site. Native model actions require a supported non-fallback WebGPU device; source-cell lookup needs only parsing.</p>
+      </details>
       <div id="asset-preparation" hidden></div>
       <div class="buttons"><button id="cancel" disabled>Cancel work</button><button id="clear">Clear source</button></div>
       <button id="build-chunks" class="build-chunks" disabled>Build source-linked chunks</button>
-      <p class="hint">Explicit next step: mechanical page windows in a native computation worker. No model download.</p>
+      <p class="hint">Organize the document into passages you can inspect. This step needs no model download.</p>
       <details class="encoder-contract"><summary>Encoder settings &amp; download contract</summary>
       <div class="model-contract"><p class="eyebrow">PINNED ENCODER / EXPLICIT ACTION</p>
         <p><strong>MiniLM L6 · FP32 · WebGPU</strong><br><span>113,629,084 bytes · model + paired runtime</span></p>
@@ -35,17 +49,22 @@
       </div>
       </details>
       <button id="embed-chunks" class="embed-chunks" disabled>Download model &amp; embed chunks</button>
+      <p class="hint">First-use encoder download: 113.63 MB. A supported WebGPU device is required.</p>
       <section class="query-controls" aria-labelledby="question-title">
-        <p class="eyebrow">EXPLICIT QUESTION / RETAINED PASSAGES</p><h2 id="question-title">Your question</h2>
+        <p class="eyebrow">ASK YOUR DOCUMENT</p><h2 id="question-title">Your question</h2>
         <label for="question-input">Question text</label>
         <textarea id="question-input" rows="4" maxlength="4096" placeholder="Ask about the selected PDF"></textarea>
-        <p class="hint">Nonblank · at most 4,096 UTF-16 units. Your exact text is captured at Run; no rewrite, prefix or silent truncation. Editing after a result clears only that query.</p>
-        <label for="query-top-k">Top K candidates</label>
-        <input id="query-top-k" type="number" min="1" max="512" step="1" value="5">
+        <p class="hint">Embed the document to enable Run question. Review the retrieved passages before generating a draft.</p>
+        <label for="query-top-k">Passages to retrieve</label>
+        <input id="query-top-k" type="number" min="1" max="512" step="1" value="5" inputmode="numeric">
         <div class="buttons"><button id="run-query" disabled>Run question</button><button id="clear-query">Clear question</button></div>
-        <p class="hint">Requires accepted passage vectors. A fresh worker verifies local assets, encodes this question and ranks the retained chunks. Inspection uses accepted artifacts.</p>
         <div class="buttons"><button id="assemble-context" disabled>Assemble context</button><button id="generate-answer" disabled>Generate answer</button></div>
         <p id="generation-guidance" class="hint">Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled in this entry. Sourced candidates are not a verified answer.</p>
+        <details class="question-contract"><summary>Question limits &amp; retrieval settings</summary>
+          <p>Nonblank · at most 4,096 UTF-16 units. Your exact text is captured at Run; no rewrite, prefix or silent truncation. Editing after a result clears only that query.</p>
+          <p>Requires accepted passage vectors. A fresh worker verifies local assets, encodes this question and ranks the retained chunks. Inspection uses accepted artifacts.</p>
+          <p>Passages to retrieve sets Top K from 1 to 512. A similarity score ranks candidates; it does not establish that a passage answers the question.</p>
+        </details>
       </section>
 
       <details><summary>Accepted document &amp; stage receipt</summary><dl id="receipt" class="receipt"></dl></details>
@@ -63,9 +82,9 @@
       <p class="hint">You choose the source PDF. This site does not bundle a financial sample document.</p>
     </section>
     <section class="generation panel" aria-labelledby="generation-title">
-      <p class="eyebrow">02 / ANSWER &amp; RECEIPT</p><h2 id="generation-title">The generated draft</h2>
+      <p class="eyebrow">02 / DRAFT &amp; SOURCES</p><h2 id="generation-title">A draft you can trace</h2>
       <p id="generation-meta" class="hint" role="status" aria-live="polite">Generation remains disabled in the ordinary entry. No generation adapter is configured.</p>
-      <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">COMMIT BOUNDARY</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></div>
+      <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">SESSION STATUS</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></div>
       <div id="generation-detail"><p class="empty">No native generation receipt committed.</p></div>
       <div id="source-cell-lookup" hidden></div>
       <div id="generation-contract" class="model-contract" hidden>
@@ -134,5 +153,5 @@
 
   </div>
 </main>
-<footer>Source extraction ≠ retrieval ≠ a verified answer. <a href="../02-contracts-before-services.html#browser-work-has-a-commit-boundary-too">Read the ownership lesson ↗</a></footer>
+<footer><span>Check each draft against its cited source. Source extraction ≠ retrieval ≠ a verified answer.</span><a href="../02-contracts-before-services.html#browser-work-has-a-commit-boundary-too">Read the engineering notes ↗</a></footer>
 </body></html>

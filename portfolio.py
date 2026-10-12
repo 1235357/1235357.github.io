@@ -37,7 +37,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css'):
         for number, item in enumerate(demos))
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light"><meta name="theme-color" content="#f6f4ee">
+<meta name="color-scheme" content="light"><meta name="theme-color" content="#f7f4ed">
 <title>{text(profile['name'])} — AI projects &amp; engineering</title>
 <meta name="description" content="Northwestern MSCS student. AI engineering, multimodal research, interactive financial RAG and a continuing project journal.">
 <link rel="stylesheet" href="{text(stylesheet_href)}"></head><body class="portfolio-page">
