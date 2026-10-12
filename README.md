@@ -74,6 +74,7 @@ The built site contains seven chapters. Start with [A RAG answer needs an execut
 - [Native source-cell acceptance](docs/2026-10-11-native-source-cell-acceptance.md): explicit development cases, source ownership and the distinction between actual IAB actions and synthetic races.
 - [Annual browser and bounded evidence](docs/2026-10-12-annual-browser-and-bounded-evidence.md): separate fiscal-year requests, six actual native receipt downloads, consecutive full-text browsing and exact exports.
 - [Complete generation details](docs/2026-10-12-complete-generation-details.md): bounded JSON/plain-text presentation, complete actual browser downloads, stale-view cleanup and a compact embedded workbench.
+- [A wider workbench](docs/2026-10-12-wide-workbench.md): primary design research, a separate full-width application grid, bounded prose and actual responsive before/after measurements.
 - [Public runtime license audit](docs/2026-10-11-public-license-audit.md): exact distributed-runtime inclusion and preserved dependency provenance.
 - [Release guide](docs/public-release-guide.md): clean-checkout setup, public asset boundary, artifact budget and deployment read-back.
 

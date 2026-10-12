@@ -17,7 +17,7 @@
   --ease-out: cubic-bezier(.23, 1, .32, 1);
   --mono: 'Cascadia Code', Consolas, ui-monospace, monospace;
   --ui: Manrope, 'Segoe UI', sans-serif;
-  --gutter: clamp(22px, 4.5vw, 68px);
+  --gutter: clamp(18px, 2.5vw, 40px);
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
@@ -40,7 +40,7 @@ h3 { font-size: 23px; line-height: 1.4; letter-spacing: -.015em; margin: 12px 0;
 .empty span { display: block; margin-top: 12px; font: 14px/1.8 var(--ui); }
 
 /* The header belongs to the personal site, including inside an iframe. */
-header, footer { max-width: 1500px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 18px 30px; padding: 18px var(--gutter); font: 600 15px/1.7 var(--ui); border-bottom: 1px solid var(--line); }
+header, footer { max-width: 1800px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 18px 30px; padding: 18px var(--gutter); font: 600 15px/1.7 var(--ui); border-bottom: 1px solid var(--line); }
 header { flex-wrap: wrap; padding-top: calc(18px + env(safe-area-inset-top, 0px)); }
 .brand { display: inline-flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; min-height: 44px; }
 .brand-name { color: var(--text); font-weight: bold; letter-spacing: -.025em; }
@@ -50,7 +50,7 @@ header { flex-wrap: wrap; padding-top: calc(18px + env(safe-area-inset-top, 0px)
 .header-status, header > span { color: var(--muted); font-size: 14px; letter-spacing: .04em; }
 .skip-link { position: fixed; z-index: 20; top: 10px; left: 16px; transform: translateY(-180%); padding: 12px 18px; background: var(--text); color: var(--surface); font: 14px/1.6 var(--mono); }
 .skip-link:focus { transform: translateY(0); }
-main { max-width: 1500px; margin: auto; padding: 40px var(--gutter) 60px; }
+main { max-width: 1800px; margin: auto; padding: 40px var(--gutter) 60px; }
 .lead { max-width: 1120px; margin-bottom: 32px; }
 .lead-copy { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.03fr); align-items: start; gap: 0 34px; }
 .lead-copy > .eyebrow { grid-column: 1 / -1; }
@@ -78,6 +78,9 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
 
 /* Question and result share a workbench; the full notebook spans both. */
 .workspace { display: grid; grid-template-columns: minmax(0, .94fr) minmax(0, 1.12fr); grid-template-areas: 'question answer' 'notebook notebook'; gap: 24px; align-items: start; scroll-margin-top: 22px; }
+@media (min-width: 1101px) {
+  .workspace { grid-template-columns: minmax(360px, 520px) minmax(0, 1fr); }
+}
 .panel { min-width: 0; border: 1px solid var(--line); background: var(--surface); padding: 28px; border-radius: 12px; }
 .controls { grid-area: question; }
 .generation { grid-area: answer; min-width: 0; }
@@ -130,6 +133,7 @@ progress { display: block; width: 100%; height: 8px; margin: 18px 0; accent-colo
 .generation h3 { margin-top: 24px; color: var(--text); font: 700 19px/1.5 var(--ui); letter-spacing: -.015em; }
 .generation .empty { min-height: 120px; font-size: 22px; }
 .generation-answer, .generation-abstention { white-space: pre-wrap; overflow-wrap: anywhere; padding: 20px; background: var(--bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); color: var(--text); font: 500 18px/1.8 var(--ui); }
+.generation > .hint, #generation-detail > .hint, .generation .empty, .generation .status-block p, .generation-answer, .generation-abstention, .generation-refusal, .context-question, .context-evidence .quote { max-width: 72ch; }
 .generation-abstention { border-left-color: var(--warm); }
 .generation-refusal { color: var(--warm); background: var(--warning); border-left: 3px solid var(--warm); padding: 16px; overflow-wrap: anywhere; }
 .generation-citation { border-top: 1px solid var(--line); padding: 18px 0; }
@@ -283,9 +287,14 @@ pre { max-width: 100%; max-height: 360px; margin: 14px 0; padding: 16px; overflo
 
 /* The profile supplies the introduction above its frame. Keep a semantic h1,
    the complete stage rail and every working control without a second hero. */
+.embedded-lab { --gutter: 24px; }
+.embedded-lab :is(header, main, footer) { max-width: none; }
 .embedded-lab main { padding-top: 24px; }
 .embedded-lab .lead { margin: 0; }
 .embedded-lab .lead-copy { display: block; }
 .embedded-lab .lead :is(.eyebrow, p, .lead-actions) { display: none; }
 .embedded-lab .lead h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .embedded-lab .pipeline { margin-bottom: 20px; }
+@media (max-width: 780px) {
+  .embedded-lab { --gutter: 16px; }
+}
