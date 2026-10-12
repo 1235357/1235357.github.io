@@ -197,7 +197,7 @@ pre { max-width: 100%; max-height: 360px; margin: 14px 0; padding: 16px; overflo
 
 /* Explicit source-cell comparison remains separate from model output. */
 .lookup-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; margin: 16px 0; }
-.lookup-fields > .lookup-field-wide, .lookup-fields:not(:has(> .lookup-field-wide)) > div:nth-child(5) { grid-column: 1 / -1; }
+.lookup-fields > .lookup-field-wide, .lookup-fields:not(:has(> .lookup-field-wide)) > div:is(:first-child, :nth-child(5)) { grid-column: 1 / -1; }
 .lookup-fields label { margin-top: 8px; }
 .lookup-fields input, .lookup-fields select { max-width: none; margin-top: 7px; }
 .source-cell-lookup .buttons button { min-width: 100px; }

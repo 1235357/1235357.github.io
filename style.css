@@ -103,7 +103,7 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page .project-number{font:800 32px/1.3 var(--ui);color:var(--accent);padding-top:2px}
 .portfolio-page .project-copy{max-width:930px}
 .portfolio-page .project-copy h3{font-size:32px;line-height:1.3;margin:0 0 16px}
-.portfolio-page .project-copy>p:not(.eyebrow){margin:18px 0;color:var(--ink);font-size:18px;line-height:1.8}
+.portfolio-page .project-copy>p:not(.eyebrow,.project-role,.project-phase){margin:18px 0;color:var(--ink);font-size:18px;line-height:1.8}
 .portfolio-page .project-copy .project-role,.portfolio-page .project-copy .project-phase{font:600 15px/1.85 var(--ui)}
 .portfolio-page .project-copy .project-phase{color:var(--scope-ink)!important}
 .portfolio-page .technology-list{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}
