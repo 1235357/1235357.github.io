@@ -37,6 +37,7 @@ REQUIRED = tuple(sorted(set((
     "browser-rag/pdf-public-entry.mjs",
     "browser-rag/financial-generation.worker.mjs",
     "browser-rag/financial-lookup-view.mjs",
+    "browser-rag/bounded-text-view.mjs",
     "browser-rag/acceptance/generator-probe-assets.json",
     "browser-rag/notices/QWEN-MODEL-CARD.txt",
     "browser-rag/notices/QWEN-LICENSE.txt",

@@ -274,7 +274,7 @@ def copy_browser_assets(root, output, *, public_release=False):
                  'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs',
                  'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs',
                  'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
-                 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs',
+                 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs',
                  'pdf-assets.json'):
         copy(browser / name, target / name)
     # A newly deployed entry selects its matching CSS instead of stale lab UI.

@@ -9,6 +9,30 @@ const button=(d,label)=>byTag(d.root,'button').find(node=>node.textContent===lab
 const page=d=>byTag(d.root,'pre')[0];
 const range=d=>nodes(d.root).find(node=>node.className==='bounded-text-range');
 
+test('plain text pages and explicit TXT download preserve exact whitespace and UTF-8 bytes without JSON quoting',async()=>{
+  const text='  RAW <script>literal</script> 汉字🧭\r\n'.repeat(12000)+'\tFINAL  \n',d=mount(text,{format:'text',filename:undefined});
+  assert.equal(allPages(d).join(''),text);assert.equal(d.created.length,0);
+  assert.equal(page(d).attributes.get('aria-label'),'Text page');
+  assert.equal(nodes(d.root).find(n=>n.className==='bounded-text-view').attributes.get('aria-label'),'Complete text viewer');
+  assert.match(d.root.textContent,/The complete text is retained/);assert.ok(button(d,'Download complete text'));
+  assert.equal(button(d,'Download complete JSON'),undefined);assert.equal(byTag(d.root,'script').length,0);
+  button(d,'Download complete text').dispatch('click');
+  assert.deepEqual(Buffer.from(await d.blobs[0].arrayBuffer()),Buffer.from(text,'utf8'));
+  assert.equal(d.blobs[0].type,'text/plain;charset=utf-8');assert.equal(d.clicked[0].download,'source.txt');
+  assert.match(d.root.textContent,/Complete text download requested/);d.v.dispose();assert.deepEqual(d.revoked,['blob:controlled-1']);
+});
+
+test('unknown format refuses before rendering or coercing values and plain download failures keep truthful canonical labels',()=>{
+  let coerced=0;for(const format of ['html','toString',null,1,{toString(){coerced++;throw Error('PRIVATE FORMAT');}}]){
+    const root=new NodeDouble();let created=0;
+    assert.throws(()=>module.createBoundedTextView({document:{createElement(){created++;}},root,text:'private',current:()=>true,format}),/Invalid bounded text viewer input/);
+    assert.equal(created,0);assert.equal(root.textContent,'');
+  }
+  assert.equal(coerced,0);
+  const d=mount('raw',{format:'text',filename:'native-output.txt',Blob:class{constructor(){throw Error('PRIVATE BLOB');}}});
+  button(d,'Download complete text').dispatch('click');assert.match(d.root.textContent,/TEXT_DOWNLOAD_FAILED · The complete text could not be downloaded\./);assert.doesNotMatch(d.root.textContent,/PRIVATE/);
+});
+
 // Native Blob bytes with explicit test-only DOM and object-URL lifecycle doubles.
 function mount(text,extra={}){
   assert.equal(typeof module.createBoundedTextView,'function');
@@ -136,4 +160,34 @@ test('reentrant disposal during an owner check or URL creation cannot create byt
   const revoked=[];let lateView;const late=mount('{"private":"source"}',{URL:{createObjectURL(){lateView.dispose();return 'blob:returned-after-dispose';},revokeObjectURL(url){revoked.push(url);}}});
   lateView=late.v;button(late,'Download complete JSON').dispatch('click');assert.equal(late.root.textContent,'');assert.equal(late.clicked.length,0);
   assert.deepEqual(revoked,['blob:returned-after-dispose']);late.v.dispose();assert.deepEqual(revoked,['blob:returned-after-dispose']);
+});
+
+for(const stage of ['owner','revoke'])test(`synchronous ${stage} callbacks cannot nest downloads or orphan an object URL`,async()=>{
+    let d,reenter=false;const created=[],revoked=[];
+    d=mount('{"exact":"汉字🧭"}',{current:()=>{
+      if(stage==='owner'&&reenter){reenter=false;button(d,'Download complete JSON').dispatch('click');}return true;
+    },URL:{createObjectURL(){const url=`blob:reentrant-${created.length+1}`;created.push(url);return url;},
+      revokeObjectURL(url){revoked.push(url);if(stage==='revoke'&&reenter){reenter=false;button(d,'Download complete JSON').dispatch('click');}}}});
+    button(d,'Download complete JSON').dispatch('click');reenter=true;
+    button(d,'Download complete JSON').dispatch('click');
+    assert.equal(d.blobs.length,2,`${stage} callback must not start a nested download`);
+    assert.deepEqual(created,['blob:reentrant-1','blob:reentrant-2']);assert.deepEqual(revoked,['blob:reentrant-1']);
+    assert.equal(d.clicked.length,2);assert.equal(byTag(d.root,'a').length,0);
+    // The synchronous guard must release after each action, including repeat downloads.
+    button(d,'Download complete JSON').dispatch('click');assert.equal(d.blobs.length,3);
+    for(const blob of d.blobs)assert.deepEqual(Buffer.from(await blob.arrayBuffer()),Buffer.from('{"exact":"汉字🧭"}','utf8'));
+    d.v.dispose();d.v.dispose();assert.deepEqual(revoked,created);
+});
+
+test('ownership lost while revoking the previous URL prevents constructing any new download bytes',()=>{
+  let owned=true,loseOwner=false;const created=[],revoked=[];
+  const d=mount('{"private":"retained"}',{current:()=>owned,URL:{
+    createObjectURL(){const url=`blob:owned-${created.length+1}`;created.push(url);return url;},
+    revokeObjectURL(url){revoked.push(url);if(loseOwner)owned=false;},
+  }});
+  button(d,'Download complete JSON').dispatch('click');const pre=page(d),download=button(d,'Download complete JSON');
+  loseOwner=true;download.dispatch('click');
+  assert.equal(d.blobs.length,1);assert.deepEqual(created,['blob:owned-1']);assert.deepEqual(revoked,created);
+  assert.equal(d.clicked.length,1);assert.equal(pre.textContent,'');assert.equal(d.root.textContent,'');
+  d.v.dispose();assert.deepEqual(revoked,created);
 });

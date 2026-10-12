@@ -197,6 +197,25 @@ test('canonical replay disclosure is revoked by source replacement and is never 
   old.dispatch('toggle');assert.equal(byTag(old,'pre').length,0);
 });
 
+test('opened canonical replay exports are byte-exact and main-app actions revoke their actual object URLs immediately',async()=>{
+  for(const action of ['clear','question-input','query-top-k','clear-query','pagehide','source']){
+    let input;const d=mount({generate:async(...args)=>{input=args[0];return generate(...args);}});
+    const create=d.document.createElement.bind(d.document),downloads=[];
+    d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push({href:node.attributes.get('href'),filename:node.attributes.get('download')});return node;};
+    await accepted(d);await act(d.get('generate-answer'));await tick();
+    const old=byTag(d.get('generation-detail'),'details').find(n=>n.children[0].textContent==='Original canonical generation input · replay only');
+    old.open=true;await act(old,'toggle');const pre=byTag(old,'pre')[0],download=byTag(old,'button').find(n=>n.textContent==='Download complete JSON');assert.ok(download);
+    download.dispatch('click');assert.equal(downloads.length,1);
+    const response=await fetch(downloads[0].href),bytes=new Uint8Array(await response.arrayBuffer());
+    assert.equal(new TextDecoder().decode(bytes),JSON.stringify(input,null,2));assert.ok(downloads[0].filename.endsWith('.json'));
+    if(action==='pagehide')await act(d.window,'pagehide');
+    else if(action==='source'){d.get('pdf-file').files=[{name:'REPLACEMENT.pdf'}];await act(d.get('pdf-file'),'change');}
+    else await act(d.get(action),action==='question-input'||action==='query-top-k'?'input':'click');
+    assert.equal(pre.textContent,'');assert.equal(byTag(old,'pre').length,0);await assert.rejects(fetch(downloads[0].href));
+    old.dispatch('toggle');download.dispatch('click');assert.equal(downloads.length,1);assert.equal(pre.textContent,'');
+  }
+});
+
 test('only configured private geometry factory receives current source/epoch; opening capture invokes no generation',async()=>{
   let calls=0;const d=mount({generate:()=>{calls++;},createGeometryView:options=>createFinancialGeometryView({...options,digest:async bytes=>createHash('sha256').update(bytes).digest('hex')})});
   d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');

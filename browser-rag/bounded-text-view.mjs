@@ -22,19 +22,20 @@ function textRanges(text){
 
 // Complete immutable text stays in this owned viewer; only one bounded page enters
 // the DOM. The caller disposes on disclosure close/source revocation/re-render.
-export function createBoundedTextView({document,root,text,current,filename='source.json',Blob:BlobCtor=globalThis.Blob,URL:URLApi=globalThis.URL}){
-  if(typeof text!=='string'||typeof current!=='function'||typeof filename!=='string')throw new TypeError('Invalid bounded text viewer input.');
-  let source=text,ranges=[],index=0,alive=true,objectURL=null,activeAnchor=null;
+export function createBoundedTextView({document,root,text,current,format='json',filename=format==='text'?'source.txt':'source.json',Blob:BlobCtor=globalThis.Blob,URL:URLApi=globalThis.URL}){
+  if(typeof text!=='string'||typeof current!=='function'||typeof filename!=='string'||!['json','text'].includes(format))throw new TypeError('Invalid bounded text viewer input.');
+  const contentName=format==='text'?'text':'JSON',mime=format==='text'?'text/plain;charset=utf-8':'application/json;charset=utf-8';
+  let source=text,ranges=[],index=0,alive=true,objectURL=null,activeAnchor=null,downloading=false;
   const listeners=[];
   const element=(tag,content,className)=>{const node=document.createElement(tag);if(content!==undefined)node.textContent=content;if(className)node.className=className;return node;};
-  const wrapper=element('div',undefined,'bounded-text-view'),note=element('p','The complete JSON is retained. View each page or download the complete JSON.','bounded-text-note hint');
-  wrapper.setAttribute('role','group');wrapper.setAttribute('aria-label','Complete JSON text viewer');
+  const wrapper=element('div',undefined,'bounded-text-view'),note=element('p',`The complete ${contentName} is retained. View each page or download the complete ${contentName}.`,'bounded-text-note hint');
+  wrapper.setAttribute('role','group');wrapper.setAttribute('aria-label',format==='text'?'Complete text viewer':'Complete JSON text viewer');
   const range=element('p','', 'bounded-text-range');range.setAttribute('role','status');range.setAttribute('aria-live','polite');
   const controls=element('div',undefined,'bounded-text-controls'),previous=element('button','Previous page'),next=element('button','Next page');
-  const label=element('label','Page ', 'bounded-text-jump'),input=element('input'),jump=element('button','Go to page'),download=element('button','Download complete JSON');
+  const label=element('label','Page ', 'bounded-text-jump'),input=element('input'),jump=element('button','Go to page'),download=element('button',`Download complete ${contentName}`);
   input.type='number';input.setAttribute('aria-label','Page number');input.setAttribute('min','1');input.setAttribute('step','1');
   for(const button of [previous,next,jump,download])button.type='button';label.append(input);controls.append(previous,next,label,jump,download);
-  const pre=element('pre','', 'bounded-text-page');pre.setAttribute('tabindex','0');pre.setAttribute('aria-label','JSON text page');
+  const pre=element('pre','', 'bounded-text-page');pre.setAttribute('tabindex','0');pre.setAttribute('aria-label',format==='text'?'Text page':'JSON text page');
   const status=element('p','', 'bounded-text-status hint');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
   const downloadHost=element('span');downloadHost.hidden=true;
   wrapper.append(note,range,controls,pre,status,downloadHost);
@@ -73,9 +74,12 @@ export function createBoundedTextView({document,root,text,current,filename='sour
   bind(previous,'click',()=>renderPage(index-1));bind(next,'click',()=>renderPage(index+1));bind(jump,'click',goToPage);
   bind(input,'keydown',event=>{if(event.key==='Enter'){event.preventDefault?.();goToPage();}});
   bind(download,'click',()=>{
-    if(!owned())return;revokeURL();let anchor=null;
+    // Owner and URL dependencies may synchronously dispatch another click.
+    // Acquire before checking ownership so their callbacks cannot recurse.
+    if(downloading)return;downloading=true;let anchor=null;
     try{
-      const blob=new BlobCtor([new TextEncoder().encode(source)],{type:'application/json;charset=utf-8'});if(!owned())return;
+      if(!owned())return;revokeURL();if(!owned())return;
+      const blob=new BlobCtor([new TextEncoder().encode(source)],{type:mime});if(!owned())return;
       objectURL=URLApi.createObjectURL(blob);
       if(!owned())return;
       if(typeof objectURL!=='string'||!objectURL.startsWith('blob:'))throw new Error();
@@ -83,11 +87,12 @@ export function createBoundedTextView({document,root,text,current,filename='sour
       const allowClick=event=>{if(!owned())event.preventDefault?.();};anchor.addEventListener('click',allowClick);
       downloadHost.append(anchor);
       try{if(!owned())return;anchor.click();}finally{anchor.removeEventListener('click',allowClick);}
-      if(owned())status.textContent='Complete JSON download requested.';
+      if(owned())status.textContent=`Complete ${contentName} download requested.`;
     }catch{
-      revokeURL();if(owned())status.textContent='TEXT_DOWNLOAD_FAILED · The complete JSON could not be downloaded.';
+      revokeURL();if(owned())status.textContent=`TEXT_DOWNLOAD_FAILED · The complete ${contentName} could not be downloaded.`;
     }finally{
       scrubAnchor(anchor);activeAnchor=null;downloadHost.replaceChildren();
+      downloading=false;
     }
   });
   if(owned()){

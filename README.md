@@ -50,10 +50,11 @@ The subsequent public native path parsed two pages into five chunks, retaining 2
 - Retrieval exposes ranked candidates and source fragments. A cosine score is not an answer-confidence probability.
 - Context assembly preserves the selected evidence identities and complete model input.
 - The public profile can run the pinned Qwen/WebGPU generator explicitly, preserve its complete raw output/receipt, and inspect output shape and citation identity separately from truth.
+- Generation details now use the same consecutive text pages as source-cell evidence. Original input, prompt context, token IDs and native receipts retain complete JSON exports; decoded output and the rendered prompt retain exact plain-text exports. Closing, clearing or rendering another record releases the previous viewer and its download URL.
 - The independent Net income lookup requires an explicit period basis, statement, metric, period-end date, exact unit heading and currency glyph. Months additionally requires a 3- or 6-month duration. Fiscal year uses a separate three-column `Year Ended` profile and keeps `durationMonths: null`; complete dates and native date/year pairs retain their original records. Switching period basis clears the previous inputs and result. It exposes the frozen geometry snapshot, source-role bindings and a digest of the complete snapshot bytes. Complete JSON uses consecutive text pages (at most 24 Ki UTF-16 units or 160 lines per page) and an exact full UTF-8 download without a trailing newline. Closing a disclosure or changing its source/request clears old text and revokes its download URL.
 - Owned attempts, cancellation, replacement and field edits revoke stale publication. Citation/source inspection does not rerun a model.
 
-The answer panel precedes expandable computation details. Original Archify figures explain responsibility, ownership and source-cell selection; their editable JSON is delivered alongside the HTML viewers. Figures and static tests are not native runtime or financial-quality acceptance.
+The answer panel precedes expandable computation details. The homepage introduces the project above its frame, so that same-origin embedded lab opens on the stage rail and working controls without repeating the large introduction. The standalone page keeps its full overview, with the same light theme and typography. Original Archify figures explain responsibility, ownership and source-cell selection; their editable JSON is delivered alongside the HTML viewers. Figures and static tests are not native runtime or financial-quality acceptance.
 
 ## Models, downloads and source data
 
@@ -72,6 +73,7 @@ The built site contains seven chapters. Start with [A RAG answer needs an execut
 - [Public source review](docs/source-review.md): ten official RAG documentation pages, bounded blog/application observations and original course-to-project connections.
 - [Native source-cell acceptance](docs/2026-10-11-native-source-cell-acceptance.md): explicit development cases, source ownership and the distinction between actual IAB actions and synthetic races.
 - [Annual browser and bounded evidence](docs/2026-10-12-annual-browser-and-bounded-evidence.md): separate fiscal-year requests, six actual native receipt downloads, consecutive full-text browsing and exact exports.
+- [Complete generation details](docs/2026-10-12-complete-generation-details.md): bounded JSON/plain-text presentation, complete actual browser downloads, stale-view cleanup and a compact embedded workbench.
 - [Public runtime license audit](docs/2026-10-11-public-license-audit.md): exact distributed-runtime inclusion and preserved dependency provenance.
 - [Release guide](docs/public-release-guide.md): clean-checkout setup, public asset boundary, artifact budget and deployment read-back.
 

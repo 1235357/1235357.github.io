@@ -100,6 +100,9 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         build.build();out=self.root/'dist/browser-rag'
         self.assertIn('src="pdf-entry.mjs"',(out/'inspector.html').read_text(encoding='utf-8'))
         self.assertEqual((out/'runtime-failure-contract.mjs').read_bytes(),(self.browser/'runtime-failure-contract.mjs').read_bytes())
+        self.assertEqual((out/'bounded-text-view.mjs').read_bytes(),(self.browser/'bounded-text-view.mjs').read_bytes())
+        graph=existing.static_mjs_graph(out,'pdf-entry.mjs')
+        self.assertIn('bounded-text-view.mjs',graph)
         for name in release.PUBLIC_MODULES:self.assertFalse((out/name).exists(),name)
         self.assertFalse((out/'models'/release.QWEN_REVISION).exists());self.assertFalse((out/'acceptance').exists())
         self.assertIn('Local draft · not published',(self.root/'dist/index.html').read_text(encoding='utf-8'))
@@ -110,6 +113,18 @@ class PublicBrowserAssetsTest(unittest.TestCase):
             path=self.browser/name;data=path.read_bytes();path.unlink()
             try:self.refuses()
             finally:path.write_bytes(data)
+
+    def test_missing_shared_text_viewer_preserves_both_previous_build_profiles(self):
+        for public in (False,True):
+            build.build(public_release=public)
+            before=fixtures.file_snapshot(self.root/'dist')
+            path=self.browser/'bounded-text-view.mjs';body=path.read_bytes();path.unlink()
+            try:
+                with self.assertRaisesRegex((ValueError,FileNotFoundError),'bounded-text-view'):
+                    build.build(public_release=public)
+                self.assertEqual(fixtures.file_snapshot(self.root/'dist'),before)
+                self.assertEqual(list(self.root.glob('.dist-stage-*')),[])
+            finally:path.write_bytes(body)
 
     def test_registry_unknown_model_extra_keys_and_pin_changes_refuse_without_fallback(self):
         self.public()

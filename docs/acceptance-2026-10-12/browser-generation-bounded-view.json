@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "status": "local-iab-archived-generation-rendering-and-exact-exports-verified",
+  "scope": {
+    "browser": "Codex in-app browser",
+    "entry": "loopback archived receipt rendering diagnostic",
+    "modelRuns": 0,
+    "tokenizerInvocations": 0,
+    "sourcePdfReparses": 0,
+    "financialCorrectness": "unestablished",
+    "claimSupport": "unestablished",
+    "physicalPhone": "unverified"
+  },
+  "viewer": {
+    "maxUtf16UnitsPerPage": 24576,
+    "maxHardLinesPerPage": 160,
+    "json": "complete JSON.stringify(value, null, 2) UTF-8 without added newline",
+    "text": "exact complete original UTF-8 string without JSON encoding",
+    "originalInputPages": 77,
+    "rawReceiptPages": 93,
+    "originalInputFinalPageJumpObserved": true,
+    "all18DisclosuresClearedOnClose": true,
+    "sameReceiptRerenderClearedOldViews": true,
+    "clearRevokedSelectedArchives": true
+  },
+  "localTests": {
+    "node": 2977,
+    "python": 156,
+    "finalBuildDelivery": 88,
+    "failures": 0
+  },
+  "independentAudit": {
+    "sha256": "fe5c937020b5d1421e4fdfde1fd166c1fb238ea9fe4c85ba307278ecd6adc7d5",
+    "completeSourceBindings": 346,
+    "selectedSourceBindings": 199,
+    "citedE4Bindings": 53,
+    "actualDownloadBytes": 796045
+  },
+  "downloads": [
+    {
+      "filename": "citation-1-source.json",
+      "format": "json",
+      "bytes": 23897,
+      "sha256": "e27702b6b8a2832f57795ff4c0c51c90ada728b80d3c9119dafd83ebca12f947",
+      "exactBytes": true
+    },
+    {
+      "filename": "shape-citation-inspection.json",
+      "format": "json",
+      "bytes": 28600,
+      "sha256": "d67d130146a54a63ae9d081bb31c4a38ba215a3f6f44dcfa539d78a4f41b13fd",
+      "exactBytes": true
+    },
+    {
+      "filename": "original-generation-input.json",
+      "format": "json",
+      "bytes": 393261,
+      "sha256": "f057f746456bb148b9e1fa814a123af06f10c0a9cac302841169d438391fea6f",
+      "exactBytes": true
+    },
+    {
+      "filename": "native-output.txt",
+      "format": "text",
+      "bytes": 81,
+      "sha256": "592a2066247ced77c4fa3985899e46140fef7649d8eec52a70758a68e9cea213",
+      "exactBytes": true
+    },
+    {
+      "filename": "rendered-prompt.txt",
+      "format": "text",
+      "bytes": 4545,
+      "sha256": "21f088f61dbc01998b34ba9842e56058ca1ec7f9f9e1fcf16a9fa6e996cd584e",
+      "exactBytes": true
+    },
+    {
+      "filename": "prompt-messages.json",
+      "format": "json",
+      "bytes": 4910,
+      "sha256": "f71ad7773d067b073065d910d2aa9cc503a4cd802e5498920ad874a6b6dca26e",
+      "exactBytes": true
+    },
+    {
+      "filename": "model-input.json",
+      "format": "json",
+      "bytes": 3497,
+      "sha256": "e839657e5f7dcc7bba13c0993a6b0a48bfb49f4f353baf81e6c91ce0400c3153",
+      "exactBytes": true
+    },
+    {
+      "filename": "prepared-token-ids.json",
+      "format": "json",
+      "bytes": 12311,
+      "sha256": "42948d585875f136292dc1de83816b83aac83a969f1270ba0b9abf53a67c40a1",
+      "exactBytes": true
+    },
+    {
+      "filename": "prepared-attention-mask.json",
+      "format": "json",
+      "bytes": 8727,
+      "sha256": "d012854337bf3679fec33ef6a44de195d8be0a45626e4d7a0894d99f64590f1a",
+      "exactBytes": true
+    },
+    {
+      "filename": "prepared-preflight.json",
+      "format": "json",
+      "bytes": 17982,
+      "sha256": "25d2230404813371eb8343613db7bedd39cd581f6b9f69d0a73bc11a13fc0d3a",
+      "exactBytes": true
+    },
+    {
+      "filename": "native-prompt-token-ids.json",
+      "format": "json",
+      "bytes": 12311,
+      "sha256": "42948d585875f136292dc1de83816b83aac83a969f1270ba0b9abf53a67c40a1",
+      "exactBytes": true
+    },
+    {
+      "filename": "native-generated-token-ids.json",
+      "format": "json",
+      "bytes": 237,
+      "sha256": "83dba74f8e58d072796802b3b172e92c6826d797f929aaff864ca609aa2aaee3",
+      "exactBytes": true
+    },
+    {
+      "filename": "native-preflight.json",
+      "format": "json",
+      "bytes": 17982,
+      "sha256": "25d2230404813371eb8343613db7bedd39cd581f6b9f69d0a73bc11a13fc0d3a",
+      "exactBytes": true
+    },
+    {
+      "filename": "asset-preparation-receipt.json",
+      "format": "json",
+      "bytes": 95,
+      "sha256": "cac2a0bd30526f825e5c9a3138823f774de8d95cc3e1f62f869ebd8fb33db005",
+      "exactBytes": true
+    },
+    {
+      "filename": "sdk-read-receipt.json",
+      "format": "json",
+      "bytes": 46,
+      "sha256": "31391747357e6eb2552250423d4d94c4a4448246167a85525a34736833a6252c",
+      "exactBytes": true
+    },
+    {
+      "filename": "native-stage-trace.json",
+      "format": "json",
+      "bytes": 513,
+      "sha256": "470835212bdb3d82e26fe7de0410f323ce6f90807354c7d4108ac2b22ebce04d",
+      "exactBytes": true
+    },
+    {
+      "filename": "native-cleanup-receipt.json",
+      "format": "json",
+      "bytes": 124,
+      "sha256": "fbecb73e08ded0d95414df12a6838a778553932e3595dcec716be6f01eab8f97",
+      "exactBytes": true
+    },
+    {
+      "filename": "native-generation-receipt.json",
+      "format": "json",
+      "bytes": 266926,
+      "sha256": "0fbe7288ecac78002c798ec86e962f4b80ddfac0bd7b0026427f38abf3b42aba",
+      "exactBytes": true
+    }
+  ],
+  "remaining": [
+    "human and held-out financial evaluation",
+    "other item/chunk/context notebook disclosure boundaries",
+    "physical-device interactions",
+    "broader performance distributions",
+    "API/browser production integration",
+    "user aesthetic acceptance"
+  ]
+}

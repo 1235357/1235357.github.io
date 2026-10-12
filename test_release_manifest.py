@@ -62,11 +62,12 @@ class ReleaseBoundaryTest(unittest.TestCase):
                     path.unlink()
 
     def test_refuses_incomplete_or_disabled_public_entry(self):
-        required = self.dist / "browser-rag/financial-generation.worker.mjs"
-        required.unlink()
-        with self.assertRaisesRegex(ValueError, "complete public entry"):
-            release.main()
-        required.write_bytes(b"controlled static fixture")
+        for name in ("financial-generation.worker.mjs", "bounded-text-view.mjs"):
+            required = self.dist / "browser-rag" / name
+            required.unlink()
+            with self.assertRaisesRegex(ValueError, "complete public entry"):
+                release.main()
+            required.write_bytes(b"controlled static fixture")
         (self.dist / "browser-rag/inspector.html").write_text('<script src="pdf-entry.mjs"></script>')
         with self.assertRaisesRegex(ValueError, "public entry"):
             release.main()

@@ -44,7 +44,7 @@ SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs
     'financial-generation-input.mjs', 'financial-generation-source.mjs', 'financial-generation.worker.mjs',
     'financial-generator-runtime.mjs', 'financial-generator-contract.mjs', 'prompt-contract.mjs', 'financial-output-contract.mjs',
     'financial-geometry-source.mjs', 'financial-geometry-view.mjs',
-    'financial-table-contract.mjs', 'financial-annual-table-contract.mjs', 'financial-lookup-view.mjs', 'bounded-text-view.mjs'))
+    'financial-table-contract.mjs', 'financial-annual-table-contract.mjs', 'financial-lookup-view.mjs'))
 
 
 def pinned_manifest():
@@ -75,7 +75,7 @@ class ProbeFixture(unittest.TestCase):
                      'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',
                      'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs',
                      'embedding.worker.mjs', 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
-                     'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs',
+                     'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs',
                      'verified-stream.mjs', 'verified-cache.mjs', 'vendor/build/pdf.mjs', 'vendor/build/pdf.worker.mjs'):
             self.write(self.dist / 'browser-rag' / name, b'built shared inspector')
         for name in MODEL_FILES:
@@ -556,6 +556,7 @@ class HandlerTest(ProbeFixture):
         self.assertIn('/browser-rag/financial-generation.worker.mjs', visited)
         self.assertIn('/browser-rag/financial-generator-runtime.mjs', visited)
         self.assertIn('/browser-rag/generation-view.mjs', visited)
+        self.assertIn('/browser-rag/bounded-text-view.mjs', visited)
         self.assertNotIn('/browser-rag/pdf-private-entry.mjs', visited)
 
     def test_get_and_head_receipt_snapshot_serve_exact_local_bytes_and_sha(self):
