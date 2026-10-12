@@ -204,7 +204,7 @@ financial claims are three different representations with different checks.
 Run the synthetic contract exercise locally:
 
 ```powershell
-& 'C:\Users\zye12\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test browser-rag/tests/financial-output-contract.test.mjs
+node --test browser-rag/tests/financial-output-contract.test.mjs
 ```
 
 Before reading its expectations, predict why an unknown citation, a length-ended
@@ -334,6 +334,86 @@ To reproduce the diagnostic, start with the companion repository's
 retain fresh output directories, and inspect the failures before changing a gate.
 The published metadata contains no original PDFs, corpus text, tensors or weights;
 those prepared inputs require their own acquisition and identity checks.
+
+## Keep the row and its column together
+
+The first repair experiment now takes a different route through the same source
+material. It builds a quarterly income-statement index directly from pinned PDFs,
+before loading any evaluation question or expected answer. Instead of asking
+whether a paragraph resembles the question, it asks whether the original words
+select one unambiguous table row and dated column.
+
+For example, a three-month amount ended July 28, 2024 and a six-month amount
+ended on that same date are different cells. Their shared date cannot replace
+the duration header. The new index carries the statement heading, metric row,
+date, duration, current/comparison role, amount, scale and printed currency
+occurrence together. Each binding retains native text offsets and a rectangle
+on the original PDF page. A repeated number must still identify its own source
+occurrence.
+
+The [editable source-selection architecture](figures/structured-income-selection.archify.html?theme=dark)
+shows two inputs joining at the selector: a source-only table index and the
+original question with its operator-selected report scope. Click a component
+to inspect its responsibility and source location. The four possible outcomes
+are a source candidate, a request for clarification, a refusal and an unsupported
+request. The existing dense retrieval path stays separate; this experiment does
+not turn a literal field match into a cosine score.
+
+<figure class="architecture-figure" id="quarterly-source-selection" aria-label="Source-only quarterly income-statement index and literal query selection">
+<div class="figure-heading"><span class="figure-status">08 / SOURCE-PINNED PYTHON PATH · DEVELOPMENT CANDIDATES</span><h3>A value travels with its row and column.</h3><p>Build the source index first. Parse the original question and report scope. Select one candidate, or expose the reason it cannot be selected.</p></div>
+<iframe src="figures/structured-income-selection.archify.html?theme=dark" title="Quarterly source index and literal selection architecture" loading="lazy"></iframe>
+<figcaption>Figure 8 · Logical responsibilities inside the opt-in Python source-selection path. Source locations are pinned to the reviewed implementation; the illustration is not a financial verdict, a deployment topology or a browser execution trace. <a href="figures/structured-income-selection.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/structured-income-selection.archify.json">Editable JSON</a>.</figcaption>
+</figure>
+
+The actual local build registered all ten reports. Four quarterly statements
+provided **204 cells**: 156 monetary values, 24 earnings-per-share values and
+24 weighted-average-share values. The six annual reports retained their hashes
+and report identities but recorded `ANNUAL_LAYOUT_NOT_IMPLEMENTED`. This distinction
+matters: an available report with an unfinished parser is a development gap,
+while the absent FY2035 report is missing source data.
+
+An independent program reopened the four PDFs and performed **8,531 checks** of
+the cell payload, including amounts, periods, row sections, source spans and
+rectangles. Exact decimal construction preserves EPS decimals and negative
+parentheses. An ambiguous row or column is withheld, and a printed dash is not
+invented as a zero.
+
+The selector then consumed all 35 original query/scope inputs from the frozen
+development set. Only after every selection finished did the comparison tool
+use the expected source-cell targets for mechanical assessment.
+
+| Original scope | Source candidates | Refused | Needs clarification | Unsupported |
+| --- | ---: | ---: | ---: | ---: |
+| All ten registered reports, 18 requests | 12 | 3 | 2 | 1 |
+| Explicit requested report, 17 requests | 12 | 2 | 2 | 1 |
+
+All 24 positive selections matched the exposed expected source-field tuples.
+The eleven provisional negative request rows were withheld. Those observations
+show that the narrow parser preserves these selected fields on this already
+exposed set. They do not establish held-out accuracy or prove that every
+withheld request received the best financial response.
+
+The limits are visible in the interface. A dollar glyph establishes a printed
+symbol, not USD; an explicit ISO-currency request needs further source evidence.
+General wording, arithmetic, multiple metrics, FX and scale conversion remain
+unsupported. Although the index preserves EPS and share counts, this first
+natural-query grammar selects monetary rows only. A future section-qualified
+adapter must make “Basic” earnings per share distinct from “Basic” share count.
+
+This is an opt-in Python development path. The published browser notebook and
+default HTTP service have not yet been connected to it. That integration needs
+its own visible state transitions, source review and runtime checks. The local
+checkout passed **646 tests**; actual model encoding, generation and independent
+human gold were all zero in this source-index experiment. Financial readiness
+remains unestablished.
+
+The companion [source-selection guide and reproducible command](https://github.com/1235357/nvidia-financial-rag/blob/main/docs/structured-income-selection.md)
+explain the operator inputs and completion guards. Its
+[sanitized observation](https://github.com/1235357/nvidia-financial-rag/blob/main/docs/acceptance/structured-income-development-20261012.json)
+preserves exact input and implementation hashes and all 35 dispositions. This
+connects the software-design responsibility to a concrete outcome: report
+availability, table layout, query interpretation and financial judgment can
+now fail separately and be improved separately.
 
 ## Reproduce this reasoning
 
