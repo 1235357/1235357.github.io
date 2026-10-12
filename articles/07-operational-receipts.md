@@ -4,7 +4,7 @@ tags: [rag, observability, api, software-design, evaluation]
 category: technical-blog
 status: development-notes
 created: 2026-10-11
-updated: 2026-10-11
+updated: 2026-10-12
 source_type: implementation-and-official-documentation-review
 ---
 
@@ -217,6 +217,27 @@ provides a useful comparison: model engines, replica orchestration and client AP
 compatibility are separate responsibilities. Its measurements and cost scenarios
 belong to its hardware and workload. They are not speedups or cost savings measured
 for this project.
+
+## Inspect a source candidate through its own HTTP contract
+
+A host application may need to inspect a table cell before asking a model to write an answer. The Python API now exposes that operation at `POST /v1/statement-candidates`. It returns the selector's result directly. HTTP 200 means the selection completed; the `disposition` tells the caller whether it found a `source_candidate`, needs clarification, refuses the requested fields, or does not support the operation. A candidate still carries `financial_correctness="unestablished"`. No language model runs on this route.
+
+Before serving requests, the operator builds an immutable index from registered PDFs whose bytes match their recorded hashes, then injects that index into the application. Requests supply the original question and optional registered document IDs. They do not supply a local PDF path. For example, this request narrows selection to one reviewed annual report:
+
+```json
+{
+  "question": "What was net income for the year ended January 26, 2025, in millions of dollars?",
+  "document_ids": ["nvidia-fy2025-annual"]
+}
+```
+
+The caller must use the identifiers configured by its operator. An unknown identifier withholds the whole requested scope. An annual fiscal-year period also stays distinct from a three-, six- or twelve-month duration. Conflicting wording requires clarification rather than silently choosing a nearby column.
+
+When exactly one cell matches, the response preserves its amount as a string, along with the PDF and page-text hashes, physical page, nullable PDF label, row, dated column, unit, and native text spans and rectangles. It also retains the original question, parsed mentions, index hash and request ID. These fields let the consuming application show what was selected and where it came from. The selection uses exact supported source fields; it has no cosine score or generated answer.
+
+Operational failure follows a separate path. A missing startup index or a selection, validation or serialization fault returns HTTP 503 with `disposition="unavailable"` and empty cells. Private exception details and partial results are withheld. Malformed input receives a fixed validation error. Bearer authentication precedes body parsing, and the adapter limits the actual streamed JSON to 8,192 bytes.
+
+The [configured-consumer guide](https://github.com/1235357/nvidia-financial-rag/blob/1fb5a50dc48645dbbf4fc50159d2986bcf12d687/docs/statement-http-api.md) documents this boundary. Its [dated local metadata](https://github.com/1235357/nvidia-financial-rag/blob/1fb5a50dc48645dbbf4fc50159d2986bcf12d687/docs/acceptance/statement-http-development-20261012.json) binds 711 checkout tests and 28 fresh installed-wheel checks using synthetic native PDF tables and real loopback HTTP. Complete candidate fields and text spans were replayed; the strengthened check also rejected deliberately corrupted coordinates. These observations do not supply a financial accuracy denominator. The browser lab continues to own its selected PDF and separate native computation. Packaging an HTTP selector supplies an integration contract; it does not establish hosted service availability, independent financial accuracy or generation quality.
 
 ## Enlarge the knowledge base without losing its meaning
 
