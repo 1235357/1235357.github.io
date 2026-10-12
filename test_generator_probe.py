@@ -44,7 +44,7 @@ SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs
     'financial-generation-input.mjs', 'financial-generation-source.mjs', 'financial-generation.worker.mjs',
     'financial-generator-runtime.mjs', 'financial-generator-contract.mjs', 'prompt-contract.mjs', 'financial-output-contract.mjs',
     'financial-geometry-source.mjs', 'financial-geometry-view.mjs',
-    'financial-table-contract.mjs', 'financial-lookup-view.mjs'))
+    'financial-table-contract.mjs', 'financial-annual-table-contract.mjs', 'financial-lookup-view.mjs', 'bounded-text-view.mjs'))
 
 
 def pinned_manifest():

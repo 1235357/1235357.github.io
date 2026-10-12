@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "status": "local-native-source-comparison-and-complete-export-verified",
+  "scope": {
+    "host": "loopback development server",
+    "browser": "Codex in-app browser",
+    "entry": "explicit public static inspector",
+    "encoderRun": false,
+    "generatorRun": false,
+    "financialCorrectness": "unadjudicated",
+    "normalizedCurrency": null
+  },
+  "viewer": {
+    "maxUtf16UnitsPerPage": 24576,
+    "maxHardLinesPerPage": 160,
+    "download": "complete UTF-8 JSON.stringify(value, null, 2), no added newline",
+    "fy2026ReceiptTextPages": 3373,
+    "observedFirstPageUtf16Units": 4771,
+    "observedFirstPageLines": 160,
+    "nextAndFinalPageJumpVerified": true,
+    "oldViewerRemovedOnDateEditAndPdfReplacement": true
+  },
+  "localTests": {
+    "node": 2963,
+    "python": 155,
+    "finalFocused": 38,
+    "failures": 0
+  },
+  "independentArchiveAudit": {
+    "sha256": "46af52f4b03e048bd09d5913735d7b581216f71dd70ff30d5a96207e9568aec3",
+    "selectedAndAllColumnBindings": 126,
+    "pureResultsExactlyRederived": true,
+    "everyNativeRecordAndSpanChecked": true,
+    "originalPdfsStable": true
+  },
+  "observations": [
+    {
+      "source": {
+        "sha256": "0e725ba048221539dca3eb1a4e70febfcbb785e9afb96cd3ff0b035d7d734e5c",
+        "name": "nvidia-fy2026-annual.pdf",
+        "size": 15850437
+      },
+      "parser": {
+        "name": "pdfjs",
+        "version": "6.4.299",
+        "policyVersion": "text-items-v1",
+        "disableNormalization": true
+      },
+      "nativeCounts": {
+        "pages": 175,
+        "itemCount": 23126,
+        "textUtf16": 617295
+      },
+      "request": {
+        "statement": "Consolidated Statements of Income",
+        "metric": "Net income",
+        "periodKind": "fiscal_year",
+        "durationMonths": null,
+        "periodEndLiteral": "Jan 25, 2026",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "120,067",
+      "physicalPageNumber": 139,
+      "pageLabel": null,
+      "downloadBytes": 17311627,
+      "downloadSha256": "a0a470ba4bd5475e852a72c4f2027acff772abab5b7ebeb6d1c759d7f9e2c242",
+      "snapshotDigest": {
+        "sha256": "67f57759248d7f5933d94304f2c602f65abd7e44a329f7241db6bd4e63373a8c",
+        "utf8Bytes": 15148449
+      },
+      "pureResultExactEqual": true,
+      "completeExportSerializationExact": true,
+      "sourceRoleRecordsEqualNativeRecords": true
+    },
+    {
+      "source": {
+        "sha256": "0e725ba048221539dca3eb1a4e70febfcbb785e9afb96cd3ff0b035d7d734e5c",
+        "name": "nvidia-fy2026-annual.pdf",
+        "size": 15850437
+      },
+      "parser": {
+        "name": "pdfjs",
+        "version": "6.4.299",
+        "policyVersion": "text-items-v1",
+        "disableNormalization": true
+      },
+      "nativeCounts": {
+        "pages": 175,
+        "itemCount": 23126,
+        "textUtf16": 617295
+      },
+      "request": {
+        "statement": "Consolidated Statements of Income",
+        "metric": "Net income",
+        "periodKind": "fiscal_year",
+        "durationMonths": null,
+        "periodEndLiteral": "Jan 26, 2025",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "72,880",
+      "physicalPageNumber": 139,
+      "pageLabel": null,
+      "downloadBytes": 17311635,
+      "downloadSha256": "361028da691d2dc450bc06bd20c881e25b1f2721796876625f61adda52f4e2d1",
+      "snapshotDigest": {
+        "sha256": "67f57759248d7f5933d94304f2c602f65abd7e44a329f7241db6bd4e63373a8c",
+        "utf8Bytes": 15148449
+      },
+      "pureResultExactEqual": true,
+      "completeExportSerializationExact": true,
+      "sourceRoleRecordsEqualNativeRecords": true
+    },
+    {
+      "source": {
+        "sha256": "0e725ba048221539dca3eb1a4e70febfcbb785e9afb96cd3ff0b035d7d734e5c",
+        "name": "nvidia-fy2026-annual.pdf",
+        "size": 15850437
+      },
+      "parser": {
+        "name": "pdfjs",
+        "version": "6.4.299",
+        "policyVersion": "text-items-v1",
+        "disableNormalization": true
+      },
+      "nativeCounts": {
+        "pages": 175,
+        "itemCount": 23126,
+        "textUtf16": 617295
+      },
+      "request": {
+        "statement": "Consolidated Statements of Income",
+        "metric": "Net income",
+        "periodKind": "fiscal_year",
+        "durationMonths": null,
+        "periodEndLiteral": "Jan 28, 2024",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "29,760",
+      "physicalPageNumber": 139,
+      "pageLabel": null,
+      "downloadBytes": 17311633,
+      "downloadSha256": "42c661e903c454ecb2c8c6edebfd95db4f0eb809440fba1185359aa0e5101f77",
+      "snapshotDigest": {
+        "sha256": "67f57759248d7f5933d94304f2c602f65abd7e44a329f7241db6bd4e63373a8c",
+        "utf8Bytes": 15148449
+      },
+      "pureResultExactEqual": true,
+      "completeExportSerializationExact": true,
+      "sourceRoleRecordsEqualNativeRecords": true
+    },
+    {
+      "source": {
+        "sha256": "a9b562ceebfcc8e59869c66625409de01329753e9750da57984c946f2bd08eb7",
+        "name": "nvidia-fy2021-10k.pdf",
+        "size": 775976
+      },
+      "parser": {
+        "name": "pdfjs",
+        "version": "6.4.299",
+        "policyVersion": "text-items-v1",
+        "disableNormalization": true
+      },
+      "nativeCounts": {
+        "pages": 93,
+        "itemCount": 9304,
+        "textUtf16": 322457
+      },
+      "request": {
+        "statement": "CONSOLIDATED STATEMENTS OF INCOME",
+        "metric": "Net income",
+        "periodKind": "fiscal_year",
+        "durationMonths": null,
+        "periodEndLiteral": "January 31, 2021",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "4,332",
+      "physicalPageNumber": 47,
+      "pageLabel": null,
+      "downloadBytes": 7277821,
+      "downloadSha256": "e259ee6d02ce165fc40b1130edc3ccb27844737436f6d9e4f7adc7ac3bb17d41",
+      "snapshotDigest": {
+        "sha256": "654068c45043b4cee36260796e3496908e579cd7f1d0bab24158eec97d29d511",
+        "utf8Bytes": 6388543
+      },
+      "pureResultExactEqual": true,
+      "completeExportSerializationExact": true,
+      "sourceRoleRecordsEqualNativeRecords": true
+    },
+    {
+      "source": {
+        "sha256": "a9b562ceebfcc8e59869c66625409de01329753e9750da57984c946f2bd08eb7",
+        "name": "nvidia-fy2021-10k.pdf",
+        "size": 775976
+      },
+      "parser": {
+        "name": "pdfjs",
+        "version": "6.4.299",
+        "policyVersion": "text-items-v1",
+        "disableNormalization": true
+      },
+      "nativeCounts": {
+        "pages": 93,
+        "itemCount": 9304,
+        "textUtf16": 322457
+      },
+      "request": {
+        "statement": "CONSOLIDATED STATEMENTS OF INCOME",
+        "metric": "Net income",
+        "periodKind": "fiscal_year",
+        "durationMonths": null,
+        "periodEndLiteral": "January 26, 2020",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "2,796",
+      "physicalPageNumber": 47,
+      "pageLabel": null,
+      "downloadBytes": 7277794,
+      "downloadSha256": "c64a79ba3e0a2e161009d24fc8ce56ca9d0e38af91af303f1e3ddcd00651d3cd",
+      "snapshotDigest": {
+        "sha256": "654068c45043b4cee36260796e3496908e579cd7f1d0bab24158eec97d29d511",
+        "utf8Bytes": 6388543
+      },
+      "pureResultExactEqual": true,
+      "completeExportSerializationExact": true,
+      "sourceRoleRecordsEqualNativeRecords": true
+    },
+    {
+      "source": {
+        "sha256": "a9b562ceebfcc8e59869c66625409de01329753e9750da57984c946f2bd08eb7",
+        "name": "nvidia-fy2021-10k.pdf",
+        "size": 775976
+      },
+      "parser": {
+        "name": "pdfjs",
+        "version": "6.4.299",
+        "policyVersion": "text-items-v1",
+        "disableNormalization": true
+      },
+      "nativeCounts": {
+        "pages": 93,
+        "itemCount": 9304,
+        "textUtf16": 322457
+      },
+      "request": {
+        "statement": "CONSOLIDATED STATEMENTS OF INCOME",
+        "metric": "Net income",
+        "periodKind": "fiscal_year",
+        "durationMonths": null,
+        "periodEndLiteral": "January 27, 2019",
+        "unitHeadingLiteral": "(In millions, except per share data)",
+        "currencyGlyph": "$"
+      },
+      "amountLiteral": "4,141",
+      "physicalPageNumber": 47,
+      "pageLabel": null,
+      "downloadBytes": 7277798,
+      "downloadSha256": "7c9e5dee489fe918c2268f923274fd90173d00494fc34acebaead51523f9bdc2",
+      "snapshotDigest": {
+        "sha256": "654068c45043b4cee36260796e3496908e579cd7f1d0bab24158eec97d29d511",
+        "utf8Bytes": 6388543
+      },
+      "pureResultExactEqual": true,
+      "completeExportSerializationExact": true,
+      "sourceRoleRecordsEqualNativeRecords": true
+    }
+  ],
+  "authoredModuleSha256": {
+    "bounded-text-view.mjs": "e06efbdc011848a6485195df99b93b5f9130012016a4a07c603591d14a9b209c",
+    "financial-annual-table-contract.mjs": "ee2b76748877f0cf3822d08b4aaa5243701503a23a9cd900c2c901709ec6b426",
+    "financial-geometry-view.mjs": "c37f294b1fc21e4c0114e3e8a1c90a1187c786fad37fd209fd3a1f0f9ddc66b5",
+    "financial-lookup-view.mjs": "8a0db8c532305de8660805a396933302ac027107304794ed2282b3764ff6b649"
+  },
+  "limitations": [
+    "Mechanical source-cell candidates only; financial correctness remains unadjudicated.",
+    "No human gold, held-out question acceptance, encoder, generation, production API integration, or physical phone evidence is established.",
+    "Original PDF identity is checked against the staged bytes; this audit does not independently authenticate the external publisher."
+  ]
+}

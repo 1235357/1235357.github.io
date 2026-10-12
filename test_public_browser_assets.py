@@ -74,6 +74,8 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         css=(out/'inspector.css').read_bytes().replace(b'\r\n',b'\n')
         self.assertIn(f'href="inspector.css?v={hashlib.sha256(css).hexdigest()[:16]}"',markup)
         graph=existing.static_mjs_graph(out,'pdf-public-entry.mjs');self.assertIn('financial-lookup-view.mjs',graph);self.assertIn('financial-generation-source.mjs',graph)
+        self.assertIn('financial-annual-table-contract.mjs', graph)
+        self.assertIn('bounded-text-view.mjs', graph)
         for name in ('asset-preparation-source.mjs','asset-preparation-view.mjs','asset-preparation-transport.mjs','pdf-worker-preparation.mjs','runtime-failure-contract.mjs'):
             self.assertIn(name,graph)
         preparation_worker=existing.static_mjs_graph(out,'asset-preparation.worker.mjs')

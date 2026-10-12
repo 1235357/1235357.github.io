@@ -1,3 +1,4 @@
+import {completeText} from './bounded-text-dom-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {registerHooks} from 'node:module';
@@ -13,6 +14,7 @@ import {embedInWorker as nativeEmbedInWorker} from '../embedding-source.mjs';
 import {ControlledWorker as NativeClientWorkerDouble} from './query-fixtures.mjs';
 import {queryInWorker as nativeQueryInWorker} from '../query-source.mjs';
 import {createAssetPreparationView} from '../asset-preparation-view.mjs';
+import {annualSource} from './annual-table-fixture.mjs';
 
 const fixture=new URL('./pdf-app-dom-fixture.mjs',import.meta.url).href;
 const hooks=registerHooks({resolve(specifier,context,next){if(context.parentURL?.endsWith('/pdf-app.mjs')){if(specifier==='./vendor/build/pdf.mjs')return {url:'data:text/javascript,export const version="6.4.299";',shortCircuit:true};if(['./pdf-source.mjs','./compute-source.mjs','./embedding-source.mjs','./query-source.mjs'].includes(specifier))return {url:fixture,shortCircuit:true};}return next(specifier,context);}});
@@ -27,14 +29,14 @@ test('current native-shaped failure is lazy and detached disclosure is revoked e
     worker.emit('error',{message:'PRIVATE signed URL'});return pending;};
   try{const d=mount();d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));
     const detail=byTag(d.get('embedding-detail'),'details').find(value=>value.textContent.includes('failure boundary'));assert.ok(detail);assert.equal(byTag(detail,'pre').length,0);
-    detail.open=true;await act(detail,'toggle');assert.equal(JSON.parse(byTag(detail,'pre')[0].textContent).safeError.failureOrigin,'native-worker-error');assert.doesNotMatch(d.root.textContent,/PRIVATE|signed URL/);
+    detail.open=true;await act(detail,'toggle');assert.equal(JSON.parse(completeText(detail)).safeError.failureOrigin,'native-worker-error');assert.doesNotMatch(d.root.textContent,/PRIVATE|signed URL/);
     await act(d.get('question-input'),'input');await act(detail,'toggle');assert.equal(byTag(detail,'pre').length,0);
   }finally{adapterControl.embed=null;}
 });
 test('query channel failure disclosure revokes on transport Clear pagehide and retry without sharing into another mount',async()=>{
   adapterControl.query=async(input,passages,question,options)=>{const worker=new NativeClientWorkerDouble(),pending=nativeQueryInWorker(input,passages,question,{...options,workerFactory:()=>worker});worker.ready();worker.emit('error',{message:'PRIVATE query URL'});return pending;};
   try{for(const action of ['transport','clear','pagehide','retry']){const d=mount({createAssetPreparationView});d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));d.get('question-input').value='question';await act(d.get('run-query'));
-    const detail=byTag(d.get('embedding-detail'),'details').find(value=>value.textContent.includes('failure boundary'));assert.ok(detail);detail.open=true;await act(detail,'toggle');assert.equal(JSON.parse(byTag(detail,'pre')[0].textContent).safeError.component,'query-client');
+    const detail=byTag(d.get('embedding-detail'),'details').find(value=>value.textContent.includes('failure boundary'));assert.ok(detail);detail.open=true;await act(detail,'toggle');assert.equal(JSON.parse(completeText(detail)).safeError.component,'query-client');
     if(action==='transport'){const select=nodes(d.get('asset-preparation')).find(value=>value.id==='asset-preparation-transport');select.value='huggingface';await act(select,'input');for(const listener of d.get('asset-preparation').listeners.get('input'))listener({target:select});}
     else if(action==='clear')await act(d.get('clear'));else if(action==='pagehide')await act(d.window,'pagehide');else await act(d.get('run-query'));
     await act(detail,'toggle');assert.equal(byTag(detail,'pre').length,0);const another=mount();assert.equal(byTag(another.get('embedding-detail'),'details').length,0);
@@ -107,14 +109,49 @@ test('private source-cell comparator needs only source parse and main-question n
     const d=mount({generate:()=>{calls++;},createLookupView:options=>createFinancialLookupView({...options,digest:async bytes=>createHash('sha256').update(bytes).digest('hex')})});
     d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');const host=d.get('source-cell-lookup'),get=key=>nodes(host).find(node=>node.id===`source-cell-${key}`);
     assert.equal(host.hidden,false);assert.match(d.get('status-title').textContent,/Extracted/);
-    const values={statement:'Condensed Consolidated Statements of Income',metric:'Net income',duration:'6',date:'Jul 28, 2024',unit:'(In millions, except per share data)',glyph:'$'};
+    const values={basis:'months',statement:'Condensed Consolidated Statements of Income',metric:'Net income',duration:'6',date:'Jul 28, 2024',unit:'(In millions, except per share data)',glyph:'$'};
     for(const [key,value]of Object.entries(values)){get(key).value=value;get(key).dispatch('input');}await act(get('run'));
-    const detail=byTag(host,'details').find(node=>node.children[0].textContent==='Complete source-cell lookup receipt');assert.ok(detail);detail.open=true;await act(detail,'toggle');assert.deepEqual(JSON.parse(byTag(detail,'pre')[0].textContent).result.snapshot,original);
+    const detail=byTag(host,'details').find(node=>node.children[0].textContent==='Complete source-cell lookup receipt');assert.ok(detail);detail.open=true;await act(detail,'toggle');assert.deepEqual(JSON.parse(completeText(detail)).result.snapshot,original);
     assert.equal(calls,0);assert.match(d.get('generation-detail').textContent,/No native generation receipt/);assert.equal(d.get('run-query').disabled,true);
     d.get('question-input').value='Editing before any vector query';await act(d.get('question-input'),'input');assert.equal(byTag(host,'details').length,0);assert.equal(byTag(detail,'pre').length,0);assert.equal(get('duration').value,'6');
     await act(get('run'));assert.ok(byTag(host,'details').length);await act(d.get('clear-query'));assert.equal(byTag(host,'details').length,0);
     await act(get('run'));assert.ok(byTag(host,'details').length);await act(d.get('clear'));assert.equal(byTag(host,'details').length,0);assert.equal(get('statement').value,'');assert.equal(get('run').disabled,true);
   }finally{adapterControl.extract=null;}
+});
+
+test('configured annual lookup uses only owned parse, retains split roles and revokes on question edits and PDF replacement',async()=>{
+  const original=annualSource({split:true,statement:'CONSOLIDATED STATEMENTS OF INCOME'});
+  const calls={embed:0,query:0,generate:0};
+  adapterControl.extract=async()=>structuredClone(original);
+  adapterControl.embed=async()=>{calls.embed++;throw Error('Unexpected encoder');};
+  adapterControl.query=async()=>{calls.query++;throw Error('Unexpected query');};
+  try{
+    const d=mount({generate:()=>{calls.generate++;},createLookupView:options=>createFinancialLookupView({...options,
+      digest:async bytes=>createHash('sha256').update(bytes).digest('hex')})});
+    d.get('pdf-file').files=[{name:'annual.pdf'}];await act(d.get('pdf-file'),'change');
+    const host=d.get('source-cell-lookup'),get=key=>nodes(host).find(node=>node.id===`source-cell-${key}`);
+    const values={basis:'fiscal_year',statement:'CONSOLIDATED STATEMENTS OF INCOME',metric:'Net income',
+      date:'January 31, 2021',unit:'(In millions, except per share data)',glyph:'$'};
+    for(const [key,value]of Object.entries(values)){get(key).value=value;await act(get(key),'input');}
+    assert.equal(get('duration').disabled,true);assert.equal(get('duration').value,'');
+    await act(get('run'));assert.match(host.textContent,/Year ended January 31, 2021/);
+    const detail=byTag(host,'details').find(node=>node.children[0].textContent==='Complete source-cell lookup receipt');
+    assert.ok(detail);detail.open=true;await act(detail,'toggle');
+    const receipt=JSON.parse(completeText(detail));
+    assert.equal(receipt.schemaVersion,2);assert.equal(receipt.result.periodKind,'fiscal_year');
+    assert.equal(receipt.result.durationMonths,null);assert.deepEqual(receipt.result.snapshot,original);
+    assert.equal(receipt.result.bindings.date.item.text,'January 31,');
+    assert.equal(receipt.result.bindings.date_year.item.text,'2021');
+    assert.notEqual(receipt.result.bindings.date.item.itemIndex,receipt.result.bindings.date_year.item.itemIndex);
+    assert.deepEqual(calls,{embed:0,query:0,generate:0});assert.equal(d.get('run-query').disabled,true);
+    assert.equal(d.get('pipeline-steps').children[1].className,'pipeline-step pending');
+    await act(d.get('question-input'),'input');assert.equal(byTag(host,'details').length,0);
+    await act(detail,'toggle');assert.equal(byTag(detail,'pre').length,0);
+    await act(get('run'));assert.equal(byTag(host,'details').length,3);
+    d.get('pdf-file').files=[{name:'replacement.pdf'}];await act(d.get('pdf-file'),'change');
+    assert.equal(byTag(host,'details').length,0);assert.equal(get('basis').value,'');assert.equal(get('date').value,'');
+    assert.deepEqual(calls,{embed:0,query:0,generate:0});
+  }finally{adapterControl.extract=null;adapterControl.embed=null;adapterControl.query=null;}
 });
 
 test('lazy replay disclosure is the exact immutable eight-field input forwarded to native generation',async()=>{
@@ -128,7 +165,7 @@ test('lazy replay disclosure is the exact immutable eight-field input forwarded 
   const detail=byTag(d.get('generation-detail'),'details').find(node=>node.children[0].textContent==='Original canonical generation input · replay only');
   assert.ok(detail,'explicit archive replay disclosure exists');assert.equal(byTag(detail,'pre').length,0);
   detail.open=true;await act(detail,'toggle');
-  const text=byTag(detail,'pre')[0].textContent;assert.equal(text,JSON.stringify(input,null,2));
+  const text=completeText(detail);assert.equal(text,JSON.stringify(input,null,2));
   const sidecar=JSON.parse(text);assert.deepEqual(sidecar,input);
   const inspected=inspectFinancialOutput(raw.text,[...raw.promptTokenIds,...raw.generatedTokenIds],raw.preflight,sidecar);
   assert.equal(inspected.disposition,'draft');assert.equal(inspected.citationBindings[0].citationId,'E2');
@@ -146,7 +183,7 @@ test('cancelled input A cannot leak into the accepted input B replay disclosure 
   const packets=await generationPackets(...a);for(const packet of packets.slice(0,-1))a[2].onProgress(packet);pending.resolve(packets.at(-1));await tick();
   const detail=byTag(d.get('generation-detail'),'details').find(node=>node.children[0].textContent==='Original canonical generation input · replay only');
   assert.ok(detail);detail.open=true;await act(detail,'toggle');
-  assert.deepEqual(JSON.parse(byTag(detail,'pre')[0].textContent),b[0]);
+  assert.deepEqual(JSON.parse(completeText(detail)),b[0]);
 });
 
 test('canonical replay disclosure is revoked by source replacement and is never shared with a new mount',async()=>{
@@ -165,10 +202,10 @@ test('only configured private geometry factory receives current source/epoch; op
   d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');
   const detail=byTag(d.get('computation-notebook'),'details').find(node=>node.children[0].textContent==='Complete owned PDF.js geometry snapshot · capture only');
   assert.ok(detail);assert.equal(byTag(detail,'pre').length,0);detail.open=true;await act(detail,'toggle');
-  const snapshot=JSON.parse(byTag(detail,'pre')[0].textContent);assert.equal(snapshot.source.name,'READER.pdf');assert.ok(snapshot.pages[0].geometry);assert.ok(snapshot.pages[0].textItems[0].transform);
+  const snapshot=JSON.parse(completeText(detail));assert.equal(snapshot.source.name,'READER.pdf');assert.ok(snapshot.pages[0].geometry);assert.ok(snapshot.pages[0].textItems[0].transform);
   assert.match(detail.textContent,/document epoch 1/);assert.equal(calls,0);
   d.get('pdf-file').files=[{name:'REPLACEMENT.pdf'}];await act(d.get('pdf-file'),'change');detail.dispatch('toggle');assert.equal(byTag(detail,'pre').length,0);
   const replacement=byTag(d.get('computation-notebook'),'details').find(node=>node.children[0].textContent==='Complete owned PDF.js geometry snapshot · capture only');replacement.open=true;await act(replacement,'toggle');
-  assert.equal(JSON.parse(byTag(replacement,'pre')[0].textContent).source.name,'REPLACEMENT.pdf');assert.match(replacement.textContent,/document epoch 2/);
+  assert.equal(JSON.parse(completeText(replacement)).source.name,'REPLACEMENT.pdf');assert.match(replacement.textContent,/document epoch 2/);
   await act(d.get('clear'));replacement.dispatch('toggle');assert.equal(byTag(replacement,'pre').length,0);
 });

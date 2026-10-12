@@ -2,8 +2,8 @@
 
 This is an offline acceptance tool, separate from the static site build. It
 exposes five authored diagnostics, one exact private inspector entry, ten
-named authored generation modules, two private geometry-capture modules and two
-private source-cell lookup modules, five
+named authored generation modules, two private geometry-capture modules and three
+private source-cell lookup modules and one shared bounded text viewer, five
 verified ignored-cache model files, and guarded regular files under ``dist``.
 The five exact public MiniLM model routes continue to resolve to their verified
 built assets; unknown model URLs never fall through to arbitrary ``dist`` files.
@@ -40,7 +40,7 @@ SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs
     'financial-generation-input.mjs', 'financial-generation-source.mjs', 'financial-generation.worker.mjs',
     'financial-generator-runtime.mjs', 'financial-generator-contract.mjs', 'prompt-contract.mjs', 'financial-output-contract.mjs',
     'financial-geometry-source.mjs', 'financial-geometry-view.mjs',
-    'financial-table-contract.mjs', 'financial-lookup-view.mjs'))
+    'financial-table-contract.mjs', 'financial-annual-table-contract.mjs', 'financial-lookup-view.mjs', 'bounded-text-view.mjs'))
 PRIVATE_ENTRY_ROUTE = '/browser-rag/pdf-entry.mjs'
 PRIVATE_ENTRY_FILE = 'pdf-private-entry.mjs'
 STATIC_QUERY_ROUTES = MappingProxyType({
