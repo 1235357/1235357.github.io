@@ -218,7 +218,10 @@ def render_site(root, output, *, public_release=False):
     intro = '<h1>Building systems.<br>Checking evidence.</h1><p>A technical learning series on financial retrieval, software boundaries and evaluation. Drafts describe verified implementation and unresolved limitations separately.</p>' + featured + '<h2>Read the series</h2><ol>' + ''.join(links) + '</ol>'
     if has_portfolio:
         profile = json.loads(guard_path(profile_path, root).read_text(encoding='utf-8'))
-        (output / 'index.html').write_text(render_home(profile, public_release=public_release), encoding='utf-8')
+        style_text = guard_path(root / 'style.css', root).read_text(encoding='utf-8')
+        style_version = hashlib.sha256(style_text.encode('utf-8')).hexdigest()[:16]
+        (output / 'index.html').write_text(render_home(profile, public_release=public_release,
+            stylesheet_href=f'style.css?v={style_version}'), encoding='utf-8')
         (output / 'journal.html').write_text(render_page('Engineering notes', intro,
             public_release=public_release, has_portfolio=True), encoding='utf-8')
     else:

@@ -2,7 +2,7 @@
 from html import escape
 
 
-def render_home(profile, *, public_release=False):
+def render_home(profile, *, public_release=False, stylesheet_href='style.css'):
     def text(value):
         return escape(value, quote=True)
 
@@ -33,7 +33,7 @@ def render_home(profile, *, public_release=False):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{text(profile['name'])} — AI projects &amp; engineering</title>
 <meta name="description" content="Northwestern MSCS student. AI engineering, multimodal research, interactive financial RAG and a continuing project journal.">
-<link rel="stylesheet" href="style.css"></head><body class="portfolio-page">
+<link rel="stylesheet" href="{text(stylesheet_href)}"></head><body class="portfolio-page">
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="portfolio-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ {label}</span></a>
 <nav aria-label="Main navigation"><a href="#projects">Projects</a><a href="#background">Background</a><a href="journal.html">Journal</a><a href="https://github.com/1235357">GitHub ↗</a></nav></header>
