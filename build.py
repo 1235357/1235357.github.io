@@ -221,9 +221,12 @@ def render_site(root, output, *, public_release=False):
         profile = json.loads(guard_path(profile_path, root).read_text(encoding='utf-8'))
         style_text = guard_path(root / 'style.css', root).read_text(encoding='utf-8')
         style_version = hashlib.sha256(style_text.encode('utf-8')).hexdigest()[:16]
+        demo_script = guard_path(root / 'portfolio-demo.mjs', root)
+        script_version = hashlib.sha256(demo_script.read_text(encoding='utf-8').encode('utf-8')).hexdigest()[:16]
         (output / 'index.html').write_text(render_home(profile, public_release=public_release,
-            stylesheet_href=f'style.css?v={style_version}'), encoding='utf-8')
-        shutil.copyfile(guard_path(root / 'portfolio-demo.mjs', root), output / 'portfolio-demo.mjs')
+            stylesheet_href=f'style.css?v={style_version}',
+            demo_script_href=f'portfolio-demo.mjs?v={script_version}'), encoding='utf-8')
+        shutil.copyfile(demo_script, output / 'portfolio-demo.mjs')
         (output / 'journal.html').write_text(render_page('Engineering notes', intro,
             public_release=public_release, has_portfolio=True), encoding='utf-8')
     else:

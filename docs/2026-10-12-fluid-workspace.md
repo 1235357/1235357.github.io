@@ -13,6 +13,8 @@ The profile's embedded RAG workspace now fills the available application width. 
 
 The fullscreen action never changes the iframe URL. A `fullscreenchange` listener updates the action and `aria-expanded` state, including native exit. Unsupported browsers retain the full-page link; a rejected fullscreen request offers the same link and allows a later retry. Concurrent requests are ignored until the current request settles.
 
+The built homepage uses a content-versioned `portfolio-demo.mjs?v=…` URL. An actual returning-browser public check exposed the old unversioned 1,200-byte script without the fullscreen code after the first deployment. A regression test first reproduced the missing version, then checked that a changed script gets a new URL while LF/CRLF line-ending differences retain the same version. This prevents new markup from pairing with the previous cached homepage script.
+
 ## Design research applied
 
 The implementation follows [Emil Kowalski's Agents with Taste](https://emilkowal.ski/ui/agents-with-taste) and the locally installed official design-engineering skill: deliberate typography, subtle control feedback and readable information density. [Apple's layout guidance](https://developer.apple.com/design/human-interface-guidelines/layout) informs grouping, hierarchy and adaptation to the available space. [IBM Carbon's 2x Grid](https://www.carbondesignsystem.com/building-blocks/foundations/2x-grid/overview) informs the fluid application area with fixed gutters and aligned columns. These primary pages were read through the Codex in-app browser.
@@ -34,7 +36,7 @@ All eight checked widths (320, 390, 780, 1,100, 1,280, 1,600, 1,920 and 2,560) h
 
 A native file chooser loaded the original 74,085-byte, two-page NVIDIA PDF with SHA-256 `8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428`. The current PDF.js worker parsed it and the app built five chunks. Fullscreen entry and exit preserved the complete accepted parser receipt and five-chunk state exactly. The document was then cleared. This check did not invoke an encoder or generator.
 
-Three focused fullscreen tests cover entry/exit without iframe writes, native exit, unsupported browsers, rejection and retry. The complete final local suite passed 3,048 Node tests and 156 Python tests. Fullscreen and layout evidence is separate from new model execution, financial correctness, physical-phone acceptance and the user's final aesthetic judgment.
+Three focused fullscreen tests cover entry/exit without iframe writes, native exit, unsupported browsers, rejection and retry. The UI and complete-record suite passed 3,048 Node tests. After the homepage cache correction, all 157 Python tests passed. Fullscreen and layout evidence is separate from new model execution, financial correctness, physical-phone acceptance and the user's final aesthetic judgment.
 
 Sanitized [local browser acceptance metadata](acceptance-2026-10-12/browser-fluid-workspace.json) records the measured widths and retained-session check. Full parser receipts and screenshots remain outside Pages.
 

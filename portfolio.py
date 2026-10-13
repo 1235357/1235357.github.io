@@ -2,7 +2,7 @@
 from html import escape
 
 
-def render_home(profile, *, public_release=False, stylesheet_href='style.css'):
+def render_home(profile, *, public_release=False, stylesheet_href='style.css', demo_script_href='portfolio-demo.mjs'):
     def text(value):
         return escape(value, quote=True)
 
@@ -68,4 +68,4 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css'):
 <div class="demo-tabs" role="group" aria-label="Project workspace">{demo_choices}<button class="demo-expand-button" type="button" aria-controls="project-demo" aria-expanded="false" hidden>Expand workspace</button><a class="demo-fullscreen-link" href="{text(demos[0]['src'])}" target="_blank" rel="noopener">Open in a full page ↗</a><p class="demo-expand-status" role="status" aria-live="polite"></p></div>
 <div class="demo-frame-shell"><iframe id="project-demo" title="{text(demos[0]['title'])} browser lab" src="{text(demos[0]['src'])}" loading="lazy" allow="webgpu; fullscreen"></iframe></div>
 <p class="demo-stage-note">Start with your own PDF. Model downloads begin only when you choose a preparation action inside the lab; generated answers remain drafts to check against the source.</p></section>
-</main><footer class="portfolio-footer">© 2026 Zhentong Ye · <a href="https://github.com/1235357/1235357.github.io">Website source</a> · <a href="{text(portrait['profile'])}">LinkedIn</a>{license_link}<span>Learning in public. Building with evidence.</span></footer><script type="module" src="portfolio-demo.mjs"></script></body></html>'''
+</main><footer class="portfolio-footer">© 2026 Zhentong Ye · <a href="https://github.com/1235357/1235357.github.io">Website source</a> · <a href="{text(portrait['profile'])}">LinkedIn</a>{license_link}<span>Learning in public. Building with evidence.</span></footer><script type="module" src="{text(demo_script_href)}"></script></body></html>'''

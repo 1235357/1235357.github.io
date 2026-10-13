@@ -289,6 +289,37 @@ class FreshBuildTest(unittest.TestCase):
         self.root_patch.start()
         self.addCleanup(self.root_patch.stop)
 
+    def test_homepage_script_url_changes_with_content_and_is_stable_across_line_endings(self):
+        # A returning browser must not reuse an older UI script for new markup.
+        (self.root / 'portfolio.json').write_bytes(Path(__file__).with_name('portfolio.json').read_bytes())
+        script = self.root / 'portfolio-demo.mjs'
+        def render(name, body):
+            script.write_bytes(body)
+            output = self.root / name
+            output.mkdir()
+            build.render_site(self.root, output)
+            class Modules(HTMLParser):
+                def __init__(self):
+                    super().__init__()
+                    self.urls = []
+                def handle_starttag(self, tag, attrs):
+                    values = dict(attrs)
+                    if tag == 'script' and values.get('type') == 'module':
+                        self.urls.append(values['src'])
+            parsed = Modules()
+            parsed.feed((output / 'index.html').read_text(encoding='utf-8'))
+            self.assertEqual(len(parsed.urls), 1)
+            url = urlsplit(parsed.urls[0])
+            self.assertEqual(url.path, 'portfolio-demo.mjs')
+            self.assertRegex(url.query, r'^v=[0-9a-f]{16}$')
+            self.assertEqual((output / url.path).read_bytes(), body)
+            return parsed.urls[0]
+        first = render('first', b'const state = "one";\n')
+        changed = render('changed', b'const state = "two";\n')
+        normalized = render('normalized', b'const state = "two";\r\n')
+        self.assertNotEqual(first, changed)
+        self.assertEqual(changed, normalized)
+
     def test_stale_asset_cannot_rescue_missing_source(self):
         # A reused dist would accept a link whose source has disappeared.
         (self.root / 'dist' / 'figures').mkdir(parents=True)
