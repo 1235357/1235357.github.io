@@ -54,7 +54,7 @@ An operator may want lexical evidence without statement selection. That is a sup
 | Both supplied with accepted inputs | Starts after construction and rechecks | Selector completes with a candidate, clarification, refusal or unsupported outcome |
 | One option missing, invalid requested inputs, or a failed retained-input check | Does not start | There is no listening service to answer |
 
-Authentication still comes first on a running service: invalid credentials receive 401. A successful selection returns HTTP 200, while its `disposition` describes the content outcome. An operational selection or serialization failure returns 503 with empty cells. A source candidate remains explicitly financially unadjudicated. A caller therefore needs to read both the HTTP status and the result fields. The [statement HTTP contract](https://github.com/1235357/nvidia-financial-rag/blob/b94c92f0fa4c98914e5a2907e5044a943bea134a/docs/statement-http-api.md) documents the exact response and error behavior.
+For statement requests, authentication precedes body parsing: invalid credentials receive 401. A successful selection returns HTTP 200, while its `disposition` describes the content outcome. An operational selection or serialization failure returns 503 with empty cells. A source candidate remains explicitly financially unadjudicated. A caller therefore needs to read both the HTTP status and the result fields. The [statement HTTP contract](https://github.com/1235357/nvidia-financial-rag/blob/b94c92f0fa4c98914e5a2907e5044a943bea134a/docs/statement-http-api.md) documents the exact response and error behavior.
 
 ## Make installation an actual entry point
 
@@ -77,6 +77,10 @@ Different entry points own different work:
 | Browser lab | Reader-owned PDF, MiniLM embeddings and explicit Qwen generation on the reader's device | Independent local PDF and explicit-field comparator; does not call this Python API |
 
 The [model launcher](https://github.com/1235357/nvidia-financial-rag/blob/b94c92f0fa4c98914e5a2907e5044a943bea134a/run_api.py#L113-L200) retains its model configuration and rechecks the optional statement inputs after model/application construction. Wiring that configuration is separate from executing and evaluating those models.
+
+A later CPU run exercised the current model launcher with the original ten-report corpus, cached BGE and generation disabled. Three model queries and six statement requests completed through actual HTTP. The first attempt failed an observation check; a corrected probe then recorded one model construction and three encodes, with unchanged inputs and owned shutdown. The detailed [model startup diagnostic](https://github.com/1235357/nvidia-financial-rag/blob/0a87ba5435798db65ced77f4ea600859452a050a/docs/current-source-model-http.md) keeps both attempts and their separate results.
+
+The run also exposed a concrete retrieval problem. Both questions about Q2 Net income passed the similarity threshold but returned the annual overview, which lacks the requested row, date and three-month or six-month column. The existing annual router had selected the wrong report before ranking. A working listener therefore does not establish that its passages support a financial question. The next change needs source-bound annual and quarterly routing; lowering the threshold or rewriting these questions would not repair that boundary.
 
 ## Connect the design to the course work
 
