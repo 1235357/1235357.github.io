@@ -81,11 +81,12 @@ const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
   TOKENIZER_MISMATCH:'The paired tokenizer frame did not match the pinned contract.',
   INVALID_FINANCIAL_RECEIPT:'The complete native financial receipt did not satisfy its contract.'};
 let lastSource=null,lastChunks=null,lastEmbeddings=null,itemWindowIndex=0,chunkWindowIndex=0;
-let itemOwner=null,chunkOwner=null;
+let itemOwner=null,chunkOwner=null,embeddingOwner=null,queryOwner=null;
 let renderRevision=0;
 let parserPreparation=null;
 let lastQuestion=undefined,lastQueryEmbedding=null,lastRetrieval=null;
 let lastContext=undefined,contextOwner=null,contextView;
+let contextInspectable=false;
 let lastGeneration=undefined,lastInspection=undefined,generationOwner=null,generationView;
 let generationReplay=null;
 let geometryView,lookupView,preparationView;
@@ -96,17 +97,19 @@ const sameGenerationAttempt=(identity,event)=>event!==null&&event!==undefined
 let uiActionNonce=0,embeddingRefusal=false,queryRefusal=false,contextRefusal=false,generationRefusal=false;
 let failureDisclosureOwner=null;
 const failureHost=document.createElement('div');failureHost.id='runtime-failure-detail';failureHost.hidden=true;
-function revokeFailureDisclosure(){failureDisclosureOwner=null;failureHost.replaceChildren();failureHost.hidden=true;}
+function revokeFailureDisclosure(){
+  const previous=failureDisclosureOwner;failureDisclosureOwner=null;
+  failureHost.replaceChildren();failureHost.hidden=true;disposeOwnedRecords(previous);
+}
 function renderFailureDisclosure(){
-  revokeFailureDisclosure();const failure=session.queryFailure()??session.embeddingFailure();if(failure===null)return;
+  const revision=renderRevision;revokeFailureDisclosure();if(revision!==renderRevision)return;
+  const failure=session.queryFailure()??session.embeddingFailure();if(failure===null)return;
   const nonce=uiActionNonce,source=session.document(),chunks=session.chunks(),terminal=failure.terminal;
-  const detail=element('details'),summary=element('summary','Inspect current runtime failure boundary · no success receipt');detail.append(summary);
-  const owner={failure,nonce,source,chunks,terminal};failureDisclosureOwner=owner;failureHost.hidden=false;failureHost.append(detail);
-  detail.addEventListener('toggle',()=>{detail.replaceChildren(summary);
-    if(!detail.open||failureDisclosureOwner!==owner||uiActionNonce!==nonce||source!==session.document()||chunks!==session.chunks()
-      ||terminal!==failure.terminal||(session.queryFailure()??session.embeddingFailure())!==failure)return;
-    detail.append(element('pre',JSON.stringify(failure.diagnostic,null,2)));
-  });
+  const owner={failure,nonce,source,chunks,terminal,entries:[],nodes:[],alive:true};failureDisclosureOwner=owner;failureHost.hidden=false;
+  const current=()=>owner.alive&&failureDisclosureOwner===owner&&uiActionNonce===nonce&&source===session.document()
+    &&chunks===session.chunks()&&terminal===failure.terminal&&(session.queryFailure()??session.embeddingFailure())===failure;
+  recordDisclosure(owner,failureHost,'Inspect current runtime failure boundary · no success receipt',()=>failure.diagnostic,current,'runtime-failure.json');
+  owner.nodes=Array.from(failureHost.children??[]);
 }
 let lastOperation=null,cancelledOperation=null;
 function beginUiAction(){revokeFailureDisclosure();preparationView?.revoke();uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal||generationRefusal)render(session.snapshot());return uiActionNonce;}
@@ -125,7 +128,8 @@ function currentGeneration(raw,inspection){
 function currentContext(artifact){
   return contextOwner!==null&&contextOwner.artifact===artifact&&artifact===session.context()
     &&contextOwner.source===session.document()&&contextOwner.chunks===session.chunks()
-    &&contextOwner.retrieval===session.retrieval()&&session.snapshot().lifecycle.active===null;
+    &&contextOwner.retrieval===session.retrieval()&&contextOwner.epoch===session.snapshot().lifecycle.documentEpoch
+    &&session.snapshot().lifecycle.active===null;
 }
 function element(tag,text,className){const value=document.createElement(tag);if(text!==undefined)value.textContent=text;if(className)value.className=className;return value;}
 function scrubRecordNode(node){
@@ -140,6 +144,27 @@ function disposeRecordPane(previous,host){
   previous.alive=false;const oldNodes=Array.from(host.children??[]),entries=previous.entries;previous.entries=[];
   for(const entry of entries)entry.dispose();for(const node of oldNodes)scrubRecordNode(node);
 }
+function disposeOwnedRecords(previous){
+  if(!previous)return;
+  previous.alive=false;
+  // Capture every old descendant before a viewer disposer can synchronously
+  // render a newer presentation into any of these shared hosts.
+  const capture=node=>node===failureHost?[]:[node,...Array.from(node.childNodes??node.children??[]).flatMap(capture)];
+  const oldNodes=previous.nodes.flatMap(capture),entries=previous.entries;previous.nodes=[];previous.entries=[];
+  for(const entry of entries)entry.dispose();
+  for(const node of oldNodes){
+    if(['button','input','select'].includes(node.tagName?.toLowerCase()))node.disabled=true;
+    if(node.tagName?.toLowerCase()==='a'){node.removeAttribute('href');node.removeAttribute('download');}
+    node.textContent='';
+  }
+}
+function ownsEmbedding(owner){return owner.alive&&embeddingOwner===owner&&owner.source===session.document()
+  &&owner.epoch===session.snapshot().lifecycle.documentEpoch&&owner.chunks===session.chunks()
+  &&owner.artifact===session.embeddings()&&owner.ordinal===Number(byId('chunk-select').value);}
+function ownsQuery(owner){return owner.alive&&queryOwner===owner&&owner.source===session.document()
+  &&owner.epoch===session.snapshot().lifecycle.documentEpoch&&owner.chunks===session.chunks()
+  &&owner.embeddings===session.embeddings()&&owner.question===session.question()&&owner.query===session.queryEmbedding()
+  &&owner.retrieval===session.retrieval()&&owner.inputQuestion===byId('question-input').value&&owner.inputTopK===byId('query-top-k').value;}
 function ownsItems(owner){return owner.alive&&itemOwner===owner&&owner.source===session.document()
   &&owner.epoch===session.snapshot().lifecycle.documentEpoch&&owner.pageIndex===Number(pageSelect.value)
   &&owner.windowIndex===itemWindowIndex&&owner.page===owner.source?.pages[owner.pageIndex];}
@@ -171,52 +196,57 @@ function inspectCandidate(candidate,source,chunks,retrieval){
 }
 function showQuery(){
   const question=session.question(),query=session.queryEmbedding(),retrieval=session.retrieval();
-  for(const id of ['question-original','question-resolved','question-encoder'])byId(id).textContent=question??'';
   const detail=byId('query-embedding-detail'),list=byId('query-receipt'),results=byId('candidate-results');
-  detail.replaceChildren();list.replaceChildren();results.replaceChildren();
-  byId('query-embedding-meta').textContent=query?`${query.counts.totalTokens} actual query token IDs · ${query.counts.dimensions} dimensions.`:
-    'No query vector committed. Run an explicit question against accepted passage vectors.';
-  byId('candidate-meta').textContent=retrieval?`${retrieval.returnedCount} sourced candidates · requested top K ${retrieval.requestedTopK} · query norm ${retrieval.queryNorm.toFixed(6)}. Inspect each source before drawing a conclusion.`:
-    'No candidates committed. An explicit query uses the retained passage vectors.';
+  const questionHosts=['question-original','question-resolved','question-encoder'].map(byId),queryMeta=byId('query-embedding-meta'),candidateMeta=byId('candidate-meta');
+  const hosts=[...questionHosts,detail,list,results,queryMeta,candidateMeta];
+  const previous=queryOwner,owner={source:session.document(),epoch:session.snapshot().lifecycle.documentEpoch,chunks:session.chunks(),embeddings:session.embeddings(),
+    question,query,retrieval,inputQuestion:byId('question-input').value,inputTopK:byId('query-top-k').value,entries:[],nodes:[],alive:true};
+  queryOwner=owner;disposeOwnedRecords(previous);if(!ownsQuery(owner))return;
+  for(const host of hosts)host.replaceChildren();
+  for(const host of questionHosts)host.append(element('span',question??''));
+  queryMeta.append(element('span',query?`${query.counts.totalTokens} actual query token IDs · ${query.counts.dimensions} dimensions.`:
+    'No query vector committed. Run an explicit question against accepted passage vectors.'));
+  candidateMeta.append(element('span',retrieval?`${retrieval.returnedCount} sourced candidates · requested top K ${retrieval.requestedTopK} · query norm ${retrieval.queryNorm.toFixed(6)}. Inspect each source before drawing a conclusion.`:
+    'No candidates committed. An explicit query uses the retained passage vectors.'));
   if(!retrieval)results.append(element('p','No sourced candidates yet. Candidates are not a verified answer.','empty'));
   else{
-    const source=session.document(),chunks=session.chunks();
+    const {source,chunks}=owner;
     for(const [index,candidate]of retrieval.candidates.entries()){
       const chunk=chunks.chunks[candidate.ordinal],row=element('article',undefined,'candidate');
       row.append(element('p',`#${index+1} · chunk ${candidate.ordinal+1} · physical page ${chunk.physicalPageNumber} · PDF label ${chunk.pageLabel===null?'not supplied':JSON.stringify(chunk.pageLabel)}`,'identity'),
         element('p',candidate.chunkId,'identity'),element('p',chunk.text,'quote'),
         element('p',`cosine ${candidate.score.toFixed(6)} · dot ${candidate.dotProduct.toFixed(6)} · query norm ${retrieval.queryNorm.toFixed(6)} · chunk norm ${candidate.chunkNorm.toFixed(6)}`,'candidate-score'));
       const button=element('button',`Inspect candidate ${index+1} in retained source`);button.type='button';
-      button.addEventListener('click',()=>inspectCandidate(candidate,source,chunks,retrieval));row.append(button);results.append(row);
+      button.addEventListener('click',()=>{if(ownsQuery(owner))inspectCandidate(candidate,source,chunks,retrieval);});row.append(button);results.append(row);
     }
   }
-  if(!query)return;
+  owner.nodes=hosts.flatMap(host=>Array.from(host.children??[]));if(!query)return;
   detail.append(element('p','First 12 query vector values · bounded preview','hint'),
     element('p',query.vector.slice(0,12).map(value=>value.toFixed(6)).join('  '),'vector-preview'));
-  for(const [title,value,indent]of [[`Inspect all ${query.tokenIds.length} query token IDs including CLS / SEP`,query.tokenIds,undefined],
-    ['Inspect the query vector’s full 384 values',query.vector,2]]){
-    const lazy=element('details'),summary=element('summary',title);lazy.append(summary);
-    lazy.addEventListener('toggle',()=>{lazy.replaceChildren(summary,...(lazy.open?[element('pre',JSON.stringify(value,null,indent))]:[]));});
-    detail.append(lazy);
-  }
+  recordDisclosure(owner,detail,`Inspect all ${query.tokenIds.length} query token IDs including CLS / SEP`,()=>query.tokenIds,()=>ownsQuery(owner),'query-token-ids.json');
+  recordDisclosure(owner,detail,'Inspect the query vector’s full 384 values',()=>query.vector,()=>ownsQuery(owner),'query-vector.json');
   for(const [key,value]of [['Representation',query.representationId],['Backend',`${query.backend} · ${query.dtype}`],
     ['Verified body',`${query.receipt.verifiedBytes.toLocaleString()} bytes`],['Fetched body',`${query.receipt.networkBytes.toLocaleString()} bytes`],
     ['Cached body',`${query.receipt.cacheBytes.toLocaleString()} bytes`],['Attempt elapsed',`${query.receipt.elapsedMs.toFixed(1)} ms`]])
     list.append(element('dt',key),element('dd',value));
+  owner.nodes=hosts.flatMap(host=>Array.from(host.children??[]));
 }
 function showEmbedding(){
-  const target=byId('embedding-detail'),meta=byId('embedding-meta');target.replaceChildren(failureHost);
+  const target=byId('embedding-detail'),meta=byId('embedding-meta');
   const artifact=session.embeddings(),index=Number(byId('chunk-select').value);
-  if(!artifact){meta.textContent='No vectors committed. Embed accepted chunks to inspect actual encoder output.';return;}
+  const previous=embeddingOwner,owner={source:session.document(),epoch:session.snapshot().lifecycle.documentEpoch,chunks:session.chunks(),artifact,ordinal:index,entries:[],nodes:[],alive:true};
+  embeddingOwner=owner;disposeOwnedRecords(previous);if(!ownsEmbedding(owner))return;
+  target.replaceChildren(failureHost);meta.replaceChildren();
+  if(!artifact){meta.append(element('span','No vectors committed. Embed accepted chunks to inspect actual encoder output.'));owner.nodes=Array.from(meta.children??[]);return;}
   const vector=artifact.vectors[index],ids=artifact.tokenIds[index];if(!vector)return;
   const norm=Math.sqrt(vector.reduce((sum,value)=>sum+value*value,0));
-  meta.textContent=`Chunk ${index+1} of ${artifact.counts.chunks} · ${ids.length} actual token IDs · ${vector.length} dimensions · L2 norm ${norm.toFixed(6)}`;
+  meta.append(element('span',`Chunk ${index+1} of ${artifact.counts.chunks} · ${ids.length} actual token IDs · ${vector.length} dimensions · L2 norm ${norm.toFixed(6)}`));
   target.append(element('p',artifact.chunkIds[index],'identity'),element('p',`Token IDs including CLS / SEP (${ids.length} total)`,'hint'),
-    element('pre',JSON.stringify(ids)),element('p','First 12 vector values · bounded preview','hint'),
+    element('p','First 12 vector values · bounded preview','hint'),
     element('p',vector.slice(0,12).map(value=>value.toFixed(6)).join('  '),'vector-preview'));
-  const detail=element('details'),summary=element('summary','Inspect this selected vector’s full 384 values');detail.append(summary);
-  detail.addEventListener('toggle',()=>{detail.replaceChildren(summary,...(detail.open?[element('pre',JSON.stringify(vector,null,2))]:[]));});
-  target.append(detail);
+  recordDisclosure(owner,target,`Inspect all ${ids.length} selected token IDs including CLS / SEP`,()=>ids,()=>ownsEmbedding(owner),`selected-token-ids-${index+1}.json`);
+  recordDisclosure(owner,target,'Inspect this selected vector’s full 384 values',()=>vector,()=>ownsEmbedding(owner),`selected-vector-${index+1}.json`);
+  owner.nodes=[...Array.from(target.children??[]).filter(node=>node!==failureHost),...Array.from(meta.children??[])];
 }
 function showItemRange(range){
   byId('items-range').textContent=range.total===0?'Showing 0 items of 0.':
@@ -407,8 +437,9 @@ function render(state){
   }
   if(chunks!==lastChunks){lastChunks=chunks;chunkWindowIndex=0;showChunkWindow();if(revision!==renderRevision)return;}
   if(embeddings!==lastEmbeddings){
-    lastEmbeddings=embeddings;showEmbedding();const list=byId('embedding-receipt');list.replaceChildren();
+    lastEmbeddings=embeddings;showEmbedding();
     if(revision!==renderRevision)return;
+    const list=byId('embedding-receipt');list.replaceChildren();
     if(embeddings){for(const [key,value]of [['Representation',embeddings.representationId],['Backend',`${embeddings.backend} · ${embeddings.dtype}`],
       ['Verified body',`${embeddings.receipt.verifiedBytes.toLocaleString()} bytes`],['Fetched body',`${embeddings.receipt.networkBytes.toLocaleString()} bytes`],
       ['Cached body',`${embeddings.receipt.cacheBytes.toLocaleString()} bytes`],['Attempt elapsed',`${embeddings.receipt.elapsedMs.toFixed(1)} ms`]])
@@ -416,10 +447,16 @@ function render(state){
   }
   if(session.question()!==lastQuestion||session.queryEmbedding()!==lastQueryEmbedding||session.retrieval()!==lastRetrieval){
     lastQuestion=session.question();lastQueryEmbedding=session.queryEmbedding();lastRetrieval=session.retrieval();showQuery();
+    if(revision!==renderRevision)return;
   }
-  if(session.context()!==lastContext){
-    lastContext=session.context();contextOwner=lastContext?{artifact:lastContext,source,chunks,retrieval:session.retrieval()}:null;
-    contextView.render(lastContext);
+  const retainedContext=session.context(),canInspectContext=retainedContext!==null&&active===null;
+  if(retainedContext!==lastContext||contextInspectable!==canInspectContext||(canInspectContext
+      &&(contextOwner===null||contextOwner.source!==source||contextOwner.chunks!==chunks
+        ||contextOwner.retrieval!==session.retrieval()||contextOwner.epoch!==state.lifecycle.documentEpoch))){
+    lastContext=retainedContext;contextInspectable=canInspectContext;
+    contextOwner=canInspectContext?{artifact:lastContext,source,chunks,retrieval:session.retrieval(),epoch:state.lifecycle.documentEpoch}:null;
+    if(lastContext===null||canInspectContext)contextView.render(lastContext);else contextView.revoke();
+    if(revision!==renderRevision)return;
   }
   byId('context-title').textContent=raw?'Retained provenance context':'Context; not generated';
   byId('context-caption').textContent=raw?'COMPLETE PROVENANCE / NATIVE OUTPUT INSPECTED SEPARATELY':'COMPLETE PROVENANCE / NO GENERATED ANSWER';

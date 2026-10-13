@@ -23,6 +23,21 @@ let app,importError;try{app=await import('../pdf-app.mjs');}catch(error){importE
 hooks.deregister();
 function mount(extra={}){assert.equal(importError,undefined,'import must not touch DOM or mount');assert.equal(typeof app.mountPdfApp,'function');const d=dom();d.get('pdf-file').disabled=true;const mounted=app.mountPdfApp({document:d.document,root:d.root,...extra});assert.equal(d.get('pdf-file').disabled,false,'completed mount enables the PDF chooser');assert.equal(d.get('pdf-file').listeners.get('change').length,1,'enabled chooser has its owned handler');return {...d,mounted};}
 async function accepted(d){d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));d.get('question-input').value='READER question';await act(d.get('run-query'));await act(d.get('assemble-context'));}
+test('active generation immediately revokes context records and returning idle remounts the identical retained evidence',async()=>{
+  for(const outcome of ['cancel','complete']){
+    const gate=deferred(),d=mount({generate:async(...args)=>{await gate.promise;return generate(...args);}}),downloads=[],create=d.document.createElement.bind(d.document);
+    d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push(node.attributes.get('href'));return node;};
+    await accepted(d);const outer=disclosure(d.get('context-detail'),'Inspect exact quote and all mapping segments');outer.open=true;await act(outer,'toggle');
+    const record=disclosure(outer,'Complete evidence unit JSON');record.open=true;await act(record,'toggle');const exact=completeText(record),pre=byTag(record,'pre')[0],download=byTag(record,'button').find(n=>n.textContent==='Download complete JSON');download.dispatch('click');assert.equal(downloads.length,1);
+    await act(d.get('generate-answer'));assert.equal(d.get('cancel').disabled,false);
+    assert.equal(pre.textContent,'','Active work must proactively revoke a retained context presentation');assert.equal(download.disabled,true);await assert.rejects(fetch(downloads[0]));
+    outer.dispatch('toggle');record.dispatch('toggle');download.dispatch('click');assert.equal(downloads.length,1);
+    if(outcome==='cancel')await act(d.get('cancel'));else{gate.resolve();await tick();await tick();await tick();}
+    const freshOuter=disclosure(d.get('context-detail'),'Inspect exact quote and all mapping segments');assert.ok(freshOuter);assert.notEqual(freshOuter,outer);freshOuter.open=true;await act(freshOuter,'toggle');
+    const freshRecord=disclosure(freshOuter,'Complete evidence unit JSON');freshRecord.open=true;await act(freshRecord,'toggle');assert.equal(completeText(freshRecord),exact);
+    await act(d.get('clear'));gate.resolve();await tick();
+  }
+});
 function controlledSource(texts,name='CONTROLLED.pdf'){
   const sha256='a'.repeat(64),page=createPageRecord({sourceSha256:sha256,parserVersion:'6.4.299',physicalPageNumber:1,pageLabel:'original-label',
     page:{view:[0,0,612,792],rotate:0,userUnit:1},textContent:{items:texts.map(str=>({str,dir:'ltr',transform:[1,0,0,1,10,10],width:10,height:10,fontName:'F1',hasEOL:false}))}});

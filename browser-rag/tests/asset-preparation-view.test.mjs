@@ -6,7 +6,7 @@ import {receipt,progress} from './asset-preparation-fixture.mjs';
 import {AssetPreparationError} from '../asset-preparation-source.mjs';
 import {preparationTransportPlan,validatePreparationPhysicalMetadata} from '../asset-preparation-transport.mjs';
 import {createRuntimeFailure} from '../runtime-failure-contract.mjs';
-const setup=prepare=>{const d=dom(),view=createAssetPreparationView({document:d.document,root:d.root,prepare,runtimeIdFactory:()=> 'prep-view'});view.render({source:null,documentEpoch:0,active:false});return {...d,view,get:id=>nodes(d.root).find(node=>node.id===id)};};
+const setup=(prepare,extra={})=>{const d=dom(),view=createAssetPreparationView({document:d.document,root:d.root,prepare,runtimeIdFactory:()=> 'prep-view',...extra});view.render({source:null,documentEpoch:0,active:false});return {...d,view,get:id=>nodes(d.root).find(node=>node.id===id)};};
 test('current preparation failure lazily discloses only its owned diagnostic and revokes on transport edit',async()=>{
   const d=setup(async(_profile,options)=>{const error=new AssetPreparationError('ASSET_PREPARATION_TIMEOUT');error.diagnostic=createRuntimeFailure(options.identity,{failureOrigin:'client-readiness-deadline',readyObserved:false,commandPosted:false,lastSeq:0,elapsedMs:8,allowedCode:error.code});throw error;});
   await act(d.get('prepare-generator'));const detail=byTag(d.get('asset-preparation-receipt'),'details').find(value=>value.textContent.includes('failure boundary'));assert.ok(detail);assert.equal(byTag(detail,'pre').length,0);
@@ -37,6 +37,39 @@ for(const state of [{source:{},documentEpoch:1,active:false},{source:null,docume
 }
 test('clear/main action revokes detached disclosure and fresh mount never inherits a receipt',async()=>{
   const d=setup(async()=>receipt());await act(d.get('prepare-encoder'));const detail=byTag(d.get('asset-preparation-receipt'),'details')[0];d.view.revoke();detail.open=true;await act(detail,'toggle');assert.equal(byTag(detail,'pre').length,0);const other=setup(async()=>receipt());assert.equal(byTag(other.get('asset-preparation-receipt'),'details').length,0);
+});
+test('revocation immediately scrubs already captured preparation receipt text and permanently retires its controls',async()=>{
+  const d=setup(async()=>receipt());await act(d.get('prepare-encoder'));const detail=byTag(d.get('asset-preparation-receipt'),'details')[0];detail.open=true;await act(detail,'toggle');
+  const pre=byTag(detail,'pre')[0];assert.ok(pre.textContent.length>0);d.view.revoke();assert.equal(pre.textContent,'');
+  detail.open=true;await act(detail,'toggle');assert.equal(byTag(detail,'pre').length,0);assert.equal(detail.textContent,'');
+});
+test('receipt URL cleanup that renders an active epoch cannot start the old preparation click',async()=>{
+  const calls=[],d=setup(async(profile,options)=>{calls.push({profile,options});return receipt(profile);});
+  const create=d.document.createElement.bind(d.document);let href;
+  d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>{node.dispatch('click');href=node.attributes.get('href');};return node;};
+  await act(d.get('prepare-encoder'));const detail=byTag(d.get('asset-preparation-receipt'),'details')[0];detail.open=true;await act(detail,'toggle');
+  const pre=byTag(detail,'pre')[0],download=byTag(detail,'button').find(node=>node.textContent==='Download complete JSON');download.dispatch('click');
+  assert.ok(href.startsWith('blob:'));assert.deepEqual(JSON.parse(await(await fetch(href)).text()),receipt());
+  const revokeURL=URL.revokeObjectURL;let reentered=0;
+  try{
+    URL.revokeObjectURL=url=>{revokeURL(url);if(url===href){reentered++;d.view.render({source:null,documentEpoch:9,active:true});}};
+    await act(d.get('prepare-encoder'));assert.equal(reentered,1);
+    assert.equal(calls.length,1,'A superseded click must not invoke the preparation adapter');
+    assert.equal(d.get('asset-preparation-status').textContent,'Preparation is unavailable during active source/model work.');
+    assert.equal(d.get('asset-preparation-progress').hidden,true);assert.equal(d.get('cancel-preparation').disabled,true);
+    assert.equal(d.get('prepare-encoder').disabled,true);assert.equal(pre.textContent,'');assert.equal(download.disabled,true);
+    await assert.rejects(fetch(href));detail.open=true;detail.dispatch('toggle');download.dispatch('click');assert.equal(detail.textContent,'');
+    d.view.render({source:null,documentEpoch:10,active:false});await act(d.get('prepare-generator'));
+    assert.equal(calls.length,2);assert.equal(calls[1].profile,'generator');assert.equal(calls[1].options.identity.documentEpoch,10);
+  }finally{URL.revokeObjectURL=revokeURL;d.view.revoke();}
+});
+test('identity factory reentry cannot start preparation after its task is revoked',async()=>{
+  let d,calls=0;d=setup(async()=>{calls++;return receipt();},{runtimeIdFactory:()=>{
+    d.view.render({source:null,documentEpoch:9,active:true});return 'prep-revoked';
+  }});
+  await act(d.get('prepare-encoder'));assert.equal(calls,0);
+  assert.equal(d.get('asset-preparation-status').textContent,'Preparation is unavailable during active source/model work.');
+  assert.equal(d.get('asset-preparation-progress').hidden,true);assert.equal(d.get('cancel-preparation').disabled,true);
 });
 test('abort callback cannot start retry beneath revocation or overwrite a newer core render',async()=>{
   const gate=deferred();let calls=0,options;const d=setup((_profile,opts)=>{calls++;options=opts;return gate.promise;});await act(d.get('prepare-encoder'));

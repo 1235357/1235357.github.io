@@ -239,7 +239,7 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertEqual((output/'bounded-text-view.mjs').read_bytes(), (self.browser/'bounded-text-view.mjs').read_bytes())
         self.assertIn('./pdf-session.mjs', graph['pdf-app.mjs'])
         self.assertIn('./context-view.mjs', graph['pdf-app.mjs'])
-        self.assertEqual(graph['context-view.mjs'], {'./item-window.mjs'})
+        self.assertEqual(graph['context-view.mjs'], {'./item-window.mjs', './complete-record-disclosure.mjs'})
         self.assertRegex((output / 'context-view.mjs').read_text(encoding='utf-8'),
                          r'import\s*\{\s*getItemWindow\s*\}\s*from\s*[\'\"]\./item-window\.mjs[\'\"]')
         self.assertIn('./embedding-source.mjs', graph['pdf-session.mjs'])

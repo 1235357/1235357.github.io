@@ -3,6 +3,35 @@ const stage = document.querySelector('.demo-stage');
 const frame = stage?.querySelector('#project-demo');
 const fullPage = stage?.querySelector('.demo-fullscreen-link');
 const choices = [...(stage?.querySelectorAll('[data-demo-src]') ?? [])];
+const expand = stage?.querySelector('.demo-expand-button');
+const expandStatus = stage?.querySelector('.demo-expand-status');
+// Expand the existing document, so its PDF, workers and accepted records stay
+// in the same session. Browser Escape and this button both exit fullscreen.
+if (expand && typeof stage.requestFullscreen === 'function' && document.fullscreenEnabled) {
+  expand.hidden = false;
+  let pending = false;
+  const updateExpansion = () => {
+    const expanded = document.fullscreenElement === stage;
+    expand.textContent = expanded ? 'Exit expanded workspace' : 'Expand workspace';
+    expand.setAttribute('aria-expanded', String(expanded));
+  };
+  document.addEventListener('fullscreenchange', updateExpansion);
+  expand.addEventListener('click', async () => {
+    if (pending) return;
+    pending = true;
+    expandStatus.textContent = '';
+    try {
+      if (document.fullscreenElement === stage) await document.exitFullscreen();
+      else await stage.requestFullscreen();
+    } catch {
+      expandStatus.textContent = 'This browser could not expand the workspace. Use Open in a full page.';
+    } finally {
+      pending = false;
+      updateExpansion();
+    }
+  });
+  updateExpansion();
+}
 // The homepage already introduces the project; its same-origin frame opens
 // directly on the working controls while the full-page lab keeps its overview.
 frame?.addEventListener('load', () => {

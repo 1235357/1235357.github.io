@@ -1,5 +1,6 @@
 import {prepareAssetsInWorker,AssetPreparationError,copyPreparationReceipt,copyPreparationProgress,copyPreparationFailure} from './asset-preparation-source.mjs';
 import {copyRuntimeFailure,ownData} from './runtime-failure-contract.mjs';
+import {createCompleteRecordDisclosure} from './complete-record-disclosure.mjs';
 
 // Optional configured presentation. Its worker receives static profile/identity
 // only; source is retained here solely to revoke stale UI permission.
@@ -25,30 +26,44 @@ export function createAssetPreparationView({document,root,prepare=prepareAssetsI
     element('p','Preparation sends no PDF, question or context and invokes no GPU device, SDK or model. Its fixed absolute 30-minute budget includes a separate 10-second worker readiness limit; progress does not renew either deadline. Encoder/query operations remain limited to 120 seconds and generation to 300 seconds. Each later operation rechecks cache bodies and may fetch a missing body within that original limit.'),
     element('p','The optional provider transport permits only five fixed immutable model URLs and a narrow final-host/path policy. Browser CORS or an unapproved redirect can refuse preparation. A response observation records only exposed headers, not intermediate redirect hops; an absent header is unknown. Signed queries are omitted. The observed full-URL hash cannot be recomputed from a redacted archive. Cache hits create no external request record. Only the complete receipt also establishes decoded-body SHA and cache-write verification.'));section.append(contract);
   let owner=null,attempt=0,current=null,counter=0,revoking=false,renderVersion=0;
+  let records=[];
+  function disposeRecords(){
+    const previous=records;records=[];disclosure.replaceChildren();
+    for(const entry of previous)entry.dispose();
+  }
   function controls(){const disabled=revoking||owner===null||owner.active||Boolean(current);encoder.disabled=generator.disabled=disabled;cancel.disabled=!current;}
   function revoke(message='Preparation ownership was revoked. Start a new explicit preparation to retry.'){
     if(revoking)return;revoking=true;
     try{
-      const previous=current;attempt++;current=null;disclosure.replaceChildren();progress.hidden=true;progress.removeAttribute('value');controls();
+      const previous=current;attempt++;current=null;disposeRecords();progress.hidden=true;progress.removeAttribute('value');controls();
       if(previous)status.textContent=message;
       previous?.controller.abort();
     }finally{revoking=false;controls();}
   }
   function owns(task){return current===task&&attempt===task.attempt&&owner===task.owner&&!owner.active&&!task.controller.signal.aborted&&transport.value===task.transport;}
   function disclose(caption,value){
-    const detail=element('details'),summary=element('summary',caption);detail.append(summary);disclosure.append(detail);
     const acceptedAttempt=attempt,acceptedOwner=owner,acceptedTransport=transport.value;
-    detail.addEventListener('toggle',()=>{detail.replaceChildren(summary);if(attempt!==acceptedAttempt||owner!==acceptedOwner||owner.active||transport.value!==acceptedTransport||!detail.open)return;detail.append(element('pre',JSON.stringify(value,null,2)));});
+    const filenames={'Complete static asset preparation receipt':'static-asset-preparation.json',
+      'Incomplete transport observation · no verified asset receipt':'incomplete-transport-observation.json',
+      'Inspect current preparation failure boundary · no success receipt':'preparation-failure-boundary.json'};
+    const entry=createCompleteRecordDisclosure({document,title:caption,read:()=>value,
+      current:()=>attempt===acceptedAttempt&&owner===acceptedOwner&&!owner.active&&transport.value===acceptedTransport,
+      filename:filenames[caption]});records.push(entry);disclosure.append(entry.node);
   }
   function run(profile){
     if(revoking||owner===null||owner.active||current)return;
-    revoke();const controller=new AbortController(),ownedOwner=owner,id=attempt;
-    const task=Object.freeze({owner:ownedOwner,attempt:id,controller,transport:transport.value});current=task;disclosure.replaceChildren();progress.hidden=false;progress.removeAttribute('value');controls();
+    const ownedOwner=owner,version=renderVersion,chosenTransport=transport.value;
+    revoke();
+    // Disposing a downloaded receipt may synchronously replace this owner.
+    if(revoking||owner!==ownedOwner||renderVersion!==version||ownedOwner.active||current||transport.value!==chosenTransport)return;
+    const controller=new AbortController(),id=attempt;
+    const task=Object.freeze({owner:ownedOwner,attempt:id,controller,transport:chosenTransport});current=task;disclosure.replaceChildren();progress.hidden=false;progress.removeAttribute('value');controls();
     status.textContent=`Preparing ${profile} static assets via ${task.transport==='huggingface'?'Hugging Face':'this site'}. Fixed 30-minute deadline; waiting for a fresh worker.`;
     void(async()=>{
       let identity;
       try{
         identity=Object.freeze({protocolVersion:1,runtimeId:runtimeIdFactory(),operationId:`op-${++counter}`,documentEpoch:ownedOwner.documentEpoch,operation:'prepare-assets'});
+        if(!owns(task))return;
         const raw=await prepare(profile,{transport:task.transport,identity,signal:controller.signal,onProgress:value=>{
           if(!owns(task))return;
           value=copyPreparationProgress(value,profile);if(!owns(task))return;

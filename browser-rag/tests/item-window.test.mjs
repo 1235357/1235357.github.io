@@ -410,16 +410,18 @@ test('the actual app displays exact question and provenance while lazy details r
   assert.equal(first.textContent.includes(unit.text),false,'Full quote stays out of collapsed cards.');
   assert.equal(elementsOf(first,'pre').length,0);
   const detail=elementsOf(first,'details')[0];detail.open=true;detail.dispatch('toggle');
-  assert.equal(detail.children.find(child=>child.className==='quote').textContent,unit.text);
-  assert.equal(elementsOf(detail,'pre')[0].textContent,JSON.stringify(unit.segments,null,2));
+  assert.equal(elementsOf(detail,'p').find(child=>child.className==='quote').textContent,unit.text);
+  const mapping=elementsOf(detail,'details').find(node=>node.children[0]?.textContent==='Complete mapping segments JSON');
+  mapping.open=true;mapping.dispatch('toggle');assert.equal(completeRecordText(mapping),JSON.stringify(unit.segments,null,2));
   assert.equal(elementsOf(root,'script').length,0);assert.equal(elementsOf(root,'img').length,0);
   detail.open=false;detail.dispatch('toggle');assert.equal(detail.children.length,1);assert.equal(elementsOf(detail,'pre').length,0);
   assert.equal(detail.textContent.includes(unit.text),false);
   const mappedIndex=context.evidenceUnits.findIndex(evidence=>evidence.segments.length>1),mappedUnit=context.evidenceUnits[mappedIndex];
   assert.ok(mappedUnit.segments.some(segment=>segment.kind==='presentation'),'Fixture includes authored separators and multiple exact source spans.');
   const mappedDetail=elementsOf(contextRows(app)[mappedIndex],'details')[0];mappedDetail.open=true;mappedDetail.dispatch('toggle');
-  assert.equal(elementsOf(mappedDetail,'pre')[0].textContent,JSON.stringify(mappedUnit.segments,null,2));
-  assert.equal(mappedDetail.children.find(child=>child.className==='quote').textContent,mappedUnit.text);
+  const mappedJSON=elementsOf(mappedDetail,'details').find(node=>node.children[0]?.textContent==='Complete mapping segments JSON');
+  mappedJSON.open=true;mappedJSON.dispatch('toggle');assert.equal(completeRecordText(mappedJSON),JSON.stringify(mappedUnit.segments,null,2));
+  assert.equal(elementsOf(mappedDetail,'p').find(child=>child.className==='quote').textContent,mappedUnit.text);
   mappedDetail.open=false;mappedDetail.dispatch('toggle');
   const source=app.source(),chunks=app.chunks(),retrieval=app.retrieval();
   elementsOf(first,'button')[0].dispatch('click');
@@ -437,7 +439,7 @@ test('the actual app reaches all selected context evidence through bounded windo
     for(const [index,row]of rows.entries()){
       const unit=context.evidenceUnits[window*100+index];assert.ok(row.textContent.startsWith(`${unit.citationId} · rank ${unit.rank} · source chunk ${unit.ordinal+1}`));
       const detail=elementsOf(row,'details')[0];detail.open=true;detail.dispatch('toggle');
-      assert.equal(detail.children.find(child=>child.className==='quote').textContent,unit.text);
+      assert.equal(elementsOf(detail,'p').find(child=>child.className==='quote').textContent,unit.text);
       detail.open=false;detail.dispatch('toggle');seen.push(unit.citationId);
     }
     const next=contextButton(app,'context-next');assert.equal(next.disabled,window===2);if(window<2)next.dispatch('click');
@@ -467,7 +469,7 @@ test(`saved context handlers cannot reveal or navigate old evidence after ${acti
   else{await app.query('new question',{topK:3});app.ids.get('assemble-context').dispatch('click');}
   const rootText=app.ids.get('context-detail').textContent,page=app.ids.get('page-select').value,chunk=app.ids.get('chunk-select').value;
   detail.open=true;detail.dispatch('toggle');next.dispatch('click');previous.dispatch('click');inspect.dispatch('click');
-  assert.equal(detail.children.length,1);assert.equal(elementsOf(detail,'pre').length,0);
+  assert.equal(detail.children.length,0);assert.equal(elementsOf(detail,'pre').length,0);
   assert.equal(app.ids.get('context-detail').textContent,rootText);
   assert.equal(app.ids.get('page-select').value,page);assert.equal(app.ids.get('chunk-select').value,chunk);
   assert.equal(app.ids.get('generate-answer').disabled,true);
@@ -480,10 +482,10 @@ test('the context component independently requires both its rendered artifact an
   view.render(context);const detail=elementsOf(root,'details')[0],buttons=elementsOf(root,'button');view.render(null);
   const empty=root.textContent;detail.open=true;detail.dispatch('toggle');for(const button of buttons)button.dispatch('click');
   assert.equal(root.textContent,empty);assert.equal(elementsOf(root,'article').length,0);assert.equal(elementsOf(root,'nav').length,0);
-  assert.equal(detail.children.length,1);assert.equal(inspections,0);
+  assert.equal(detail.children.length,0);assert.equal(inspections,0);
   view.render(context);const ownerDetail=elementsOf(root,'details')[0],ownerButtons=elementsOf(root,'button'),before=root.textContent;current=false;
   ownerDetail.open=true;ownerDetail.dispatch('toggle');for(const button of ownerButtons)button.dispatch('click');
-  assert.equal(root.textContent,before);assert.equal(ownerDetail.children.length,1);assert.equal(inspections,0);
+  assert.ok(before.length>0);assert.equal(root.textContent,'');assert.equal(ownerDetail.children.length,0);assert.equal(inspections,0);
 });
 
 test('the actual app reports a canonical ContextError without fabricating lifecycle progress or leaking diagnostics',async()=>{

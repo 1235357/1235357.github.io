@@ -595,8 +595,10 @@ test('real embedding adapter and command handler integrate with the session thro
 class AppElement{
   constructor(tag='div'){this.tag=tag;this.children=[];this.listeners=new Map();this.textContent='';this.value='';this.disabled=false;this.open=false;this.hidden=false;}
   get tagName(){return this.tag;}
+  set textContent(value){this._text=String(value);this.children=[];}
+  get textContent(){return (this._text??'')+this.children.map(child=>child.textContent).join('');}
   append(...children){this.children.push(...children);if(this.tag==='select'&&this.value===''&&this.children.length)this.value=String(this.children[0].value);}
-  replaceChildren(...children){this.children=[];if(this.tag==='select')this.value='';this.append(...children);}
+  replaceChildren(...children){this.children=[];this._text='';if(this.tag==='select')this.value='';this.append(...children);}
   addEventListener(type,listener){this.listeners.set(type,listener);}
   removeEventListener(type,listener){if(this.listeners.get(type)===listener)this.listeners.delete(type);}
   setAttribute(name,value){this[name]=String(value);}
@@ -635,6 +637,15 @@ function appHarness(harnessOptions={}){
   vm.runInNewContext(`${code}\nmountPdfApp();`,context);return {session,extracts,computes,embeds,queries,byId,restoreFile,chooseFile,dispatchWindow};
 }
 const appText=node=>[node.textContent,...node.children.map(appText)].join('\n');
+const appNodes=node=>[node,...node.children.flatMap(appNodes)];
+function appCompleteRecord(detail){
+  const nodes=appNodes(detail),pre=nodes.find(node=>node.tag==='pre');assert.ok(pre);
+  if(pre.className!=='bounded-text-page')return pre.textContent;
+  const previous=nodes.find(node=>node.tag==='button'&&node.textContent==='Previous page'),next=nodes.find(node=>node.tag==='button'&&node.textContent==='Next page'),parts=[];
+  while(!previous.disabled)previous.fire('click');
+  for(let i=0;i<100000;i++){assert.ok(pre.textContent.length<=24576);assert.ok(pre.textContent.split(/\r\n|[\r\n]/).length<=160);parts.push(pre.textContent);if(next.disabled)return parts.join('');next.fire('click');}
+  assert.fail('Record pages did not reach terminal page');
+}
 const appTick=()=>new Promise(resolve=>setImmediate(resolve));
 function uiQueryPackets(task){
   const tokens=[101,1000,102],count=task.record.counts.chunks;
@@ -803,8 +814,8 @@ test('app query controls require accepted passage vectors and preserve exact cap
   assert.match(appText(byId('query-receipt')),/7\.3 ms/);assert.match(appText(byId('embedding-receipt')),/12\.5 ms/);
   const detail=byId('query-embedding-detail'),lazy=detail.children.filter(child=>child.tag==='details');
   assert.equal(detail.children.filter(child=>child.tag==='pre').length,0,'query tokens and full vector remain lazy');
-  assert.equal(lazy.length,2);lazy[0].open=true;lazy[0].fire('toggle');assert.match(appText(lazy[0]),/101,1000,102/);
-  lazy[1].open=true;lazy[1].fire('toggle');assert.equal(JSON.parse(lazy[1].children[1].textContent).length,384);
+  assert.equal(lazy.length,2);lazy[0].open=true;lazy[0].fire('toggle');assert.deepEqual(JSON.parse(appCompleteRecord(lazy[0])),[101,1000,102]);
+  lazy[1].open=true;lazy[1].fire('toggle');assert.equal(JSON.parse(appCompleteRecord(lazy[1])).length,384);
   lazy.forEach(item=>{item.open=false;item.fire('toggle');assert.equal(item.children.length,1);});
   assert.equal(embeds.length,1);assert.equal(queries.length,1,'inspection does not rerun the encoder');
 });
@@ -870,7 +881,7 @@ test('app explicit clear revokes an active query while retaining passage vectors
   const raw='  <script>PRIVATE literal</script>\n& <img src=x>  ';
   byId('question-input').value=raw;byId('query-top-k').value='1';byId('run-query').fire('click');await uiFinishQuery(queries[0]);
   for(const id of ['question-original','question-resolved','question-encoder']){
-    assert.equal(byId(id).textContent,raw);assert.equal(byId(id).children.length,0);
+    assert.equal(byId(id).textContent,raw);assert.equal(byId(id).children.length,1);assert.equal(byId(id).children[0].tag,'span');
   }
   assert.equal(queries.length,1);assert.equal(embeds.length,1);
   byId('run-query').fire('click');const task=queries[1];assert.equal(byId('clear-query').disabled,false);
@@ -899,7 +910,9 @@ test('app uses explicit embed action and real operation stage progress without r
   assert.equal(byId('status-title').textContent,'Embedded; not retrieved');
   assert.match(byId('embedding-meta').textContent,/384/);assert.match(byId('embedding-meta').textContent,/1\.000000/);
   const detail=byId('embedding-detail');assert.ok(detail.children.some(child=>child.tag==='details'));
-  assert.equal(detail.children.filter(child=>child.tag==='pre').length,1,'token IDs are shown; full vector remains lazy');
+  assert.equal(detail.children.filter(child=>child.tag==='pre').length,0,'token IDs and full vector remain lazy complete records');
+  const idsDetail=detail.children.find(child=>child.tag==='details'&&child.children[0].textContent.includes('selected token IDs'));
+  idsDetail.open=true;idsDetail.fire('toggle');assert.deepEqual(JSON.parse(appCompleteRecord(idsDetail)),session.embeddings().tokenIds[1]);
   byId('chunk-select').value='0';byId('chunk-select').fire('change');assert.equal(embeds.length,1,'inspection never reruns inference');
   session.clear();assert.match(byId('embedding-meta').textContent,/No vectors/);assert.equal(byId('operation-progress').hidden,true);
 });

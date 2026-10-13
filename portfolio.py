@@ -35,6 +35,8 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css'):
         f'data-demo-title="{text(item["title"])}" aria-pressed="{"true" if number == 0 else "false"}" '
         f'aria-controls="project-demo">{text(item["title"])}</button>'
         for number, item in enumerate(demos))
+    if len(demos) == 1:
+        demo_choices = f'<span class="demo-product-label">{text(demos[0]["title"])}</span>'
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light"><meta name="theme-color" content="#f7f8fa">
@@ -63,7 +65,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css'):
 <p class="course-bridge">My RAG journal connects this work to language-model computation, agent workflows, scalable service boundaries and software design. Course connections describe what I am studying and applying as I build.</p></section>
 <section class="journal-feature" aria-labelledby="journal-title"><p class="eyebrow">THE CONTINUING RECORD</p><h2 id="journal-title">Engineering notes,<br>one decision at a time.</h2><p>Walk through the project from first principles, then follow the debugging, architecture changes and evaluation questions. Figures, examples and expandable computation records keep the details available as you read.</p><div class="hero-actions"><a class="primary-link" href="journal.html">Read the RAG series ↗</a><a href="07-operational-receipts.html">Latest chapter: execution contracts ↗</a></div></section>
 <section class="demo-stage" id="demo" aria-labelledby="demo-title"><div class="demo-stage-head"><div><p class="eyebrow">THE LIVE WORKBENCH</p><h2 id="demo-title">The project,<br>in your hands.</h2></div><p>Choose a PDF and follow the evidence from source pages to an answer draft. The complete project runs here, on your device.</p></div>
-<div class="demo-tabs" role="group" aria-label="Choose a project demo">{demo_choices}<a class="demo-fullscreen-link" href="{text(demos[0]['src'])}" target="_blank" rel="noopener">Open in a full page ↗</a></div>
+<div class="demo-tabs" role="group" aria-label="Project workspace">{demo_choices}<button class="demo-expand-button" type="button" aria-controls="project-demo" aria-expanded="false" hidden>Expand workspace</button><a class="demo-fullscreen-link" href="{text(demos[0]['src'])}" target="_blank" rel="noopener">Open in a full page ↗</a><p class="demo-expand-status" role="status" aria-live="polite"></p></div>
 <div class="demo-frame-shell"><iframe id="project-demo" title="{text(demos[0]['title'])} browser lab" src="{text(demos[0]['src'])}" loading="lazy" allow="webgpu; fullscreen"></iframe></div>
 <p class="demo-stage-note">Start with your own PDF. Model downloads begin only when you choose a preparation action inside the lab; generated answers remain drafts to check against the source.</p></section>
 </main><footer class="portfolio-footer">© 2026 Zhentong Ye · <a href="https://github.com/1235357/1235357.github.io">Website source</a> · <a href="{text(portrait['profile'])}">LinkedIn</a>{license_link}<span>Learning in public. Building with evidence.</span></footer><script type="module" src="portfolio-demo.mjs"></script></body></html>'''

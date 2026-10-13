@@ -31,7 +31,8 @@ export function createFinancialLookupView({document,root,digest=sha256,textView=
       if(key==='basis'&&controls.basis.value!==periodBasis){
         periodBasis=controls.basis.value;for(const name of financialKeys)controls[name].value='';refreshPeriodOptions();
       }
-      requestRevision++;revoke();status.textContent=available()?'Fields changed. Run lookup explicitly to bind this request.':unavailable();updateButtons();
+      requestRevision++;const capturedOwner=owner,id=revoke();if(owner!==capturedOwner||attempt!==id)return;
+      status.textContent=available()?'Fields changed. Run lookup explicitly to bind this request.':unavailable();updateButtons();
     });
   }
   field('basis','Period basis',[['months','Months'],['fiscal_year','Fiscal year']]);
@@ -48,7 +49,23 @@ export function createFinancialLookupView({document,root,digest=sha256,textView=
   const financialKeys=['statement','metric','duration','date','unit','glyph'],keys=['basis',...financialKeys];
   const available=()=>owner!==null&&owner.source!==null&&!owner.active&&!owner.cancelled;
   const unavailable=()=>owner?.source===null||owner===null?'No owned parsed source. Select a PDF first.':owner.active?'Lookup is unavailable during active session work.':'Session ownership was revoked. Start a new explicit source action before lookup.';
-  function revoke(){attempt++;pending=false;for(const disclosure of disclosures){disclosure.viewer?.dispose();disclosure.viewer=null;disclosure.detail.replaceChildren(disclosure.summary);}disclosures=[];resultHost.replaceChildren();}
+  const descendants=node=>[node,...Array.from(node.childNodes??node.children??[]).flatMap(descendants)];
+  function scrub(captured){for(const node of captured){if('disabled' in node)node.disabled=true;node.removeAttribute?.('href');node.removeAttribute?.('download');node.textContent='';}}
+  function release(disclosure,record){
+    if(!record)return;
+    const captured=descendants(record.body),viewer=record.viewer;record.retired=true;record.viewer=null;
+    if(disclosure.active===record){disclosure.active=null;disclosure.detail.replaceChildren(...(disclosure.alive?[disclosure.summary]:[]));}
+    try{viewer?.dispose?.();}catch{/* Cleanup diagnostics do not enter the presentation. */}finally{scrub(captured);}
+  }
+  function revoke(){
+    const id=++attempt,previous=disclosures,oldNodes=Array.from(resultHost.children??[]).flatMap(descendants);
+    pending=false;disclosures=[];resultHost.replaceChildren();
+    for(const disclosure of previous){
+      disclosure.alive=false;disclosure.revision++;disclosure.detail.open=false;
+      disclosure.detail.removeEventListener('toggle',disclosure.toggle);release(disclosure,disclosure.active);
+    }
+    scrub(oldNodes);return id;
+  }
   function refreshPeriodOptions(){
     const supported=Object.hasOwn(statements,periodBasis)?statements[periodBasis]:[];
     choicesFor(controls.statement,supported.map(value=>[value,value]));
@@ -59,17 +76,29 @@ export function createFinancialLookupView({document,root,digest=sha256,textView=
   function updateButtons(){const ready=available();run.disabled=!ready||pending;cancel.disabled=!pending;clear.disabled=!ready&&!pending;for(const input of Object.values(controls))input.disabled=!ready;
     controls.duration.disabled=!ready||controls.basis.value!=='months';controls.statement.disabled=!ready||!Object.hasOwn(statements,controls.basis.value);}
   function lazy(title,read,current,caption,filename){
-    const detail=element('details'),summary=element('summary',title),disclosure={detail,summary,viewer:null};detail.append(summary);disclosures.push(disclosure);resultHost.append(detail);
-    detail.addEventListener('toggle',()=>{
-      disclosure.viewer?.dispose();disclosure.viewer=null;
-      detail.replaceChildren(summary);if(!detail.open||!current())return;
-      try{const text=read();if(!current())return;detail.append(element('p',caption,'hint'));disclosure.viewer=textView({document,root:detail,text,current:()=>detail.open&&current(),filename});}
-      catch{if(current())detail.append(element('p','LOOKUP_DISCLOSURE_FAILED · Complete evidence could not be displayed safely.','generation-refusal'));}
-    });
+    const detail=element('details'),summary=element('summary',title),disclosure={detail,summary,active:null,alive:true,revision:0,toggle:null};detail.append(summary);disclosures.push(disclosure);resultHost.append(detail);
+    disclosure.toggle=()=>{
+      if(!disclosure.alive)return;
+      const revision=++disclosure.revision,previous=disclosure.active;disclosure.active=null;
+      detail.replaceChildren(summary);release(disclosure,previous);
+      const openAt=()=>disclosure.alive&&disclosure.revision===revision&&detail.open&&current();
+      if(!openAt())return;
+      const record={body:element('div'),viewer:null,retired:false};disclosure.active=record;detail.append(record.body);
+      const owns=()=>openAt()&&disclosure.active===record&&!record.retired;
+      try{
+        const text=read();if(!owns()){release(disclosure,record);return;}
+        record.body.append(element('p',caption,'hint'));
+        const viewer=textView({document,root:record.body,text,current:owns,filename});record.viewer=viewer;
+        if(!owns()){release(disclosure,record);return;}
+        if(typeof viewer?.dispose!=='function')throw Error();
+      }catch{release(disclosure,record);if(openAt())detail.append(element('p','LOOKUP_DISCLOSURE_FAILED · Complete evidence could not be displayed safely.','generation-refusal'));}
+    };
+    detail.addEventListener('toggle',disclosure.toggle);
   }
   run.addEventListener('click',()=>{
     if(!available()||pending)return;
-    revoke();const id=attempt,capturedOwner=owner,capturedRevision=requestRevision,capturedValues=keys.map(key=>controls[key].value);
+    const capturedOwner=owner,capturedRevision=requestRevision,capturedValues=keys.map(key=>controls[key].value),id=revoke();
+    if(owner!==capturedOwner||attempt!==id||requestRevision!==capturedRevision||!available()||keys.some((key,index)=>controls[key].value!==capturedValues[index]))return;
     const values=Object.fromEntries(keys.map((key,index)=>[key,capturedValues[index]]));
     const annual=values.basis==='fiscal_year';
     const request={statement:values.statement,metric:values.metric,durationMonths:annual?null:Number(values.duration),periodEndLiteral:values.date,unitHeadingLiteral:values.unit,currencyGlyph:values.glyph};
@@ -104,12 +133,13 @@ export function createFinancialLookupView({document,root,digest=sha256,textView=
       }
     })();
   });
-  cancel.addEventListener('click',()=>{if(!pending)return;revoke();status.textContent='Lookup cancelled. Commit rights revoked; run explicitly to retry. Synchronous binding cannot be interrupted.';updateButtons();});
-  clear.addEventListener('click',()=>{revoke();status.textContent=available()?'Result cleared. Field selections retained; run explicitly to retry.':unavailable();updateButtons();});
+  cancel.addEventListener('click',()=>{if(!pending)return;const capturedOwner=owner,id=revoke();if(owner!==capturedOwner||attempt!==id)return;status.textContent='Lookup cancelled. Commit rights revoked; run explicitly to retry. Synchronous binding cannot be interrupted.';updateButtons();});
+  clear.addEventListener('click',()=>{const capturedOwner=owner,id=revoke();if(owner!==capturedOwner||attempt!==id)return;status.textContent=available()?'Result cleared. Field selections retained; run explicitly to retry.':unavailable();updateButtons();});
   updateButtons();
   return {render({source,documentEpoch,active,cancelled}){
     const changed=owner===null||owner.source!==source||owner.documentEpoch!==documentEpoch;
-    revoke();owner=Object.freeze({source,documentEpoch,active,cancelled,renderRevision:++renderRevision});
+    const revision=++renderRevision,capturedOwner=Object.freeze({source,documentEpoch,active,cancelled,renderRevision:revision});owner=capturedOwner;
+    const id=revoke();if(owner!==capturedOwner||renderRevision!==revision||attempt!==id)return;
     if(changed){requestRevision++;for(const input of Object.values(controls))input.value='';periodBasis='';refreshPeriodOptions();}
     status.textContent=available()?'Owned parsed source ready. Choose the period basis and every required field, then run explicitly.':unavailable();updateButtons();
   }};

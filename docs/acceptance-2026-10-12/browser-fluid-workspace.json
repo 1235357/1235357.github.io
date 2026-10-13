@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUtc": "2026-10-13T05:06:02.919734+00:00",
+  "status": "local-native-fullscreen-and-responsive-layout-passed",
+  "scope": "Actual local Codex in-app browser, CSS-pixel browser emulation. No physical-device or new model execution claim.",
+  "layout": {
+    "scope": "Actual LOCAL IAB CSS-pixel measurements, browser emulation not physical device",
+    "measurements": [
+      {
+        "viewport": 320,
+        "outer": {
+          "client": 305,
+          "frame": 271,
+          "scroll": 305
+        },
+        "inner": {
+          "answer": 224,
+          "client": 256,
+          "controls": 224,
+          "font": "17px",
+          "minButtonHeight": 46,
+          "pipelineHeight": 307,
+          "scroll": 256
+        }
+      },
+      {
+        "viewport": 390,
+        "outer": {
+          "client": 375,
+          "frame": 341,
+          "scroll": 375
+        },
+        "inner": {
+          "answer": 294,
+          "client": 326,
+          "controls": 294,
+          "font": "17px",
+          "minButtonHeight": 46,
+          "pipelineHeight": 307,
+          "scroll": 326
+        }
+      },
+      {
+        "viewport": 780,
+        "outer": {
+          "client": 765,
+          "frame": 715,
+          "scroll": 765
+        },
+        "inner": {
+          "answer": 668,
+          "client": 700,
+          "controls": 668,
+          "font": "17px",
+          "minButtonHeight": 46,
+          "pipelineHeight": 160,
+          "scroll": 700
+        }
+      },
+      {
+        "viewport": 1100,
+        "outer": {
+          "client": 1085,
+          "frame": 1035,
+          "scroll": 1085
+        },
+        "inner": {
+          "answer": 508.6875,
+          "client": 1020,
+          "controls": 439.3125,
+          "font": "17px",
+          "minButtonHeight": 46,
+          "pipelineHeight": 160,
+          "scroll": 1020
+        }
+      },
+      {
+        "viewport": 1280,
+        "outer": {
+          "client": 1265,
+          "frame": 1215,
+          "scroll": 1265
+        },
+        "inner": {
+          "answer": 768,
+          "client": 1200,
+          "controls": 360,
+          "font": "17px",
+          "minButtonHeight": 46,
+          "pipelineHeight": 104,
+          "scroll": 1200
+        }
+      },
+      {
+        "viewport": 1600,
+        "outer": {
+          "client": 1585,
+          "frame": 1535,
+          "scroll": 1585
+        },
+        "inner": {
+          "answer": 1018.203125,
+          "client": 1520,
+          "controls": 429.796875,
+          "font": "17px",
+          "minButtonHeight": 46,
+          "pipelineHeight": 80.5,
+          "scroll": 1520
+        }
+      },
+      {
+        "viewport": 1920,
+        "outer": {
+          "client": 1905,
+          "frame": 1855,
+          "scroll": 1905
+        },
+        "inner": {
+          "answer": 1308,
+          "client": 1840,
+          "controls": 460,
+          "font": "17px",
+          "minButtonHeight": 46,
+          "pipelineHeight": 80.5,
+          "scroll": 1840
+        }
+      },
+      {
+        "viewport": 2560,
+        "outer": {
+          "client": 2545,
+          "frame": 2495,
+          "scroll": 2545
+        },
+        "inner": {
+          "answer": 1948,
+          "client": 2480,
+          "controls": 460,
+          "font": "17px",
+          "minButtonHeight": 46,
+          "pipelineHeight": 80.5,
+          "scroll": 2480
+        }
+      }
+    ]
+  },
+  "nativeSession": {
+    "sourceBytes": 74085,
+    "sourceSha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+    "pages": 2,
+    "parser": "PDF.js 6.4.299",
+    "parseWorker": "native",
+    "chunks": 5,
+    "selectedOrdinal": 0,
+    "fullscreenEntryAndExitObserved": true,
+    "completeParserReceiptPreserved": true,
+    "selectedChunkPreserved": true,
+    "sourceClearedAfterCheck": true
+  },
+  "combinedLocalTests": {
+    "nodeTests": 3048,
+    "nodeFailures": 0,
+    "nodeCancelled": 0,
+    "nodeSkipped": 0,
+    "nodeTodo": 0,
+    "pythonTests": 156,
+    "pythonStatus": "OK"
+  },
+  "focusedFullscreenTests": 3,
+  "research": [
+    "https://emilkowal.ski/ui/agents-with-taste",
+    "https://developer.apple.com/design/human-interface-guidelines/layout",
+    "https://www.carbondesignsystem.com/building-blocks/foundations/2x-grid/overview"
+  ],
+  "officialEmilSkillCommit": "2d228630ba1446365f614a108cb8252f1feda202",
+  "publicationAndUserAestheticAcceptance": "pending"
+}

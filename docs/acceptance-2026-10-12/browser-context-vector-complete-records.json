@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUtc": "2026-10-13T05:06:02.917611+00:00",
+  "status": "local-controlled-and-browser-record-presentation-checks-passed",
+  "scope": "Local Codex in-app browser historical archive replays and controlled main-app lifecycle tests. No new native tokenizer, encoder or generator execution, financial adjudication or public-runtime claim.",
+  "controlledContext": {
+    "evidenceUnits": 200,
+    "mappingSegments": 51000,
+    "syntheticVectorsAndTokenIds": true,
+    "completeExports": 400,
+    "exactUtf8ExportBytes": 21511410
+  },
+  "contextBrowserReplay": {
+    "schemaVersion": 1,
+    "status": "all-historical-context-browser-exports-exact",
+    "scope": "Six actual LOCALCodexIAB downloads and every text page independently compared to production context reassembly from prior full original-eight native archive. No PDF/tokenizer/encoder/generator action in this replay; no financial adjudication, performance or physical-device claim.",
+    "archive": {
+      "bytes": 393262,
+      "sha256": "cc52381f9ebca33c4252be42180ede43ec6b0350f9e16164665fe33bd9bf80e6"
+    },
+    "source": {
+      "sha256": "8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428",
+      "name": "local-nvidia-fy2025-q2-original-pages-3-4.pdf",
+      "size": 74085
+    },
+    "units": 3,
+    "omissions": [],
+    "exports": [
+      {
+        "rank": 1,
+        "citationId": "E4",
+        "kind": "mapping",
+        "bytes": 21615,
+        "sha256": "001c5521b7552442c4daf10e46d080b14a0b5b731f3470e76143f90ae2474046",
+        "pages": 6,
+        "maxPageUtf16": 4148,
+        "maxHardLines": 160,
+        "segments": 105
+      },
+      {
+        "rank": 1,
+        "citationId": "E4",
+        "kind": "record",
+        "bytes": 24286,
+        "sha256": "938c50746c145acd6826e0fc747409665c088650172a01023c0da6da0a2ed4b9",
+        "pages": 6,
+        "maxPageUtf16": 5040,
+        "maxHardLines": 160,
+        "segments": 105
+      },
+      {
+        "rank": 2,
+        "citationId": "E1",
+        "kind": "mapping",
+        "bytes": 24005,
+        "sha256": "20e77bbdab7765d6787d04a1cbacb528507fdb26d93d9cc9c198cee3dd5b1e4e",
+        "pages": 6,
+        "maxPageUtf16": 4175,
+        "maxHardLines": 160,
+        "segments": 117
+      },
+      {
+        "rank": 2,
+        "citationId": "E1",
+        "kind": "record",
+        "bytes": 26875,
+        "sha256": "1114ff5b1243e7615a5b95340eeb963a15ae95ca7baf856abf99b8c52f6ee635",
+        "pages": 6,
+        "maxPageUtf16": 5087,
+        "maxHardLines": 160,
+        "segments": 117
+      },
+      {
+        "rank": 3,
+        "citationId": "E2",
+        "kind": "mapping",
+        "bytes": 35279,
+        "sha256": "67445b2e84b0e6338942451431aa56d1e873ea17369809c8cc6c4f2d665e9621",
+        "pages": 9,
+        "maxPageUtf16": 4064,
+        "maxHardLines": 160,
+        "segments": 173
+      },
+      {
+        "rank": 3,
+        "citationId": "E2",
+        "kind": "record",
+        "bytes": 39078,
+        "sha256": "f506d54a64c580a1583015487d2cb39f0d0f96d573941f56878958bb35d9e073",
+        "pages": 9,
+        "maxPageUtf16": 4957,
+        "maxHardLines": 160,
+        "segments": 173
+      }
+    ],
+    "totalDownloadedBytes": 171138
+  },
+  "historicalArrayDisclosureReplay": {
+    "status": "all-four-full-array-downloads-exact",
+    "scope": "FouractualIABsharedcomplete-disclosure historicalarrayexports;mainappintegration separatelytested,no newmodel/parser actions",
+    "checks": [
+      {
+        "name": "vector-replay-selected-token-ids-1-20261012-01",
+        "values": 136,
+        "bytes": 1105,
+        "sha256": "ebcda4a5bd9272ea895f006fea2a63a8546b8c8e955622d5fccbcfc344257ed5",
+        "pages": 1
+      },
+      {
+        "name": "vector-replay-selected-vector-1-20261012-01",
+        "values": 384,
+        "bytes": 9204,
+        "sha256": "e049b8325f523b85e7730c3541e728a82d849bf2254f40496338f1e44d9a1233",
+        "pages": 3
+      },
+      {
+        "name": "vector-replay-query-token-ids-20261012-01",
+        "values": 39,
+        "bytes": 316,
+        "sha256": "ad3ddeaf7efd9a03706b42e3f3d44affc548f390ac25666d49420e9a39f8477e",
+        "pages": 1
+      },
+      {
+        "name": "vector-replay-query-vector-20261012-01",
+        "values": 384,
+        "bytes": 9208,
+        "sha256": "94f7961dc92b0ff5749b1a758594c075429379e71a8c115df08e4da9abe71181",
+        "pages": 3
+      }
+    ],
+    "totalBytes": 19833
+  },
+  "preparationAndRuntimeFailureConsumer": {
+    "schemaVersion": 1,
+    "status": "passed",
+    "auditedAt": "2026-10-13T04:56:21.203Z",
+    "scope": "Current Stage5 runtime-failure and preparation consumer presentation in explicit DOM/parser/channel doubles with native Node Blob/object URLs. No IAB, network/model preparation, tokenizer, GPU, native embedding/generation, performance or financial acceptance.",
+    "productionFiles": [
+      {
+        "file": "browser-rag/pdf-app.mjs",
+        "sha256": "7ad4e4c4494c9502cd93a2f80255ce60d873fdadefb8cb4b941b3cb8cd44b217"
+      },
+      {
+        "file": "browser-rag/context-view.mjs",
+        "sha256": "cb9cf5f39f0466f4489a592f1ed40a0857b822220ca69d290419e0a5b9a4a728"
+      },
+      {
+        "file": "browser-rag/complete-record-disclosure.mjs",
+        "sha256": "71b60b857383da184cfb5ecc1b310eb641e9f7d3cb90223277ce48646d2326e4"
+      },
+      {
+        "file": "browser-rag/bounded-text-view.mjs",
+        "sha256": "2eb203d7ac39686b95a024cbc052c607a33b91ddb8a39e8b0503fd2cfb7009a0"
+      },
+      {
+        "file": "browser-rag/asset-preparation-view.mjs",
+        "sha256": "60880f52bf134578daf6484459ed24fe32ed28c1812c860e16da1bfbd47eb284"
+      },
+      {
+        "file": "browser-rag/asset-preparation-source.mjs",
+        "sha256": "98431de41e85c6e2c8b22b550e84cf0add71ba534e74c894c0d49932fa355be3"
+      },
+      {
+        "file": "browser-rag/asset-preparation-transport.mjs",
+        "sha256": "2254785e52f00ac9e309ce10ef7bf75e2986c01753054d7d20768b7b6a962f79"
+      },
+      {
+        "file": "browser-rag/runtime-failure-contract.mjs",
+        "sha256": "125e464684fa1d76db60117dca0ef7b8331aafb3908fe6f6f0dd9432ba8a7c49"
+      }
+    ],
+    "runtimeFailure": [
+      {
+        "action": "edit",
+        "filename": "runtime-failure.json",
+        "bytes": 487,
+        "sha256": "5b6cbedbda1531c5f82cafe31f84fc80f69e1f30084baa0d69f0d8350bf5c9ce",
+        "exactDiagnosticBytes": true,
+        "capturedPreScrubbed": true,
+        "urlRevoked": true,
+        "capturedHandlersInert": true,
+        "currentPaneUnchanged": true,
+        "reentrantRetry": false
+      },
+      {
+        "action": "retry",
+        "filename": "runtime-failure.json",
+        "bytes": 487,
+        "sha256": "e777ee358f476bac70f06cd6458a1a856ab24f91f37f9de5b29787fa0ceb70b4",
+        "exactDiagnosticBytes": true,
+        "capturedPreScrubbed": true,
+        "urlRevoked": true,
+        "capturedHandlersInert": true,
+        "currentPaneUnchanged": true,
+        "reentrantRetry": false
+      },
+      {
+        "action": "replacement",
+        "filename": "runtime-failure.json",
+        "bytes": 487,
+        "sha256": "e162c1c0e3b8ecb91f9061cbae81b735fe704703fa7bbd04bbdbfbd348e62551",
+        "exactDiagnosticBytes": true,
+        "capturedPreScrubbed": true,
+        "urlRevoked": true,
+        "capturedHandlersInert": true,
+        "currentPaneUnchanged": true,
+        "reentrantRetry": false
+      },
+      {
+        "action": "clear",
+        "filename": "runtime-failure.json",
+        "bytes": 487,
+        "sha256": "e751378aaa86c4de73d8b6b91f0deb02cee6e4d6c3be2dd19a41d6e46542abd2",
+        "exactDiagnosticBytes": true,
+        "capturedPreScrubbed": true,
+        "urlRevoked": true,
+        "capturedHandlersInert": true,
+        "currentPaneUnchanged": true,
+        "reentrantRetry": false
+      },
+      {
+        "action": "pagehide",
+        "filename": "runtime-failure.json",
+        "bytes": 487,
+        "sha256": "80285ce856b16739d374e7beffe757959653a175d111550ed8ae02f9cbfbf2ab",
+        "exactDiagnosticBytes": true,
+        "capturedPreScrubbed": true,
+        "urlRevoked": true,
+        "capturedHandlersInert": true,
+        "currentPaneUnchanged": true,
+        "reentrantRetry": false
+      },
+      {
+        "action": "reentrantRetry",
+        "filename": "runtime-failure.json",
+        "bytes": 487,
+        "sha256": "56faf26020b88ffa9dee49714018433e00cd7e80dd9e99df73ae34be34d4964d",
+        "exactDiagnosticBytes": true,
+        "capturedPreScrubbed": true,
+        "urlRevoked": true,
+        "capturedHandlersInert": true,
+        "currentPaneUnchanged": true,
+        "reentrantRetry": true
+      }
+    ],
+    "preparation": {
+      "scope": "Schema-valid synthetic HF headers and preparation adapter; no observed network values or actual preparation.",
+      "profile": "encoder",
+      "transport": "huggingface",
+      "externalReads": 5,
+      "headerStressChars": 2048,
+      "fullUtf16Units": 47776,
+      "fullHardLines": 154,
+      "filename": "static-asset-preparation.json",
+      "bytes": 47776,
+      "sha256": "878d50f91f35f82e7035fe8eadce72b5a2c4d9d4295aeff0fa48f1c1b0acaa06",
+      "completePageReconstruction": true,
+      "exactDownloadedBytes": true,
+      "capturedPreScrubbed": true,
+      "urlRevoked": true,
+      "oldControlsInert": true,
+      "reentrantNewEpoch9ActiveOwnerPreserved": true
+    }
+  },
+  "independentReceiptSha256": {
+    "context": "0ecc8fe9de64087ccff6f54b9e9e970b4eb38a8fe32942c476183594564ebed9",
+    "arrays": "c036af21c9224e670abba7dac7af4c9ba04e423f35dd0baa0473ba71d8e6ec7e",
+    "consumers": "1bb78da25aa90dab6ac1b1db5fae1113d9fc2d9a1c40578b73a1561af4145ac7"
+  },
+  "combinedLocalTests": {
+    "nodeTests": 3048,
+    "nodeFailures": 0,
+    "nodeCancelled": 0,
+    "nodeSkipped": 0,
+    "nodeTodo": 0,
+    "pythonTests": 156,
+    "pythonStatus": "OK"
+  },
+  "serializedDomPageBudget": {
+    "maxUtf16Units": 24576,
+    "maxHardLines": 160
+  },
+  "acceptanceBudgetsAndPinnedModelBodiesChanged": false,
+  "remainingGates": [
+    "new model compatibility/performance evidence",
+    "human and held-out financial acceptance",
+    "physical-phone acceptance",
+    "user aesthetic acceptance",
+    "production API/browser integration"
+  ]
+}

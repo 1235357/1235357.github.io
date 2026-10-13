@@ -10,6 +10,35 @@ const title='Complete owned PDF.js geometry snapshot · capture only';
 function mount(extra={}){assert.equal(typeof module.createFinancialGeometryView,'function');const d=dom(),v=module.createFinancialGeometryView({document:d.document,root:d.root,...extra});return {...d,v};}
 const detail=d=>byTag(d.root,'details').find(node=>node.children[0].textContent===title);
 
+test('native URL disposal preserves a newer source B geometry render at epoch 9',async()=>{
+  const d=mount({digest:async bytes=>createHash('sha256').update(bytes).digest('hex')}),a=source(),b=source();b.source.name='GEOMETRY_B.pdf';
+  const downloads=[],create=d.document.createElement.bind(d.document),revoke=URL.revokeObjectURL;
+  d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push(node.attributes.get('href'));return node;};
+  d.v.render({source:a,documentEpoch:1,active:false,cancelled:false});const old=detail(d);old.open=true;await act(old,'toggle');
+  const oldPre=byTag(old,'pre')[0],oldDownload=byTag(old,'button').find(node=>node.textContent==='Download complete JSON');oldDownload.dispatch('click');
+  assert.deepEqual(Buffer.from(await(await fetch(downloads[0])).arrayBuffer()),Buffer.from(JSON.stringify(a,null,2),'utf8'));
+  let reentered=false,newDetail;
+  try{
+    URL.revokeObjectURL=url=>{revoke(url);if(!reentered){reentered=true;d.v.render({source:b,documentEpoch:9,active:false,cancelled:false});newDetail=detail(d);}};
+    d.v.render({source:a,documentEpoch:2,active:false,cancelled:false});
+  }finally{URL.revokeObjectURL=revoke;}
+  assert.equal(reentered,true);assert.equal(detail(d),newDetail,'Old cleanup must preserve the newer geometry pane');
+  assert.equal(oldPre.textContent,'');await assert.rejects(fetch(downloads[0]));
+  newDetail.open=true;await act(newDetail,'toggle');assert.equal(completeText(newDetail),JSON.stringify(b,null,2));assert.match(newDetail.textContent,/document epoch 9/);
+  old.dispatch('toggle');oldDownload.dispatch('click');assert.equal(completeText(newDetail),JSON.stringify(b,null,2));assert.equal(downloads.length,1);
+});
+
+test('a geometry viewer returned after a factory renders B is immediately disposed with its late old nodes',async()=>{
+  const d=dom(),a=source(),b=source();b.source.name='LATE_GEOMETRY_B.pdf';let v,latePre,disposals=0;
+  v=module.createFinancialGeometryView({document:d.document,root:d.root,digest:async()=> 'a'.repeat(64),textView:args=>{
+    v.render({source:b,documentEpoch:9,active:false,cancelled:false});latePre=d.document.createElement('pre');latePre.textContent='PRIVATE LATE GEOMETRY';args.root.append(latePre);
+    return {dispose(){disposals++;}};
+  }});
+  v.render({source:a,documentEpoch:1,active:false,cancelled:false});const old=detail(d);old.open=true;await act(old,'toggle');
+  assert.equal(disposals,1);assert.equal(latePre.textContent,'');assert.equal(byTag(old,'pre').length,0);assert.equal(byTag(d.root,'pre').length,0);
+  assert.notEqual(detail(d),old);assert.doesNotMatch(d.root.textContent,/PRIVATE/);
+});
+
 test('geometry disclosure close and source rerender revoke actual full exports without stale callbacks clearing the next viewer',async()=>{
   const d=dom(),exports=downloadHarness(d.document),input=source();
   const v=module.createFinancialGeometryView({document:d.document,root:d.root,textView:exports.textView,digest:async bytes=>createHash('sha256').update(bytes).digest('hex')});

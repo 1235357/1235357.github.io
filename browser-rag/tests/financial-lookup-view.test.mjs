@@ -31,6 +31,34 @@ function fill(d,req=request){get(d,'basis').value=req.periodKind??'months';get(d
 const render=(d,input=source(),extra={})=>d.v.render({source:input,documentEpoch:7,active:false,cancelled:false,...extra});
 const detail=(d,text)=>byTag(d.root,'details').find(node=>node.children[0].textContent===text);
 
+test('native URL cleanup cannot restore an older idle lookup owner over a newer active epoch 9',async()=>{
+  const d=mount(),input=source(),downloads=[],create=d.document.createElement.bind(d.document),revoke=URL.revokeObjectURL;
+  d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push(node.attributes.get('href'));return node;};
+  render(d,input);fill(d);await act(get(d,'run'));const old=detail(d,'Complete source-cell lookup receipt');old.open=true;await act(old,'toggle');
+  const oldPre=byTag(old,'pre')[0],oldDownload=byTag(old,'button').find(node=>node.textContent==='Download complete JSON');oldDownload.dispatch('click');
+  assert.deepEqual(Buffer.from(await(await fetch(downloads[0])).arrayBuffer()),Buffer.from(completeText(old),'utf8'));
+  let reentered=false;
+  try{
+    URL.revokeObjectURL=url=>{revoke(url);if(!reentered){reentered=true;render(d,input,{documentEpoch:9,active:true});}};
+    render(d,input,{documentEpoch:8,active:false});
+  }finally{URL.revokeObjectURL=revoke;}
+  assert.equal(reentered,true);assert.equal(get(d,'run').disabled,true,'Newer active lookup permission must remain authoritative');
+  assert.match(get(d,'status').textContent,/unavailable during active/);assert.equal(oldPre.textContent,'');await assert.rejects(fetch(downloads[0]));
+  old.dispatch('toggle');oldDownload.dispatch('click');assert.equal(byTag(old,'pre').length,0);assert.equal(downloads.length,1);
+  render(d,input,{documentEpoch:9,active:false});fill(d);await act(get(d,'run'));const fresh=detail(d,'Complete source-cell lookup receipt');fresh.open=true;await act(fresh,'toggle');
+  assert.equal(JSON.parse(completeText(fresh)).viewReceipt.ownership.documentEpoch,9);
+});
+
+test('a lookup viewer returned after a factory revokes its owner is disposed and late old nodes are scrubbed',async()=>{
+  let d,latePre,disposals=0;d=mount({textView:args=>{
+    render(d,source(),{documentEpoch:9,active:true});latePre=d.document.createElement('pre');latePre.textContent='PRIVATE LATE LOOKUP';args.root.append(latePre);
+    return {dispose(){disposals++;}};
+  }});
+  render(d);fill(d);await act(get(d,'run'));const old=detail(d,'Complete source-cell lookup receipt');old.open=true;await act(old,'toggle');
+  assert.equal(disposals,1);assert.equal(latePre.textContent,'');assert.equal(byTag(old,'pre').length,0);assert.equal(byTag(d.root,'pre').length,0);
+  assert.equal(get(d,'run').disabled,true);assert.match(get(d,'status').textContent,/unavailable during active/);assert.doesNotMatch(d.root.textContent,/PRIVATE/);
+});
+
 test('complete source-cell exports match paginated evidence and all source/request invalidations revoke old download rights',async()=>{
   for(const action of [...fields,'close','clear','render','source','epoch','active','cancelled']){
     const d=dom(),exports=downloadHarness(d.document),input=source();
