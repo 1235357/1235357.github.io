@@ -221,8 +221,8 @@ unchanged, including the last accepted sequence number.
 
 <figure class="architecture-figure" id="browser-operation-contract" aria-label="Pure operation lifecycle contract, not an executed browser RAG pipeline">
 <div class="figure-heading"><span class="figure-status">03 / TESTED CONTROLLER · CONTRACT ILLUSTRATION</span><h3>Finishing work is not permission to commit.</h3><p>One active operation. Validate before writing. Reject stale messages without changing state. Cancellation closes the commit boundary before replacement.</p></div>
-<iframe src="figures/browser-operation.archify.html?theme=dark" title="Operation lifecycle contract — controller only" loading="lazy"></iframe>
-<figcaption>Figure 3 · Archify contract illustration, not repository-provenance validation or PDF/model execution. The validation gate and rejection boxes explain control flow; they are not additional stored states. A recorded terminal may be result, error or cancellation. <a href="figures/browser-operation.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/browser-operation.archify.json">Editable JSON</a>.</figcaption>
+<iframe src="figures/browser-operation.archify.html?theme=light" title="Operation lifecycle contract — controller only" loading="lazy"></iframe>
+<figcaption>Figure 3 · Archify contract illustration, not repository-provenance validation or PDF/model execution. The validation gate and rejection boxes explain control flow; they are not additional stored states. A recorded terminal may be result, error or cancellation. <a href="figures/browser-operation.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/browser-operation.archify.json">Editable JSON</a>.</figcaption>
 </figure>
 
 Work through this ordering on paper before reading code:

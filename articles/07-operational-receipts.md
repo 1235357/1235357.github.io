@@ -47,8 +47,8 @@ still has to initialize and execute, and a financial claim still needs source re
 
 <figure class="architecture-figure" aria-label="Current reader-owned browser RAG responsibilities">
 <div class="figure-heading"><span class="figure-status">IMPLEMENTED RESPONSIBILITIES / SOURCE 7C7A2C3</span><h3>One owned source. Separate computation and answer gates.</h3><p>Follow the selected PDF through parser records, retrieval, context, Qwen and raw-output inspection. The explicit-field lookup and static preparation have separate contracts.</p></div>
-<iframe src="figures/reader-owned-rag.archify.html" title="Archify overview of implemented reader-owned RAG responsibilities" loading="lazy"></iframe>
-<figcaption>Current source architecture, pinned to commit 7c7a2c3. Arrows summarize owned relationships, including session-mediated data flow; they do not connect workers directly or establish native financial acceptance. Editable <a href="figures/reader-owned-rag.archify.json">JSON</a> · <a href="figures/reader-owned-rag.archify.html">Open full-size ↗</a>. The Python API is a separate integration surface and is not called by this lab.</figcaption>
+<iframe src="figures/reader-owned-rag.archify.html?theme=light" title="Archify overview of implemented reader-owned RAG responsibilities" loading="lazy"></iframe>
+<figcaption>Current source architecture, pinned to commit 7c7a2c3. Arrows summarize owned relationships, including session-mediated data flow; they do not connect workers directly or establish native financial acceptance. Editable <a href="figures/reader-owned-rag.archify.json">JSON</a> · <a href="figures/reader-owned-rag.archify.html?theme=light">Open full-size ↗</a>. The Python API is a separate integration surface and is not called by this lab.</figcaption>
 </figure>
 
 ## Start with the outcome, preserve the computation
@@ -91,8 +91,8 @@ session's identity would create a plausible but false result.
 
 <figure class="architecture-figure" aria-label="Generation attempt ownership and cancellation sequence">
 <div class="figure-heading"><span class="figure-status">CODE-SOURCED CONTRACT / COMMITTED CORE 10F962E</span><h3>One attempt owns its messages and output</h3><p>Launch, execute, inspect and revoke across the session, worker transport, fresh worker, native runtime and output gate.</p></div>
-<iframe src="figures/owned-generation.archify.html?theme=dark" title="Archify sequence of owned financial generation" loading="lazy"></iframe>
-<figcaption>Figure 2 · Original Archify figure traced to seven committed source files. Deterministic showcase validation and strict artifact provenance pass; Codex browser visual review is separate from Archify's external browser gate. This is a code-sourced contract illustration, not repository-provenance or runtime acceptance. <a href="figures/owned-generation.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/owned-generation.archify.json">Editable JSON</a>.</figcaption>
+<iframe src="figures/owned-generation.archify.html?theme=light" title="Archify sequence of owned financial generation" loading="lazy"></iframe>
+<figcaption>Figure 2 · Original Archify figure traced to seven committed source files. Deterministic showcase validation and strict artifact provenance pass; Codex browser visual review is separate from Archify's external browser gate. This is a code-sourced contract illustration, not repository-provenance or runtime acceptance. <a href="figures/owned-generation.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/owned-generation.archify.json">Editable JSON</a>.</figcaption>
 </figure>
 
 The committed implementation at `10f962e` separates these responsibilities:
@@ -294,8 +294,8 @@ natural-language retrieval score.
 
 <figure class="architecture-figure" aria-label="Source-bound Net income cells and explicit field selection">
 <div class="figure-heading"><span class="figure-status">EXECUTED LOCAL EXPERIMENT / ARTIFACT DIGEST AUDIT</span><h3>Bind the column before selecting the value</h3><p>The bounded Python experiment separates raw lexical coverage, source-cell geometry and exact metric/period/date/unit selection. The Net income sidecar explicitly leaves Revenue uncovered.</p></div>
-<iframe src="figures/table-cell-selection.archify.html" title="Archify sequence of source cells and explicit field selection" loading="lazy"></iframe>
-<figcaption>Figure 3 · Original Archify illustration of the two executed Python increments. Its creation-stage audit bound local scripts and immutable receipts by SHA-256; the source was uncommitted at that delivery, so native Archify repository-source verification was unsupported. The experiment scripts are now published in <a href="https://github.com/1235357/nvidia-financial-rag/tree/082c208a120a54090a186f16b530fe45859e056f/acceptance">API source commit 082c208</a>. The separate browser PDF.js lookup is implemented below; these PyMuPDF cells are not fed into browser retrieval or generation. <a href="figures/table-cell-selection.archify.html">Open full-size ↗</a> · <a href="figures/table-cell-selection.archify.json">Editable JSON</a>.</figcaption>
+<iframe src="figures/table-cell-selection.archify.html?theme=light" title="Archify sequence of source cells and explicit field selection" loading="lazy"></iframe>
+<figcaption>Figure 3 · Original Archify illustration of the two executed Python increments. Its creation-stage audit bound local scripts and immutable receipts by SHA-256; the source was uncommitted at that delivery, so native Archify repository-source verification was unsupported. The experiment scripts are now published in <a href="https://github.com/1235357/nvidia-financial-rag/tree/082c208a120a54090a186f16b530fe45859e056f/acceptance">API source commit 082c208</a>. The separate browser PDF.js lookup is implemented below; these PyMuPDF cells are not fed into browser retrieval or generation. <a href="figures/table-cell-selection.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/table-cell-selection.archify.json">Editable JSON</a>.</figcaption>
 </figure>
 
 The [official ingestion guide](https://docs.anyscale.com/rag/quality-improvement/data-ingestion-strategies)

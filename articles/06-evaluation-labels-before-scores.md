@@ -317,7 +317,7 @@ instructions. Their labels were frozen before querying and remain exposed
 assistant-reviewed development material. A gate accepting them is a provisional
 failure observation, not a calibrated financial false-accept rate.
 
-The [source-cell selection figure](figures/table-cell-selection.archify.html) illustrates
+The [source-cell selection figure](figures/table-cell-selection.archify.html?theme=light) illustrates
 the earlier Python source-bound selection experiment. It depicts a logical sequence
 within one Python process. The expanded replay checks twelve distinct source
 bindings; the illustration alone does not prove those bindings. Its PyMuPDF
@@ -351,7 +351,7 @@ occurrence together. Each binding retains native text offsets and a rectangle
 on the original PDF page. A repeated number must still identify its own source
 occurrence.
 
-The [editable source-selection architecture](figures/structured-income-selection.archify.html?theme=dark)
+The [editable source-selection architecture](figures/structured-income-selection.archify.html?theme=light)
 shows two inputs joining at the selector: a source-only table index and the
 original question with its operator-selected report scope. Click a component
 to inspect its responsibility and source location. The four possible outcomes
@@ -361,8 +361,8 @@ not turn a literal field match into a cosine score.
 
 <figure class="architecture-figure" id="quarterly-source-selection" aria-label="Source-only quarterly income-statement index and literal query selection">
 <div class="figure-heading"><span class="figure-status">08 / SOURCE-PINNED PYTHON PATH · DEVELOPMENT CANDIDATES</span><h3>A value travels with its row and column.</h3><p>Build the source index first. Parse the original question and report scope. Select one candidate, or expose the reason it cannot be selected.</p></div>
-<iframe src="figures/structured-income-selection.archify.html?theme=dark" title="Quarterly source index and literal selection architecture" loading="lazy"></iframe>
-<figcaption>Figure 8 · Quarterly checkpoint <code>224d02d</code>: logical responsibilities inside the opt-in Python source-selection path. Source locations are pinned to that reviewed implementation; the illustration is not a financial verdict, a deployment topology or a browser execution trace. <a href="figures/structured-income-selection.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/structured-income-selection.archify.json">Editable JSON</a>.</figcaption>
+<iframe src="figures/structured-income-selection.archify.html?theme=light" title="Quarterly source index and literal selection architecture" loading="lazy"></iframe>
+<figcaption>Figure 8 · Quarterly checkpoint <code>224d02d</code>: logical responsibilities inside the opt-in Python source-selection path. Source locations are pinned to that reviewed implementation; the illustration is not a financial verdict, a deployment topology or a browser execution trace. <a href="figures/structured-income-selection.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/structured-income-selection.archify.json">Editable JSON</a>.</figcaption>
 </figure>
 
 The actual local build registered all ten reports. Four quarterly statements

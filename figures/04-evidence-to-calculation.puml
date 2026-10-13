@@ -1,18 +1,26 @@
 @startuml
 title Evidence before calculation — implemented vs proposed
-skinparam backgroundColor #F1EEE5
-skinparam defaultFontName Georgia
+skinparam backgroundColor #F7F8FA
+skinparam defaultFontName "Segoe UI"
 skinparam shadowing false
-skinparam rectangleBackgroundColor #FFFDF7
-skinparam rectangleBorderColor #245148
-skinparam ArrowColor #245148
+skinparam defaultFontColor #172033
+skinparam titleFontColor #172033
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #D8DFEB
+skinparam noteFontColor #46536B
+skinparam packageFontColor #172033
+skinparam legendBackgroundColor #FFFFFF
+skinparam legendFontColor #46536B
+skinparam rectangleBackgroundColor #FFFFFF
+skinparam rectangleBorderColor #46536B
+skinparam ArrowColor #46536B
 rectangle "Original report\nPage / row / column / unit" as report
 rectangle "Extract + chunk\nRelationships may be lost" as extraction
 rectangle "Retrieve candidates\nRanking is not verification" as retrieval
 rectangle "Review source\nPeriod / metric / value / unit" as review
 rectangle "Accept explicit rows\nReview status + source locator" as accepted
 rectangle "Lookup / calculate\nCheck units + denominator" as calculate
-rectangle "Unresolved\nDo not accept" as hold #FBEDE5
+rectangle "Unresolved\nDo not accept" as hold #FFF4E5
 report -right-> extraction
 extraction -right-> retrieval
 retrieval .down.> review : proposed

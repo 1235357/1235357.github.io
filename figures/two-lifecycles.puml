@@ -1,24 +1,32 @@
 @startuml
 title Financial retrieval: representation lifecycle versus request lifecycle
-skinparam backgroundColor #F6F2E8
+skinparam backgroundColor #F7F8FA
 skinparam shadowing false
-skinparam defaultFontName Georgia
-skinparam ArrowColor #17332D
-skinparam rectangleBorderColor #17332D
-skinparam packageBorderColor #17332D
+skinparam defaultFontColor #172033
+skinparam titleFontColor #172033
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #D8DFEB
+skinparam noteFontColor #46536B
+skinparam packageFontColor #172033
+skinparam legendBackgroundColor #FFFFFF
+skinparam legendFontColor #46536B
+skinparam defaultFontName "Segoe UI"
+skinparam ArrowColor #172033
+skinparam rectangleBorderColor #172033
+skinparam packageBorderColor #172033
 top to bottom direction
 
 package "OFFLINE — rebuild on representation changes" {
-  rectangle "PDF → extracted text → chunks\nPreserve source and page identity" as chunks #E6ECDF
-  rectangle "Passage encoding\nPinned model + encoding convention" as encoding #E6ECDF
-  rectangle "Versioned index\nVectors + ordered chunk records" as index #E6ECDF
+  rectangle "PDF → extracted text → chunks\nPreserve source and page identity" as chunks #E8EEFF
+  rectangle "Passage encoding\nPinned model + encoding convention" as encoding #E8EEFF
+  rectangle "Versioned index\nVectors + ordered chunk records" as index #E8EEFF
   chunks --> encoding
   encoding --> index
 }
 package "ONLINE — one incoming request" {
-  rectangle "Validate question + query encoding\nNo PDF re-ingestion" as query #F0E1D5
-  rectangle "Exact cosine ranking\nTop-k candidates" as ranking #F0E1D5
-  rectangle "Evidence policy + context\nSimilarity threshold is not truth" as context #F0E1D5
+  rectangle "Validate question + query encoding\nNo PDF re-ingestion" as query #F0F3FA
+  rectangle "Exact cosine ranking\nTop-k candidates" as ranking #F0F3FA
+  rectangle "Evidence policy + context\nSimilarity threshold is not truth" as context #F0F3FA
   query --> ranking
   ranking --> context
 }

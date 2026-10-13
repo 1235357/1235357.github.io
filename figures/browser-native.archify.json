@@ -16,8 +16,14 @@
       "label": "Local PDF / reviewed sample",
       "sublabel": "Samples gated by permission review",
       "tag": "TWO ENTRANCES · GATED SAMPLE",
-      "pos": [60, 40],
-      "size": [240, 88]
+      "pos": [
+        60,
+        40
+      ],
+      "size": [
+        376,
+        124
+      ]
     },
     {
       "id": "main-thread",
@@ -25,8 +31,14 @@
       "label": "Main thread · interaction",
       "sublabel": "Controls + outcome + source inspection",
       "tag": "PLANNED · CONTROLS + VIEW",
-      "pos": [60, 200],
-      "size": [240, 88]
+      "pos": [
+        60,
+        250
+      ],
+      "size": [
+        376,
+        124
+      ]
     },
     {
       "id": "pdf-worker",
@@ -34,8 +46,14 @@
       "label": "PDF.js · parsing worker",
       "sublabel": "Text + positions + page identity",
       "tag": "PLANNED · NO OCR / TABLE CLAIM",
-      "pos": [400, 200],
-      "size": [240, 88]
+      "pos": [
+        610,
+        250
+      ],
+      "size": [
+        376,
+        124
+      ]
     },
     {
       "id": "computation-worker",
@@ -43,8 +61,14 @@
       "label": "Transformers.js · compute",
       "sublabel": "Embed → rank → context → generate",
       "tag": "PLANNED · LOCAL INFERENCE",
-      "pos": [400, 420],
-      "size": [240, 88]
+      "pos": [
+        610,
+        520
+      ],
+      "size": [
+        376,
+        124
+      ]
     },
     {
       "id": "model-assets",
@@ -52,8 +76,14 @@
       "label": "Pinned runtime + model assets",
       "sublabel": "Reader-initiated external download",
       "tag": "ASSETS ONLY · NO PDF / QUERY",
-      "pos": [720, 420],
-      "size": [240, 88]
+      "pos": [
+        60,
+        800
+      ],
+      "size": [
+        376,
+        124
+      ]
     },
     {
       "id": "model-cache",
@@ -61,8 +91,14 @@
       "label": "Owned model cache",
       "sublabel": "Document / index: RAM by default",
       "tag": "DOCUMENT PERSISTENCE · OPT-IN",
-      "pos": [400, 640],
-      "size": [240, 88]
+      "pos": [
+        610,
+        800
+      ],
+      "size": [
+        376,
+        124
+      ]
     }
   ],
   "connections": [

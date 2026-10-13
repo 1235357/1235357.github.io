@@ -540,7 +540,7 @@ class NavigationTest(unittest.TestCase):
                 self.assertFalse((build.ROOT / 'dist' / 'figures' /
                                   f'{stem}.archify.delivery.json').exists())
         article = (build.ROOT / 'dist' / '02-contracts-before-services.html').read_text(encoding='utf-8')
-        self.assertIn('src="figures/browser-operation.archify.html?theme=dark"', article)
+        self.assertIn('src="figures/browser-operation.archify.html?theme=light"', article)
         self.assertIn('href="figures/browser-operation.archify.json"', article)
         self.assertIn('not repository-provenance validation or PDF/model execution', article)
 
@@ -605,6 +605,109 @@ class NavigationTest(unittest.TestCase):
         self.assertLess(article.index('</h1>'), article.index('<summary>On this page</summary>'))
         index = (build.ROOT / 'dist' / 'index.html').read_text(encoding='utf-8')
         self.assertNotIn('aria-label="Article sections"', index)
+
+
+class ProfileHierarchyTest(unittest.TestCase):
+    """Reader-facing hierarchy without discarding the complete CV project record."""
+
+    def setUp(self):
+        import json
+        self.profile = json.loads(Path(__file__).with_name('portfolio.json').read_text(encoding='utf-8'))
+        self.output = build.render_home(self.profile, public_release=True)
+
+        class Structure(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.stack = []
+                self.elements = []
+                self.void = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+                             'link', 'meta', 'param', 'source', 'track', 'wbr'}
+
+            def handle_starttag(self, tag, attrs):
+                values = dict(attrs)
+                element = {'tag': tag, 'attrs': values, 'text': [],
+                           'ancestors': tuple(self.stack)}
+                self.elements.append(element)
+                if tag not in self.void:
+                    self.stack.append(element)
+
+            def handle_endtag(self, tag):
+                for index in range(len(self.stack) - 1, -1, -1):
+                    if self.stack[index]['tag'] == tag:
+                        del self.stack[index:]
+                        break
+
+            def handle_data(self, data):
+                for element in self.stack:
+                    element['text'].append(data)
+
+        self.dom = Structure()
+        self.dom.feed(self.output)
+
+    def test_first_view_has_three_selected_projects_and_more_are_native_disclosure(self):
+        cards = [element for element in self.dom.elements
+                 if element['tag'] == 'article' and element['attrs'].get('class') == 'portfolio-project']
+        visible = []
+        folded = []
+        for card in cards:
+            closed = [ancestor for ancestor in card['ancestors']
+                      if ancestor['tag'] == 'details' and 'open' not in ancestor['attrs']]
+            (folded if closed else visible).append(card['attrs']['id'])
+            if closed:
+                self.assertEqual(closed[0]['attrs'].get('class'), 'more-projects')
+        self.assertEqual(visible, ['nvidia-rag', 'osef', 'llava-gi'])
+        self.assertEqual(folded, ['artisk', 'ecommerce-agents', 'lead-qualification'])
+        self.assertEqual(len(cards), 6)
+        for element in self.dom.elements:
+            if element['tag'] == 'details':
+                self.assertNotIn('open', element['attrs'])
+        self.assertNotIn('class="lab-feature"', self.output)
+        self.assertNotIn('class="journal-feature"', self.output)
+
+    def test_complete_project_facts_remain_and_phase_is_outside_contribution_record(self):
+        for project in self.profile['projects']:
+            card = next(element for element in self.dom.elements
+                        if element['tag'] == 'article' and element['attrs'].get('id') == project['id'])
+            content = ' '.join(' '.join(card['text']).split())
+            for value in [project['title'], project['description'], project['role'],
+                          project['period'], project['phase'], *project['details'], *project['stack']]:
+                self.assertIn(' '.join(value.split()), content)
+            phase = next(element for element in self.dom.elements
+                         if element['tag'] == 'p' and element['attrs'].get('class') == 'project-phase'
+                         and card in element['ancestors'])
+            self.assertEqual(''.join(phase['text']), project['phase'])
+            self.assertFalse(any(ancestor['attrs'].get('class') == 'contribution-record'
+                                 for ancestor in phase['ancestors']))
+
+    def test_identity_education_and_one_session_workspace_keep_their_entry_points(self):
+        hero = next(element for element in self.dom.elements
+                    if element['tag'] == 'section' and element['attrs'].get('class') == 'personal-hero')
+        hero_links = [element['attrs']['href'] for element in self.dom.elements
+                      if element['tag'] == 'a' and hero in element['ancestors']
+                      and any('hero-actions' in ancestor['attrs'].get('class', '').split()
+                              for ancestor in element['ancestors'])]
+        self.assertEqual(hero_links, ['#projects', '#demo'])
+        frames = [element for element in self.dom.elements if element['tag'] == 'iframe']
+        self.assertEqual(len(frames), 1)
+        self.assertEqual(frames[0]['attrs']['id'], 'project-demo')
+        self.assertEqual(frames[0]['attrs']['src'], 'browser-rag/inspector.html')
+        self.assertEqual(frames[0]['attrs']['loading'], 'lazy')
+        self.assertEqual(frames[0]['attrs']['allow'], 'webgpu; fullscreen')
+        expand = next(element for element in self.dom.elements
+                      if element['tag'] == 'button' and element['attrs'].get('class') == 'demo-expand-button')
+        self.assertEqual(expand['attrs']['aria-controls'], 'project-demo')
+        self.assertEqual(expand['attrs']['aria-expanded'], 'false')
+        self.assertIn('hidden', expand['attrs'])
+        portraits = [element for element in self.dom.elements if element['tag'] == 'img']
+        self.assertEqual(len(portraits), 1)
+        self.assertEqual(portraits[0]['attrs']['src'], self.profile['portrait']['src'])
+        self.assertTrue(any(ancestor['tag'] == 'a'
+                            and ancestor['attrs'].get('href') == self.profile['portrait']['profile']
+                            for ancestor in portraits[0]['ancestors']))
+        for item in self.profile['education']:
+            self.assertIn(item['period'], self.output)
+            self.assertIn(item['school'], self.output)
+        self.assertIn('June 2028 (expected)', self.output)
 
 
 if __name__ == '__main__':

@@ -10,20 +10,34 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
         return ''.join(f'<a href="{text(item["href"])}">{text(item["label"])} ↗</a>'
                        for item in items)
 
-    projects = []
-    for number, project in enumerate(profile['projects'], 1):
+    def project_card(project, number):
         contributions = ''.join(f'<p>{text(item)}</p>' for item in project['details'])
         stack = ''.join(f'<span>{text(item)}</span>' for item in project['stack'])
-        projects.append(f'''<article class="portfolio-project" id="{text(project['id'])}">
-<div class="project-number">{number:02d}</div><div class="project-copy">
-<p class="eyebrow">{text(project['category'])}</p><h3>{text(project['title'])}</h3>
+        visible_links = project.get('featured_links', project['links'])
+        resources = [item for item in project['links'] if item not in visible_links]
+        return f'''<article class="portfolio-project" id="{text(project['id'])}">
+<div class="project-heading"><span class="project-number">{number:02d}</span><p class="eyebrow">{text(project['category'])}</p></div>
+<div class="project-copy"><h3>{text(project['title'])}</h3>
+<p class="project-summary">{text(project.get('summary', project['description']))}</p>
+<p class="project-phase">{text(project['phase'])}</p>
+<div class="project-links">{links(visible_links)}</div>
+<details class="contribution-record"><summary>Contributions &amp; current scope</summary>
 <p class="project-role">{text(project['role'])}<br>{text(project['period'])}</p>
-<p>{text(project['description'])}</p><p class="project-phase">{text(project['phase'])}</p>
+<p>{text(project['description'])}</p>{contributions}
 <div class="technology-list" aria-label="Project technologies">{stack}</div>
-<details><summary>Contributions &amp; current scope</summary>{contributions}</details>
-<div class="project-links">{links(project['links'])}</div></div></article>''')
+<div class="project-resources">{links(resources)}</div></details></div></article>'''
+
+    by_id = {project['id']: project for project in profile['projects']}
+    selected_ids = profile.get('selected_projects', list(by_id)[:3])
+    selected = [by_id[identifier] for identifier in selected_ids]
+    more = [project for project in profile['projects'] if project['id'] not in selected_ids]
+    selected_cards = ''.join(project_card(project, number) for number, project in enumerate(selected, 1))
+    more_cards = ''.join(project_card(project, number) for number, project in enumerate(more, len(selected) + 1))
+    more_projects = f'''<details class="more-projects"><summary>Explore {len(more)} more projects <span>Agents, product interfaces &amp; industry collaboration</span></summary>
+<div class="project-list more-project-list">{more_cards}</div></details>''' if more else ''
     education = ''.join(f'''<article><p class="eyebrow">{text(item['period'])}</p>
-<h3>{text(item['school'])}</h3><p>{text(item['degree'])}</p><p class="secondary">{text(item['detail'])}</p></article>'''
+<h3>{text(item['school'])}</h3><p>{text(item['degree'])}</p>
+<details class="academic-record"><summary>Coursework &amp; academic details</summary><p class="secondary">{text(item['detail'])}</p></details></article>'''
                         for item in profile['education'])
     skills = ''.join(f'<article><h3>{text(item["title"])}</h3><p>{text(item["text"])}</p></article>'
                      for item in profile['skills'])
@@ -45,26 +59,21 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <link rel="stylesheet" href="{text(stylesheet_href)}"></head><body class="portfolio-page">
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="portfolio-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ {label}</span></a>
-<nav aria-label="Main navigation"><a href="#projects">Projects</a><a href="#background">Background</a><a href="journal.html">Journal</a><a href="#demo">Live demo</a><a href="{text(portrait['profile'])}">LinkedIn ↗</a></nav></header>
+<nav aria-label="Main navigation"><a href="#projects">Work</a><a href="#background">Background</a><a href="journal.html">Journal</a><a href="{text(portrait['profile'])}">LinkedIn ↗</a></nav></header>
 <main class="portfolio-main" id="main-content">
 <section class="personal-hero" aria-labelledby="personal-title">
 <div><p class="eyebrow">NORTHWESTERN MSCS / {text(profile['location']).upper()}</p>
 <h1 id="personal-title">Zhentong<br><span>(Tony) Ye.</span></h1><p class="hero-intro">{text(profile['intro'])}</p>
 <p class="availability">{text(profile['availability'])}</p>
-<div class="hero-actions"><a class="primary-link" href="#projects">Explore my work <span>↓</span></a><a href="#demo">Try the live project ↓</a></div></div>
+<div class="hero-actions"><a class="primary-link" href="#projects">Explore my work <span>↓</span></a><a href="#demo">Try the RAG lab ↓</a></div></div>
 <figure class="portrait-card"><a href="{text(portrait['profile'])}" aria-label="Visit Zhentong Ye on LinkedIn">
 <img src="{text(portrait['src'])}" width="800" height="800" alt="Zhentong Ye" referrerpolicy="no-referrer" decoding="async"></a>
 <figcaption><span>Zhentong / Evanston</span><a href="{text(portrait['profile'])}">LinkedIn ↗</a></figcaption></figure></section>
-<section class="lab-feature" aria-labelledby="lab-title"><div><p class="eyebrow">EXPERIENCE THE PROJECT</p><h2 id="lab-title">A document.<br>A question.<br>The evidence in between.</h2>
-<p>Bring a local PDF to the financial RAG browser lab. Follow the computation from extracted pages to an answer draft, with intermediate results you can open and inspect.</p>
-<div class="hero-actions"><a class="primary-link" href="#demo">Try it below ↓</a><a href="01-two-lifecycles.html">Start with the walkthrough ↗</a></div></div>
-<div class="pipeline-preview" aria-label="Browser lab computation stages"><ol><li>PDF pages <small>text &amp; coordinates</small></li><li>Chunks <small>tokens &amp; source spans</small></li><li>Vectors <small>query &amp; document similarity</small></li><li>Context <small>selected evidence</small></li><li>Draft answer <small>model output &amp; citation checks</small></li></ol><p>Runs on your device. Native model drafts still need financial evaluation.</p></div></section>
-<section id="projects" class="portfolio-section" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Implementation, experiments and ongoing designs. Open each contribution record for the scope of my work.</p></div><div class="project-list">{''.join(projects)}</div></section>
-<section class="portfolio-section" aria-labelledby="skills-title"><div class="section-heading"><p class="eyebrow">TOOLS IN MY PROJECTS</p><h2 id="skills-title">Engineering toolkit</h2></div><div class="skills-grid">{skills}</div></section>
-<section id="background" class="portfolio-section" aria-labelledby="background-title"><div class="section-heading"><p class="eyebrow">BACKGROUND / CONTINUING STUDY</p><h2 id="background-title">Education into practice</h2></div><div class="education-grid">{education}</div>
-<p class="course-bridge">My RAG journal connects this work to language-model computation, agent workflows, scalable service boundaries and software design. Course connections describe what I am studying and applying as I build.</p></section>
-<section class="journal-feature" aria-labelledby="journal-title"><p class="eyebrow">THE CONTINUING RECORD</p><h2 id="journal-title">Engineering notes,<br>one decision at a time.</h2><p>Walk through the project from first principles, then follow the debugging, architecture changes and evaluation questions. Figures, examples and expandable computation records keep the details available as you read.</p><div class="hero-actions"><a class="primary-link" href="journal.html">Read the RAG series ↗</a><a href="07-operational-receipts.html">Latest chapter: execution contracts ↗</a></div></section>
-<section class="demo-stage" id="demo" aria-labelledby="demo-title"><div class="demo-stage-head"><div><p class="eyebrow">THE LIVE WORKBENCH</p><h2 id="demo-title">The project,<br>in your hands.</h2></div><p>Choose a PDF and follow the evidence from source pages to an answer draft. The complete project runs here, on your device.</p></div>
+<section id="projects" class="portfolio-section selected-work" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Three projects to start with. Open a contribution record for the details.</p></div><div class="project-list selected-project-list">{selected_cards}</div>{more_projects}</section>
+<section id="background" class="portfolio-section background-section" aria-labelledby="background-title"><div class="section-heading"><p class="eyebrow">BACKGROUND</p><h2 id="background-title">Education &amp; practice</h2></div><div class="education-grid">{education}</div>
+<details class="background-more"><summary>Engineering toolkit <span>Models, interfaces &amp; evaluation</span></summary><div class="skills-grid">{skills}</div>
+<p class="course-bridge">My RAG journal connects this work to language-model computation, agent workflows, scalable service boundaries and software design. Course connections describe what I am studying and applying as I build.</p></details></section>
+<section class="demo-stage" id="demo" aria-labelledby="demo-title"><div class="demo-stage-head"><div><p class="eyebrow">TRY THE PROJECT</p><h2 id="demo-title">Financial RAG workspace</h2></div><p>Your PDF, processed on your device. Open the notebook to inspect each step.</p></div>
 <div class="demo-tabs" role="group" aria-label="Project workspace">{demo_choices}<button class="demo-expand-button" type="button" aria-controls="project-demo" aria-expanded="false" hidden>Expand workspace</button><a class="demo-fullscreen-link" href="{text(demos[0]['src'])}" target="_blank" rel="noopener">Open in a full page ↗</a><p class="demo-expand-status" role="status" aria-live="polite"></p></div>
 <div class="demo-frame-shell"><iframe id="project-demo" title="{text(demos[0]['title'])} browser lab" src="{text(demos[0]['src'])}" loading="lazy" allow="webgpu; fullscreen"></iframe></div>
 <p class="demo-stage-note">Start with your own PDF. Model downloads begin only when you choose a preparation action inside the lab; generated answers remain drafts to check against the source.</p></section>

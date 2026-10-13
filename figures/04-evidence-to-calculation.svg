@@ -1,25 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 470" role="img" aria-labelledby="title desc">
 <title id="title">Evidence before calculation: implemented and proposed boundaries</title>
 <desc id="desc">The implemented document pipeline yields retrieval candidates. A proposed source review separates unresolved records from accepted rows. Only accepted rows can feed exact lookup and checked calculation.</desc>
-<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#245148" stroke-width="1.5"/></marker></defs>
-<rect width="780" height="470" rx="16" fill="#f1eee5"/>
-<g font-family="Georgia,serif" fill="#183c35">
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#46536B" stroke-width="1.5"/></marker></defs>
+<rect width="780" height="470" rx="16" fill="#F7F8FA"/>
+<g font-family="Manrope,Segoe UI,Arial,sans-serif" fill="#172033">
 <text x="28" y="35" font-size="22">Evidence is a prerequisite, not a score</text>
 <text x="28" y="63" font-size="14">SOLID / IMPLEMENTED DOCUMENT PATH</text>
-<g fill="#fffdf7" stroke="#245148" stroke-width="1.5">
+<g fill="#FFFFFF" stroke="#46536B" stroke-width="1.5">
 <rect x="28" y="85" width="205" height="70" rx="8"/><rect x="287" y="85" width="205" height="70" rx="8"/><rect x="547" y="85" width="205" height="70" rx="8"/>
 </g>
 <g font-size="18" text-anchor="middle"><text x="130" y="114">Original report</text><text x="389" y="114">Extract + chunk</text><text x="649" y="114">Retrieve candidates</text></g>
 <g font-size="13" text-anchor="middle"><text x="130" y="138">Page · row · column · unit</text><text x="389" y="138">Some relationships may be lost</text><text x="649" y="138">Ranking ≠ verified value</text></g>
-<g stroke="#245148" fill="none" stroke-width="2" marker-end="url(#arrow)"><path d="M233 120 H277"/><path d="M492 120 H537"/></g>
+<g stroke="#46536B" fill="none" stroke-width="2" marker-end="url(#arrow)"><path d="M233 120 H277"/><path d="M492 120 H537"/></g>
 <text x="28" y="202" font-size="14">DASHED / PROPOSED SOURCE-REVIEW AND CALCULATION PATH</text>
-<g fill="#fffdf7" stroke="#245148" stroke-width="1.5" stroke-dasharray="6 4">
+<g fill="#FFFFFF" stroke="#46536B" stroke-width="1.5" stroke-dasharray="6 4">
 <rect x="547" y="225" width="205" height="70" rx="8"/><rect x="287" y="225" width="205" height="70" rx="8"/><rect x="28" y="225" width="205" height="70" rx="8"/>
-<rect x="547" y="335" width="205" height="60" rx="8" stroke="#b4542e"/>
+<rect x="547" y="335" width="205" height="60" rx="8" stroke="#92400E"/>
 </g>
-<g font-size="18" text-anchor="middle"><text x="649" y="254">Review source</text><text x="389" y="254">Accept explicit rows</text><text x="130" y="254">Lookup / calculate</text><text x="649" y="370" fill="#b4542e">Unresolved → hold</text></g>
+<g font-size="18" text-anchor="middle"><text x="649" y="254">Review source</text><text x="389" y="254">Accept explicit rows</text><text x="130" y="254">Lookup / calculate</text><text x="649" y="370" fill="#92400E">Unresolved → hold</text></g>
 <g font-size="13" text-anchor="middle"><text x="649" y="278">Period · metric · value · unit</text><text x="389" y="278">Review status + source locator</text><text x="130" y="278">Check units + denominator</text></g>
-<g stroke="#245148" fill="none" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"><path d="M649 155 V215"/><path d="M547 260 H502"/><path d="M287 260 H243"/><path d="M649 295 V325"/></g>
+<g stroke="#46536B" fill="none" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"><path d="M649 155 V215"/><path d="M547 260 H502"/><path d="M287 260 H243"/><path d="M649 295 V325"/></g>
 <text x="28" y="430" font-size="15">Changing PDF candidates into CSV does not validate their contents.</text>
 <text x="28" y="454" font-size="13">Conceptual design: this figure does not claim an implemented SQL agent or verified calculation service.</text>
 </g></svg>

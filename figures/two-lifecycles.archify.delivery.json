@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "d07efdd8-7717-421b-b63a-ead099e838d3",
+  "receiptId": "6f0f7c1e-a4bc-426d-90b7-523487bb6602",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
   "input": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\figures\\two-lifecycles.archify.json",
   "output": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\figures\\two-lifecycles.archify.html",
   "specification": {
-    "sha256": "27924cfdd7cbf81693a7ef1a7af9889bd697ff6e34db1e98ce03e4d4b99ec21c",
-    "bytes": 2396
+    "sha256": "b3268248d44ccd3b0c8aed5f5aaa2f3b73abf98dc566696b2050cb4edbcffe49",
+    "bytes": 3579
   },
   "artifact": {
-    "sha256": "84febc4dbfdc20fdcedf23302d067897d7e9ff4118cd2ca6584593c1a3e0c00e",
-    "bytes": 752726
+    "sha256": "b58547536db87c78ad9f3ff6ac523b17a196446d79cbc0f1c464312a1cb7b74a",
+    "bytes": 752495
   }
 }

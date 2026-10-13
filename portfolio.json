@@ -3,8 +3,9 @@
   "location": "Evanston, Illinois",
   "portrait": {"src": "https://media.licdn.com/dms/image/v2/D4E03AQHTNhDehYj1lg/profile-displayphoto-crop_800_800/B4EZ2g44zkJwAI-/0/1776520793196?e=1793232000&v=beta&t=ByCs7QokMdqGG2rm3zPR2V_AXSl2MUcUM0SkB15JzfQ", "profile": "https://www.linkedin.com/in/tony-zhentong-ye/"},
   "demos": [{"id": "nvidia-rag", "title": "NVIDIA Financial RAG", "src": "browser-rag/inspector.html"}],
-  "intro": "I'm a Northwestern M.S. Computer Science student building AI tools for practical workflows. My projects connect language models, retrieval and evaluation with interfaces that make their behavior easier to inspect.",
+  "intro": "I build AI systems that make evidence and model behavior easier to inspect.",
   "availability": "Seeking Summer 2027 internships in applied AI and software engineering",
+  "selected_projects": ["nvidia-rag", "osef", "llava-gi"],
   "education": [
     {"school": "Northwestern University", "degree": "M.S. in Computer Science", "period": "September 2026–June 2028 (expected)", "detail": "Current study: Large Language Models, Agent AI, Scalable Software Architectures, and Software Design Principles and Practices."},
     {"school": "Wenzhou-Kean University", "degree": "B.A. in Mathematical Sciences · Data Analytics Option · Computer Science minor", "period": "September 2022–June 2026", "detail": "GPA 3.822/4.00 · Magna Cum Laude. Completed coursework includes Applied Machine Learning, Algorithms and Operating Systems."}
@@ -13,6 +14,7 @@
     {
       "id": "nvidia-rag", "category": "RETRIEVAL / SOFTWARE ENGINEERING", "title": "NVIDIA Financial RAG",
       "role": "AI-assisted engineering project", "period": "September 2026–present", "phase": "Working browser lab · ongoing evaluation",
+      "summary": "Ask your PDF a question. Inspect the retrieved evidence, intermediate calculations and an answer draft in a browser lab.",
       "description": "Ask a local document a question, then inspect how its pages become chunks, vectors, retrieved evidence and a model-generated draft. A separately packaged Python API explores integration with other applications.",
       "details": [
         "Developing an offline Python document index with dense retrieval and source-linked evidence over NVIDIA reports.",
@@ -21,11 +23,13 @@
         "Writing the engineering decisions and debugging history as a continuing series, with editable architecture figures and reproducible acceptance records."
       ],
       "stack": ["Python", "JavaScript", "PDF.js", "Transformers.js", "WebGPU", "Dense retrieval"],
-      "links": [{"label": "Try the browser lab", "href": "browser-rag/inspector.html"}, {"label": "Read the project journal", "href": "journal.html"}, {"label": "Python API source", "href": "https://github.com/1235357/nvidia-financial-rag"}]
+      "links": [{"label": "Open the lab in a full page", "href": "browser-rag/inspector.html"}, {"label": "Read the journal", "href": "journal.html"}, {"label": "Python API source", "href": "https://github.com/1235357/nvidia-financial-rag"}],
+      "featured_links": [{"label": "Try the RAG lab", "href": "#demo"}, {"label": "Read the journal", "href": "journal.html"}]
     },
     {
       "id": "llava-gi", "category": "MULTIMODAL / FINE-TUNING", "title": "Fine-Tuning LLaVA-GI",
       "role": "Collaborative research · WKU Student Partnering with Faculty", "period": "September 2024–September 2025", "phase": "Medical visual question answering study",
+      "summary": "Collaboratively fine-tuned LLaVA-13B for medical visual question answering, from training data preparation to generated-answer evaluation.",
       "description": "Collaboratively fine-tuned LLaVA-13B with LoRA/PEFT on Kvasir-VQA, connecting image–question–answer preparation to inference and evaluation.",
       "details": [
         "Prepared image–question–answer data, configured training and developed inference scripts with PyTorch and Hugging Face on Linux.",
@@ -38,6 +42,7 @@
     {
       "id": "osef", "category": "RESEARCH / VIDEO EVIDENCE", "title": "OSEF: One-Step Evidence Fusion",
       "role": "First author · Wenzhou-Kean University", "period": "September 2025–present", "phase": "arXiv preprint · July 2026",
+      "summary": "Research on retrieving video evidence and planning action sequences from a start–goal query, with controlled benchmark comparisons.",
       "description": "Study how a planner can retrieve the right video evidence and predict an action sequence from an answer-redacted start–goal query.",
       "details": [
         "Investigated a query-conditioned cell-and-span evidence lattice that passes soft evidence to the planner before selecting a single video window.",
@@ -51,6 +56,7 @@
     {
       "id": "artisk", "category": "AGENTS / PRODUCT INTERFACE", "title": "Artisk AI-Agent Product Project",
       "role": "Project experience · Artisk Inc.", "period": "June–August 2026", "phase": "Implemented interface and grounding contract",
+      "summary": "A four-view React agent interface with shared context, explicit tool handoffs and source-grounding checks.",
       "description": "Built a tool-using agent interface with four expert views, shared context and explicit prompt/tool handoffs in React and TypeScript.",
       "details": [
         "Implemented the four-view product interface and shared context so expert workflows could pass information through explicit handoffs.",
@@ -62,6 +68,7 @@
     {
       "id": "ecommerce-agents", "category": "UNIVERSITY–INDUSTRY / WORKFLOW DESIGN", "title": "E-Commerce LLM Agent Platform",
       "role": "Agent Engineer / AI Technical Lead · university–industry project", "period": "August 2026–present", "phase": "Requirements, data audit and system design",
+      "summary": "Designing a shared agent platform for customer support, inventory and content workflows for an anonymous e-commerce client.",
       "description": "Translating an anonymous cross-border e-commerce client's customer support, inventory and content needs into a proposed shared agent platform.",
       "details": [
         "Designing retrieval, policy checks, order/logistics tools, human handoff and auditable customer-support responses, alongside scenarios for citation, privacy and unsafe-action checks.",
@@ -74,6 +81,7 @@
     {
       "id": "lead-qualification", "category": "UNIVERSITY–INDUSTRY / SOURCE-BACKED DATA", "title": "Overseas Lead Qualification",
       "role": "Technical contributor · university–industry research", "period": "August 2026–present", "phase": "Provider comparison and prototype design",
+      "summary": "Comparing trade-data sources and prototyping a source-backed lead qualification workflow for an anonymous B2B manufacturer.",
       "description": "Exploring source-backed prospect screening and an AI-assisted qualification workflow for an anonymous B2B manufacturing client.",
       "details": [
         "Compared five trade-data providers and prepared source-linked samples and a weighted proof-of-concept scorecard, separating product relevance, buyer identity and contact verification.",

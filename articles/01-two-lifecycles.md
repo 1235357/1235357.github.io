@@ -73,8 +73,8 @@ to arbitrarily changed text merely because its shape still fits.
 
 <figure class="architecture-figure" id="current-architecture" aria-label="Current Python-hosted retrieval architecture">
 <div class="figure-heading"><span class="figure-status">01 / CURRENT IMPLEMENTATION</span><h3>Build once. Inspect each request.</h3><p>Offline: chunks → passage encoder → index. Online: query encoding → ranking → evidence/context. The reusable index also feeds ranking.</p></div>
-<iframe src="figures/two-lifecycles.archify.html?theme=dark" title="Interactive current retrieval architecture — generation is off" loading="lazy"></iframe>
-<figcaption>Figure 1 · Interactive Archify view, not a RAG runtime. Click a node for authored inputs/outputs; zoom for detail. <a href="figures/two-lifecycles.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/two-lifecycles.archify.json">Editable JSON</a>. Boxes are responsibilities, not deployed microservices; default generation remains OFF.</figcaption>
+<iframe src="figures/two-lifecycles.archify.html?theme=light" title="Interactive current retrieval architecture — generation is off" loading="lazy"></iframe>
+<figcaption>Figure 1 · Interactive Archify view, not a RAG runtime. Click a node for authored inputs/outputs; zoom for detail. <a href="figures/two-lifecycles.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/two-lifecycles.archify.json">Editable JSON</a>. Boxes are responsibilities, not deployed microservices; default generation remains OFF.</figcaption>
 </figure>
 
 `build_bge_service` is the composition point. It receives the chunks, encoder,
@@ -325,8 +325,8 @@ explains result ownership; article 07 records the later implemented responsibili
 
 <figure class="architecture-figure" id="browser-architecture" aria-label="October 9 planned browser-native topology, preserved history">
 <div class="figure-heading"><span class="figure-status planned">02 / OCTOBER 9 DESIGN HISTORY</span><h3>The reader's device owns the computation.</h3><p>This preserved target diagram separates main-thread interaction, PDF parsing and model computation. Read the current implementation overview in article 07 before using it to describe today's entry.</p></div>
-<iframe src="figures/browser-native.archify.html?theme=dark" title="Historical October 9 planned browser-native topology" loading="lazy"></iframe>
-<figcaption>Figure 2 · Historical approved design, with its original figure bytes retained. <a href="figures/browser-native.archify.html?theme=dark">Open full-size ↗</a> · <a href="figures/browser-native.archify.json">Editable JSON</a> · <a href="07-operational-receipts.html#the-readers-browser-owns-the-work">Current responsibilities ↗</a>. Local PDF selection and permission-reviewed samples are separate entrances; no NVIDIA sample mode is delivered. The parser-to-compute arrow is logical data lineage: page/spans return through PDF.js's main-thread proxy before being forwarded to the computation worker, not a direct worker channel.</figcaption>
+<iframe src="figures/browser-native.archify.html?theme=light" title="Historical October 9 planned browser-native topology" loading="lazy"></iframe>
+<figcaption>Figure 2 · Historical approved topology, now rendered in the shared light palette; the original figure bytes are archived. <a href="figures/browser-native.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/browser-native.archify.json">Editable JSON</a> · <a href="07-operational-receipts.html#the-readers-browser-owns-the-work">Current responsibilities ↗</a>. Local PDF selection and permission-reviewed samples are separate entrances; no NVIDIA sample mode is delivered. The parser-to-compute arrow is logical data lineage: page/spans return through PDF.js's main-thread proxy before being forwarded to the computation worker, not a direct worker channel.</figcaption>
 </figure>
 
 In CS381 terms, the parser, retriever and generator are replaceable interfaces

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-preset="classic">
+<html lang="en" data-theme="light" data-preset="classic">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,8 @@
   <meta name="archify-reader-contract" content="declared-wide-v1">
   <title>Quarterly income statements: source selection Diagram</title>
   <script>
-    // Resolve the theme before first paint so light-preference users don't
-    // see a dark flash. The toolbar script below re-applies with UI state.
+    // Resolve the light default before first paint so readers do not
+    // see a dark flash. Explicit URL and saved toolbar choices take priority.
     (function () {
       try {
         var theme = null;
@@ -23,10 +23,10 @@
           }
         } catch (_) {}
         if (!theme) {
-          try { theme = localStorage.getItem('archify-theme'); } catch (_) {}
+          try { theme = localStorage.getItem('site-figure-light-v1-structured-income-selection'); } catch (_) {}
         }
         if (theme !== 'light' && theme !== 'dark') {
-          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          theme = 'light';
         }
         document.documentElement.setAttribute('data-theme', theme);
       } catch (_) {}
@@ -216,42 +216,42 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     }
 
     [data-theme="light"] {
-      --bg: #f4f5f7;
+      --bg: #f7f8fa;
       --grid: #e9edf2;
-      --canvas-dot: #d9dee5;
-      --text: #111827;
-      --text-muted: #5b6474;
-      --text-dim: #9aa3b2;
-      --text-faint: #6b7280;
+      --canvas-dot: #d8dfeb;
+      --text: #172033;
+      --text-muted: #46536b;
+      --text-dim: #46536b;
+      --text-faint: #46536b;
 
       --panel: #ffffff;
-      --panel-border: #e5e7eb;
-      --lane-fill: rgba(248, 250, 252, 0.65);
-      --lane-stroke: #cbd5e1;
+      --panel-border: #d8dfeb;
+      --lane-fill: rgba(247, 248, 250, 0.85);
+      --lane-stroke: #8c9bb3;
 
-      --arrow: #94a3b8;
-      --arrow-emphasis: #059669;
+      --arrow: #46536b;
+      --arrow-emphasis: #234ccf;
 
       --mask: #ffffff;
 
       --frontend-fill: rgba(34, 211, 238, 0.15);
-      --frontend-stroke: #0891b2;
+      --frontend-stroke: #0e7490;
       --backend-fill: rgba(52, 211, 153, 0.18);
-      --backend-stroke: #059669;
+      --backend-stroke: #047857;
       --database-fill: rgba(167, 139, 250, 0.2);
-      --database-stroke: #7c3aed;
+      --database-stroke: #6d28d9;
       --cloud-fill: rgba(251, 191, 36, 0.18);
-      --cloud-stroke: #d97706;
+      --cloud-stroke: #92400e;
       --security-fill: rgba(251, 113, 133, 0.15);
-      --security-stroke: #e11d48;
+      --security-stroke: #be123c;
       --messagebus-fill: rgba(251, 146, 60, 0.15);
-      --messagebus-stroke: #ea580c;
+      --messagebus-stroke: #9a3412;
       --external-fill: rgba(148, 163, 184, 0.18);
-      --external-stroke: #64748b;
+      --external-stroke: #46536b;
 
       --toolbar-bg:       rgba(255, 255, 255, 0.92);
-      --toolbar-border:   #cbd5e1;
-      --toolbar-text:     #334155;
+      --toolbar-border: #d8dfeb;
+      --toolbar-text: #172033;
       --toolbar-hover:    #ffffff;
       --toolbar-menu-bg:  #ffffff;
     }
@@ -295,33 +295,33 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     }
 
     [data-preset="signal-flow"][data-theme="light"] {
-      --bg: #f4f9fc;
-      --grid: #d4e5ee;
-      --panel: rgba(255, 255, 255, 0.82);
-      --panel-border: #bfd5e2;
-      --lane-fill: rgba(232, 243, 248, 0.62);
-      --lane-stroke: #a9c5d5;
-      --text: #102638;
-      --text-muted: #587287;
-      --text-dim: #8aa2b4;
-      --text-faint: #668397;
+      --bg: #f7f8fa;
+      --grid: #e9edf2;
+      --panel: #ffffff;
+      --panel-border: #d8dfeb;
+      --lane-fill: rgba(247, 248, 250, 0.85);
+      --lane-stroke: #8c9bb3;
+      --text: #172033;
+      --text-muted: #46536b;
+      --text-dim: #46536b;
+      --text-faint: #46536b;
       --mask: #ffffff;
       --frontend-fill: rgba(6, 182, 212, 0.09);
-      --frontend-stroke: #0789a1;
+      --frontend-stroke: #0e7490;
       --backend-fill: rgba(5, 150, 105, 0.09);
-      --backend-stroke: #087f69;
+      --backend-stroke: #047857;
       --database-fill: rgba(124, 58, 237, 0.09);
-      --database-stroke: #7254c7;
+      --database-stroke: #6d28d9;
       --cloud-fill: rgba(217, 119, 6, 0.08);
-      --cloud-stroke: #b9670b;
+      --cloud-stroke: #92400e;
       --security-fill: rgba(225, 29, 72, 0.08);
-      --security-stroke: #c53a59;
+      --security-stroke: #be123c;
       --messagebus-fill: rgba(234, 88, 12, 0.08);
-      --messagebus-stroke: #c65f27;
+      --messagebus-stroke: #9a3412;
       --external-fill: rgba(100, 116, 139, 0.1);
-      --external-stroke: #607a8c;
-      --arrow: #7b97aa;
-      --arrow-emphasis: #0d9488;
+      --external-stroke: #46536b;
+      --arrow: #46536b;
+      --arrow-emphasis: #234ccf;
     }
 
     /* ==========================================================
@@ -366,36 +366,36 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     }
 
     [data-preset="blueprint"][data-theme="light"] {
-      --bg: #edf7fa;
-      --grid: #b5d5e1;
-      --panel: rgba(249, 253, 255, 0.94);
-      --panel-border: #78aabd;
-      --lane-fill: rgba(210, 232, 240, 0.42);
-      --lane-stroke: #83b2c4;
-      --text: #123344;
-      --text-muted: #4e7486;
-      --text-dim: #86a6b4;
-      --text-faint: #668c9d;
-      --mask: #f9fdff;
+      --bg: #f7f8fa;
+      --grid: #e9edf2;
+      --panel: #ffffff;
+      --panel-border: #d8dfeb;
+      --lane-fill: rgba(247, 248, 250, 0.85);
+      --lane-stroke: #8c9bb3;
+      --text: #172033;
+      --text-muted: #46536b;
+      --text-dim: #46536b;
+      --text-faint: #46536b;
+      --mask: #ffffff;
       --frontend-fill: rgba(8, 145, 178, 0.08);
-      --frontend-stroke: #087f9c;
+      --frontend-stroke: #0e7490;
       --backend-fill: rgba(5, 128, 101, 0.08);
-      --backend-stroke: #08755f;
+      --backend-stroke: #047857;
       --database-fill: rgba(100, 75, 180, 0.08);
-      --database-stroke: #6757a8;
+      --database-stroke: #6d28d9;
       --cloud-fill: rgba(181, 120, 15, 0.08);
-      --cloud-stroke: #a86609;
+      --cloud-stroke: #92400e;
       --security-fill: rgba(190, 48, 80, 0.07);
-      --security-stroke: #b32f50;
+      --security-stroke: #be123c;
       --messagebus-fill: rgba(196, 81, 22, 0.07);
-      --messagebus-stroke: #b65120;
+      --messagebus-stroke: #9a3412;
       --external-fill: rgba(79, 112, 128, 0.08);
-      --external-stroke: #506f7e;
-      --arrow: #6d93a5;
-      --arrow-emphasis: #087f69;
+      --external-stroke: #46536b;
+      --arrow: #46536b;
+      --arrow-emphasis: #234ccf;
       --toolbar-bg: rgba(247, 252, 254, 0.94);
-      --toolbar-border: #8ab5c5;
-      --toolbar-text: #294f61;
+      --toolbar-border: #d8dfeb;
+      --toolbar-text: #172033;
       --toolbar-hover: #ffffff;
       --toolbar-menu-bg: #f9fdff;
     }
@@ -443,36 +443,36 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     }
 
     [data-preset="editorial"][data-theme="light"] {
-      --bg: #f2eee5;
-      --grid: #d8d0c2;
-      --panel: rgba(251, 248, 241, 0.97);
-      --panel-border: #c4b9a6;
-      --lane-fill: rgba(229, 221, 207, 0.42);
-      --lane-stroke: #b8aa94;
-      --text: #242018;
-      --text-muted: #6f6658;
-      --text-dim: #a09788;
-      --text-faint: #817767;
-      --mask: #fbf8f1;
+      --bg: #f7f8fa;
+      --grid: #e9edf2;
+      --panel: #ffffff;
+      --panel-border: #d8dfeb;
+      --lane-fill: rgba(247, 248, 250, 0.85);
+      --lane-stroke: #8c9bb3;
+      --text: #172033;
+      --text-muted: #46536b;
+      --text-dim: #46536b;
+      --text-faint: #46536b;
+      --mask: #ffffff;
       --frontend-fill: rgba(31, 117, 126, 0.09);
-      --frontend-stroke: #287e84;
+      --frontend-stroke: #0e7490;
       --backend-fill: rgba(42, 119, 75, 0.09);
-      --backend-stroke: #397b53;
+      --backend-stroke: #047857;
       --database-fill: rgba(105, 75, 130, 0.09);
-      --database-stroke: #765d86;
+      --database-stroke: #6d28d9;
       --cloud-fill: rgba(157, 103, 31, 0.1);
-      --cloud-stroke: #9a671f;
+      --cloud-stroke: #92400e;
       --security-fill: rgba(153, 58, 52, 0.09);
-      --security-stroke: #9e463f;
+      --security-stroke: #be123c;
       --messagebus-fill: rgba(182, 70, 27, 0.09);
-      --messagebus-stroke: #ad4b25;
+      --messagebus-stroke: #9a3412;
       --external-fill: rgba(101, 91, 75, 0.09);
-      --external-stroke: #746b5e;
-      --arrow: #8a806f;
-      --arrow-emphasis: #bb4c23;
+      --external-stroke: #46536b;
+      --arrow: #46536b;
+      --arrow-emphasis: #234ccf;
       --toolbar-bg: rgba(251, 248, 241, 0.94);
-      --toolbar-border: #c4b9a6;
-      --toolbar-text: #40392f;
+      --toolbar-border: #d8dfeb;
+      --toolbar-text: #172033;
       --toolbar-hover: #fffdf8;
       --toolbar-menu-bg: #fbf8f1;
     }
@@ -2949,38 +2949,38 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
          lane/arrow colors — so printing from dark theme doesn't put neon
          strokes and translucent dark fills on white paper. */
       :root, [data-theme="dark"], [data-theme="light"] {
-        --bg: #ffffff;
-        --grid: transparent;
+        --bg: #f7f8fa;
+        --grid: #e9edf2;
         --panel: #ffffff;
-        --panel-border: #e2e8f0;
-        --text: #0f172a;
-        --text-muted: #475569;
-        --text-dim: #94a3b8;
-        --text-faint: #64748b;
+        --panel-border: #d8dfeb;
+        --text: #172033;
+        --text-muted: #46536b;
+        --text-dim: #46536b;
+        --text-faint: #46536b;
         --mask: #ffffff;
-        --lane-fill: rgba(248, 250, 252, 0.65);
-        --lane-stroke: #cbd5e1;
-        --arrow: #94a3b8;
-        --arrow-emphasis: #059669;
+        --lane-fill: rgba(247, 248, 250, 0.85);
+        --lane-stroke: #8c9bb3;
+        --arrow: #46536b;
+        --arrow-emphasis: #234ccf;
         --frontend-fill:    rgba(34, 211, 238, 0.15);
-        --frontend-stroke:  #0891b2;
+        --frontend-stroke: #0e7490;
         --backend-fill:     rgba(52, 211, 153, 0.18);
-        --backend-stroke:   #059669;
+        --backend-stroke: #047857;
         --database-fill:    rgba(167, 139, 250, 0.2);
-        --database-stroke:  #7c3aed;
+        --database-stroke: #6d28d9;
         --cloud-fill:       rgba(251, 191, 36, 0.18);
-        --cloud-stroke:     #d97706;
+        --cloud-stroke: #92400e;
         --security-fill:    rgba(251, 113, 133, 0.15);
-        --security-stroke:  #e11d48;
+        --security-stroke: #be123c;
         --messagebus-fill:  rgba(251, 146, 60, 0.15);
-        --messagebus-stroke:#ea580c;
+        --messagebus-stroke: #9a3412;
         --external-fill:    rgba(148, 163, 184, 0.18);
-        --external-stroke:  #64748b;
+        --external-stroke: #46536b;
       }
       body { background: #ffffff !important; padding: 0; }
       .container { max-width: none; }
       .toolbar, .diagram-nav, .focus-chip, .archify-toast, .no-print { display: none !important; }
-      
+
       .diagram-container, .card { box-shadow: none; border-color: #e2e8f0; }
       .diagram-container { --archify-nav-reserve: 0px !important; }
       html[data-preset="signal-flow"] .diagram-container,
@@ -3902,24 +3902,24 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       .route-journey-controls button { min-height: 2.75rem; }
       .route-probe-status { padding: 0.05rem 0.48rem 0.38rem; }
       .route-probe-node { max-width: 7.5rem; }
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+
+
+
+
+
+
+
+
+
+
+
       html[data-embed="true"][data-share-playback="true"] .diagram-container {
         padding-top: 4.25rem;
       }
       html[data-embed="true"][data-share-moment="true"] .diagram-container {
         padding-top: 4.25rem;
       }
-      
+
       .cards {
         grid-template-columns: 1fr;
         margin-top: 1rem;
@@ -3962,7 +3962,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-      
+
       html[data-present="true"]:not([data-embed="true"]) .diagram-container { padding: 0.5rem 0.5rem 3.75rem; }
       html[data-present="true"]:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] > svg {
         width: 720px;
@@ -4842,7 +4842,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       .semantic-lens,
       .diagram-guide,
       .overview-map-live { animation: none !important; }
-      
+
       .intent-trace-flow {
         animation: none !important;
         stroke-dasharray: none;
@@ -5617,11 +5617,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     })();
 
     /* ============================================================
-       Theme toggle — persists to localStorage, respects system pref
+       Theme toggle — figure-local preferences with a stable light default
        ============================================================ */
 
     Archify.theme = (function () {
-      var STORAGE_KEY = 'archify-theme';
+      var STORAGE_KEY = 'site-figure-light-v1-structured-income-selection';
       var html = document.documentElement;
       var btn = document.getElementById('btn-theme');
       var label = document.getElementById('theme-label');
@@ -5648,7 +5648,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         if (fromUrl) return fromUrl;
         var saved = readStored();
         if (saved === 'light' || saved === 'dark') return saved;
-        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        return 'light';
       }
 
       function apply(theme) {
@@ -5672,7 +5672,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         var onChange = function (e) {
           var saved = readStored();
           if (urlOverride() || saved === 'light' || saved === 'dark') return;
-          apply(e.matches ? 'light' : 'dark');
+          apply('light');
         };
         if (media.addEventListener) media.addEventListener('change', onChange);
         else if (media.addListener) media.addListener(onChange);

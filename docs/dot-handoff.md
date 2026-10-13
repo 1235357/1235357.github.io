@@ -2,6 +2,25 @@
 
 ## Latest audited delivery — October 13
 
+The October 13 source now also separates document preparation into a full-width
+row and aligns the question/draft cards below. Optional model preparation and
+source-cell comparison use native disclosures; preserved session receipts live
+in the computation notebook. All seven interactive figures have light defaults
+and light article links, alongside matching editable figure palettes. See the
+[workspace design record](2026-10-13-balanced-workspace.md) and
+[figure theme record](2026-10-13-light-figures.md). Their local source, browser,
+export and public deployment checks have distinct scopes.
+
+The retrieval calculation notebook was published at `697d94e`, followed by the
+separate-host correction in `e0f311a` and scoped review wording in `e80154b`.
+It shows every retained chunk's exact signed cosine and Top K boundary, plus
+all 384 query/passage component products and cumulative dot values through
+bounded views and complete downloads. The original question and source
+identities remain unchanged. The calculation host is a sibling before the
+bounded candidate list, so it does not create a second enclosing scroll area.
+See the [retrieval notebook record](2026-10-13-retrieval-calculation-notebook.md).
+Similarity and arithmetic inspection do not adjudicate a financial answer.
+
 The latest completed layout/context delivery was `ef89596e9d033f5ec7b007292eb1b09c13a02d9d`, with [official run 38350803305](https://github.com/1235357/1235357.github.io/actions/runs/38350803305) successful in Windows contracts, Linux build and Pages deploy. Its downloaded manifest binds 323 files, 920,370,583 bytes and 18 pinned assets. Twenty selected served entry, style, font and runtime bodies matched that artifact. These are dated checks, not an instruction to reset a newer checkout to this commit.
 
 The profile, embedded lab and standalone lab share the default light theme and Manrope. The detailed journal remains dark. The lab and its homepage frame now use the available width; the native fullscreen control retains the existing iframe/session. The content-versioned homepage script fixes the observed returning-browser reuse of the older script. Public IAB checks covered 390, 1600, 1920, 2560 and 3200 CSS-pixel viewports without horizontal overflow; this is browser emulation, not physical-phone acceptance. See the [fluid workspace record](2026-10-12-fluid-workspace.md).

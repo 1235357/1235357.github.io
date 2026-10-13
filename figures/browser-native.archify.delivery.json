@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "e1759380-233e-455f-90fa-828c50f094b4",
+  "receiptId": "7ad219f3-f212-4089-8b64-b3382de5325c",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
   "input": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\figures\\browser-native.archify.json",
   "output": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\figures\\browser-native.archify.html",
   "specification": {
-    "sha256": "fe11f58ec415464237e739c712955bdb8864f4983cbdc9dc3af5c115d80765f1",
-    "bytes": 4869
+    "sha256": "74ed2747ae7e203aaeff056d732f6dd24d067dbbe0933282dfe8bcf81abedb9b",
+    "bytes": 5343
   },
   "artifact": {
-    "sha256": "c1896f5bc114d3501721cdeead726b85dc7d7e66a46b4099c131fb154dde8913",
-    "bytes": 759324
+    "sha256": "1a66d79a57a789486d839e1078f938edc854c2aa7cbef04ffbf53c85670fde24",
+    "bytes": 759308
   }
 }

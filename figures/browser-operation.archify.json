@@ -9,50 +9,144 @@
     "quality_profile": "showcase"
   },
   "lanes": [
-    { "id": "main", "label": "One active operation" },
-    { "id": "checks", "label": "Rejected input: no mutation" },
-    { "id": "terminal", "label": "Closed operation: active = null" }
+    {
+      "id": "main",
+      "label": "One active operation"
+    },
+    {
+      "id": "checks",
+      "label": "Rejected input: no mutation"
+    },
+    {
+      "id": "terminal",
+      "label": "Closed operation: active = null"
+    }
   ],
   "states": [
     {
-      "id": "idle", "type": "start", "label": "Idle", "sublabel": "no active operation",
-      "lane": "main", "col": 0, "tag": "persisted"
+      "id": "idle",
+      "type": "start",
+      "label": "Idle",
+      "sublabel": "no active operation",
+      "lane": "main",
+      "col": 0,
+      "tag": "persisted"
     },
     {
-      "id": "active", "type": "active", "label": "Active", "sublabel": "identity + last sequence",
-      "lane": "main", "col": 1, "tag": "persisted"
+      "id": "active",
+      "type": "active",
+      "label": "Active",
+      "sublabel": "identity + last sequence",
+      "lane": "main",
+      "col": 1,
+      "tag": "persisted"
     },
     {
-      "id": "gate", "type": "decision", "label": "Validate Message", "sublabel": "check, not persisted state",
-      "lane": "main", "col": 2, "tag": "transient"
+      "id": "gate",
+      "type": "decision",
+      "label": "Validate Message",
+      "sublabel": "check, not persisted state",
+      "lane": "main",
+      "col": 2,
+      "tag": "transient"
     },
     {
-      "id": "rejected", "type": "neutral", "label": "Rejected", "sublabel": "same state; same lastSeq",
-      "lane": "checks", "col": 2, "tag": "return value"
+      "id": "rejected",
+      "type": "neutral",
+      "label": "Rejected",
+      "sublabel": "same state; same lastSeq",
+      "lane": "checks",
+      "col": 2,
+      "tag": "return value"
     },
     {
-      "id": "local_cancel", "type": "failure", "label": "Cancelled Locally", "sublabel": "invalidate before replacement",
-      "lane": "terminal", "col": 1, "tag": "seq = null"
+      "id": "local_cancel",
+      "type": "failure",
+      "label": "Cancelled Locally",
+      "sublabel": "invalidate before replacement",
+      "lane": "terminal",
+      "col": 1,
+      "tag": "seq = null"
     },
     {
-      "id": "message_terminal", "type": "neutral", "label": "Terminal Recorded", "sublabel": "result / error / cancelled",
-      "lane": "terminal", "col": 3, "tag": "once only"
+      "id": "message_terminal",
+      "type": "neutral",
+      "label": "Terminal Recorded",
+      "sublabel": "result / error / cancelled",
+      "lane": "terminal",
+      "col": 2,
+      "tag": "once only"
     }
   ],
   "transitions": [
-    { "id": "begin", "from": "idle", "to": "active", "label": "begin" },
-    { "id": "receive", "from": "active", "to": "gate", "label": "accept(event)" },
-    { "id": "progress", "from": "gate", "to": "active", "label": "valid progress", "variant": "emphasis" },
-    { "id": "reject", "from": "gate", "to": "rejected", "label": "invalid / stale", "variant": "dashed" },
-    { "id": "preserve", "from": "rejected", "to": "active", "label": "unchanged", "variant": "dashed" },
-    { "id": "terminal_accept", "from": "gate", "to": "message_terminal", "label": "valid terminal", "variant": "emphasis" },
-    { "id": "cancel", "from": "active", "to": "local_cancel", "label": "cancel / replace", "variant": "security" },
-    { "id": "next_after_message", "from": "message_terminal", "to": "active", "label": "begin next", "route": "top-channel", "fromSide": "top", "toSide": "top", "channelY": 30 },
-    { "id": "next_after_cancel", "from": "local_cancel", "to": "active", "label": "begin next" }
+    {
+      "id": "begin",
+      "from": "idle",
+      "to": "active",
+      "label": "begin"
+    },
+    {
+      "id": "receive",
+      "from": "active",
+      "to": "gate",
+      "label": "accept(event)"
+    },
+    {
+      "id": "progress",
+      "from": "gate",
+      "to": "active",
+      "label": "valid progress",
+      "variant": "emphasis"
+    },
+    {
+      "id": "reject",
+      "from": "gate",
+      "to": "rejected",
+      "label": "invalid / stale",
+      "variant": "dashed"
+    },
+    {
+      "id": "preserve",
+      "from": "rejected",
+      "to": "active",
+      "label": "unchanged",
+      "variant": "dashed"
+    },
+    {
+      "id": "terminal_accept",
+      "from": "gate",
+      "to": "message_terminal",
+      "label": "valid terminal",
+      "variant": "emphasis",
+      "route": "right-channel",
+      "fromSide": "right",
+      "toSide": "right",
+      "channelX": 1290
+    },
+    {
+      "id": "cancel",
+      "from": "active",
+      "to": "local_cancel",
+      "label": "cancel / replace",
+      "variant": "security"
+    },
+    {
+      "id": "next_after_message",
+      "from": "message_terminal",
+      "to": "active",
+      "label": "begin next"
+    },
+    {
+      "id": "next_after_cancel",
+      "from": "local_cancel",
+      "to": "active",
+      "label": "begin next"
+    }
   ],
   "cards": [
     {
-      "dot": "cyan", "title": "The right to commit",
+      "dot": "cyan",
+      "title": "The right to commit",
       "items": [
         "Match protocolVersion, runtimeId, operationId, documentEpoch and operation.",
         "Require increasing positive safe-integer seq, allowed stage and exact payload schema.",
@@ -60,7 +154,8 @@
       ]
     },
     {
-      "dot": "amber", "title": "Replacement defeats late messages",
+      "dot": "amber",
+      "title": "Replacement defeats late messages",
       "items": [
         "replaceDocument cancels first, then advances documentEpoch.",
         "replaceRuntime cancels first; an incarnation ID can never be reused.",
@@ -68,7 +163,8 @@
       ]
     },
     {
-      "dot": "violet", "title": "Read this as policy, not execution",
+      "dot": "violet",
+      "title": "Read this as policy, not execution",
       "items": [
         "Validate Message and Rejected are transient control-flow steps, not extra stored states.",
         "Terminal Recorded means the operation closed, not that its outcome was successful.",
@@ -76,7 +172,8 @@
       ]
     },
     {
-      "dot": "slate", "title": "Contract illustration, not repository provenance validation",
+      "dot": "slate",
+      "title": "Contract illustration, not repository provenance validation",
       "items": [
         "The control flow was checked separately against committed protocol.mjs; Archify did not verify repository evidence.",
         "No PDF parsing, workers or model execution. This figure illustrates controller policy only."

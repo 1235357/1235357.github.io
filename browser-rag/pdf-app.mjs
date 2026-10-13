@@ -478,7 +478,7 @@ function render(state){
     generationOwner=raw&&inspection?{raw,inspection,source,chunks,question:session.question(),query:session.queryEmbedding(),retrieval:session.retrieval(),context:session.context(),terminal:state.lifecycle.terminal,replay:generationReplay}:null;
     generationView.render(raw,inspection,generationOwner?.replay?.input??null);
   }
-  byId('generation-meta').textContent=raw?`Complete native receipt accepted at cleanup · ${inspection.status} · financial support unestablished.`:generate?'Native generation is available after accepted retrieval and explicit context assembly. Start only with Generate answer; its pinned model/runtime bodies total 815.73 MB (777.94 MiB). A first run downloads uncached assets to this device.':'Generation remains disabled in the ordinary entry. No generation adapter is configured.';
+  byId('generation-meta').textContent=raw?`Complete native receipt accepted at cleanup · ${inspection.status} · financial support unestablished.`:generate?'Review passages and assemble context before generating a draft. Model/runtime assets total 815.73 MB; missing files download when you choose Generate answer.':'Generation remains disabled in the ordinary entry. No generation adapter is configured.';
   geometryView?.render({source,documentEpoch:state.lifecycle.documentEpoch,active:Boolean(active),cancelled:state.status==='cancelled'});
   renderLookup(state);
   renderFailureDisclosure();
