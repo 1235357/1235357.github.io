@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Before the corpus API listens",
+    "locale": "en",
+    "animation": "none",
+    "quality_profile": "showcase",
+    "output": "figures/corpus-startup.archify.html",
+    "repository": {
+      "url": "https://github.com/1235357/nvidia-financial-rag",
+      "revision": "b94c92f0fa4c98914e5a2907e5044a943bea134a",
+      "provider": "github",
+      "link_mode": "web"
+    }
+  },
+  "components": [
+    {
+      "id": "settings",
+      "type": "security",
+      "label": "01 · Check startup settings",
+      "sublabel": "Token + paired statement options",
+      "pos": [
+        90,
+        70
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/serving.py",
+          "line": 89,
+          "end_line": 90,
+          "label": "Checks before source I/O"
+        },
+        {
+          "path": "src/nvidia_rag/api.py",
+          "line": 109,
+          "end_line": 114,
+          "label": "Required private token"
+        }
+      ]
+    },
+    {
+      "id": "corpus",
+      "type": "backend",
+      "label": "02 · Verify corpus + fit TF-IDF",
+      "sublabel": "Completed artifacts + selected IDs",
+      "pos": [
+        735,
+        70
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/serving.py",
+          "line": 91,
+          "end_line": 93,
+          "label": "Capture, load, build service"
+        },
+        {
+          "path": "src/nvidia_rag/corpus.py",
+          "line": 265,
+          "end_line": 289,
+          "label": "Verify artifact membership"
+        },
+        {
+          "path": "src/nvidia_rag/corpus.py",
+          "line": 445,
+          "end_line": 461,
+          "label": "Scoped lexical service"
+        }
+      ]
+    },
+    {
+      "id": "snapshot",
+      "type": "database",
+      "label": "03 · Build statement snapshot",
+      "sublabel": "PDF bytes + fiscal declarations",
+      "tag": "Only when both options supplied",
+      "pos": [
+        735,
+        350
+      ],
+      "size": [
+        430,
+        150
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/serving.py",
+          "line": 94,
+          "end_line": 99,
+          "label": "Optional source-bound assembly"
+        },
+        {
+          "path": "src/nvidia_rag/statement_startup.py",
+          "line": 221,
+          "end_line": 256,
+          "label": "Select, hash, extract, recheck"
+        },
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 104,
+          "end_line": 111,
+          "label": "Immutable tuple-based index"
+        }
+      ]
+    },
+    {
+      "id": "application",
+      "type": "backend",
+      "label": "04 · Construct HTTP application",
+      "sublabel": "Lexical service + index or None",
+      "pos": [
+        90,
+        350
+      ],
+      "size": [
+        430,
+        150
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/serving.py",
+          "line": 100,
+          "end_line": 101,
+          "label": "Inject accepted dependencies"
+        },
+        {
+          "path": "src/nvidia_rag/statement_api.py",
+          "line": 193,
+          "end_line": 203,
+          "label": "Validate injected index"
+        }
+      ]
+    },
+    {
+      "id": "recheck",
+      "type": "security",
+      "label": "05 · Recheck retained inputs",
+      "sublabel": "Corpus + any statement identities",
+      "pos": [
+        90,
+        655
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/serving.py",
+          "line": 102,
+          "end_line": 105,
+          "label": "Check after app construction"
+        },
+        {
+          "path": "src/nvidia_rag/serving.py",
+          "line": 44,
+          "end_line": 56,
+          "label": "Corpus closure and markers"
+        },
+        {
+          "path": "src/nvidia_rag/statement_startup.py",
+          "line": 71,
+          "end_line": 91,
+          "label": "Retained input identities"
+        }
+      ]
+    },
+    {
+      "id": "listener",
+      "type": "backend",
+      "label": "06 · Start the Uvicorn listener",
+      "sublabel": "Only after assembly succeeds",
+      "pos": [
+        735,
+        655
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/serving.py",
+          "line": 166,
+          "end_line": 180,
+          "label": "Startup before socket serving"
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "settings-corpus",
+      "from": "settings",
+      "to": "corpus",
+      "label": "valid settings",
+      "variant": "security"
+    },
+    {
+      "id": "corpus-snapshot",
+      "from": "corpus",
+      "to": "snapshot",
+      "label": "both supplied",
+      "variant": "emphasis"
+    },
+    {
+      "id": "snapshot-app",
+      "from": "snapshot",
+      "to": "application",
+      "label": "frozen index",
+      "variant": "emphasis"
+    },
+    {
+      "id": "corpus-app-without-index",
+      "from": "corpus",
+      "to": "application",
+      "label": "both absent",
+      "variant": "dashed"
+    },
+    {
+      "id": "app-recheck",
+      "from": "application",
+      "to": "recheck",
+      "label": "app built",
+      "variant": "default"
+    },
+    {
+      "id": "recheck-listener",
+      "from": "recheck",
+      "to": "listener",
+      "label": "unchanged",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "A failed check prevents listening",
+      "items": [
+        "Invalid requested inputs exit startup.",
+        "Unsupported table layouts can remain omissions."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Statements may be left unconfigured",
+      "items": [
+        "Both absent: lexical requests still work.",
+        "Authenticated statement requests receive 503."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "This is the installed corpus runtime",
+      "items": [
+        "No model download or generation in this path.",
+        "Startup checks do not continuously monitor files."
+      ]
+    }
+  ]
+}

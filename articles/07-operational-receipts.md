@@ -239,6 +239,8 @@ Operational failure follows a separate path. A missing startup index or a select
 
 The [configured-consumer guide](https://github.com/1235357/nvidia-financial-rag/blob/1fb5a50dc48645dbbf4fc50159d2986bcf12d687/docs/statement-http-api.md) documents this boundary. Its [dated local metadata](https://github.com/1235357/nvidia-financial-rag/blob/1fb5a50dc48645dbbf4fc50159d2986bcf12d687/docs/acceptance/statement-http-development-20261012.json) binds 711 checkout tests and 28 fresh installed-wheel checks using synthetic native PDF tables and real loopback HTTP. Complete candidate fields and text spans were replayed; the strengthened check also rejected deliberately corrupted coordinates. These observations do not supply a financial accuracy denominator. The browser lab continues to own its selected PDF and separate native computation. Packaging an HTTP selector supplies an integration contract; it does not establish hosted service availability, independent financial accuracy or generation quality.
 
+The installed startup path is explained separately in [From installation to a source-bound service](08-source-bound-startup.html). It follows verified corpus inputs, optional explicit fiscal declarations, pre-listen checks and the distinction between unconfigured and invalid statement mode. The dated HTTP receipt above remains its original checkpoint.
+
 ## Enlarge the knowledge base without losing its meaning
 
 More documents can increase coverage and can also increase ambiguous candidates.

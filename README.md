@@ -69,7 +69,7 @@ A separate Python experiment preserved raw financial text and added four geometr
 
 ## Read the engineering series
 
-The built site contains seven chapters. Start with [A RAG answer needs an execution contract](articles/07-operational-receipts.md), then follow the series through ingestion/query lifecycles, service contracts, representation/ranking, evidence preservation, generation and evaluation.
+The built site contains eight chapters. Start with [A RAG answer needs an execution contract](articles/07-operational-receipts.md), then follow the series through ingestion/query lifecycles, service contracts, representation/ranking, evidence preservation, generation and evaluation. [From installation to a source-bound service](articles/08-source-bound-startup.md) explains the installed corpus entry, optional statement snapshot and pre-listen checks with a light Archify map.
 
 - [Public source review](docs/source-review.md): ten official RAG documentation pages, bounded blog/application observations and original course-to-project connections.
 - [Native source-cell acceptance](docs/2026-10-11-native-source-cell-acceptance.md): explicit development cases, source ownership and the distinction between actual IAB actions and synthetic races.
@@ -84,7 +84,9 @@ The built site contains seven chapters. Start with [A RAG answer needs an execut
 
 ## Companion API
 
-The companion [1235357/nvidia-financial-rag](https://github.com/1235357/nvidia-financial-rag) source release is published at commit `082c208`. [API workflow 38160052284](https://github.com/1235357/nvidia-financial-rag/actions/runs/38160052284) passed Linux/Windows checkout and fresh installed-package checks, plus Linux nonroot container HTTP. It accepts injected retriever/generator services, preserves request IDs and distinguishes semantic refusals from dependency failures. The API has its own AGPL-3.0-or-later license, package, corpus preparation and runtime requirements; no public API service is hosted by this site.
+The companion [1235357/nvidia-financial-rag](https://github.com/1235357/nvidia-financial-rag) publishes the installed corpus startup guide and scoped release metadata at `b94c92f`. The [versioned guide](https://github.com/1235357/nvidia-financial-rag/blob/b94c92f0fa4c98914e5a2907e5044a943bea134a/docs/verified-corpus-startup.md) covers verified lexical inputs, optional explicit fiscal declarations, shared document scope and final identity rechecks. [Corrected startup workflow 38428973799](https://github.com/1235357/nvidia-financial-rag/actions/runs/38428973799) supplies installed API-only and read-only nonroot container evidence for source `9687491`; `b94c92f` adds documentation with unchanged production modules.
+
+The historical package/API checkpoint `082c208` and [workflow 38160052284](https://github.com/1235357/nvidia-financial-rag/actions/runs/38160052284) remain dated evidence. The API preserves request IDs and distinguishes semantic refusals from dependency failures. It has its own AGPL-3.0-or-later license, package, corpus preparation and runtime requirements; no public API service is hosted by this site.
 
 GitHub Pages hosts the static browser application. It does not run the Python API. The browser's Qwen result and source-cell comparator do not call that service or turn this site into a backend deployment. API packaging tests do not establish production capacity or financial accuracy.
 
