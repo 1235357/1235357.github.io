@@ -187,6 +187,10 @@ pre { max-width: 100%; max-height: 360px; margin: 14px 0; padding: 16px; overflo
 .bounded-text-range { margin: 12px 0; color: var(--muted); font: 500 15px/1.8 var(--ui); overflow-wrap: anywhere; }
 .bounded-text-page { margin: 12px 0; border-radius: 8px; }
 .computation-notebook { border: 0; padding: 0; margin: 0; }
+.notebook-index { display: flex; flex-wrap: wrap; gap: 4px 24px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.notebook-index a { display: inline-flex; align-items: center; min-height: 46px; font-size: 16px; font-weight: 650; text-decoration: underline; }
+.computation-notebook > section { scroll-margin-top: 24px; }
+.session-records { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
 .computation-notebook > summary { display: block; position: relative; padding: 0 42px 0 0; }
 .computation-notebook > summary::after { content: '+'; position: absolute; right: 0; top: 20px; color: var(--accent); font: 29px/1 var(--mono); }
 .computation-notebook[open] > summary::after { content: '−'; }

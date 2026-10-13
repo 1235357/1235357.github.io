@@ -413,7 +413,7 @@ function render(state){
     state.status==='query-candidates-only'?`${session.retrieval().returnedCount} sourced candidates · ${session.queryEmbedding().counts.totalTokens} actual query tokens · ${session.queryEmbedding().counts.dimensions} dimensions. Assemble their complete provenance context to inspect the evidence.${generate?' An explicit generation action then becomes available.':' Generation remains disabled in this entry.'}`:
     state.status==='embedded-not-retrieved'?`${embeddings.counts.chunks} chunks · ${embeddings.counts.totalTokens} actual tokens · ${embeddings.counts.dimensions} dimensions. No retrieval or generated answer yet.`:
     state.status==='chunked-not-embedded'?`${chunks.counts.chunks} chunks · ${chunks.counts.outputUtf16} output UTF-16 units · ${chunks.counts.fragments} mapping fragments. No vectors or generated answer.`:
-    state.status==='extracted-not-indexed'?'Actual parser records below. No embedding index or generated answer exists.':
+    state.status==='extracted-not-indexed'?'Inspect the actual parser records in the notebook. No embedding index or generated answer exists.':
     state.status==='chunking'?'Waiting for the owned computation worker, then building page windows. No fabricated percentage.':
     state.status==='parsing'?'Hashing/loading/parsing are separate from accepting a result.':
     state.status==='cancelled'?(cancelledOperation==='generate'?'Late generation work cannot update this session. Source, accepted question, candidates and context retained for explicit retry.':cancelledOperation==='query'?'Late query work cannot update this session. Source, chunks and passage vectors retained for retry.':cancelledOperation==='embed'?'Late passage embedding work cannot update this session. Source and chunks retained for retry.':source?'Late chunk work cannot update this session. Source retained for retry.':'Late parsing work cannot update this session. Owned worker cleanup follows.'):'No source is stored. No embedding index or answer exists.';
@@ -426,6 +426,14 @@ function render(state){
   byId('clear-query').disabled=Boolean(active)&&!['query','generate'].includes(active.operation);
   byId('question-input').disabled=active?.operation==='query';
   byId('query-top-k').disabled=active?.operation==='query';
+  const questionGuidance=byId('question-guidance');
+  if(questionGuidance){
+    const questionOperation={parsing:'Reading your PDF.',chunking:'Building source-linked chunks.',embedding:'Embedding the passages.',querying:'Retrieving sources for your question.',generating:'Generating a draft from the assembled evidence.'};
+    questionGuidance.textContent=active?(questionOperation[state.status]??'Preparing your document.'):
+      embeddings?'Ask a question, then review the retrieved sources.':
+      chunks?'Embed the passages to enable your question.':
+      source?'Build source-linked chunks, then embed the passages.':'Choose a PDF to begin.';
+  }
   byId('trace').textContent=JSON.stringify(state.lifecycle,null,2);
   if(source!==lastSource){
     const previous=itemOwner;itemOwner=null;disposeRecordPane(previous,items);

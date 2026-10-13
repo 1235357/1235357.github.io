@@ -21,7 +21,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <p class="project-summary">{text(project.get('summary', project['description']))}</p>
 <p class="project-phase">{text(project['phase'])}</p>
 <div class="project-links">{links(visible_links)}</div>
-<details class="contribution-record"><summary>Contributions &amp; current scope</summary>
+<details class="contribution-record"><summary aria-label="My role &amp; results — {text(project['title'])}">My role &amp; results</summary>
 <p class="project-role">{text(project['role'])}<br>{text(project['period'])}</p>
 <p>{text(project['description'])}</p>{contributions}
 <div class="technology-list" aria-label="Project technologies">{stack}</div>
@@ -37,7 +37,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <div class="project-list more-project-list">{more_cards}</div></details>''' if more else ''
     education = ''.join(f'''<article><p class="eyebrow">{text(item['period'])}</p>
 <h3>{text(item['school'])}</h3><p>{text(item['degree'])}</p>
-<details class="academic-record"><summary>Coursework &amp; academic details</summary><p class="secondary">{text(item['detail'])}</p></details></article>'''
+<details class="academic-record"><summary aria-label="Coursework &amp; academic details — {text(item['school'])}">Coursework &amp; academic details</summary><p class="secondary">{text(item['detail'])}</p></details></article>'''
                         for item in profile['education'])
     skills = ''.join(f'<article><h3>{text(item["title"])}</h3><p>{text(item["text"])}</p></article>'
                      for item in profile['skills'])
@@ -69,7 +69,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <figure class="portrait-card"><a href="{text(portrait['profile'])}" aria-label="Visit Zhentong Ye on LinkedIn">
 <img src="{text(portrait['src'])}" width="800" height="800" alt="Zhentong Ye" referrerpolicy="no-referrer" decoding="async"></a>
 <figcaption><span>Zhentong / Evanston</span><a href="{text(portrait['profile'])}">LinkedIn ↗</a></figcaption></figure></section>
-<section id="projects" class="portfolio-section selected-work" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Three projects to start with. Open a contribution record for the details.</p></div><div class="project-list selected-project-list">{selected_cards}</div>{more_projects}</section>
+<section id="projects" class="portfolio-section selected-work" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Retrieval systems, multimodal research and applied AI.</p></div><div class="project-list selected-project-list">{selected_cards}</div>{more_projects}</section>
 <section id="background" class="portfolio-section background-section" aria-labelledby="background-title"><div class="section-heading"><p class="eyebrow">BACKGROUND</p><h2 id="background-title">Education &amp; practice</h2></div><div class="education-grid">{education}</div>
 <details class="background-more"><summary>Engineering toolkit <span>Models, interfaces &amp; evaluation</span></summary><div class="skills-grid">{skills}</div>
 <p class="course-bridge">My RAG journal connects this work to language-model computation, agent workflows, scalable service boundaries and software design. Course connections describe what I am studying and applying as I build.</p></details></section>

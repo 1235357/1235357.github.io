@@ -177,7 +177,7 @@ class BrowserAssetsTest(unittest.TestCase):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs', 'complete-record-disclosure.mjs'):
+        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'notebook-navigation.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs', 'complete-record-disclosure.mjs'):
             if name.endswith('.mjs'):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
@@ -238,7 +238,8 @@ class BrowserAssetsTest(unittest.TestCase):
         entries = re.findall(r'<script\s+type="module"\s+src="([^"]+)"', markup)
         self.assertEqual(entries, ['pdf-entry.mjs'])
         graph = static_mjs_graph(output, entries[0])
-        self.assertEqual(graph['pdf-entry.mjs'], {'./pdf-app.mjs'})
+        self.assertEqual(graph['pdf-entry.mjs'], {'./pdf-app.mjs', './notebook-navigation.mjs'})
+        self.assertEqual(graph['notebook-navigation.mjs'], set())
         self.assertIn('./generation-view.mjs', graph['pdf-app.mjs'])
         self.assertEqual(graph['generation-view.mjs'], {'./bounded-text-view.mjs'})
         self.assertIn('./complete-record-disclosure.mjs', graph['pdf-app.mjs'])

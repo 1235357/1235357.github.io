@@ -23,6 +23,47 @@ let app,importError;try{app=await import('../pdf-app.mjs');}catch(error){importE
 hooks.deregister();
 function mount(extra={}){assert.equal(importError,undefined,'import must not touch DOM or mount');assert.equal(typeof app.mountPdfApp,'function');const d=dom();d.get('pdf-file').disabled=true;const mounted=app.mountPdfApp({document:d.document,root:d.root,...extra});assert.equal(d.get('pdf-file').disabled,false,'completed mount enables the PDF chooser');assert.equal(d.get('pdf-file').listeners.get('change').length,1,'enabled chooser has its owned handler');return {...d,mounted};}
 async function accepted(d){d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));d.get('question-input').value='READER question';await act(d.get('run-query'));await act(d.get('assemble-context'));}
+test('question guidance follows accepted preparation and describes each pending operation',async()=>{
+  const d=mount(),guidance=()=>d.get('question-guidance').textContent;
+  assert.equal(guidance(),'Choose a PDF to begin.');assert.equal(d.get('run-query').disabled,true);
+  d.get('pdf-file').files=[{name:'READER.pdf'}];d.get('pdf-file').dispatch('change');
+  assert.equal(guidance(),'Reading your PDF.');await tick();await tick();
+  assert.equal(guidance(),'Build source-linked chunks, then embed the passages.');
+  assert.match(d.get('status-detail').textContent,/parser records.*notebook/i);assert.equal(d.get('run-query').disabled,true);
+  d.get('build-chunks').dispatch('click');assert.equal(guidance(),'Building source-linked chunks.');await tick();await tick();
+  assert.equal(guidance(),'Embed the passages to enable your question.');assert.equal(d.get('run-query').disabled,true);
+  d.get('embed-chunks').dispatch('click');assert.equal(guidance(),'Embedding the passages.');await tick();await tick();
+  assert.equal(guidance(),'Ask a question, then review the retrieved sources.');assert.equal(d.get('run-query').disabled,false);
+  d.get('question-input').value='READER question';d.get('run-query').dispatch('click');
+  assert.equal(guidance(),'Retrieving sources for your question.');assert.equal(d.get('run-query').disabled,true);await tick();await tick();
+  assert.equal(guidance(),'Ask a question, then review the retrieved sources.');assert.equal(d.get('run-query').disabled,false);
+  await act(d.get('clear'));
+});
+test('question guidance retains accepted passage readiness on edits and resets for a replacement or clear',async()=>{
+  const d=mount(),guidance=()=>d.get('question-guidance').textContent;await accepted(d);
+  await act(d.get('question-input'),'input');assert.equal(guidance(),'Ask a question, then review the retrieved sources.');assert.equal(d.get('run-query').disabled,false);
+  d.get('pdf-file').files=[{name:'REPLACEMENT.pdf'}];await act(d.get('pdf-file'),'change');
+  assert.equal(guidance(),'Build source-linked chunks, then embed the passages.');assert.equal(d.get('run-query').disabled,true);
+  await act(d.get('clear'));assert.equal(guidance(),'Choose a PDF to begin.');assert.equal(d.get('run-query').disabled,true);
+});
+test('question guidance returns to retained passages after cancelled generation and ignores its late completion',async()=>{
+  const gate=deferred(),d=mount({generate:async(...args)=>{await gate.promise;return generate(...args);}}),guidance=()=>d.get('question-guidance').textContent;
+  await accepted(d);await act(d.get('generate-answer'));
+  assert.equal(guidance(),'Generating a draft from the assembled evidence.');assert.equal(d.get('run-query').disabled,true);
+  await act(d.get('cancel'));assert.equal(guidance(),'Ask a question, then review the retrieved sources.');assert.equal(d.get('run-query').disabled,false);
+  await act(d.get('clear'));gate.resolve();await tick();await tick();await tick();
+  assert.equal(guidance(),'Choose a PDF to begin.');assert.equal(d.get('run-query').disabled,true);assert.equal(d.get('status-title').textContent,'Waiting for a PDF');
+});
+test('an older mount template without optional question guidance retains parsing and preparation gates',async()=>{
+  const d=dom();d.root.nodes.delete('question-guidance');d.get('pdf-file').disabled=true;
+  assert.doesNotThrow(()=>app.mountPdfApp({document:d.document,root:d.root}));
+  assert.equal(d.get('pdf-file').disabled,false);assert.equal(d.get('run-query').disabled,true);
+  d.get('pdf-file').files=[{name:'OLDER-TEMPLATE.pdf'}];await act(d.get('pdf-file'),'change');
+  assert.match(d.get('status-title').textContent,/Extracted/);assert.equal(d.get('build-chunks').disabled,false);assert.equal(d.get('run-query').disabled,true);
+  await act(d.get('build-chunks'));assert.match(d.get('status-title').textContent,/Chunked/);
+  assert.equal(d.get('embed-chunks').disabled,false);assert.equal(d.get('run-query').disabled,true);
+  await act(d.get('clear'));assert.equal(d.get('status-title').textContent,'Waiting for a PDF');assert.equal(d.get('build-chunks').disabled,true);
+});
 test('active generation immediately revokes context records and returning idle remounts the identical retained evidence',async()=>{
   for(const outcome of ['cancel','complete']){
     const gate=deferred(),d=mount({generate:async(...args)=>{await gate.promise;return generate(...args);}}),downloads=[],create=d.document.createElement.bind(d.document);

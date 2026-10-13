@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "0b97a082-a549-4674-8c09-d82cc3d7e169",
+  "receiptId": "82fdc200-82fa-420b-a4d1-b813dc23c1ac",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
   "input": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\figures\\structured-income-selection.archify.json",
   "output": "D:\\Desktop\\GitHub-Staging\\zhentong-ye-site\\figures\\structured-income-selection.archify.html",
   "specification": {
-    "sha256": "8c3d2b05e514d3ea2dac3de01dbdd045f236f01980cbd36708ed7007498d6d72",
-    "bytes": 7230
+    "sha256": "b3540f86a327d235ffedd84e1da939b6d0a615ff9177bde915f1d93dcb311bc2",
+    "bytes": 9548
   },
   "artifact": {
-    "sha256": "f750314c79867170606d100ab5657bcf8efd4ecf2620c6c38719d4ce5c41a91e",
-    "bytes": 767114
+    "sha256": "09bb8de804e320ce0471d26ed7e566d9bbc6d465fcf05f652c45ce3ce7e2313a",
+    "bytes": 767376
   }
 }

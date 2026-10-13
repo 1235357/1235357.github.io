@@ -16,74 +16,329 @@
   },
   "components": [
     {
-      "id": "pdfs", "type": "external", "label": "Pinned report PDFs",
-      "sublabel": "Declared fiscal identity + hash", "pos": [40, 45], "size": [200, 88],
-      "sources": [{"path": "src/nvidia_rag/structured_income.py", "line": 51, "end_line": 57}, {"path": "acceptance/structured_income_comparison.py", "line": 104, "end_line": 114}]
+      "id": "pdfs",
+      "type": "external",
+      "label": "Pinned report PDFs",
+      "sublabel": "Declared fiscal identity + hash",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 51,
+          "end_line": 57
+        },
+        {
+          "path": "acceptance/structured_income_comparison.py",
+          "line": 104,
+          "end_line": 114
+        }
+      ]
     },
     {
-      "id": "builder", "type": "backend", "label": "Build income index",
-      "sublabel": "PyMuPDF; table geometry", "pos": [385, 45], "size": [205, 88],
-      "sources": [{"path": "src/nvidia_rag/structured_income.py", "line": 191, "end_line": 244}, {"path": "src/nvidia_rag/structured_income.py", "line": 305, "end_line": 364}]
+      "id": "builder",
+      "type": "backend",
+      "label": "Build income index",
+      "sublabel": "PyMuPDF; table geometry",
+      "pos": [
+        680,
+        40
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 191,
+          "end_line": 244
+        },
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 305,
+          "end_line": 364
+        }
+      ]
     },
     {
-      "id": "index", "type": "database", "label": "Source-bound cells",
-      "sublabel": "In memory; spans + boxes", "pos": [385, 190], "size": [205, 88],
-      "sources": [{"path": "src/nvidia_rag/structured_income.py", "line": 60, "end_line": 102}, {"path": "src/nvidia_rag/structured_income.py", "line": 244, "end_line": 302}]
+      "id": "index",
+      "type": "database",
+      "label": "Source-bound cells",
+      "sublabel": "In memory; spans + boxes",
+      "pos": [
+        680,
+        340
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 60,
+          "end_line": 102
+        },
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 244,
+          "end_line": 302
+        }
+      ]
     },
     {
-      "id": "query", "type": "external", "label": "Original question",
-      "sublabel": "Literal wording + operator scope", "pos": [40, 335], "size": [200, 88],
-      "sources": [{"path": "src/nvidia_rag/structured_income.py", "line": 113, "end_line": 119}, {"path": "acceptance/structured_income_comparison.py", "line": 129, "end_line": 143}]
+      "id": "query",
+      "type": "external",
+      "label": "Original question",
+      "sublabel": "Literal wording + operator scope",
+      "pos": [
+        40,
+        640
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 113,
+          "end_line": 119
+        },
+        {
+          "path": "acceptance/structured_income_comparison.py",
+          "line": 129,
+          "end_line": 143
+        }
+      ]
     },
     {
-      "id": "parser", "type": "backend", "label": "Parse literal request",
-      "sublabel": "Retain mentions + unknowns", "pos": [385, 335], "size": [205, 88],
-      "sources": [{"path": "src/nvidia_rag/structured_income.py", "line": 367, "end_line": 437}]
+      "id": "parser",
+      "type": "backend",
+      "label": "Parse literal request",
+      "sublabel": "Retain mentions + unknowns",
+      "pos": [
+        680,
+        640
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 367,
+          "end_line": 437
+        }
+      ]
     },
     {
-      "id": "selector", "type": "backend", "label": "Select exact fields",
-      "sublabel": "Reparse; scope + row + period", "pos": [740, 335], "size": [205, 88],
-      "sources": [{"path": "src/nvidia_rag/structured_income.py", "line": 440, "end_line": 485}]
+      "id": "selector",
+      "type": "backend",
+      "label": "Select exact fields",
+      "sublabel": "Reparse; scope + row + period",
+      "pos": [
+        680,
+        940
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 440,
+          "end_line": 485
+        }
+      ]
     },
     {
-      "id": "outcome", "type": "backend", "label": "Selection outcome",
-      "sublabel": "Source candidate or withholding", "pos": [740, 555], "size": [205, 88],
-      "sources": [{"path": "src/nvidia_rag/structured_income.py", "line": 122, "end_line": 128}, {"path": "src/nvidia_rag/structured_income.py", "line": 440, "end_line": 485}]
+      "id": "outcome",
+      "type": "backend",
+      "label": "Selection outcome",
+      "sublabel": "Source candidate or withholding",
+      "pos": [
+        680,
+        1240
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 122,
+          "end_line": 128
+        },
+        {
+          "path": "src/nvidia_rag/structured_income.py",
+          "line": 440,
+          "end_line": 485
+        }
+      ]
     },
     {
-      "id": "dense", "type": "backend", "label": "Dense baseline",
-      "sublabel": "BGE; independent corpus", "pos": [40, 555], "size": [200, 88],
-      "sources": [{"path": "acceptance/corpus_semantic_expanded.py", "line": 184, "end_line": 203}, {"path": "acceptance/corpus_semantic_expanded.py", "line": 274, "end_line": 285}]
+      "id": "dense",
+      "type": "backend",
+      "label": "Dense baseline",
+      "sublabel": "BGE; independent corpus",
+      "pos": [
+        40,
+        940
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "acceptance/corpus_semantic_expanded.py",
+          "line": 184,
+          "end_line": 203
+        },
+        {
+          "path": "acceptance/corpus_semantic_expanded.py",
+          "line": 274,
+          "end_line": 285
+        }
+      ]
     },
     {
-      "id": "dense_trace", "type": "database", "label": "Dense inspection trace",
-      "sublabel": "Scores; candidates; context gate", "pos": [385, 555], "size": [205, 88],
-      "sources": [{"path": "acceptance/corpus_semantic_expanded.py", "line": 204, "end_line": 229}, {"path": "acceptance/corpus_semantic_expanded.py", "line": 316, "end_line": 340}]
+      "id": "dense_trace",
+      "type": "database",
+      "label": "Dense inspection trace",
+      "sublabel": "Scores; candidates; context gate",
+      "pos": [
+        40,
+        1240
+      ],
+      "size": [
+        430,
+        128
+      ],
+      "sources": [
+        {
+          "path": "acceptance/corpus_semantic_expanded.py",
+          "line": 204,
+          "end_line": 229
+        },
+        {
+          "path": "acceptance/corpus_semantic_expanded.py",
+          "line": 316,
+          "end_line": 340
+        }
+      ]
     }
   ],
   "connections": [
-    {"id": "source-read", "from": "pdfs", "to": "builder", "label": "Verify + scan", "variant": "emphasis"},
-    {"id": "cells-built", "from": "builder", "to": "index", "label": "Cells + omissions", "variant": "emphasis"},
-    {"id": "row-vocabulary", "from": "index", "to": "parser", "label": "Row vocabulary", "variant": "default"},
-    {"id": "literal-input", "from": "query", "to": "parser", "label": "Question + scope", "variant": "emphasis"},
-    {"id": "parsed-fields", "from": "parser", "to": "selector", "label": "Mentions + issues", "variant": "emphasis"},
-    {"id": "exact-cells", "from": "index", "to": "selector", "label": "Source fields", "variant": "emphasis", "fromSide": "right", "toSide": "top"},
-    {"id": "result", "from": "selector", "to": "outcome", "label": "Disposition + reason", "variant": "emphasis"},
-    {"id": "baseline-input", "from": "query", "to": "dense", "label": "Separate inspection", "variant": "dashed"},
-    {"id": "baseline-trace", "from": "dense", "to": "dense_trace", "label": "Retain actual trace", "variant": "dashed"}
+    {
+      "id": "source-read",
+      "from": "pdfs",
+      "to": "builder",
+      "label": "Verify + scan",
+      "variant": "emphasis"
+    },
+    {
+      "id": "cells-built",
+      "from": "builder",
+      "to": "index",
+      "label": "Cells + omissions",
+      "variant": "emphasis"
+    },
+    {
+      "id": "row-vocabulary",
+      "from": "index",
+      "to": "parser",
+      "label": "Row vocabulary",
+      "variant": "default"
+    },
+    {
+      "id": "literal-input",
+      "from": "query",
+      "to": "parser",
+      "label": "Question + scope",
+      "variant": "emphasis"
+    },
+    {
+      "id": "parsed-fields",
+      "from": "parser",
+      "to": "selector",
+      "label": "Mentions + issues",
+      "variant": "emphasis"
+    },
+    {
+      "id": "exact-cells",
+      "from": "index",
+      "to": "selector",
+      "label": "Source fields",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "result",
+      "from": "selector",
+      "to": "outcome",
+      "label": "Disposition + reason",
+      "variant": "emphasis"
+    },
+    {
+      "id": "baseline-input",
+      "from": "query",
+      "to": "dense",
+      "label": "Separate inspection",
+      "variant": "dashed"
+    },
+    {
+      "id": "baseline-trace",
+      "from": "dense",
+      "to": "dense_trace",
+      "label": "Retain actual trace",
+      "variant": "dashed"
+    }
   ],
   "cards": [
-    {"dot": "cyan", "title": "Build from source; retain every supported row", "items": [
-      "The opt-in Python builder scans pinned PDF pages for the exact quarterly income-statement title, then binds row labels, dates, duration headers and values to literal spans and bounding boxes. Fiscal year and quarter are explicit operator metadata requiring separate review.",
-      "The development run registers all ten report identities and indexes 204 cells from four quarterly reports: FY2025 Q1/Q2 and FY2027 Q1/Q2. It retains 156 monetary, 24 per-share and 24 share-count cells. Six annual PDFs stay registered with ANNUAL_LAYOUT_NOT_IMPLEMENTED; an unimplemented parser does not mean a missing source."]},
-    {"dot": "emerald", "title": "Four explicit dispositions", "items": [
-      "source_candidate: one indexed cell matches report scope, row, date and duration; requested currency and scale are within the supported literal policy. The result retains provenance and financial_correctness=unestablished.",
-      "clarify: conflicting mentions, a report-scope conflict, a missing row/date/duration, or multiple source matches. refuse: unavailable reports or no indexed cell match. unsupported: unknown constraints, unsupported operations, ISO currency verification or scale conversion."]},
-    {"dot": "violet", "title": "Annotations stay outside selection", "items": [
-      "The builder takes ReportInput values. The request parser takes the original question, operator scope and source index. The selector takes that index and a reparsed request. Case.request, expected values and rationale are absent from these interfaces.",
-      "The comparison CLI freezes the source index before loading annotated cases, passes only original queries and scopes into selection, then uses exposed targets for mechanical assessment after every selection has completed. The separate dense baseline preserves its own actual scores and context gate. Neither path is a fallback for the other."]},
-    {"dot": "amber", "title": "Source candidates remain unadjudicated", "items": [
-      "A printed dollar symbol does not prove USD. Explicit USD/EUR requests and currency conversion remain unsupported without independent currency evidence. The current literal parser selects monetary rows; indexed per-share and share-count rows need a later section-qualified input adapter.",
-      "This is a Python/PyMuPDF implementation, not the browser PDF.js pipeline. It performs no generation, does not lower the dense threshold, and does not establish human gold, financial correctness or enterprise readiness."]}
+    {
+      "dot": "cyan",
+      "title": "Build from source; retain every supported row",
+      "items": [
+        "The opt-in Python builder scans pinned PDF pages for the exact quarterly income-statement title, then binds row labels, dates, duration headers and values to literal spans and bounding boxes. Fiscal year and quarter are explicit operator metadata requiring separate review.",
+        "The development run registers all ten report identities and indexes 204 cells from four quarterly reports: FY2025 Q1/Q2 and FY2027 Q1/Q2. It retains 156 monetary, 24 per-share and 24 share-count cells. Six annual PDFs stay registered with ANNUAL_LAYOUT_NOT_IMPLEMENTED; an unimplemented parser does not mean a missing source."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Four explicit dispositions",
+      "items": [
+        "source_candidate: one indexed cell matches report scope, row, date and duration; requested currency and scale are within the supported literal policy. The result retains provenance and financial_correctness=unestablished.",
+        "clarify: conflicting mentions, a report-scope conflict, a missing row/date/duration, or multiple source matches. refuse: unavailable reports or no indexed cell match. unsupported: unknown constraints, unsupported operations, ISO currency verification or scale conversion."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Annotations stay outside selection",
+      "items": [
+        "The builder takes ReportInput values. The request parser takes the original question, operator scope and source index. The selector takes that index and a reparsed request. Case.request, expected values and rationale are absent from these interfaces.",
+        "The comparison CLI freezes the source index before loading annotated cases, passes only original queries and scopes into selection, then uses exposed targets for mechanical assessment after every selection has completed. The separate dense baseline preserves its own actual scores and context gate. Neither path is a fallback for the other."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Source candidates remain unadjudicated",
+      "items": [
+        "A printed dollar symbol does not prove USD. Explicit USD/EUR requests and currency conversion remain unsupported without independent currency evidence. The current literal parser selects monetary rows; indexed per-share and share-count rows need a later section-qualified input adapter.",
+        "This is a Python/PyMuPDF implementation, not the browser PDF.js pipeline. It performs no generation, does not lower the dense threshold, and does not establish human gold, financial correctness or enterprise readiness."
+      ]
+    }
   ]
 }

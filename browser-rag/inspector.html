@@ -64,8 +64,8 @@
       <div class="query-controls">
         <p class="eyebrow">02 / YOUR QUESTION</p><h2 id="question-title">Your question</h2>
         <label for="question-input">Question text</label>
-        <textarea id="question-input" rows="3" maxlength="4096" placeholder="Ask about the selected PDF"></textarea>
-        <p class="hint">Run after preparing the passages. Review the sources alongside your question.</p>
+        <textarea id="question-input" rows="3" maxlength="4096" placeholder="Ask about the selected PDF" aria-describedby="question-guidance"></textarea>
+        <p id="question-guidance" class="hint">Choose a PDF to begin.</p>
         <div class="buttons"><button id="run-query" disabled>Run question</button><button id="clear-query">Clear question</button></div>
         <details class="question-contract"><summary>Question limits &amp; retrieval settings</summary>
         <label for="query-top-k">Passages to retrieve</label>
@@ -92,7 +92,55 @@
     <section class="source panel" aria-labelledby="notebook-title">
       <details id="computation-notebook" class="computation-notebook">
         <summary><span class="eyebrow">04 / COMPUTATION NOTEBOOK</span><span id="notebook-title">Follow the evidence, step by step</span><span class="hint">Candidates · prompt context · parser records · tokens · vectors</span></summary>
-      <section class="session-records" aria-label="Session records">
+      <nav class="notebook-index" aria-label="Notebook sections"><a href="#notebook-source">Source pages</a><a href="#notebook-chunks">Passages</a><a href="#notebook-vectors">Vectors</a><a href="#notebook-retrieval">Retrieval</a><a href="#notebook-context">Prompt context</a><a href="#notebook-records">Receipts</a></nav>
+
+      <section id="notebook-retrieval" tabindex="-1" class="query-inspection" aria-labelledby="candidate-title">
+        <p class="eyebrow">QUESTION → REPRESENTATION → CANDIDATES</p><h2 id="candidate-title">Candidates; not an answer</h2>
+        <p id="candidate-meta" class="hint" role="status" aria-live="polite">No candidates committed. An explicit query uses the retained passage vectors.</p>
+        <details><summary>Inspect the exact captured question</summary>
+          <dl class="question-capture"><dt>Original question</dt><dd id="question-original"></dd><dt>Resolved question</dt><dd id="question-resolved"></dd><dt>Encoder input</dt><dd id="question-encoder"></dd></dl>
+          <p>All three strings equal the captured original question. This stage performs no query rewrite.</p>
+        </details>
+        <div id="retrieval-calculation-view" class="retrieval-inspection-host"></div>
+        <div id="candidate-results" class="candidate-results"><p class="empty">No sourced candidates yet. Candidates are not a verified answer.</p></div>
+        <details class="query-vector"><summary>Inspect accepted query encoding</summary>
+          <p id="query-embedding-meta" class="hint" role="status" aria-live="polite">No query vector committed.</p>
+          <div id="query-embedding-detail"></div>
+        </details>
+      </section>
+      <section id="notebook-context" tabindex="-1" class="context-inspection" aria-labelledby="context-title">
+        <p id="context-caption" class="eyebrow">COMPLETE PROVENANCE / NO GENERATED ANSWER</p><h2 id="context-title">Context; not generated</h2>
+        <p id="context-meta" class="hint" role="status" aria-live="polite">No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.</p>
+        <p class="hint">Citation IDs follow source chunk ordinals; retrieval rank is shown separately. Physical pages and PDF labels identify different things. Quotes retain the exact parser text, including whitespace.</p>
+        <div id="context-detail"><p class="empty">No provenance context committed.</p></div>
+      </section>
+      <section id="notebook-source" tabindex="-1" class="source-inspection" aria-labelledby="source-title">
+      <div class="section-heading"><div><p class="eyebrow">EXACT PARSER RECORDS</p><h2 id="source-title">Source inspection</h2></div>
+      <label for="page-select">Physical page <select id="page-select" disabled><option>No document</option></select></label></div>
+      <p id="page-meta" class="hint">PDF page labels and physical page numbers will be shown separately.</p>
+      <nav class="item-navigation" aria-label="Text item preview">
+        <p id="items-range" class="hint" role="status" aria-live="polite">Showing 0 items of 0.</p>
+        <div class="item-navigation-buttons"><button id="items-first" type="button" disabled>First 100</button><button id="items-previous" type="button" disabled>Previous 100</button><button id="items-next" type="button" disabled>Next 100</button></div>
+      </nav>
+      <p class="hint">Preview shows up to 100 items at a time. All extracted records remain available through these controls. Details are prepared when opened.</p>
+      <div id="items" class="items"><p class="empty">The source belongs here.<br><span>Choose a file to inspect actual text items, UTF-16 spans and page geometry.</span></p></div>
+      </section>
+      <section id="notebook-chunks" tabindex="-1" class="chunk-inspection" aria-labelledby="chunk-title">
+        <div class="section-heading"><div><p class="eyebrow">EXACT INPUT · SOURCE MAPPING</p><h2 id="chunk-title">Chunk inspection</h2></div>
+          <label for="chunk-select">Current chunk <select id="chunk-select" disabled><option>No chunks</option></select></label></div>
+        <p id="chunk-meta" class="hint" role="status" aria-live="polite">Build chunks after a source has been accepted.</p>
+        <div class="item-navigation-buttons"><button id="chunks-previous" disabled>Previous 100 chunks</button><button id="chunks-next" disabled>Next 100 chunks</button></div>
+        <p class="hint">Inspect one chunk at a time. Selector windows contain at most 100 chunks. Inserted presentation newlines have no source span; they are not quotations from the PDF.</p>
+        <div id="chunk-detail"><p class="empty">No chunk artifact.<span>Source-linked windows still need embeddings, retrieval, context and generation.</span></p></div>
+        <a class="hint" href="../04-preserve-evidence-before-embedding.html#the-browser-variant-uses-a-different-explicit-chunking-contract">Read the exact offset and overlap lesson ↗</a>
+      </section>
+      <section id="notebook-vectors" tabindex="-1" class="embedding-inspection" aria-labelledby="embedding-title">
+        <p class="eyebrow">SELECTED CHUNK / ACTUAL ENCODER OUTPUT</p><h2 id="embedding-title">Vector inspection</h2>
+        <p id="embedding-meta" class="hint" role="status" aria-live="polite">No vectors committed. Embed accepted chunks to inspect actual encoder output.</p>
+        <div id="embedding-detail"></div>
+        <p class="hint">The chunk selector controls this view. Changing selection inspects retained token IDs and vectors; it does not run inference again.</p>
+      </section>
+      <section id="notebook-records" tabindex="-1" class="session-records" aria-label="Session records">
       <details><summary>Accepted document &amp; stage receipt</summary><dl id="receipt" class="receipt"></dl></details>
       <details><summary>Historical accepted passage receipt</summary><dl id="embedding-receipt" class="receipt"></dl>
         <p>Verified, fetched and cached counts describe asset body bytes, not all network traffic. Attempt elapsed includes loading, initialization, encoding and disposal; it is not isolated GPU time. A WebGPU provider does not prove every operator ran on the GPU; mean pooling runs in JavaScript on the CPU.</p>
@@ -112,52 +160,6 @@
         </details>
       </div>
       <details><summary>Accepted lifecycle trace</summary><pre id="trace">No accepted events yet.</pre></details>
-      </section>
-      <section class="query-inspection" aria-labelledby="candidate-title">
-        <p class="eyebrow">QUESTION → REPRESENTATION → CANDIDATES</p><h2 id="candidate-title">Candidates; not an answer</h2>
-        <p id="candidate-meta" class="hint" role="status" aria-live="polite">No candidates committed. An explicit query uses the retained passage vectors.</p>
-        <details><summary>Inspect the exact captured question</summary>
-          <dl class="question-capture"><dt>Original question</dt><dd id="question-original"></dd><dt>Resolved question</dt><dd id="question-resolved"></dd><dt>Encoder input</dt><dd id="question-encoder"></dd></dl>
-          <p>All three strings equal the captured original question. This stage performs no query rewrite.</p>
-        </details>
-        <div id="retrieval-calculation-view" class="retrieval-inspection-host"></div>
-        <div id="candidate-results" class="candidate-results"><p class="empty">No sourced candidates yet. Candidates are not a verified answer.</p></div>
-        <details class="query-vector"><summary>Inspect accepted query encoding</summary>
-          <p id="query-embedding-meta" class="hint" role="status" aria-live="polite">No query vector committed.</p>
-          <div id="query-embedding-detail"></div>
-        </details>
-      </section>
-      <section class="context-inspection" aria-labelledby="context-title">
-        <p id="context-caption" class="eyebrow">COMPLETE PROVENANCE / NO GENERATED ANSWER</p><h2 id="context-title">Context; not generated</h2>
-        <p id="context-meta" class="hint" role="status" aria-live="polite">No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.</p>
-        <p class="hint">Citation IDs follow source chunk ordinals; retrieval rank is shown separately. Physical pages and PDF labels identify different things. Quotes retain the exact parser text, including whitespace.</p>
-        <div id="context-detail"><p class="empty">No provenance context committed.</p></div>
-      </section>
-      <section class="source-inspection" aria-labelledby="source-title">
-      <div class="section-heading"><div><p class="eyebrow">EXACT PARSER RECORDS</p><h2 id="source-title">Source inspection</h2></div>
-      <label for="page-select">Physical page <select id="page-select" disabled><option>No document</option></select></label></div>
-      <p id="page-meta" class="hint">PDF page labels and physical page numbers will be shown separately.</p>
-      <nav class="item-navigation" aria-label="Text item preview">
-        <p id="items-range" class="hint" role="status" aria-live="polite">Showing 0 items of 0.</p>
-        <div class="item-navigation-buttons"><button id="items-first" type="button" disabled>First 100</button><button id="items-previous" type="button" disabled>Previous 100</button><button id="items-next" type="button" disabled>Next 100</button></div>
-      </nav>
-      <p class="hint">Preview shows up to 100 items at a time. All extracted records remain available through these controls. Details are prepared when opened.</p>
-      <div id="items" class="items"><p class="empty">The source belongs here.<br><span>Choose a file to inspect actual text items, UTF-16 spans and page geometry.</span></p></div>
-      </section>
-      <section class="chunk-inspection" aria-labelledby="chunk-title">
-        <div class="section-heading"><div><p class="eyebrow">EXACT INPUT · SOURCE MAPPING</p><h2 id="chunk-title">Chunk inspection</h2></div>
-          <label for="chunk-select">Current chunk <select id="chunk-select" disabled><option>No chunks</option></select></label></div>
-        <p id="chunk-meta" class="hint" role="status" aria-live="polite">Build chunks after a source has been accepted.</p>
-        <div class="item-navigation-buttons"><button id="chunks-previous" disabled>Previous 100 chunks</button><button id="chunks-next" disabled>Next 100 chunks</button></div>
-        <p class="hint">Inspect one chunk at a time. Selector windows contain at most 100 chunks. Inserted presentation newlines have no source span; they are not quotations from the PDF.</p>
-        <div id="chunk-detail"><p class="empty">No chunk artifact.<span>Source-linked windows still need embeddings, retrieval, context and generation.</span></p></div>
-        <a class="hint" href="../04-preserve-evidence-before-embedding.html#the-browser-variant-uses-a-different-explicit-chunking-contract">Read the exact offset and overlap lesson ↗</a>
-      </section>
-      <section class="embedding-inspection" aria-labelledby="embedding-title">
-        <p class="eyebrow">SELECTED CHUNK / ACTUAL ENCODER OUTPUT</p><h2 id="embedding-title">Vector inspection</h2>
-        <p id="embedding-meta" class="hint" role="status" aria-live="polite">No vectors committed. Embed accepted chunks to inspect actual encoder output.</p>
-        <div id="embedding-detail"></div>
-        <p class="hint">The chunk selector controls this view. Changing selection inspects retained token IDs and vectors; it does not run inference again.</p>
       </section>
       <details><summary>What this lab does — and does not do</summary>
         <p><strong>Extracted; not indexed.</strong> After parsing, build source-linked chunks. <strong>Chunked; not embedded.</strong> Explicitly download the pinned encoder to continue. <strong>Embedded; not retrieved.</strong> Run an explicit question to obtain ranked candidates. <strong>Context; not generated.</strong> Assemble all selected evidence with exact quotes and source mappings. Candidate scores do not establish financial facts, table columns, reading order or OCR.</p>
