@@ -45,7 +45,7 @@ function controlledSource(texts,name='CONTROLLED.pdf'){
 }
 const disclosure=(root,title)=>byTag(root,'details').find(n=>n.children[0]?.textContent===title);
 test('main notebook calculation consumes accepted query and navigates an unselected retained source without rerunning inference',async()=>{
-  const d=mount();await accepted(d);const outer=disclosure(d.get('candidate-results'),'Inspect how similarity selects passages');assert.ok(outer);
+  const d=mount();await accepted(d);const outer=disclosure(d.get('retrieval-calculation-view'),'Inspect how similarity selects passages');assert.ok(outer);
   outer.open=true;await act(outer,'toggle');const calculate=byTag(outer,'button').find(n=>n.textContent==='Calculate chunk 3');assert.ok(calculate);await act(calculate);
   const record=disclosure(outer,'Complete 384-component calculation JSON');record.open=true;await act(record,'toggle');
   const values=JSON.parse(completeText(record));assert.equal(values.dimensions,384);assert.equal(values.components.length,384);assert.equal(values.ordinal,2);assert.equal(values.selected,false);
@@ -53,13 +53,13 @@ test('main notebook calculation consumes accepted query and navigates an unselec
   const status=d.get('status-title').textContent;await act(byTag(outer,'button').find(n=>n.textContent==='Inspect chunk 3 in retained source'));
   assert.equal(d.get('chunk-select').value,'2');assert.equal(d.get('page-select').value,'2');assert.equal(d.get('status-title').textContent,status);
   assert.equal(byTag(record,'pre').length,0,'Source navigation retires the old calculation view');
-  assert.ok(disclosure(d.get('candidate-results'),'Inspect how similarity selects passages'));await act(d.get('clear'));
+  assert.ok(disclosure(d.get('retrieval-calculation-view'),'Inspect how similarity selects passages'));await act(d.get('clear'));
 });
 test('main notebook retires calculation URLs and saved controls on question topK retry source clear and pagehide',async()=>{
   for(const action of ['question','topK','retry','source','clear','pagehide']){
     const d=mount(),downloads=[],create=d.document.createElement.bind(d.document);
     d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push(node.attributes.get('href'));return node;};
-    await accepted(d);const outer=disclosure(d.get('candidate-results'),'Inspect how similarity selects passages');outer.open=true;await act(outer,'toggle');
+    await accepted(d);const outer=disclosure(d.get('retrieval-calculation-view'),'Inspect how similarity selects passages');outer.open=true;await act(outer,'toggle');
     const record=disclosure(outer,'Complete ranked passage scores JSON');record.open=true;await act(record,'toggle');
     const pre=byTag(record,'pre')[0],button=byTag(record,'button').find(n=>n.textContent==='Download complete JSON');await act(button);assert.equal(downloads.length,1);
     if(action==='question'){d.get('question-input').value='Changed question';await act(d.get('question-input'),'input');}
@@ -69,7 +69,7 @@ test('main notebook retires calculation URLs and saved controls on question topK
     else if(action==='pagehide')await act(d.window,'pagehide');else await act(d.get('clear'));
     assert.equal(pre.textContent,'');assert.equal(button.disabled,true);await assert.rejects(fetch(downloads[0]));
     outer.dispatch('toggle');record.dispatch('toggle');button.dispatch('click');assert.equal(downloads.length,1);
-    if(action==='retry'){const fresh=disclosure(d.get('candidate-results'),'Inspect how similarity selects passages');assert.ok(fresh);assert.notEqual(fresh,outer);}
+    if(action==='retry'){const fresh=disclosure(d.get('retrieval-calculation-view'),'Inspect how similarity selects passages');assert.ok(fresh);assert.notEqual(fresh,outer);}
     if(action!=='pagehide')await act(d.get('clear'));
   }
 });
@@ -77,13 +77,13 @@ test('pending generation revokes retrieval calculation and idle completion or ca
   for(const outcome of ['cancel','complete']){
     const gate=deferred(),d=mount({generate:async(...args)=>{await gate.promise;return generate(...args);}}),downloads=[],create=d.document.createElement.bind(d.document);
     d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push(node.attributes.get('href'));return node;};
-    await accepted(d);const outer=disclosure(d.get('candidate-results'),'Inspect how similarity selects passages');outer.open=true;await act(outer,'toggle');
+    await accepted(d);const outer=disclosure(d.get('retrieval-calculation-view'),'Inspect how similarity selects passages');outer.open=true;await act(outer,'toggle');
     const record=disclosure(outer,'Complete ranked passage scores JSON');record.open=true;await act(record,'toggle');const exact=completeText(record);
     const pre=byTag(record,'pre')[0],button=byTag(record,'button').find(n=>n.textContent==='Download complete JSON');await act(button);
     await act(d.get('generate-answer'));assert.equal(d.get('cancel').disabled,false);assert.equal(pre.textContent,'');assert.equal(button.disabled,true);await assert.rejects(fetch(downloads[0]));
     outer.dispatch('toggle');record.dispatch('toggle');button.dispatch('click');assert.equal(downloads.length,1);
     if(outcome==='cancel')await act(d.get('cancel'));else{gate.resolve();await tick();await tick();await tick();}
-    const fresh=disclosure(d.get('candidate-results'),'Inspect how similarity selects passages');assert.ok(fresh);assert.notEqual(fresh,outer);fresh.open=true;await act(fresh,'toggle');
+    const fresh=disclosure(d.get('retrieval-calculation-view'),'Inspect how similarity selects passages');assert.ok(fresh);assert.notEqual(fresh,outer);fresh.open=true;await act(fresh,'toggle');
     const freshRecord=disclosure(fresh,'Complete ranked passage scores JSON');freshRecord.open=true;await act(freshRecord,'toggle');assert.equal(completeText(freshRecord),exact);
     await act(d.get('clear'));gate.resolve();await tick();
   }

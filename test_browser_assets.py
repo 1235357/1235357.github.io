@@ -72,6 +72,13 @@ class InspectorMarkupTest(unittest.TestCase):
         self.assertLess(markup.index('id="candidate-results"'), markup.index('id="source-title"'))
         self.assertNotIn('https://', markup)
 
+    def test_calculation_view_is_outside_the_candidate_scroll_region(self):
+        markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
+        self.assertEqual(markup.count('id="retrieval-calculation-view"'), 1)
+        self.assertRegex(markup, r'<div id="retrieval-calculation-view" class="retrieval-inspection-host"></div>\s*<div id="candidate-results"')
+        app = (build.ROOT / 'browser-rag' / 'pdf-app.mjs').read_text(encoding='utf-8')
+        self.assertNotIn('results.append(retrievalInspectionHost)', app)
+
     def test_context_inspection_follows_candidates_before_parser_records_without_inline_code(self):
         markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
         for identifier in ('context-title', 'context-detail', 'context-meta'):

@@ -33,7 +33,7 @@ export function mountPdfApp(options={}) {
   // Resolve the complete template before registering a single listener.
   const required=['pdf-file','page-select','items','status-title','status-detail','operation-progress','pipeline-steps','computation-notebook','cancel','clear','build-chunks','embed-chunks','run-query','assemble-context','generate-answer','clear-query','question-input','query-top-k','trace','receipt','embedding-receipt','query-receipt','context-detail','context-meta','context-title','context-caption','generation-detail','generation-meta','generation-contract','generation-guidance','header-stage','candidate-results','candidate-meta','question-original','question-resolved','question-encoder','query-embedding-detail','query-embedding-meta','chunk-select','chunk-detail','chunk-meta','chunks-previous','chunks-next','embedding-detail','embedding-meta','items-range','items-first','items-previous','items-next','page-meta','source-cell-lookup'];
   const preparationHost=byId('asset-preparation');
-  if(required.some(id=>byId(id)==null)||(createAssetPreparationView!==undefined&&preparationHost==null))throw new TypeError('Incomplete PDF mount template');
+if([...required,'retrieval-calculation-view'].some(id=>byId(id)==null)||(createAssetPreparationView!==undefined&&preparationHost==null))throw new TypeError('Incomplete PDF mount template');
   mounts.set(root,true);
 const fileInput=byId('pdf-file'),pageSelect=byId('page-select'),items=byId('items');
 fileInput.disabled=true;
@@ -92,7 +92,7 @@ let lastGeneration=undefined,lastInspection=undefined,generationOwner=null,gener
 let generationReplay=null;
 let geometryView,lookupView,preparationView;
 let retrievalInspectionView,retrievalInspectionBinding=null;
-const retrievalInspectionHost=document.createElement('div');retrievalInspectionHost.className='retrieval-inspection-host';
+const retrievalInspectionHost=byId('retrieval-calculation-view');
 function revokeRetrievalInspection(){retrievalInspectionBinding=null;retrievalInspectionView?.revoke();}
 function syncRetrievalInspection(){
   const owner=queryOwner,canInspect=owner!==null&&owner.retrieval!==null&&ownsQuery(owner)&&session.snapshot().lifecycle.active===null;
@@ -221,7 +221,6 @@ function showQuery(){
     'No candidates committed. An explicit query uses the retained passage vectors.'));
   if(!retrieval)results.append(element('p','No sourced candidates yet. Candidates are not a verified answer.','empty'));
   else{
-    results.append(retrievalInspectionHost);
     const {source,chunks}=owner;
     for(const [index,candidate]of retrieval.candidates.entries()){
       const chunk=chunks.chunks[candidate.ordinal],row=element('article',undefined,'candidate');

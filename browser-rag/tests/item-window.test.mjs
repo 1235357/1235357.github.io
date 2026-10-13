@@ -140,7 +140,7 @@ function appHarness(sources, computeOverride, {embed = embedInWorker,query = que
     'candidate-results','candidate-meta','query-embedding-detail','query-embedding-meta','query-receipt',
     'assemble-context','generate-answer','context-detail','context-meta','context-title','context-caption',
     'generation-detail','generation-meta','generation-contract','generation-guidance','header-stage',
-    'pipeline-steps','computation-notebook','source-cell-lookup']) {
+    'pipeline-steps','computation-notebook','source-cell-lookup','retrieval-calculation-view']) {
     ids.set(id, new DomElement(['page-select','chunk-select'].includes(id) ? 'select' : 'div'));
   }
   ids.get('assemble-context').disabled=true;ids.get('generate-answer').disabled=true;

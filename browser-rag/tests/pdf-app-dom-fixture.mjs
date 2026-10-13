@@ -27,6 +27,7 @@ export function dom(){
   const ids=['pdf-file','page-select','items','status-title','status-detail','operation-progress','pipeline-steps','computation-notebook','cancel','clear','build-chunks','embed-chunks','run-query','assemble-context','generate-answer','clear-query','question-input','query-top-k','trace','receipt','embedding-receipt','query-receipt','context-detail','context-meta','context-title','context-caption','generation-detail','generation-meta','generation-contract','generation-guidance','header-stage','candidate-results','candidate-meta','question-original','question-resolved','question-encoder','query-embedding-detail','query-embedding-meta','chunk-select','chunk-detail','chunk-meta','chunks-previous','chunks-next','embedding-detail','embedding-meta','items-range','items-first','items-previous','items-next','page-meta'];
   for(const id of ids)root.nodes.set(id,new NodeDouble());
   root.nodes.set('source-cell-lookup',new NodeDouble());
+  root.nodes.set('retrieval-calculation-view',new NodeDouble());
   root.nodes.set('asset-preparation',new NodeDouble());
   root.nodes.get('query-top-k').value='2';
   const document={createElement:tag=>new NodeDouble(tag),querySelector:selector=>root.querySelector(selector),defaultView:window};
