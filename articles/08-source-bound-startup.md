@@ -80,7 +80,20 @@ The [model launcher](https://github.com/1235357/nvidia-financial-rag/blob/b94c92
 
 A later CPU run exercised the current model launcher with the original ten-report corpus, cached BGE and generation disabled. Three model queries and six statement requests completed through actual HTTP. The first attempt failed an observation check; a corrected probe then recorded one model construction and three encodes, with unchanged inputs and owned shutdown. The detailed [model startup diagnostic](https://github.com/1235357/nvidia-financial-rag/blob/0a87ba5435798db65ced77f4ea600859452a050a/docs/current-source-model-http.md) keeps both attempts and their separate results.
 
-The run also exposed a concrete retrieval problem. Both questions about Q2 Net income passed the similarity threshold but returned the annual overview, which lacks the requested row, date and three-month or six-month column. The existing annual router had selected the wrong report before ranking. A working listener therefore does not establish that its passages support a financial question. The next change needs source-bound annual and quarterly routing; lowering the threshold or rewriting these questions would not repair that boundary.
+The run also exposed a concrete retrieval problem. Both questions about Q2 Net income passed the similarity threshold but returned the annual overview, which lacks the requested row, date and three-month or six-month column. The existing annual router had selected the wrong report before ranking. A working listener therefore does not establish that its passages support a financial question. That observation motivated the source-bound annual and quarterly routing described below; lowering the threshold or rewriting these questions would not repair that boundary.
+
+## Choose the report before comparing passages
+
+The next implementation separates report identity from the date of a financial column. Its catalog binds each report to the retained PDF hash and fiscal declaration, while column dates and durations come from the extracted source cells. A question naming the fiscal 2025 Q2 report first selects that report; its valid 2023 comparison column can still be used. Conflicting or ambiguous restrictions yield no unrelated fallback passages.
+
+The same three exposed questions then ran with the original PDFs, chunks, cached BGE and threshold. Both quarter questions now ranked only within the Q2 report's 211 passages. The annual response remained exactly the same. An independent audit recomputed every considered dot product from the retained passage vectors and captured query vectors; all three maximum score differences were zero.
+
+| Q2 question | Highest candidate before the gate | Returned evidence at the unchanged 0.78 gate |
+| --- | --- | --- |
+| Three-month Net income ended July 28, 2024 | Q2 physical page 4; score 0.78718 | One Q2 passage |
+| Six-month Net income ended July 28, 2024 | Q2 physical page 3; score 0.77838 | Empty |
+
+The first post-change attempt timed out before observing model or HTTP work. The preserved retry changed only repeated path construction in the passive observer and kept the same 180-second limit. It completed one model construction, three encodes and 16 HTTP responses, then closed its owned processes and listener. These are development integration observations. Correct report scope still leaves the six-month retrieval gap visible, and neither a cosine score nor an empty response supplies a reviewed financial answer. The [source-bound routing guide](https://github.com/1235357/nvidia-financial-rag/blob/2e49c25308c71499c417904c7fbd9d7a4735557f/docs/source-bound-period-routing.md) keeps the implementation boundary and acceptance details.
 
 ## Connect the design to the course work
 
