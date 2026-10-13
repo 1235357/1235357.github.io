@@ -16,6 +16,7 @@ import {createQueryCommandHandler} from '../query.worker.mjs';
 import {createContextView} from '../context-view.mjs';
 import {createCompleteRecordDisclosure} from '../complete-record-disclosure.mjs';
 import {createGenerationView} from '../generation-view.mjs';
+import {createRetrievalInspectionView} from '../retrieval-inspection-view.mjs';
 import {ContextError} from '../context-contract.mjs';
 import {createRuntimeFailure} from '../runtime-failure-contract.mjs';
 
@@ -624,7 +625,7 @@ function appHarness(harnessOptions={}){
   const context={document:{getElementById:byId,querySelector:selector=>byId(selector.slice(1)),createElement:tag=>new AppElement(tag)},window:{addEventListener(type,listener){
       if(!windowListeners.has(type))windowListeners.set(type,new Set());windowListeners.get(type).add(listener);}},
     URL,Worker:class{},pdfjs:{},extractPdf(){},chunkInWorker(){},embedInWorker(){},queryInWorker(){},getItemWindow,EMBEDDING_SPEC,
-    createContextView,createGenerationView,createCompleteRecordDisclosure,ContextError,
+    createContextView,createGenerationView,createCompleteRecordDisclosure,createRetrievalInspectionView,ContextError,
     createPdfSession:options=>{session=createPdfSession({...options,runtimeId:'ui-parser',runtimeIdFactory:()=>`ui-${++incarnation}`,
       extract:(file,options)=>{extracts.push({file,options});return (harnessOptions.extract??(async selected=>extracted(selected.name)))(file,options);},compute:async(record,options)=>{
         computes.push({record,options});
@@ -844,7 +845,7 @@ test('app candidate inspection selects the retained chunk and the correct source
     textContent:{items:Array.from({length:105},()=>({str:'X',dir:'ltr',transform:[1,0,0,1,0,0],width:20,height:10,fontName:'f1',hasEOL:false}))}}));source.numPages=2;
   const {session,queries,embeds,byId}=await uiEmbedded({extract:async()=>source,chunkOptions:{maxChunkUtf16:2,overlapUtf16:0}});
   byId('question-input').value='X';byId('query-top-k').value='105';byId('run-query').fire('click');await uiFinishQuery(queries[0]);
-  const candidate=byId('candidate-results').children[101],button=candidate.children.find(child=>child.tag==='button');
+  const candidate=byId('candidate-results').children.filter(child=>child.tag==='article')[101],button=candidate.children.find(child=>child.tag==='button');
   assert.ok(button,'each retained candidate has an inspection action');button.fire('click');
   assert.equal(byId('chunk-select').value,'101');assert.match(byId('chunk-meta').textContent,/Chunk 102 of/);
   assert.ok(byId('chunk-select').children.length<=100,'candidate navigation adjusts the bounded selector window');

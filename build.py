@@ -276,7 +276,8 @@ def copy_browser_assets(root, output, *, public_release=False):
                  'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs',
                  'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs',
                  'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs',
-                 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
+                 'retrieval.mjs', 'retrieval-inspection.mjs', 'retrieval-inspection-view.mjs',
+                 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
                  'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs', 'complete-record-disclosure.mjs',
                  'pdf-assets.json'):
         copy(browser / name, target / name)

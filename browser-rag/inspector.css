@@ -196,6 +196,35 @@ pre { max-width: 100%; max-height: 360px; margin: 14px 0; padding: 16px; overflo
 .context-evidence .quote, .chunk-inspection .quote { padding: 18px; background: var(--bg); border-left: 2px solid var(--accent); color: var(--text); font-size: 17px; }
 .vector-preview { padding: 16px 18px; border-left: 3px solid var(--accent); background: var(--code); color: var(--text); font: 14px/1.9 var(--mono); overflow-wrap: anywhere; }
 .query-vector pre, .embedding-inspection pre { max-height: 320px; }
+/* Inspection uses signed numeric scores, immediate disclosures and readable tables. */
+.retrieval-inspection-host { margin: 0 0 22px; }
+.retrieval-inspection { margin-top: 0; }
+.retrieval-inspection > summary { min-height: 46px; font-size: 17px; }
+.retrieval-inspection .retrieval-note, .retrieval-inspection .retrieval-overview, .retrieval-range { max-width: 72ch; color: var(--muted); font: 500 17px/1.8 var(--ui); }
+.retrieval-inspection .retrieval-overview { color: var(--text); font-weight: 650; }
+.retrieval-table-scroll { max-width: 100%; max-height: 540px; overflow: auto; overscroll-behavior: contain; margin: 18px 0; border: 1px solid var(--line); border-radius: 8px; }
+.retrieval-table { width: 100%; min-width: 760px; border-collapse: collapse; font: 500 17px/1.6 var(--ui); font-variant-numeric: tabular-nums; }
+.retrieval-table caption { padding: 14px 16px; text-align: left; color: var(--muted); }
+.retrieval-table th, .retrieval-table td { padding: 14px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.retrieval-table th { position: sticky; top: 0; background: var(--code); color: var(--text); font-weight: 650; }
+.retrieval-table td > span { display: block; overflow-wrap: anywhere; }
+.retrieval-table .identity { max-width: 350px; margin-top: 6px; }
+.retrieval-table .retrieval-score-number { color: var(--text); font-family: var(--mono); }
+.retrieval-score-track { position: relative; width: clamp(160px, 17vw, 240px); height: 18px; margin-top: 6px; background: var(--code); border-radius: 3px; }
+.retrieval-score-track::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--control-line); }
+.retrieval-score-bar { position: absolute; top: 5px; height: 8px; background: var(--accent); }
+.retrieval-score-positive { left: 50%; border-radius: 0 2px 2px 0; }
+.retrieval-score-negative { right: 50%; border-radius: 2px 0 0 2px; }
+.retrieval-score-scale { display: flex; justify-content: space-between; width: clamp(160px, 17vw, 240px); color: var(--muted); font: 500 14px/1.6 var(--mono); }
+.retrieval-selected { background: #f0f4ff; }
+.retrieval-boundary { border-top: 3px solid var(--accent); }
+.retrieval-table button { min-height: 46px; white-space: nowrap; }
+.retrieval-components { min-width: 850px; font: 500 17px/1.6 var(--mono); }
+.retrieval-calculation:not(:empty) { margin-top: 26px; border-top: 1px solid var(--line); padding-top: 20px; }
+.retrieval-formula { max-width: 100%; padding: 18px; border-left: 3px solid var(--accent); color: var(--text); background: var(--code); font: 600 17px/1.8 var(--mono); overflow-wrap: anywhere; }
+.retrieval-scalars { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr); gap: 8px 16px; font: 500 17px/1.8 var(--ui); }
+.retrieval-scalars dt { color: var(--muted); }
+.retrieval-scalars dd { margin: 0; font-family: var(--mono); overflow-wrap: anywhere; }
 .item-navigation { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 8px; }
 .item-navigation .hint { margin: 8px 0 12px; }
 .segment-scroll { max-width: 100%; max-height: 340px; overflow: auto; overscroll-behavior: contain; margin: 20px 0; border: 1px solid var(--line); }

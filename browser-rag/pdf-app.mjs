@@ -9,6 +9,7 @@ import {createContextView} from './context-view.mjs';
 import {ContextError} from './context-contract.mjs';
 import {createGenerationView} from './generation-view.mjs';
 import {createCompleteRecordDisclosure} from './complete-record-disclosure.mjs';
+import {createRetrievalInspectionView} from './retrieval-inspection-view.mjs';
 
 const mounts=new WeakMap();
 export function mountPdfApp(options={}) {
@@ -90,6 +91,15 @@ let contextInspectable=false;
 let lastGeneration=undefined,lastInspection=undefined,generationOwner=null,generationView;
 let generationReplay=null;
 let geometryView,lookupView,preparationView;
+let retrievalInspectionView,retrievalInspectionBinding=null;
+const retrievalInspectionHost=document.createElement('div');retrievalInspectionHost.className='retrieval-inspection-host';
+function revokeRetrievalInspection(){retrievalInspectionBinding=null;retrievalInspectionView?.revoke();}
+function syncRetrievalInspection(){
+  const owner=queryOwner,canInspect=owner!==null&&owner.retrieval!==null&&ownsQuery(owner)&&session.snapshot().lifecycle.active===null;
+  if(!canInspect){revokeRetrievalInspection();return;}
+  if(retrievalInspectionBinding?.owner===owner&&retrievalInspectionBinding.nonce===uiActionNonce)return;
+  const binding={owner,nonce:uiActionNonce};retrievalInspectionBinding=binding;retrievalInspectionView?.render(binding);
+}
 function renderLookup(state){lookupView?.render({source:session.document(),documentEpoch:state.lifecycle.documentEpoch,active:Boolean(state.lifecycle.active),cancelled:state.status==='cancelled'});}
 const GENERATION_IDENTITY_KEYS=['protocolVersion','runtimeId','operationId','documentEpoch','operation'];
 const sameGenerationAttempt=(identity,event)=>event!==null&&event!==undefined
@@ -112,7 +122,7 @@ function renderFailureDisclosure(){
   owner.nodes=Array.from(failureHost.children??[]);
 }
 let lastOperation=null,cancelledOperation=null;
-function beginUiAction(){revokeFailureDisclosure();preparationView?.revoke();uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal||generationRefusal)render(session.snapshot());return uiActionNonce;}
+function beginUiAction(){revokeFailureDisclosure();preparationView?.revoke();revokeRetrievalInspection();uiActionNonce++;if(embeddingRefusal||queryRefusal||contextRefusal||generationRefusal)render(session.snapshot());syncRetrievalInspection();return uiActionNonce;}
 for(const type of ['input','change'])preparationHost?.addEventListener(type,event=>{if(event.target?.id==='asset-preparation-transport')beginUiAction();});
 function currentGeneration(raw,inspection){
   const terminal=session.snapshot().lifecycle.terminal;
@@ -149,7 +159,7 @@ function disposeOwnedRecords(previous){
   previous.alive=false;
   // Capture every old descendant before a viewer disposer can synchronously
   // render a newer presentation into any of these shared hosts.
-  const capture=node=>node===failureHost?[]:[node,...Array.from(node.childNodes??node.children??[]).flatMap(capture)];
+  const capture=node=>node===failureHost||node===retrievalInspectionHost?[]:[node,...Array.from(node.childNodes??node.children??[]).flatMap(capture)];
   const oldNodes=previous.nodes.flatMap(capture),entries=previous.entries;previous.nodes=[];previous.entries=[];
   for(const entry of entries)entry.dispose();
   for(const node of oldNodes){
@@ -195,6 +205,7 @@ function inspectCandidate(candidate,source,chunks,retrieval){
   byId('computation-notebook').open=true;pageSelect.focus();
 }
 function showQuery(){
+  revokeRetrievalInspection();
   const question=session.question(),query=session.queryEmbedding(),retrieval=session.retrieval();
   const detail=byId('query-embedding-detail'),list=byId('query-receipt'),results=byId('candidate-results');
   const questionHosts=['question-original','question-resolved','question-encoder'].map(byId),queryMeta=byId('query-embedding-meta'),candidateMeta=byId('candidate-meta');
@@ -210,6 +221,7 @@ function showQuery(){
     'No candidates committed. An explicit query uses the retained passage vectors.'));
   if(!retrieval)results.append(element('p','No sourced candidates yet. Candidates are not a verified answer.','empty'));
   else{
+    results.append(retrievalInspectionHost);
     const {source,chunks}=owner;
     for(const [index,candidate]of retrieval.candidates.entries()){
       const chunk=chunks.chunks[candidate.ordinal],row=element('article',undefined,'candidate');
@@ -449,6 +461,7 @@ function render(state){
     lastQuestion=session.question();lastQueryEmbedding=session.queryEmbedding();lastRetrieval=session.retrieval();showQuery();
     if(revision!==renderRevision)return;
   }
+  syncRetrievalInspection();if(revision!==renderRevision)return;
   const retainedContext=session.context(),canInspectContext=retainedContext!==null&&active===null;
   if(retainedContext!==lastContext||contextInspectable!==canInspectContext||(canInspectContext
       &&(contextOwner===null||contextOwner.source!==source||contextOwner.chunks!==chunks
@@ -540,6 +553,13 @@ if(createAssetPreparationView!==undefined){
 }
 contextView=createContextView({document,root:byId('context-detail'),isCurrent:currentContext,
   onInspect:(unit,artifact)=>{if(currentContext(artifact))inspectCandidate(unit,contextOwner.source,contextOwner.chunks,contextOwner.retrieval);}});
+retrievalInspectionView=createRetrievalInspectionView({document,root:retrievalInspectionHost,
+  read:binding=>({source:binding.owner.source,chunkArtifact:binding.owner.chunks,embeddingArtifact:binding.owner.embeddings,
+    query:binding.owner.query,retrieval:binding.owner.retrieval}),
+  isCurrent:binding=>retrievalInspectionBinding===binding&&binding.nonce===uiActionNonce&&ownsQuery(binding.owner)
+    &&session.snapshot().lifecycle.active===null,
+  onInspect:(candidate,binding)=>{if(retrievalInspectionBinding===binding&&binding.nonce===uiActionNonce&&ownsQuery(binding.owner)
+    &&session.snapshot().lifecycle.active===null)inspectCandidate(candidate,binding.owner.source,binding.owner.chunks,binding.owner.retrieval);}});
 generationView=createGenerationView({document,root:byId('generation-detail'),isCurrent:currentGeneration,
   onInspect:(binding,raw,inspection)=>{if(currentGeneration(raw,inspection))inspectCandidate(binding,generationOwner.source,generationOwner.chunks,generationOwner.retrieval);}});
 // Only the private entry owns geometry imports. The shared app forwards its

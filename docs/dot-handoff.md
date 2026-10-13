@@ -1,4 +1,18 @@
-# Dot handoff - 2026-10-11
+# Dot handoff — current work and dated checkpoints
+
+## Latest audited delivery — October 13
+
+The latest completed layout/context delivery was `ef89596e9d033f5ec7b007292eb1b09c13a02d9d`, with [official run 38350803305](https://github.com/1235357/1235357.github.io/actions/runs/38350803305) successful in Windows contracts, Linux build and Pages deploy. Its downloaded manifest binds 323 files, 920,370,583 bytes and 18 pinned assets. Twenty selected served entry, style, font and runtime bodies matched that artifact. These are dated checks, not an instruction to reset a newer checkout to this commit.
+
+The profile, embedded lab and standalone lab share the default light theme and Manrope. The detailed journal remains dark. The lab and its homepage frame now use the available width; the native fullscreen control retains the existing iframe/session. The content-versioned homepage script fixes the observed returning-browser reuse of the older script. Public IAB checks covered 390, 1600, 1920, 2560 and 3200 CSS-pixel viewports without horizontal overflow; this is browser emulation, not physical-phone acceptance. See the [fluid workspace record](2026-10-12-fluid-workspace.md).
+
+Notebook source/chunk records, context units/mappings, selected/query token IDs and vectors, preparation receipts and runtime failure disclosures all provide bounded complete views and exact explicit downloads. Their current-render/selection/question ownership is revoked on relevant edits, retries, replacement, Clear and pagehide. See the [complete context and vector record guide](2026-10-12-complete-context-and-vector-records.md). Current source/index/model/runtime budgets remain separate and unchanged by these presentation changes.
+
+The Python repository's statement route was published at `1fb5a50dc48645dbbf4fc50159d2986bcf12d687`; [official run 38292236298](https://github.com/1235357/nvidia-financial-rag/actions/runs/38292236298) completed its three jobs. The later `bf7e926` adds the acceptance documentation. The HTTP adapter and original-source replay are complete within their recorded scopes, but no shipped corpus/model launcher yet configures the optional statement index. The next integration task needs explicit fiscal declarations bound to the reviewed registry and PDFs, a packaged application factory/CLI, and installed real HTTP acceptance. Do not infer fiscal identity from filenames, document labels or calendar years.
+
+The full project goal remains active. Keep held-out/human financial evaluation, corpus scaling, broad-device performance, physical-phone interactions, actual API hosting and observed Dot pull/reproduction as separate requirements. A source candidate, native draft, software check or publication receipt does not establish those gates. Before stating a new release is current, record its exact HEAD, completed official CI artifact and served/runtime evidence.
+
+## Historical October 11 observations
 
 The [later public iframe observation](acceptance-2026-10-11/public-light-home-embedded-runtime.json) accepted two parsed pages and five chunks. Two encoder attempts timed out. Investigate worker initialization/loading while preserving accepted source/chunk artifacts and existing work budgets.
 

@@ -175,7 +175,8 @@ class BrowserAssetsTest(unittest.TestCase):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
                 (self.browser / name).write_text('<!-- fixture -->' if name.endswith('.html') else 'fixture', encoding='utf-8')
-        (self.browser / 'retrieval.mjs').write_bytes((REPOSITORY_BROWSER / 'retrieval.mjs').read_bytes())
+        for name in ('retrieval.mjs', 'retrieval-inspection.mjs', 'retrieval-inspection-view.mjs'):
+            (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
         for name, fixture in QUERY_GRAPH_FIXTURES.items():
             source = REPOSITORY_BROWSER / name
             if source.is_file():
@@ -234,6 +235,13 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertIn('./generation-view.mjs', graph['pdf-app.mjs'])
         self.assertEqual(graph['generation-view.mjs'], {'./bounded-text-view.mjs'})
         self.assertIn('./complete-record-disclosure.mjs', graph['pdf-app.mjs'])
+        self.assertIn('./retrieval-inspection-view.mjs', graph['pdf-app.mjs'])
+        self.assertEqual(graph['retrieval-inspection-view.mjs'], {
+            './retrieval-inspection.mjs', './complete-record-disclosure.mjs',
+        })
+        self.assertEqual(graph['retrieval-inspection.mjs'], {
+            './compute-source.mjs', './embedding-source.mjs', './query-source.mjs', './retrieval.mjs',
+        })
         self.assertEqual(graph['complete-record-disclosure.mjs'], {'./bounded-text-view.mjs'})
         self.assertEqual((output/'complete-record-disclosure.mjs').read_bytes(), (self.browser/'complete-record-disclosure.mjs').read_bytes())
         self.assertEqual((output/'bounded-text-view.mjs').read_bytes(), (self.browser/'bounded-text-view.mjs').read_bytes())

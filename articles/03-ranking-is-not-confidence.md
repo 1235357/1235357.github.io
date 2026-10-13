@@ -4,7 +4,7 @@ tags: [rag, retrieval, engineering]
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-09
+updated: 2026-10-13
 source_type: implementation-and-course-review
 ---
 
@@ -324,10 +324,52 @@ Python BGE matrix into a browser demo. Matching dimensions is necessary but not
 sufficient. Retrieval similarity and financially checked release remain
 different responsibilities even when all computation moves into a browser.
 
+### Follow the browser's score from its 384 component products
+
+Open the lab's **Notebook** after a successful query, then expand **Inspect how similarity selects passages**. The comparison includes every retained passage, not just
+the selected Top K. Each row identifies its source chunk and physical page, shows
+its signed cosine, and names whether it was selected. Exact ties keep the original
+source ordinal. The Top K boundary is a selection budget; it is not a truth
+threshold, and no Python BGE `0.78` gate is applied to these MiniLM scores.
+
+Choose a passage to inspect the arithmetic. The component table preserves the
+384 model coordinates in order. For each coordinate it shows the query value,
+passage value, their product and the cumulative dot product. The displayed scalar
+formula then divides the final dot product by the separately measured query and
+passage norms. A norm accepted within the existing `1e-4` tolerance need not be
+exactly one, so silently using only the dot product would explain the wrong
+calculation. This follows the normalized-dot-product definition in the
+[scikit-learn cosine reference](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.cosine_similarity.html).
+
+The view is explicitly a **post-acceptance inspection recomputation**. It reads
+the accepted source, chunk, passage and query artifacts, uses the same exact
+ranker over all retained rows, and checks the selected prefix and scalar values
+against the accepted retrieval before showing anything. It does not call the
+encoder again, add a worker receipt, change the accepted ranking, or populate a
+missing result with sample data. A failed consistency check withholds the view
+while leaving the underlying session artifacts intact.
+
+Row windows keep large comparisons readable. Complete JSON downloads retain all
+rows and the unrounded numerical values; the chart's concise labels are a display
+choice. Negative values extend left of zero, positive values extend right, and
+selection is also named in text. Each dimension is a learned model coordinate;
+this view does not assign it a word, topic or financial meaning. It explains how
+a passage was ranked, not whether its amount, period or citation is correct.
+
+For a synthetic rehearsal, use q=(0.6,0.8), A=(1,0), B=(0,1), and C=(-1,0).
+The component sums are 0.6, 0.8 and -0.6, and all norms are one. With K=2, B and
+A are selected; C remains visible below the boundary. This is a hand-worked
+example, not an observed model result. In the actual notebook, compare the
+component record with your downloaded query and passage vectors, then follow
+the selected chunk back to its PDF page before treating it as evidence.
+
 ### The generator has a different token budget
 
-The next browser increment is still **planned, not a running generator**. Its
-first declared software window reserves 128 output tokens within a combined
+At the October 9 checkpoint, the next browser increment was still planned.
+The later [public native draft](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved)
+has its own dated execution and archive evidence; that observation does not
+establish financial accuracy or performance on other devices. The declared
+software window reserves 128 output tokens within a combined
 2,048-token prompt/output ceiling. That leaves at most 1,920 input tokens, not
 2,048 tokens of evidence. The input includes the system instruction, your exact
 question, selected evidence headers and text, chat-role delimiters and the

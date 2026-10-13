@@ -9,6 +9,7 @@ import {queryInWorker,queryResultReceipt} from '../query-source.mjs';
 import {rankCandidates} from '../retrieval.mjs';
 import {ContextError} from '../context-contract.mjs';
 import {createGenerationView} from '../generation-view.mjs';
+import {createRetrievalInspectionView} from '../retrieval-inspection-view.mjs';
 import {createCompleteRecordDisclosure} from '../complete-record-disclosure.mjs';
 import {EMBEDDING_SPEC} from '../embedding-contract.mjs';
 
@@ -158,7 +159,7 @@ function appHarness(sources, computeOverride, {embed = embedInWorker,query = que
     .replaceAll('import.meta.url', JSON.stringify(new URL('../pdf-app.mjs', import.meta.url).href));
   const run = new Function('document', 'window', 'Worker', 'pdfjs', 'extractPdf',
     'createPdfSession', 'getItemWindow', 'JSON', 'chunkInWorker', 'embedInWorker', 'queryInWorker',
-    'createContextView','createGenerationView','createCompleteRecordDisclosure','ContextError',`${executable}\ndocument.defaultView=window;mountPdfApp({document,root:document});`);
+    'createContextView','createGenerationView','createCompleteRecordDisclosure','createRetrievalInspectionView','ContextError',`${executable}\ndocument.defaultView=window;mountPdfApp({document,root:document});`);
   const compute=computeOverride??(async(source,{identity,onProgress,chunkOptions})=>{
     const packets=[];createComputeCommandHandler(packet=>packets.push(packet))({kind:'chunk-source',identity,source,options:chunkOptions??{}});
     onProgress(packets[0].event);
@@ -169,7 +170,7 @@ function appHarness(sources, computeOverride, {embed = embedInWorker,query = que
   run(document, {addEventListener() {}}, class {}, {}, async file => sources.find(source => source.source.name === file.name),
     options => { session = createPdfSession({...options,onState:state=>{options.onState(state);onState?.(state,session);},
       runtimeId: 'preview-test',runtimeIdFactory:runtimeIdFactory??(()=>`compute-test-${++runtimeNumber}`)}); return session; },
-    getItemWindow,checkedJson,compute,embed,query,createContextView,createGenerationView,createCompleteRecordDisclosure,ContextError);
+    getItemWindow,checkedJson,compute,embed,query,createContextView,createGenerationView,createCompleteRecordDisclosure,createRetrievalInspectionView,ContextError);
   return {ids, serializedItems,serializedChunks, select: name => session.select({name}), source: () => session.document(),
     chunk:options=>session.chunk(options),embed:()=>session.embed(),query:(question,options)=>session.query(question,options),
     context:()=>session.context(),retrieval:()=>session.retrieval(),chunks:()=>session.chunks(),embeddings:()=>session.embeddings(),state:()=>session.snapshot(),
