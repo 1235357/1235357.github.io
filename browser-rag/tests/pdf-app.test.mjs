@@ -15,6 +15,7 @@ import {ControlledWorker as NativeClientWorkerDouble} from './query-fixtures.mjs
 import {queryInWorker as nativeQueryInWorker} from '../query-source.mjs';
 import {createAssetPreparationView} from '../asset-preparation-view.mjs';
 import {annualSource} from './annual-table-fixture.mjs';
+import {createPageRecord} from '../pdf-source.mjs';
 
 const fixture=new URL('./pdf-app-dom-fixture.mjs',import.meta.url).href;
 const hooks=registerHooks({resolve(specifier,context,next){if(context.parentURL?.endsWith('/pdf-app.mjs')){if(specifier==='./vendor/build/pdf.mjs')return {url:'data:text/javascript,export const version="6.4.299";',shortCircuit:true};if(['./pdf-source.mjs','./compute-source.mjs','./embedding-source.mjs','./query-source.mjs'].includes(specifier))return {url:fixture,shortCircuit:true};}return next(specifier,context);}});
@@ -22,6 +23,84 @@ let app,importError;try{app=await import('../pdf-app.mjs');}catch(error){importE
 hooks.deregister();
 function mount(extra={}){assert.equal(importError,undefined,'import must not touch DOM or mount');assert.equal(typeof app.mountPdfApp,'function');const d=dom();d.get('pdf-file').disabled=true;const mounted=app.mountPdfApp({document:d.document,root:d.root,...extra});assert.equal(d.get('pdf-file').disabled,false,'completed mount enables the PDF chooser');assert.equal(d.get('pdf-file').listeners.get('change').length,1,'enabled chooser has its owned handler');return {...d,mounted};}
 async function accepted(d){d.get('pdf-file').files=[{name:'READER.pdf'}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));await act(d.get('embed-chunks'));d.get('question-input').value='READER question';await act(d.get('run-query'));await act(d.get('assemble-context'));}
+function controlledSource(texts,name='CONTROLLED.pdf'){
+  const sha256='a'.repeat(64),page=createPageRecord({sourceSha256:sha256,parserVersion:'6.4.299',physicalPageNumber:1,pageLabel:'original-label',
+    page:{view:[0,0,612,792],rotate:0,userUnit:1},textContent:{items:texts.map(str=>({str,dir:'ltr',transform:[1,0,0,1,10,10],width:10,height:10,fontName:'F1',hasEOL:false}))}});
+  return {schemaVersion:1,status:'extracted-not-indexed',source:{name,size:8,sha256},parser:{name:'pdfjs',version:'6.4.299',policyVersion:'text-items-v1',disableNormalization:true},workerMode:'native',numPages:1,pages:[page]};
+}
+const disclosure=(root,title)=>byTag(root,'details').find(n=>n.children[0]?.textContent===title);
+test('accepted two-million-unit original item exposes exact complete text and duplicated record through bounded pages',async()=>{
+  const text='  汉字🧭\r\n'.repeat(250000),source=controlledSource([text]);assert.equal(text.length,2000000);
+  adapterControl.extract=async()=>source;
+  try{const d=mount(),downloads=[];const create=d.document.createElement.bind(d.document);
+    d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push({href:node.attributes.get('href'),filename:node.attributes.get('download')});return node;};
+    d.get('pdf-file').files=[{name:source.source.name}];await act(d.get('pdf-file'),'change');
+    assert.match(d.get('status-title').textContent,/Extracted/);assert.equal(byTag(d.get('items'),'pre').length,0);
+    assert.ok(d.get('items').textContent.length<3000,'Collapsed original item must not eagerly mount 2M units');
+    const raw=disclosure(d.get('items'),'Inspect complete parser text');assert.ok(raw);raw.open=true;await act(raw,'toggle');
+    assert.equal(completeText(raw),text);assert.ok(byTag(raw,'pre')[0].textContent.length<=24576);
+    const detail=disclosure(d.get('items'),'Inspect span identity and geometry');detail.open=true;await act(detail,'toggle');
+    assert.deepEqual(JSON.parse(completeText(detail)),source.pages[0].textItems[0]);
+    byTag(raw,'button').find(n=>n.textContent==='Download complete text').dispatch('click');
+    byTag(detail,'button').find(n=>n.textContent==='Download complete JSON').dispatch('click');assert.equal(downloads.length,2);
+    assert.equal(downloads[0].filename,'page-1-item-0-text.txt');assert.equal(downloads[1].filename,'page-1-item-0-record.json');
+    assert.deepEqual(Buffer.from(await(await fetch(downloads[0].href)).arrayBuffer()),Buffer.from(text,'utf8'));
+    assert.deepEqual(Buffer.from(await(await fetch(downloads[1].href)).arrayBuffer()),Buffer.from(JSON.stringify(source.pages[0].textItems[0],null,2),'utf8'));
+    const oldPre=byTag(raw,'pre')[0],oldRecord=byTag(detail,'pre')[0];await act(d.get('page-select'),'change');
+    assert.equal(oldPre.textContent,'');assert.equal(oldRecord.textContent,'');raw.dispatch('toggle');detail.dispatch('toggle');
+    assert.equal(byTag(raw,'pre').length,0);assert.equal(byTag(detail,'pre').length,0);assert.ok(d.get('items').textContent.length<3000);
+    for(const entry of downloads)await assert.rejects(fetch(entry.href));
+  }finally{adapterControl.extract=null;}
+});
+test('source and chunk complete exports revoke actual URLs and captured handlers on source clear pagehide and repeated presentation',async()=>{
+  for(const action of ['source','clear','pagehide','repeat']){
+    const source=controlledSource(Array(260).fill('literal🧭'));adapterControl.extract=async()=>source;
+    try{const d=mount(),downloads=[],create=d.document.createElement.bind(d.document);
+      d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push({href:node.attributes.get('href'),filename:node.attributes.get('download')});return node;};
+      d.get('pdf-file').files=[{name:source.source.name}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));
+      const item=disclosure(d.get('items'),'Inspect span identity and geometry'),chunk=disclosure(d.get('chunk-detail'),'Inspect this chunk’s full source-span identities'),mapping=disclosure(d.get('chunk-detail'),'Inspect all source and inserted mapping segments'),old=[];
+      for(const detail of [item,chunk,mapping]){detail.open=true;await act(detail,'toggle');const text=completeText(detail),pre=byTag(detail,'pre')[0],download=byTag(detail,'button').find(n=>n.textContent==='Download complete JSON');download.dispatch('click');old.push({detail,pre,download,text});}
+      assert.equal(downloads.length,3);for(let index=0;index<3;index++)assert.deepEqual(Buffer.from(await(await fetch(downloads[index].href)).arrayBuffer()),Buffer.from(old[index].text,'utf8'));
+      if(action==='source'){d.get('pdf-file').files=[{name:'REPLACEMENT.pdf'}];await act(d.get('pdf-file'),'change');}
+      else if(action==='pagehide')await act(d.window,'pagehide');else if(action==='repeat'){await act(d.get('page-select'),'change');await act(d.get('chunk-select'),'change');}else await act(d.get('clear'));
+      for(let i=0;i<3;i++){assert.equal(old[i].pre.textContent,'');assert.equal(old[i].download.disabled,true);await assert.rejects(fetch(downloads[i].href));old[i].detail.dispatch('toggle');old[i].download.dispatch('click');assert.equal(byTag(old[i].detail,'pre').length,0);}
+      assert.equal(downloads.length,3);
+    }finally{adapterControl.extract=null;}
+  }
+});
+test('item and chunk selector windows revoke only their previous owned complete records',async()=>{
+  const source=controlledSource(Array(6000).fill('x'.repeat(20)));adapterControl.extract=async()=>source;
+  try{const d=mount(),downloads=[],create=d.document.createElement.bind(d.document);
+    d.document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push(node.attributes.get('href'));return node;};
+    d.get('pdf-file').files=[{name:source.source.name}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));
+    const item=disclosure(d.get('items'),'Inspect span identity and geometry'),chunk=disclosure(d.get('chunk-detail'),'Inspect this chunk’s full source-span identities');
+    item.open=true;chunk.open=true;await act(item,'toggle');await act(chunk,'toggle');
+    const itemPre=byTag(item,'pre')[0],chunkPre=byTag(chunk,'pre')[0],itemDownload=byTag(item,'button').find(n=>n.textContent==='Download complete JSON'),chunkDownload=byTag(chunk,'button').find(n=>n.textContent==='Download complete JSON');
+    itemDownload.dispatch('click');chunkDownload.dispatch('click');assert.equal(downloads.length,2);
+    await act(d.get('items-next'));assert.equal(itemPre.textContent,'');await assert.rejects(fetch(downloads[0]));
+    assert.ok(chunkPre.textContent.length>0,'Unrelated source-item navigation retains the accepted selected chunk presentation');assert.equal((await fetch(downloads[1])).ok,true);
+    item.dispatch('toggle');itemDownload.dispatch('click');assert.equal(downloads.length,2);
+    assert.equal(d.get('chunks-next').disabled,false);await act(d.get('chunks-next'));assert.equal(chunkPre.textContent,'');await assert.rejects(fetch(downloads[1]));chunk.dispatch('toggle');chunkDownload.dispatch('click');assert.equal(downloads.length,2);
+    await act(d.get('clear'));
+  }finally{adapterControl.extract=null;}
+});
+test('dense accepted chunk mappings have independent complete 100-row windows and both exact complete exports',async()=>{
+  const source=controlledSource(Array(260).fill('a'));adapterControl.extract=async()=>source;
+  try{const d=mount();d.get('pdf-file').files=[{name:source.source.name}];await act(d.get('pdf-file'),'change');await act(d.get('build-chunks'));
+    const target=d.get('chunk-detail'),record=disclosure(target,'Inspect this chunk’s full source-span identities');assert.ok(record);
+    record.open=true;await act(record,'toggle');const chunk=JSON.parse(completeText(record));assert.ok(chunk.segments.length>100);
+    const mapping=disclosure(target,'Inspect all source and inserted mapping segments');assert.ok(mapping);mapping.open=true;await act(mapping,'toggle');assert.deepEqual(JSON.parse(completeText(mapping)),chunk.segments);
+    const rows=[],navigation=()=>byTag(target,'button').find(n=>n.textContent==='Next 100 mapping segments');
+    let obsoleteNext,obsoleteBody;
+    while(true){const current=byTag(target,'tbody')[0];assert.ok(current.children.length<=100);rows.push(...current.children.map(r=>r.children.map(c=>c.textContent)));
+      const next=navigation();assert.ok(next);if(next.disabled)break;if(!obsoleteNext){obsoleteNext=next;obsoleteBody=current.children[0];}await act(next);
+    }
+    assert.deepEqual(rows,chunk.segments.map(s=>[s.kind,s.kind==='source'?`item ${s.itemIndex} · [${s.startUtf16}, ${s.endUtf16})`:'inserted · no source span',`[${s.chunkStartUtf16}, ${s.chunkEndUtf16})`,JSON.stringify(s.kind==='source'?s.quote:s.text)]));
+    const before=target.textContent;obsoleteNext.dispatch('click');assert.equal(target.textContent,before);assert.equal(obsoleteBody.textContent,'');
+    const oldPre=byTag(record,'pre')[0],oldMapping=byTag(mapping,'pre')[0];await act(d.get('chunk-select'),'change');
+    assert.equal(oldPre.textContent,'');assert.equal(oldMapping.textContent,'');record.dispatch('toggle');mapping.dispatch('toggle');assert.equal(byTag(record,'pre').length,0);assert.equal(byTag(mapping,'pre').length,0);
+  }finally{adapterControl.extract=null;}
+});
 test('current native-shaped failure is lazy and detached disclosure is revoked even by a no-op edit',async()=>{
   adapterControl.embed=async(input,options)=>{const worker=new NativeClientWorkerDouble();
     const pending=nativeEmbedInWorker(input,{...options,workerFactory:()=>worker});

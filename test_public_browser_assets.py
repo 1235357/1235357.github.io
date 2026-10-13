@@ -76,6 +76,8 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         graph=existing.static_mjs_graph(out,'pdf-public-entry.mjs');self.assertIn('financial-lookup-view.mjs',graph);self.assertIn('financial-generation-source.mjs',graph)
         self.assertIn('financial-annual-table-contract.mjs', graph)
         self.assertIn('bounded-text-view.mjs', graph)
+        self.assertIn('complete-record-disclosure.mjs', graph)
+        self.assertEqual((out/'complete-record-disclosure.mjs').read_bytes(),(self.browser/'complete-record-disclosure.mjs').read_bytes())
         for name in ('asset-preparation-source.mjs','asset-preparation-view.mjs','asset-preparation-transport.mjs','pdf-worker-preparation.mjs','runtime-failure-contract.mjs'):
             self.assertIn(name,graph)
         preparation_worker=existing.static_mjs_graph(out,'asset-preparation.worker.mjs')
@@ -103,6 +105,8 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         self.assertEqual((out/'bounded-text-view.mjs').read_bytes(),(self.browser/'bounded-text-view.mjs').read_bytes())
         graph=existing.static_mjs_graph(out,'pdf-entry.mjs')
         self.assertIn('bounded-text-view.mjs',graph)
+        self.assertIn('complete-record-disclosure.mjs',graph)
+        self.assertEqual((out/'complete-record-disclosure.mjs').read_bytes(),(self.browser/'complete-record-disclosure.mjs').read_bytes())
         for name in release.PUBLIC_MODULES:self.assertFalse((out/name).exists(),name)
         self.assertFalse((out/'models'/release.QWEN_REVISION).exists());self.assertFalse((out/'acceptance').exists())
         self.assertIn('Local draft · not published',(self.root/'dist/index.html').read_text(encoding='utf-8'))
@@ -115,16 +119,17 @@ class PublicBrowserAssetsTest(unittest.TestCase):
             finally:path.write_bytes(data)
 
     def test_missing_shared_text_viewer_preserves_both_previous_build_profiles(self):
-        for public in (False,True):
-            build.build(public_release=public)
-            before=fixtures.file_snapshot(self.root/'dist')
-            path=self.browser/'bounded-text-view.mjs';body=path.read_bytes();path.unlink()
-            try:
-                with self.assertRaisesRegex((ValueError,FileNotFoundError),'bounded-text-view'):
-                    build.build(public_release=public)
-                self.assertEqual(fixtures.file_snapshot(self.root/'dist'),before)
-                self.assertEqual(list(self.root.glob('.dist-stage-*')),[])
-            finally:path.write_bytes(body)
+        for name in ('bounded-text-view.mjs','complete-record-disclosure.mjs'):
+            for public in (False,True):
+                build.build(public_release=public)
+                before=fixtures.file_snapshot(self.root/'dist')
+                path=self.browser/name;body=path.read_bytes();path.unlink()
+                try:
+                    with self.assertRaisesRegex((ValueError,FileNotFoundError),name):
+                        build.build(public_release=public)
+                    self.assertEqual(fixtures.file_snapshot(self.root/'dist'),before)
+                    self.assertEqual(list(self.root.glob('.dist-stage-*')),[])
+                finally:path.write_bytes(body)
 
     def test_registry_unknown_model_extra_keys_and_pin_changes_refuse_without_fallback(self):
         self.public()

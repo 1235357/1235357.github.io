@@ -75,7 +75,7 @@ class ProbeFixture(unittest.TestCase):
                      'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',
                      'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs',
                      'embedding.worker.mjs', 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
-                     'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs',
+                     'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs', 'complete-record-disclosure.mjs',
                      'verified-stream.mjs', 'verified-cache.mjs', 'vendor/build/pdf.mjs', 'vendor/build/pdf.worker.mjs'):
             self.write(self.dist / 'browser-rag' / name, b'built shared inspector')
         for name in MODEL_FILES:

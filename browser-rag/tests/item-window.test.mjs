@@ -9,6 +9,7 @@ import {queryInWorker,queryResultReceipt} from '../query-source.mjs';
 import {rankCandidates} from '../retrieval.mjs';
 import {ContextError} from '../context-contract.mjs';
 import {createGenerationView} from '../generation-view.mjs';
+import {createCompleteRecordDisclosure} from '../complete-record-disclosure.mjs';
 import {EMBEDDING_SPEC} from '../embedding-contract.mjs';
 
 const windowModule = await import('../item-window.mjs').catch(error => {
@@ -92,6 +93,7 @@ class DomElement {
     if (!this.listeners.has(name)) this.listeners.set(name, []);
     this.listeners.get(name).push(listener);
   }
+  removeEventListener(name,listener){this.listeners.set(name,(this.listeners.get(name)??[]).filter(value=>value!==listener));}
   dispatch(name) { for (const listener of this.listeners.get(name) ?? []) listener({target: this}); }
   setAttribute(name, value) { this[name] = String(value); }
   removeAttribute(name) { if (name === 'value') this._value = ''; }
@@ -103,6 +105,14 @@ const htmlText = await readFile(new URL('../inspector.html', import.meta.url), '
 const elementsOf = (element, tag) => element.children.flatMap(child => [
   ...(child.tagName === tag.toUpperCase() ? [child] : []), ...elementsOf(child, tag),
 ]);
+function completeRecordText(detail){
+  const pre=elementsOf(detail,'pre')[0];assert.ok(pre);
+  if(pre.className!=='bounded-text-page')return pre.textContent;
+  const button=name=>elementsOf(detail,'button').find(n=>n.textContent===name),previous=button('Previous page'),next=button('Next page'),parts=[];
+  while(!previous.disabled)previous.dispatch('click');
+  for(let i=0;i<100000;i++){assert.ok(pre.textContent.length<=24576);assert.ok(pre.textContent.split(/\r\n|[\r\n]/).length<=160);parts.push(pre.textContent);if(next.disabled)return parts.join('');next.dispatch('click');}
+  assert.fail('Complete record did not reach final page');
+}
 
 function sourceRecord(name, counts, firstText = '<img src=x onerror=alert(1)>') {
   const sha256 = 'a'.repeat(64);
@@ -148,7 +158,7 @@ function appHarness(sources, computeOverride, {embed = embedInWorker,query = que
     .replaceAll('import.meta.url', JSON.stringify(new URL('../pdf-app.mjs', import.meta.url).href));
   const run = new Function('document', 'window', 'Worker', 'pdfjs', 'extractPdf',
     'createPdfSession', 'getItemWindow', 'JSON', 'chunkInWorker', 'embedInWorker', 'queryInWorker',
-    'createContextView','createGenerationView','ContextError',`${executable}\ndocument.defaultView=window;mountPdfApp({document,root:document});`);
+    'createContextView','createGenerationView','createCompleteRecordDisclosure','ContextError',`${executable}\ndocument.defaultView=window;mountPdfApp({document,root:document});`);
   const compute=computeOverride??(async(source,{identity,onProgress,chunkOptions})=>{
     const packets=[];createComputeCommandHandler(packet=>packets.push(packet))({kind:'chunk-source',identity,source,options:chunkOptions??{}});
     onProgress(packets[0].event);
@@ -159,7 +169,7 @@ function appHarness(sources, computeOverride, {embed = embedInWorker,query = que
   run(document, {addEventListener() {}}, class {}, {}, async file => sources.find(source => source.source.name === file.name),
     options => { session = createPdfSession({...options,onState:state=>{options.onState(state);onState?.(state,session);},
       runtimeId: 'preview-test',runtimeIdFactory:runtimeIdFactory??(()=>`compute-test-${++runtimeNumber}`)}); return session; },
-    getItemWindow,checkedJson,compute,embed,query,createContextView,createGenerationView,ContextError);
+    getItemWindow,checkedJson,compute,embed,query,createContextView,createGenerationView,createCompleteRecordDisclosure,ContextError);
   return {ids, serializedItems,serializedChunks, select: name => session.select({name}), source: () => session.document(),
     chunk:options=>session.chunk(options),embed:()=>session.embed(),query:(question,options)=>session.query(question,options),
     context:()=>session.context(),retrieval:()=>session.retrieval(),chunks:()=>session.chunks(),embeddings:()=>session.embeddings(),state:()=>session.snapshot(),
@@ -206,14 +216,14 @@ test('the actual app serializes item details only while opened and releases text
   assert.equal(elementsOf(app.ids.get('items'), 'pre').length, 0);
   const detail = elementsOf(app.rows()[0], 'details')[0];
   detail.open = true; detail.dispatch('toggle');
-  assert.equal(app.serializedItems.length, 1);
+  assert.deepEqual(JSON.parse(completeRecordText(detail)),app.source().pages[0].textItems[0]);
   assert.equal(elementsOf(detail, 'pre').length, 1);
   assert.match(elementsOf(detail, 'pre')[0].textContent, /"itemIndex": 0/);
   detail.open = false; detail.dispatch('toggle');
   assert.equal(elementsOf(detail, 'pre').length, 0);
   assert.equal(detail.children.length, 1, 'The summary remains available after releasing generated JSON text.');
   detail.open = true; detail.dispatch('toggle');
-  assert.equal(app.serializedItems.length, 2);
+  assert.deepEqual(JSON.parse(completeRecordText(detail)),app.source().pages[0].textItems[0]);
 });
 
 test('the actual app resets the preview when physical page or source changes', async () => {
@@ -258,7 +268,7 @@ test('the actual app shows attributable chunks and authored separators without t
   assert.equal(elementsOf(app.ids.get('chunk-detail'),'img').length,0);
   assert.equal(app.serializedChunks.length,0);
   const detail=elementsOf(app.ids.get('chunk-detail'),'details')[0];
-  detail.open=true;detail.dispatch('toggle');assert.equal(app.serializedChunks.length,1);
+  detail.open=true;detail.dispatch('toggle');assert.deepEqual(JSON.parse(completeRecordText(detail)),app.chunks().chunks[0]);
   detail.open=false;detail.dispatch('toggle');assert.equal(elementsOf(detail,'pre').length,0);
 });
 

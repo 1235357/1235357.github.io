@@ -45,6 +45,7 @@ The subsequent public native path parsed two pages into five chunks, retaining 2
 
 - PDF.js parsing preserves physical page numbers, displayed PDF labels, source identity and exact original item text/spans.
 - Page-window chunking keeps original UTF-16 source fragments separate from presentation separators.
+- Original item and selected-chunk records use complete bounded JSON pages and exact UTF-8 downloads. Large original quotes have a complete TXT viewer; mapping rows have independent 100-segment windows and complete JSON. Repeated selection and source/window changes dispose their previous content and download URLs.
 - Explicit asset preparation verifies the fixed model/runtime files in browser cache without invoking a model; its receipt is separate from loading and inference.
 - Passage and query encoding expose actual token IDs and ordered 384-dimensional vectors, with separate attempt receipts.
 - Retrieval exposes ranked candidates and source fragments. A cosine score is not an answer-confidence probability.
@@ -75,6 +76,7 @@ The built site contains seven chapters. Start with [A RAG answer needs an execut
 - [Annual browser and bounded evidence](docs/2026-10-12-annual-browser-and-bounded-evidence.md): separate fiscal-year requests, six actual native receipt downloads, consecutive full-text browsing and exact exports.
 - [Complete generation details](docs/2026-10-12-complete-generation-details.md): bounded JSON/plain-text presentation, complete actual browser downloads, stale-view cleanup and a compact embedded workbench.
 - [A wider workbench](docs/2026-10-12-wide-workbench.md): primary design research, a separate full-width application grid, bounded prose and actual responsive before/after measurements.
+- [Complete source and chunk records](docs/2026-10-12-complete-source-and-chunk-records.md): original item text/geometry, full chunk/mapping exports, independent row windows and three actual native annual-source browser checks. Context/query/vector lifecycle work remains separate.
 - [Public runtime license audit](docs/2026-10-11-public-license-audit.md): exact distributed-runtime inclusion and preserved dependency provenance.
 - [Release guide](docs/public-release-guide.md): clean-checkout setup, public asset boundary, artifact budget and deployment read-back.
 

@@ -170,7 +170,7 @@ class BrowserAssetsTest(unittest.TestCase):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs'):
+        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs', 'complete-record-disclosure.mjs'):
             if name.endswith('.mjs'):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
@@ -233,6 +233,9 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertEqual(graph['pdf-entry.mjs'], {'./pdf-app.mjs'})
         self.assertIn('./generation-view.mjs', graph['pdf-app.mjs'])
         self.assertEqual(graph['generation-view.mjs'], {'./bounded-text-view.mjs'})
+        self.assertIn('./complete-record-disclosure.mjs', graph['pdf-app.mjs'])
+        self.assertEqual(graph['complete-record-disclosure.mjs'], {'./bounded-text-view.mjs'})
+        self.assertEqual((output/'complete-record-disclosure.mjs').read_bytes(), (self.browser/'complete-record-disclosure.mjs').read_bytes())
         self.assertEqual((output/'bounded-text-view.mjs').read_bytes(), (self.browser/'bounded-text-view.mjs').read_bytes())
         self.assertIn('./pdf-session.mjs', graph['pdf-app.mjs'])
         self.assertIn('./context-view.mjs', graph['pdf-app.mjs'])

@@ -14,6 +14,7 @@ import {queryInWorker,queryResultReceipt,QueryWorkerError} from '../query-source
 import {rankCandidates} from '../retrieval.mjs';
 import {createQueryCommandHandler} from '../query.worker.mjs';
 import {createContextView} from '../context-view.mjs';
+import {createCompleteRecordDisclosure} from '../complete-record-disclosure.mjs';
 import {createGenerationView} from '../generation-view.mjs';
 import {ContextError} from '../context-contract.mjs';
 import {createRuntimeFailure} from '../runtime-failure-contract.mjs';
@@ -593,9 +594,11 @@ test('real embedding adapter and command handler integrate with the session thro
 // Native PDF/GPU/browser acceptance is deliberately left to the live IAB review.
 class AppElement{
   constructor(tag='div'){this.tag=tag;this.children=[];this.listeners=new Map();this.textContent='';this.value='';this.disabled=false;this.open=false;this.hidden=false;}
+  get tagName(){return this.tag;}
   append(...children){this.children.push(...children);if(this.tag==='select'&&this.value===''&&this.children.length)this.value=String(this.children[0].value);}
   replaceChildren(...children){this.children=[];if(this.tag==='select')this.value='';this.append(...children);}
   addEventListener(type,listener){this.listeners.set(type,listener);}
+  removeEventListener(type,listener){if(this.listeners.get(type)===listener)this.listeners.delete(type);}
   setAttribute(name,value){this[name]=String(value);}
   removeAttribute(name){if(name==='value')this.value=undefined;}
   focus(){this.focused=true;}
@@ -619,7 +622,7 @@ function appHarness(harnessOptions={}){
   const context={document:{getElementById:byId,querySelector:selector=>byId(selector.slice(1)),createElement:tag=>new AppElement(tag)},window:{addEventListener(type,listener){
       if(!windowListeners.has(type))windowListeners.set(type,new Set());windowListeners.get(type).add(listener);}},
     URL,Worker:class{},pdfjs:{},extractPdf(){},chunkInWorker(){},embedInWorker(){},queryInWorker(){},getItemWindow,EMBEDDING_SPEC,
-    createContextView,createGenerationView,ContextError,
+    createContextView,createGenerationView,createCompleteRecordDisclosure,ContextError,
     createPdfSession:options=>{session=createPdfSession({...options,runtimeId:'ui-parser',runtimeIdFactory:()=>`ui-${++incarnation}`,
       extract:(file,options)=>{extracts.push({file,options});return (harnessOptions.extract??(async selected=>extracted(selected.name)))(file,options);},compute:async(record,options)=>{
         computes.push({record,options});

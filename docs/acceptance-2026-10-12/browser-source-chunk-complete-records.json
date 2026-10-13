@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "status": "local-native-source-chunk-complete-records-verified",
+  "scope": "Actual local Codex IAB native PDF parse/default native chunk actions and seven actual complete downloads. Downloaded bytes are independently compared to prior full native source captures replayed through unchanged chunkSource. No encoder, tokenizer, GPU model, generation, financial adjudication, physical-phone or production-latency claim.",
+  "sourceAuditSHA256": "c6d675acf1dade739488972373219c007ce2100099d49a7affb04c8e878647cc",
+  "totalActualDownloadBytes": 377165,
+  "records": [
+    {
+      "year": "fy2021",
+      "pdfBytes": 775976,
+      "pdfSHA256": "a9b562ceebfcc8e59869c66625409de01329753e9750da57984c946f2bd08eb7",
+      "physicalPages": 93,
+      "defaultChunks": 774,
+      "inspectedOrdinal": 690,
+      "mappingSegments": 255,
+      "rowWindows": 3,
+      "exports": [
+        {
+          "kind": "record",
+          "bytes": 56888,
+          "sha256": "4ea6a60df7f9b65bbbd8c9e35a4cc125a175e944923502a322e49ca087f84034",
+          "pages": 13,
+          "maxPageUtf16": 5085,
+          "maxPageHardLines": 160
+        },
+        {
+          "kind": "mapping",
+          "bytes": 51882,
+          "sha256": "9334a68b10bbb7abbb0301f6108ef8f2f7b82dd7316cab61f620e5eff6e689c0",
+          "pages": 13,
+          "maxPageUtf16": 4081,
+          "maxPageHardLines": 160
+        }
+      ]
+    },
+    {
+      "year": "fy2022",
+      "pdfBytes": 22363773,
+      "pdfSHA256": "fc9da67f18d3ab5fbf0ffaa70ff652a23f501976bb3369a71f2fdaa1d87b1815",
+      "physicalPages": 207,
+      "defaultChunks": 1643,
+      "inspectedOrdinal": 466,
+      "mappingSegments": 360,
+      "rowWindows": 4,
+      "exports": [
+        {
+          "kind": "record",
+          "bytes": 79887,
+          "sha256": "53a8657ea957450e3dd7d629340e7e6525a7e2e37bf51e7393899d565a0b8992",
+          "pages": 19,
+          "maxPageUtf16": 5103,
+          "maxPageHardLines": 160
+        },
+        {
+          "kind": "mapping",
+          "bytes": 73030,
+          "sha256": "f4d760d200702dc73eba838a8d6fb3ac40eb33102a73095f4a0501e87cfeda7b",
+          "pages": 19,
+          "maxPageUtf16": 4055,
+          "maxPageHardLines": 160
+        }
+      ]
+    },
+    {
+      "year": "fy2026",
+      "pdfBytes": 15850437,
+      "pdfSHA256": "0e725ba048221539dca3eb1a4e70febfcbb785e9afb96cd3ff0b035d7d734e5c",
+      "physicalPages": 175,
+      "defaultChunks": 1496,
+      "inspectedOrdinal": 536,
+      "mappingSegments": 270,
+      "rowWindows": 3,
+      "exports": [
+        {
+          "kind": "record",
+          "bytes": 60180,
+          "sha256": "3cfa1b894899ec7165b5343bf48b00d310d947af7775f4c6ef93fbbcd7192627",
+          "pages": 14,
+          "maxPageUtf16": 4953,
+          "maxPageHardLines": 160
+        },
+        {
+          "kind": "mapping",
+          "bytes": 54878,
+          "sha256": "e16c4fa20402b674502f7d53133505951974cecfc18980ebc7b04afa954bbbdf",
+          "pages": 14,
+          "maxPageUtf16": 4070,
+          "maxPageHardLines": 160
+        }
+      ]
+    }
+  ],
+  "originalItem": {
+    "bytes": 420,
+    "sha256": "1d96470f237507019dcd78cb66ae153ebebe7859e482f3e2e9710082feacf8a8",
+    "completeParserItemEqual": true,
+    "visiblePagesEqual": true
+  },
+  "tests": {
+    "node": 3001,
+    "python": 156
+  },
+  "browserLayout": {
+    "desktopClientWidth": 1265,
+    "desktopScrollWidth": 1265,
+    "requestedMobileWidth": 390,
+    "mobileClientWidth": 375,
+    "mobileScrollWidth": 375,
+    "minimumRecordedButtonHeight": 46,
+    "bodyFontSize": 17,
+    "bodyFont": "Manrope",
+    "recordFontSize": 14,
+    "temporaryViewportReset": true
+  },
+  "limits": [
+    "context/query/selected-vector lifecycle remains pending",
+    "annual default chunk counts exceed unchanged 512 embedding gate",
+    "no model actions or financial adjudication in these native checks",
+    "no physical phone or production latency distribution",
+    "user aesthetic acceptance remains open"
+  ]
+}

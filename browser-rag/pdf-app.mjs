@@ -8,6 +8,7 @@ import {queryInWorker} from './query-source.mjs';
 import {createContextView} from './context-view.mjs';
 import {ContextError} from './context-contract.mjs';
 import {createGenerationView} from './generation-view.mjs';
+import {createCompleteRecordDisclosure} from './complete-record-disclosure.mjs';
 
 const mounts=new WeakMap();
 export function mountPdfApp(options={}) {
@@ -80,6 +81,8 @@ const ERROR_HELP={FILE_TOO_LARGE:'The PDF exceeds the 32 MiB input budget.',
   TOKENIZER_MISMATCH:'The paired tokenizer frame did not match the pinned contract.',
   INVALID_FINANCIAL_RECEIPT:'The complete native financial receipt did not satisfy its contract.'};
 let lastSource=null,lastChunks=null,lastEmbeddings=null,itemWindowIndex=0,chunkWindowIndex=0;
+let itemOwner=null,chunkOwner=null;
+let renderRevision=0;
 let parserPreparation=null;
 let lastQuestion=undefined,lastQueryEmbedding=null,lastRetrieval=null;
 let lastContext=undefined,contextOwner=null,contextView;
@@ -125,6 +128,34 @@ function currentContext(artifact){
     &&contextOwner.retrieval===session.retrieval()&&session.snapshot().lifecycle.active===null;
 }
 function element(tag,text,className){const value=document.createElement(tag);if(text!==undefined)value.textContent=text;if(className)value.className=className;return value;}
+function scrubRecordNode(node){
+  if(node===failureHost)return;
+  for(const child of Array.from(node.children??[]))scrubRecordNode(child);
+  if(['button','input','select'].includes(node.tagName?.toLowerCase()))node.disabled=true;
+  if(node.tagName?.toLowerCase()==='a'){node.removeAttribute('href');node.removeAttribute('download');}
+  node.textContent='';
+}
+function disposeRecordPane(previous,host){
+  if(!previous)return;
+  previous.alive=false;const oldNodes=Array.from(host.children??[]),entries=previous.entries;previous.entries=[];
+  for(const entry of entries)entry.dispose();for(const node of oldNodes)scrubRecordNode(node);
+}
+function ownsItems(owner){return owner.alive&&itemOwner===owner&&owner.source===session.document()
+  &&owner.epoch===session.snapshot().lifecycle.documentEpoch&&owner.pageIndex===Number(pageSelect.value)
+  &&owner.windowIndex===itemWindowIndex&&owner.page===owner.source?.pages[owner.pageIndex];}
+function ownsChunk(owner){return owner.alive&&chunkOwner===owner&&owner.source===session.document()
+  &&owner.epoch===session.snapshot().lifecycle.documentEpoch&&owner.artifact===session.chunks()
+  &&owner.ordinal===Number(byId('chunk-select').value)&&owner.chunk===owner.artifact?.chunks[owner.ordinal];}
+function recordDisclosure(owner,host,title,read,current,filename,format='json'){
+  const entry=createCompleteRecordDisclosure({document,title,read,current,filename,format});
+  if(current()){owner.entries.push(entry);host.append(entry.node);}else entry.dispose();
+}
+function largeParserText(text){
+  if(text.length>24*1024)return true;
+  let lines=1;for(let index=0;index<text.length;index++)if(text[index]==='\r'||text[index]==='\n'){
+    if(text[index]==='\r'&&text[index+1]==='\n')index++;if(++lines>160)return true;
+  }return false;
+}
 function receipt(rows){const list=byId('receipt');list.replaceChildren();for(const [key,value] of rows){list.append(element('dt',key),element('dd',String(value)));}}
 function inspectCandidate(candidate,source,chunks,retrieval){
   if(source!==session.document()||chunks!==session.chunks()||retrieval!==session.retrieval())return;
@@ -195,31 +226,34 @@ function showItemRange(range){
   byId('items-next').disabled=!range.hasNext;
 }
 function showPage(){
-  items.replaceChildren();items.scrollTop=0;const source=session.document();if(!source){showItemRange(getItemWindow(0));return;}
-  const page=source.pages[Number(pageSelect.value)];
-  const range=getItemWindow(page.textItems.length,itemWindowIndex);itemWindowIndex=range.windowIndex;showItemRange(range);
+  const source=session.document(),pageIndex=Number(pageSelect.value),page=source?.pages[pageIndex];
+  const range=getItemWindow(page?.textItems.length??0,itemWindowIndex);itemWindowIndex=range.windowIndex;
+  const previous=itemOwner,owner={source,pageIndex,page,windowIndex:itemWindowIndex,epoch:session.snapshot().lifecycle.documentEpoch,entries:[],alive:true};
+  itemOwner=owner;disposeRecordPane(previous,items);if(itemOwner!==owner)return;
+  items.replaceChildren();items.scrollTop=0;showItemRange(range);if(!source||!page)return;
   byId('page-meta').textContent=`Physical page ${page.physicalPageNumber} · PDF label ${page.pageLabel===null?'not supplied':JSON.stringify(page.pageLabel)} · ${page.textItems.length} items · rotation ${page.geometry.rotation}°`;
   if(range.total===0){items.append(element('p','No selectable text on this page. No OCR was invented.','empty'));return;}
   for(let index=range.start;index<range.end;index++){
     const item=page.textItems[index];
     const row=element('article',undefined,'item');
-    row.append(element('p',`ITEM ${item.itemIndex} · UTF-16 [${item.span.startUtf16}, ${item.span.endUtf16})`,'identity'),element('p',item.text||'(empty parser item)','quote'));
-    const detail=element('details'),summary=element('summary','Inspect span identity and geometry');detail.append(summary);
-    detail.addEventListener('toggle',()=>{
-      detail.replaceChildren(summary,...(detail.open?[element('pre',JSON.stringify(item,null,2))]:[]));
-    });
-    row.append(detail);items.append(row);
+    const current=()=>ownsItems(owner)&&owner.page.textItems[index]===item;
+    row.append(element('p',`ITEM ${item.itemIndex} · UTF-16 [${item.span.startUtf16}, ${item.span.endUtf16})`,'identity'));
+    if(largeParserText(item.text)){
+      row.append(element('p',`${item.text.length.toLocaleString('en-US')} UTF-16 units · complete original parser text retained`,'hint'));
+      recordDisclosure(owner,row,'Inspect complete parser text',()=>item.text,current,`page-${page.physicalPageNumber}-item-${item.itemIndex}-text.txt`,'text');
+    }else row.append(element('p',item.text||'(empty parser item)','quote'));
+    recordDisclosure(owner,row,'Inspect span identity and geometry',()=>item,current,`page-${page.physicalPageNumber}-item-${item.itemIndex}-record.json`);
+    if(current())items.append(row);
   }
 }
 function showChunk(){
-  const target=byId('chunk-detail');target.replaceChildren();
-  showEmbedding();
-  const artifact=session.chunks();
+  const target=byId('chunk-detail'),artifact=session.chunks(),ordinal=Number(byId('chunk-select').value),chunk=artifact?.chunks[ordinal];
+  const previous=chunkOwner,owner={source:session.document(),epoch:session.snapshot().lifecycle.documentEpoch,artifact,ordinal,chunk,entries:[],alive:true,segmentOwner:null};
+  chunkOwner=owner;disposeRecordPane(previous,target);if(chunkOwner!==owner)return;target.replaceChildren();showEmbedding();if(chunkOwner!==owner)return;
   if(!artifact){
     target.append(element('p','No chunk artifact. Build from an accepted source.','empty'));
     byId('chunk-meta').textContent='No chunks committed.';return;
   }
-  const chunk=artifact.chunks[Number(byId('chunk-select').value)];
   if(!chunk)return;
   byId('chunk-meta').textContent=`Chunk ${Number(byId('chunk-select').value)+1} of ${artifact.counts.chunks} · physical page ${chunk.physicalPageNumber} · label ${chunk.pageLabel===null?'not supplied':JSON.stringify(chunk.pageLabel)} · joined-page UTF-16 [${chunk.startUtf16}, ${chunk.endUtf16})`;
   target.append(element('p',chunk.id,'identity'),element('p',chunk.text,'quote'));
@@ -228,18 +262,31 @@ function showChunk(){
   const head=element('thead'),heading=element('tr');
   for(const title of ['Type','Item / source range','Chunk range','Escaped text'])heading.append(element('th',title));
   head.append(heading);table.append(head);
-  const body=element('tbody');
-  for(const segment of chunk.segments){
-    const row=element('tr');
-    const sourceRange=segment.kind==='source'?`item ${segment.itemIndex} · [${segment.startUtf16}, ${segment.endUtf16})`:'inserted · no source span';
-    const text=segment.kind==='source'?segment.quote:segment.text;
-    for(const value of [segment.kind,sourceRange,`[${segment.chunkStartUtf16}, ${segment.chunkEndUtf16})`,JSON.stringify(text)])row.append(element('td',value));
-    body.append(row);
+  const body=element('tbody'),navigation=element('nav',undefined,'item-navigation');navigation.setAttribute('aria-label','Chunk mapping segments');
+  table.append(body);scroll.append(table);target.append(navigation,scroll);
+  function showSegments(requested){
+    if(!ownsChunk(owner))return;
+    const range=getItemWindow(chunk.segments.length,requested),windowToken={};owner.segmentOwner=windowToken;
+    const oldNodes=[...Array.from(body.children??[]),...Array.from(navigation.children??[])];for(const node of oldNodes)scrubRecordNode(node);
+    if(!ownsChunk(owner)||owner.segmentOwner!==windowToken)return;
+    body.replaceChildren();navigation.replaceChildren();scroll.scrollTop=0;
+    const label=element('p',`Showing mapping segments ${range.total?range.start+1:0}–${range.end} of ${range.total} · window ${range.windowIndex+1} of ${range.windowCount}`,'hint');
+    label.setAttribute('role','status');label.setAttribute('aria-live','polite');navigation.append(label);
+    const buttons=element('div',undefined,'item-navigation-buttons');
+    for(const [title,destination,enabled]of [['Previous 100 mapping segments',range.windowIndex-1,range.hasPrevious],['Next 100 mapping segments',range.windowIndex+1,range.hasNext]]){
+      const button=element('button',title);button.type='button';button.disabled=!enabled;
+      button.addEventListener('click',()=>{if(enabled&&ownsChunk(owner)&&owner.segmentOwner===windowToken)showSegments(destination);});buttons.append(button);
+    }navigation.append(buttons);
+    for(let index=range.start;index<range.end;index++){
+      const segment=chunk.segments[index],row=element('tr');
+      const sourceRange=segment.kind==='source'?`item ${segment.itemIndex} · [${segment.startUtf16}, ${segment.endUtf16})`:'inserted · no source span';
+      const text=segment.kind==='source'?segment.quote:segment.text;
+      for(const value of [segment.kind,sourceRange,`[${segment.chunkStartUtf16}, ${segment.chunkEndUtf16})`,JSON.stringify(text)])row.append(element('td',value));body.append(row);
+    }
   }
-  table.append(body);scroll.append(table);target.append(scroll);
-  const detail=element('details'),summary=element('summary','Inspect this chunk’s full source-span identities');detail.append(summary);
-  detail.addEventListener('toggle',()=>{detail.replaceChildren(summary,...(detail.open?[element('pre',JSON.stringify(chunk,null,2))]:[]));});
-  target.append(detail);
+  showSegments(0);
+  recordDisclosure(owner,target,'Inspect this chunk’s full source-span identities',()=>chunk,()=>ownsChunk(owner),`chunk-${ordinal+1}-record.json`);
+  recordDisclosure(owner,target,'Inspect all source and inserted mapping segments',()=>chunk.segments,()=>ownsChunk(owner),`chunk-${ordinal+1}-mapping.json`);
 }
 function showChunkWindow(selectedIndex){
   const select=byId('chunk-select');select.replaceChildren();
@@ -255,6 +302,7 @@ function showChunkWindow(selectedIndex){
   showChunk();
 }
 function render(state){
+  const revision=++renderRevision;
   uiActionNonce++;embeddingRefusal=false;queryRefusal=false;contextRefusal=false;generationRefusal=false;
   if(parserPreparation&&(parserPreparation.documentEpoch!==state.lifecycle.documentEpoch||state.status==='cancelled'))parserPreparation=null;
   const source=session.document(),chunks=session.chunks(),embeddings=session.embeddings();
@@ -339,11 +387,14 @@ function render(state){
   byId('query-top-k').disabled=active?.operation==='query';
   byId('trace').textContent=JSON.stringify(state.lifecycle,null,2);
   if(source!==lastSource){
+    const previous=itemOwner;itemOwner=null;disposeRecordPane(previous,items);
+    if(revision!==renderRevision||source!==session.document()||state.lifecycle.documentEpoch!==session.snapshot().lifecycle.documentEpoch)return;
     lastSource=source;itemWindowIndex=0;pageSelect.replaceChildren();pageSelect.disabled=!source;
     if(!source){pageSelect.append(element('option','No document'));items.replaceChildren(element('p','Choose a PDF to inspect actual parser records.','empty'));byId('page-meta').textContent='No source committed.';showItemRange(getItemWindow(0));receipt([]);}
     else{
       source.pages.forEach((page,index)=>{const option=element('option',`${page.physicalPageNumber} · ${page.pageLabel??'no label'}`);option.value=index;pageSelect.append(option);});
       showPage();
+      if(revision!==renderRevision)return;
     }
   }
   const stage=raw?`native generation · ${inspection.artifact?'unverified financial draft':'output inspection refused'}`:active?.operation==='generate'?'generating financial output':session.context()?'context; not generated':session.retrieval()?'query candidates only':embeddings?'embedded; not retrieved':chunks?'chunked; not embedded':'extracted; not indexed';
@@ -354,9 +405,10 @@ function render(state){
     const value=element('dd','');value.append(element('pre',JSON.stringify(parserPreparation.receipt,null,2)));
     byId('receipt').append(element('dt','Static parser script receipt · HTTP cache advisory'),value);
   }
-  if(chunks!==lastChunks){lastChunks=chunks;chunkWindowIndex=0;showChunkWindow();}
+  if(chunks!==lastChunks){lastChunks=chunks;chunkWindowIndex=0;showChunkWindow();if(revision!==renderRevision)return;}
   if(embeddings!==lastEmbeddings){
     lastEmbeddings=embeddings;showEmbedding();const list=byId('embedding-receipt');list.replaceChildren();
+    if(revision!==renderRevision)return;
     if(embeddings){for(const [key,value]of [['Representation',embeddings.representationId],['Backend',`${embeddings.backend} · ${embeddings.dtype}`],
       ['Verified body',`${embeddings.receipt.verifiedBytes.toLocaleString()} bytes`],['Fetched body',`${embeddings.receipt.networkBytes.toLocaleString()} bytes`],
       ['Cached body',`${embeddings.receipt.cacheBytes.toLocaleString()} bytes`],['Attempt elapsed',`${embeddings.receipt.elapsedMs.toFixed(1)} ms`]])
