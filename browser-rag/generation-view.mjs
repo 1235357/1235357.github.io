@@ -29,6 +29,9 @@ export function createGenerationView({document,root,isCurrent,onInspect,textView
   }
   return {render(raw,inspection,canonicalInput=null){
     const captured=Object.freeze({raw,inspection,canonicalInput});owner=captured;disposeRendered();if(owner!==captured)return;root.replaceChildren();
+    // The session status already explains the next action. Keep the technical
+    // empty receipt out of the reading flow until there is a native result.
+    root.hidden=raw===null||inspection===null;
     if(raw===null||inspection===null){root.append(element('p','No native generation receipt committed. An explicit generation action follows an accepted query and assembled context.','empty'));return;}
     if(!current(captured))return;
     root.append(element('p','Exact captured question','eyebrow'),element('p',raw.preparedPrompt.context.question,'context-question'));

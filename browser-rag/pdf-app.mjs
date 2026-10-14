@@ -486,7 +486,7 @@ function render(state){
     generationOwner=raw&&inspection?{raw,inspection,source,chunks,question:session.question(),query:session.queryEmbedding(),retrieval:session.retrieval(),context:session.context(),terminal:state.lifecycle.terminal,replay:generationReplay}:null;
     generationView.render(raw,inspection,generationOwner?.replay?.input??null);
   }
-  byId('generation-meta').textContent=raw?`Complete native receipt accepted at cleanup · ${inspection.status} · financial support unestablished.`:generate?'Review passages and assemble context before generating a draft. Model/runtime assets total 815.73 MB; missing files download when you choose Generate answer.':'Generation remains disabled in the ordinary entry. No generation adapter is configured.';
+  byId('generation-meta').textContent=raw?`Complete native receipt accepted at cleanup · ${inspection.status} · financial support unestablished.`:generate?'Answer drafts use 815.73 MB of model/runtime assets. Only missing files download when you choose Generate answer.':'Generation remains disabled in the ordinary entry. No generation adapter is configured.';
   geometryView?.render({source,documentEpoch:state.lifecycle.documentEpoch,active:Boolean(active),cancelled:state.status==='cancelled'});
   renderLookup(state);
   renderFailureDisclosure();
@@ -581,7 +581,7 @@ if(createLookupView!==undefined){
   if(!lookupView||typeof lookupView.render!=='function')throw new TypeError('Invalid lookup view');
 }
 byId('generation-contract').hidden=!generate;
-byId('generation-guidance').textContent=generate?'Assemble all selected evidence first, then explicitly generate with the paired Qwen model. Inspect the original native output and each cited source; a draft is unverified.':'Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled in this entry. Sourced candidates are not a verified answer.';
+byId('generation-guidance').textContent=generate?'Review the retrieved passages, assemble context, then generate. Check the draft against its cited sources.':'Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled in this entry. Sourced candidates are not a verified answer.';
 fileInput.addEventListener('change',()=>{const file=fileInput.files?.[0];if(file){beginUiAction();void session.select(file);}});
 byId('cancel').addEventListener('click',()=>{beginUiAction();session.cancel();});
 byId('clear').addEventListener('click',()=>{beginUiAction();session.clear();fileInput.value='';});

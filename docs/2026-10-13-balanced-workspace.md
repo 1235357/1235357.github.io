@@ -52,3 +52,16 @@ testing, not a physical-phone or subjective design-acceptance claim.
 
 The complete figure-theme regeneration, export checks, final test suite and
 publication evidence are recorded separately before release is accepted.
+
+## Empty draft refinement
+
+A later review of the actual public page against the same reference profile and
+NN/G's original progressive-disclosure article found one remaining duplicate:
+the initial session status and an empty native execution receipt both described
+the absence of an answer. The generation view now retains its empty receipt
+text internally but hides that container until a native result and inspection
+exist. An accepted result restores the same complete presentation, including
+refusals, raw output, citations and downloadable receipts. The initial draft
+instructions are shorter, while the explicit 815.73 MB asset disclosure stays
+visible before a visitor chooses Generate answer. This presentation refinement
+does not start or repeat model work.
