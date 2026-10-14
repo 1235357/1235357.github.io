@@ -4,7 +4,7 @@ tags: [rag, api, packaging, software-design, provenance]
 category: technical-blog
 status: development-notes
 created: 2026-10-13
-updated: 2026-10-13
+updated: 2026-10-14
 source_type: implementation-and-official-documentation-review
 ---
 
@@ -109,6 +109,27 @@ The unit is part of the evidence. Two rows both named **Basic** can describe dif
 
 The new builder produced 531 passages from ten original reports and retained six extraction omissions. A fresh reader rebuilt the original source index and reproduced the complete artifact; an independently installed wheel produced identical files. Printed `$` is retained without inferring an ISO currency code. This completes source representation and replay, while new field-vector ranking and financial answer evaluation remain open. The [source-field guide and dated evidence](https://github.com/1235357/nvidia-financial-rag/blob/7039b98daea7fd25c3f3d0f2e87284211605637a/docs/source-field-passages.md) describe that boundary. The original raw passages and vectors remain available for comparison.
 
+## A source field can still rank incorrectly
+
+Keeping a row and column together improves what a passage represents. It does not guarantee that the encoder will rank the requested field highly. The next local experiment encoded all 531 source-field passages with the same cached BGE model and asked the same three exposed development questions. Top K remained 5 and the cosine threshold remained 0.78.
+
+| Requested current field | Rank within its report | Cosine | Survives Top5 and threshold |
+| --- | ---: | ---: | --- |
+| FY2025 annual Revenue | 4 of 55 | 0.78443 | Yes |
+| Q2 Net income, three months ended July 28, 2024 | 11 of 72 | 0.77810 | No |
+| Q2 Net income, six months ended July 28, 2024 | 3 of 72 | 0.77460 | No |
+
+For the three-month question, all five returned candidates passed the threshold, but they described other metrics, including income before tax. The requested Net income field was absent from Top5. The annual result included the requested field alongside other metrics; that also does not establish a correct financial answer. **Source binding, similarity and answer support need separate checks.** This representation was not promoted into the production retriever.
+
+<details>
+<summary>Execution failure and diagnostic scope</summary>
+
+<p>The native attempt completed its model encodes and queries, then failed its final module-origin audit on Torch's virtual <code>torch.ops</code> namespace. That attempt remains failed. A separate no-model process verified the retained arithmetic and replayed the original PDF bindings for all fifteen Top5 candidates; it cannot reconstruct the failed process's missing final origin inventory.</p>
+
+<p>The <a href="https://github.com/1235357/nvidia-financial-rag/blob/e7cae56ac3700d80522f02975814bf592cd6d9ee/docs/source-field-bge-diagnostic.md">versioned diagnostic and exact values</a> preserve both outcomes. These three questions are development probes, with no independent human-gold or held-out set. The result supplies no financial accuracy or generation-quality claim.</p>
+
+</details>
+
 ## Connect the design to the course work
 
 CS310's introduction to web services describes addresses, request/response messages, headers, bodies and status codes. Those ideas matter when a consuming application distinguishes a missing statement feature from a completed selection. In this project, a running service provides a terminal HTTP result; a failed startup is an operator error before the client can connect. The relevant lecture is `cs310-intro-web-services.pdf`, physical pages 4, 6, 9 and 17.
@@ -125,7 +146,7 @@ This is a proposed exercise, not a claim that a learner completed it. Replacing 
 
 ## Read the acceptance evidence at its actual scope
 
-The [official corrected startup run](https://github.com/1235357/nvidia-financial-rag/actions/runs/38428973799) used revision `9687491a8c006a91ae2902689c1594a28cfe3e2c`. Its downloaded Linux and Windows archives each bind 842 passing tests, 20 exact installed production modules, 27 valid wheel records and 44 real loopback HTTP checks across three startup modes. The container archive separately records 26 HTTP checks across configured and unconfigured services with a read-only root and source mount, UID/GID `10001:10001`, dropped capabilities and owned shutdown. Docker healthcheck status during stop is not deployment-health acceptance.
+The [official corrected startup run](https://github.com/1235357/nvidia-financial-rag/actions/runs/38428973799) used revision `9687491a8c006a91ae2902689c1594a28cfe3e2c`. Its downloaded Linux and Windows archives each bind 842 passing tests, 20 exact installed production modules, 27 valid wheel records and 44 assertions over actual loopback HTTP behavior across three startup modes. The container archive separately records 26 assertions over HTTP behavior across configured and unconfigured services with a read-only root and source mount, UID/GID `10001:10001`, dropped capabilities and owned shutdown. These assertion counts are not counts of distinct HTTP requests. Docker healthcheck status during stop is not deployment-health acceptance.
 
 The [sanitized release metadata](https://github.com/1235357/nvidia-financial-rag/blob/b94c92f0fa4c98914e5a2907e5044a943bea134a/docs/acceptance/enterprise-startup-release-20261013.json) preserves those archive identities and the earlier permissions failure. Revision `b94c92f` publishes the guide and metadata with unchanged production modules. These installed checks use independent synthetic native tables to test transport and startup behavior. They do not provide a human-reviewed financial accuracy denominator or demonstrate a new model run.
 
