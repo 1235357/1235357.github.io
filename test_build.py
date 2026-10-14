@@ -607,6 +607,47 @@ class NavigationTest(unittest.TestCase):
         self.assertNotIn('aria-label="Article sections"', index)
 
 
+class LabNavigationTest(unittest.TestCase):
+    """Reading documentation must not replace a live embedded PDF session."""
+
+    def setUp(self):
+        class Links(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.anchors = []
+
+            def handle_starttag(self, tag, attrs):
+                if tag == 'a':
+                    self.anchors.append(dict(attrs))
+
+        parser = Links()
+        parser.feed((build.ROOT / 'browser-rag/inspector.html').read_text(encoding='utf-8'))
+        self.links = parser.anchors
+
+    def test_documentation_opens_separately_without_replacing_the_lab(self):
+        documents = [link for link in self.links
+                     if not link.get('href', '').startswith('#')
+                     and link.get('href') != '../index.html']
+        self.assertGreaterEqual(len(documents), 2)
+        for link in documents:
+            with self.subTest(href=link['href']):
+                self.assertEqual(link.get('target'), '_blank')
+                self.assertTrue({'noopener', 'noreferrer'} <= set(link.get('rel', '').split()))
+                self.assertIn('new tab', link.get('aria-label', ''))
+
+    def test_workspace_and_notebook_fragments_keep_native_in_frame_navigation(self):
+        fragments = [link for link in self.links if link.get('href', '').startswith('#')]
+        self.assertTrue({'#lab-workspace', '#computation-notebook', '#notebook-chunks'}
+                        <= {link['href'] for link in fragments})
+        for link in fragments:
+            self.assertIn(link.get('target', '_self'), ('', '_self'))
+
+    def test_explicit_profile_exit_targets_the_full_page(self):
+        profiles = [link for link in self.links if link.get('href') == '../index.html']
+        self.assertTrue(profiles)
+        self.assertTrue(all(link.get('target') == '_top' for link in profiles))
+
+
 class ProfileHierarchyTest(unittest.TestCase):
     """Reader-facing hierarchy without discarding the complete CV project record."""
 

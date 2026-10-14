@@ -332,9 +332,12 @@ def copy_public_generation_assets(browser, target, root):
     markup = markup.replace('LOCAL DRAFT · CONTEXT NOT GENERATED', 'BROWSER LAB · CONTEXT NOT GENERATED')
     markup = markup.replace('<p class="eyebrow">PAIRED QWEN / EXPLICIT ACTION</p>',
         '<p class="eyebrow">PAIRED QWEN / EXPLICIT ACTION</p><p class="hint">'
-        '<a href="notices/QWEN-MODEL-CARD.txt">Pinned conversion model card</a> · '
-        '<a href="notices/QWEN-LICENSE.txt">Upstream model license</a> · '
-        '<a href="notices/QWEN-ATTRIBUTION.txt">Source attribution</a></p>')
+        '<a href="notices/QWEN-MODEL-CARD.txt" target="_blank" rel="noopener noreferrer" '
+        'aria-label="Pinned conversion model card (opens in a new tab)">Pinned conversion model card</a> · '
+        '<a href="notices/QWEN-LICENSE.txt" target="_blank" rel="noopener noreferrer" '
+        'aria-label="Upstream model license (opens in a new tab)">Upstream model license</a> · '
+        '<a href="notices/QWEN-ATTRIBUTION.txt" target="_blank" rel="noopener noreferrer" '
+        'aria-label="Source attribution (opens in a new tab)">Source attribution</a></p>')
     entry.write_text(markup, encoding='utf-8')
     registry_path = guard_path(browser / 'acceptance/generator-probe-assets.json', root)
     with registry_path.open('rb') as registry_stream:

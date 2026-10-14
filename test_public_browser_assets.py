@@ -5,6 +5,7 @@ import io
 import json
 import re
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
 from unittest.mock import patch
 import build
@@ -113,6 +114,30 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         for name in release.PUBLIC_MODULES:self.assertFalse((out/name).exists(),name)
         self.assertFalse((out/'models'/release.QWEN_REVISION).exists());self.assertFalse((out/'acceptance').exists())
         self.assertIn('Local draft · not published',(self.root/'dist/index.html').read_text(encoding='utf-8'))
+
+    def test_generated_model_notices_do_not_navigate_the_live_workspace(self):
+        self.public()
+
+        class Links(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.notices = []
+
+            def handle_starttag(self, tag, attrs):
+                values = dict(attrs)
+                if tag == 'a' and values.get('href', '').startswith('notices/'):
+                    self.notices.append(values)
+
+        links = Links()
+        links.feed((self.root/'dist/browser-rag/inspector.html').read_text(encoding='utf-8'))
+        self.assertEqual({link['href'] for link in links.notices}, {
+            'notices/QWEN-MODEL-CARD.txt', 'notices/QWEN-LICENSE.txt',
+            'notices/QWEN-ATTRIBUTION.txt'})
+        for link in links.notices:
+            with self.subTest(href=link['href']):
+                self.assertEqual(link.get('target'), '_blank')
+                self.assertTrue({'noopener', 'noreferrer'} <= set(link.get('rel', '').split()))
+                self.assertIn('new tab', link.get('aria-label', ''))
 
     def test_missing_each_public_module_retains_previous_dist(self):
         self.public()
