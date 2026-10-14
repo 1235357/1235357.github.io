@@ -4859,6 +4859,19 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     :root { color-scheme: light; }
     .toolbar #btn-theme { display: none !important; }
   </style>
+  <style id="site-figure-typography">
+    .card { overflow-wrap: anywhere; }
+    /* The viewer interface belongs to the portfolio; SVG technical labels keep
+       their portable JetBrains Mono. Presets never replace the UI family. */
+    @font-face { font-family: Manrope; src: url('../assets/typography/Manrope-Variable.ttf?v=3ae11c49db0455a3') format('truetype'); font-style: normal; font-weight: 200 800; font-display: swap; }
+    body,
+    html[data-preset] h1,
+    html[data-preset] .card h3,
+    html[data-preset] .header-row::after,
+    html[data-preset] .diagram-container::after {
+      font-family: Manrope, 'Segoe UI', sans-serif;
+    }
+  </style>
 </head>
 <body>
   <!-- Toolbar: theme, live visual style, trace motion, presentation stage, and export.
@@ -6330,7 +6343,35 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         return { x: x + FIGURE_CARD_PADDING, y: y + FIGURE_CARD_PADDING };
       }
 
+      // Shared interface font export gate
+      function withSiteUiFont(draw) {
+        return Promise.resolve().then(function () {
+          var fonts = document.fonts;
+          if (!fonts || typeof fonts.load !== 'function') {
+            throw new Error('The shared interface font is unavailable for export.');
+          }
+          return Promise.all([
+            fonts.load('650 24px Manrope'),
+            fonts.load('400 14px Manrope')
+          ]);
+        }).then(function (loaded) {
+          if (!loaded[0].length || !loaded[1].length) {
+            throw new Error('The shared interface font did not load for export.');
+          }
+        }).catch(function () {
+          // Only this fixed local message is trusted by the viewer's error UI.
+          var error = new Error('Load the interface font, then retry the export.');
+          error.archifyViewerMessage = error.message;
+          throw error;
+        }).then(draw);
+      }
+      // End shared interface font export gate
+
       function rasterize(format) {
+        return withSiteUiFont(function () { return rasterizeReady(format); });
+      }
+
+      function rasterizeReady(format) {
         // Serialize at a safe scale (RASTER_SCALE=4 by default, reduced if the
         // resulting canvas would exceed MAX_CANVAS_PIXELS). The SVG itself is
         // rasterized at target resolution natively; drawImage draws at natural
@@ -6407,6 +6448,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       }
 
       function renderShareCard(options) {
+        return withSiteUiFont(function () { return renderShareCardReady(options); });
+      }
+
+      function renderShareCardReady(options) {
         var routeSnapshot = options.routeSnapshot || null;
         var reachSnapshot = options.reachSnapshot || null;
         if (routeSnapshot && reachSnapshot) return Promise.reject(exportError('viewer.export.error.variantsCombined'));
@@ -6571,6 +6616,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       // render an explicit time-varying signal scene over the real authored
       // relationship geometry on every captured canvas frame.
       function recordWebm(options) {
+        return withSiteUiFont(function () { return recordWebmReady(options); });
+      }
+
+      function recordWebmReady(options) {
         options = options || {};
         if (!canRecordMotion()) {
           return Promise.reject(exportError('viewer.export.error.webmRequirements'));

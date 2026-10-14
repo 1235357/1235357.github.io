@@ -56,3 +56,24 @@ The review applies the installed Emil Design Engineering skill and the live
 in particular stable navigation, semantic skip links, visible focus and reduced
 visual competition. Verification receipts remain in local history separately
 from this design contract.
+
+## Figure interfaces use the same typography
+
+All eight Archify viewer interfaces now load the site's pinned, same-origin
+Manrope font. Titles, toolbar controls, explanatory card headings and preset
+badges keep that family, including the Editorial preset. Technical labels
+inside the SVG retain their portable JetBrains Mono. The diagram's nodes,
+relationships, source references and literal SVG bodies are unchanged.
+
+| Before | After | Why |
+| --- | --- | --- |
+| Figure titles and controls use a separate system UI font | Shared Manrope interface typography | Entering a figure preserves the site's visual identity |
+| Editorial can replace titles and card headings with Georgia | Preset headings retain the shared UI family | Optional diagram styles preserve the surrounding design language |
+| Raster export can paint before the interface font loads | PNG, JPEG, WebP, clipboard, Share Card and motion drawing wait for title and subtitle font availability | Exported titles use the same typography; a failed font request gives a fixed retry message |
+
+The font and unmodified OFL notice are already part of the verified site asset
+inventory. SVG export keeps its embedded diagram font and shared light palette;
+it does not gain a network font dependency. This focused adaptation preserves
+the earlier Archify receipts as historical evidence. Current tests, actual
+Codex in-app browser observations and downloaded-image inspection are recorded
+separately; no new stock Archify browser gate is claimed.
