@@ -37,6 +37,12 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
     )
     publication_label = 'Documentation · browser lab' if public_release else 'Local draft · not published'
     series_url = 'journal.html' if has_portfolio else 'index.html'
+    reading_navigation = (
+        '<nav aria-label="Main navigation"><a href="index.html#projects">Work</a>'
+        f'<a href="{series_url}">Journal</a><a href="index.html#demo">RAG lab</a></nav>'
+        if has_portfolio else
+        '<nav aria-label="Main navigation"><a href="index.html">Journal</a></nav>'
+    )
     footer_html = (
         '© 2026 Zhentong Ye · '
         '<a href="https://github.com/1235357/1235357.github.io">Source</a> · '
@@ -48,12 +54,14 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
     return f'''<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f7f8fa">
 <title>{escape(title)} — Zhentong Ye</title><link rel="stylesheet" href="{escape(stylesheet_href, quote=True)}">
-<header><a href="index.html">ZHENTONG YE / ENGINEERING NOTES</a>
-<span>{publication_label}</span></header>
-<main><aside><p>FIELD NOTES / {escape(section)}</p><p>Evidence, interfaces,<br>and engineering decisions.</p>
+<body class="reading-page"><a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ ENGINEERING NOTES</span></a>
+{reading_navigation}</header>
+<main id="main-content" tabindex="-1"><aside><p>FIELD NOTES / {escape(section)}</p><p>Evidence, interfaces,<br>and engineering decisions.</p>
 <a href="{series_url}">Series index ↗</a>{desktop_outline}</aside>{article_layout}</main>
-<footer>{footer_html}</footer></html>'''
+<footer>{publication_label} · {footer_html}</footer></body></html>'''
 
 
 class PageReferences(HTMLParser):

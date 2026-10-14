@@ -1,4 +1,4 @@
-:root{color-scheme:light;--paper:#f7f8fa;--ink:#172033;--accent:#234ccf;--muted:#46536b;--line:#d8dfeb;--panel:#fff;--soft:#eef2f8;--scope-ink:#6a481d;--ui:Manrope,'Segoe UI',sans-serif}
+:root{color-scheme:light;--paper:#f7f8fa;--ink:#172033;--accent:#234ccf;--muted:#46536b;--line:#d8dfeb;--panel:#fff;--soft:#eef2f8;--scope-ink:#6a481d;--ui:Manrope,'Segoe UI',sans-serif;--mono:'Cascadia Code',Consolas,ui-monospace,monospace;--site-gutter:clamp(22px,5vw,80px)}
 article{overflow-wrap:anywhere}
 figure{max-width:100%;margin:24px 0;overflow-x:auto}
 figure svg{background:var(--panel);border-radius:10px}
@@ -7,11 +7,19 @@ figcaption{font-size:.85em;line-height:1.5;margin-top:12px}
 table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse;font-size:.9em}
 th,td{min-width:140px;padding:12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
 th{background:var(--soft);font-weight:750}
-a:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+:is(a,summary,button,input,textarea,select):focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+:is(a,summary,button){touch-action:manipulation}
+.skip-link{position:fixed;top:12px;left:16px;z-index:20;padding:12px 18px;background:var(--ink);color:var(--paper);transform:translateY(-180%);font:650 15px/1.6 var(--ui)}
+.skip-link:focus{transform:translateY(0)}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:500 19px/1.85 var(--ui)}
 ::selection{background:#dce5ff;color:var(--ink)}
 header{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 5vw;border-bottom:1px solid var(--line);font:650 14px/1.6 var(--ui);letter-spacing:.015em}
 header span{font-weight:500;color:var(--muted)}
+.site-header{max-width:1600px;margin:auto;padding:18px var(--site-gutter);font:600 15px/1.6 var(--ui);letter-spacing:0}
+.site-header .wordmark{font-weight:800;white-space:nowrap;color:var(--ink)}
+.site-header .wordmark span{font-weight:500;color:var(--muted)}
+.site-header nav{display:flex;flex-wrap:wrap;gap:4px 26px}
+.site-header nav a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-size:15px;letter-spacing:0}
 a{color:var(--accent);text-underline-offset:5px}header a{color:var(--ink);text-decoration:none}
 main{display:grid;grid-template-columns:230px minmax(0,780px);gap:6vw;max-width:1200px;margin:70px auto;padding:0 30px}
 main>article{grid-column:2}
@@ -39,14 +47,17 @@ h2[id]{scroll-margin-top:24px}
 .project-variants{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin:28px 0}
 .project-variants h3{font-size:23px;line-height:1.3;margin:0}.project-variants p{font-size:16px;line-height:1.7}
 .project-variants a,.featured-project>a{font-size:16px}.featured-project .project-boundary{font-size:12px;margin-bottom:0}
-h1,h2,h3{font-family:var(--ui);font-weight:750}
+h1,h2,h3{font-family:var(--ui);font-weight:750;text-wrap:balance}
 h1{font-size:clamp(36px,5vw,64px);line-height:1.12;letter-spacing:-.035em;margin:0 0 38px}h2{font-size:29px;line-height:1.3;margin-top:55px;letter-spacing:-.025em}
-article{min-width:0}p{margin:22px 0}pre{overflow:auto;padding:22px;background:var(--soft);color:var(--ink);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;font-size:15px;line-height:1.75}code{font-family:Consolas,'Cascadia Code','Courier New',monospace;font-size:.9em}p code,li code,td code{background:var(--soft);padding:2px 5px;border-radius:4px;color:var(--ink)}pre code{font-size:1em;background:transparent;padding:0}li{margin:12px 0}footer{border-top:1px solid var(--line);padding:30px 5vw;color:var(--muted);font:500 14px/1.7 var(--ui)}
+article{min-width:0}p{margin:22px 0}pre{overflow:auto;padding:22px;background:var(--soft);color:var(--ink);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;font-size:15px;line-height:1.75}code{font-family:var(--mono);font-size:.9em}p code,li code,td code{background:var(--soft);padding:2px 5px;border-radius:4px;color:var(--ink)}pre code{font-size:1em;background:transparent;padding:0}li{margin:12px 0}footer{border-top:1px solid var(--line);padding:30px 5vw;color:var(--muted);font:500 14px/1.7 var(--ui)}
 body:not(.portfolio-page) article details:not(.mobile-outline){margin:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 0}
-body:not(.portfolio-page) article summary{cursor:pointer;min-height:46px;padding:10px 0;color:var(--accent);font:650 16px/1.7 var(--ui)}
+body:not(.portfolio-page) article summary{cursor:pointer;min-height:46px;padding:10px 0;color:var(--ink);font:650 16px/1.7 var(--ui)}
+body:not(.portfolio-page) article details[open]>summary{color:var(--accent)}
+@media(max-width:960px){.site-header{align-items:flex-start;flex-direction:column;gap:8px}}
+@media(max-width:700px){:root{--site-gutter:22px}.site-header nav{gap:4px 20px}.site-header .wordmark{white-space:normal}}
 @media(max-width:800px){main{grid-template-columns:1fr;margin:35px auto;gap:30px;padding:0 22px}aside{display:none}header{flex-direction:column;gap:8px}body{font-size:18px}h2{font-size:26px}}
 @media(max-width:800px){main>article{grid-column:1}.figure-heading{padding:22px 18px 8px}.architecture-figure iframe{height:620px}.architecture-figure figcaption{padding:18px;font-size:14px}}
-@media(max-width:800px){.mobile-outline{display:block;margin:-12px 0 28px;padding:4px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font:500 15px/1.6 var(--ui)}.mobile-outline summary{cursor:pointer;color:var(--accent)}.mobile-outline nav{margin-top:16px}}
+@media(max-width:800px){.mobile-outline{display:block;margin:-12px 0 28px;padding:4px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font:500 15px/1.6 var(--ui)}.mobile-outline summary{cursor:pointer}.mobile-outline nav{margin-top:16px}}
 @media(max-width:560px){.featured-project{padding:20px}.featured-project h2{font-size:28px}.project-variants{grid-template-columns:1fr;gap:24px}}
 
 /* All reading pages, the profile and lab share this self-hosted UI family. */
@@ -60,17 +71,10 @@ html:has(>body.portfolio-page){color-scheme:light}
   background:var(--paper);color:var(--ink);font:500 18px/1.75 var(--ui);
 }
 .portfolio-page ::selection{background:#dce5ff;color:var(--ink)}
-.portfolio-page .skip-link{position:fixed;top:12px;left:16px;z-index:10;padding:12px 18px;background:var(--ink);color:var(--paper);transform:translateY(-180%)}
-.portfolio-page .skip-link:focus{transform:translateY(0)}
-.portfolio-page :is(a,summary,button):focus-visible{outline:3px solid var(--accent);outline-offset:5px}
+.portfolio-page :is(a,summary,button):focus-visible{outline:3px solid var(--accent);outline-offset:4px}
 .portfolio-page :is(a,summary,button){touch-action:manipulation}
 .portfolio-page :is(.primary-link,.demo-tabs button){user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .portfolio-page :is(h1,h2,h3){font-family:var(--ui);font-weight:750;letter-spacing:-.035em}
-.portfolio-page .portfolio-header{align-items:center;max-width:1600px;margin:auto;padding:18px var(--portfolio-gutter);font:600 15px/1.6 var(--ui);letter-spacing:0}
-.portfolio-page .wordmark{font-weight:800;white-space:nowrap;color:var(--ink)}
-.portfolio-page .wordmark span{color:var(--muted);font-weight:500}
-.portfolio-page .portfolio-header nav{display:flex;flex-wrap:wrap;gap:26px}
-.portfolio-page .portfolio-header nav a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-size:15px;letter-spacing:0}
 /* Separate the reading rail from the fluid workbench without viewport-width
    subtraction, which would also include the browser's vertical scrollbar. */
 .portfolio-page .portfolio-main{display:grid;grid-template-columns:[full-start] minmax(var(--portfolio-gutter),1fr) [content-start] minmax(0,calc(1440px - 2 * var(--portfolio-gutter))) [content-end] minmax(var(--portfolio-gutter),1fr) [full-end];gap:0;max-width:none;margin:0;padding:0;min-width:0}
@@ -158,7 +162,6 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page .portfolio-footer{display:flex;flex-wrap:wrap;gap:8px;max-width:1600px;margin:auto;padding:28px var(--portfolio-gutter);color:var(--muted);font:500 14px/1.7 var(--ui)}
 .portfolio-page .portfolio-footer>span{margin-left:auto}
 @media(max-width:960px){
-  .portfolio-page .portfolio-header{align-items:flex-start;flex-direction:column;gap:8px}
   .portfolio-page .personal-hero{grid-template-columns:minmax(0,1fr) minmax(210px,.48fr);gap:32px;padding:60px 0 72px}
   .portfolio-page .personal-hero h1{font-size:clamp(60px,8vw,78px)}
   .portfolio-page .project-list{grid-template-columns:1fr;gap:18px}
@@ -185,16 +188,15 @@ html:has(>body.portfolio-page){color-scheme:light}
   .portfolio-page .demo-stage-head p:not(.eyebrow){font-size:17px}
   .portfolio-page .demo-frame-shell{height:clamp(660px,85svh,900px)}
   .portfolio-page .portfolio-footer>span{width:100%;margin:10px 0 0}
-  .portfolio-page .portfolio-header nav{gap:4px 20px}
-  .portfolio-page .wordmark{white-space:normal}
 }
 @media(max-width:360px){
   .portfolio-page .personal-hero h1{font-size:48px}
 }
 @media(hover:hover) and (pointer:fine){
-  .portfolio-page .portfolio-header nav a:hover{color:var(--accent);text-decoration:underline}
+  .site-header nav a:hover{color:var(--accent);text-decoration:underline}
+  body:not(.portfolio-page) article summary:hover{color:var(--accent);text-decoration:underline;text-underline-offset:4px}
   .portfolio-page .primary-link:hover{background:#173aa9;border-color:#173aa9}
-  .portfolio-page summary:hover{text-decoration:underline;text-underline-offset:4px}
+  .portfolio-page summary:hover{color:var(--accent);text-decoration:underline;text-underline-offset:4px}
   .portfolio-page .demo-tabs button:hover{border-color:var(--accent)}
 }
 /* Emil: press feedback has one exact property; keyboard/details stay immediate. */

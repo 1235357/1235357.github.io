@@ -58,7 +58,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <meta name="description" content="Northwestern MSCS student. AI engineering, multimodal research, interactive financial RAG and a continuing project journal.">
 <link rel="stylesheet" href="{text(stylesheet_href)}"></head><body class="portfolio-page">
 <a class="skip-link" href="#main-content">Skip to content</a>
-<header class="portfolio-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ {label}</span></a>
+<header class="site-header portfolio-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ {label}</span></a>
 <nav aria-label="Main navigation"><a href="#projects">Work</a><a href="#background">Background</a><a href="journal.html">Journal</a><a href="{text(portrait['profile'])}">LinkedIn ↗</a></nav></header>
 <main class="portfolio-main" id="main-content">
 <section class="personal-hero" aria-labelledby="personal-title">

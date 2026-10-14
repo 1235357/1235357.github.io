@@ -29,3 +29,30 @@ are checked separately.
 
 This is a presentation and delivery change. It adds no financial accuracy,
 model-execution or physical-phone claim.
+
+## Continuing the same design language
+
+The profile and every reading page now use the same `.site-header` component
+styles: the same name treatment, 15px navigation, 44px targets and responsive
+left alignment. Reading pages expose Work, Journal and RAG lab even when the
+article sidebar is hidden. The RAG destination is the existing profile demo
+anchor, so a separately opened article does not replace an already open lab.
+Publication metadata moves to the footer instead of competing with navigation.
+
+| Before | After | Why |
+| --- | --- | --- |
+| Article and Journal routes disappear with the narrow-screen sidebar | Shared header with persistent destinations | Readers keep their bearings between the person, the writing and the project |
+| Closed disclosures are blue throughout the lab and articles | Navy when closed, cobalt when open or hovered | Advanced content stays discoverable without competing with the primary action |
+| Article disclosures have no explicit keyboard focus treatment | The same 3px cobalt outline and 4px offset across profile, reading and lab | Keyboard interaction has a recognizable, visible response |
+| Reading code and lab code use slightly different gray surfaces and font order | Shared `#eef2f8` surface and Cascadia Code / Consolas fallback order | Technical detail belongs to the same family as the rest of the site |
+
+Native disclosures remain immediate. Prose stays 19px desktop / 18px narrow;
+the denser lab stays 17px. Reading columns and fluid workspaces keep their
+different purposes. The existing eight Archify diagrams retain their light
+theme and geometry; no diagram content is regenerated for this increment.
+
+The review applies the installed Emil Design Engineering skill and the live
+[Vercel Web Interface Guidelines](https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md),
+in particular stable navigation, semantic skip links, visible focus and reduced
+visual competition. Verification receipts remain in local history separately
+from this design contract.
