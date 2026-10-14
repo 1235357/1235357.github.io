@@ -53,11 +53,20 @@ article{min-width:0}p{margin:22px 0}pre{overflow:auto;padding:22px;background:va
 body:not(.portfolio-page) article details:not(.mobile-outline){margin:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 0}
 body:not(.portfolio-page) article summary{cursor:pointer;min-height:46px;padding:10px 0;color:var(--ink);font:650 16px/1.7 var(--ui)}
 body:not(.portfolio-page) article details[open]>summary{color:var(--accent)}
-@media(max-width:960px){.site-header{align-items:flex-start;flex-direction:column;gap:8px}}
-@media(max-width:700px){:root{--site-gutter:22px}.site-header nav{gap:4px 20px}.site-header .wordmark{white-space:normal}}
-@media(max-width:800px){main{grid-template-columns:1fr;margin:35px auto;gap:30px;padding:0 22px}aside{display:none}header{flex-direction:column;gap:8px}body{font-size:18px}h2{font-size:26px}}
-@media(max-width:800px){main>article{grid-column:1}.figure-heading{padding:22px 18px 8px}.architecture-figure iframe{height:620px}.architecture-figure figcaption{padding:18px;font-size:14px}}
-@media(max-width:800px){.mobile-outline{display:block;margin:-12px 0 28px;padding:4px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font:500 15px/1.6 var(--ui)}.mobile-outline summary{cursor:pointer}.mobile-outline nav{margin-top:16px}}
+@media(max-width:960px){.site-header{flex-wrap:wrap;gap:8px 24px}}
+@media(max-width:700px){:root{--site-gutter:22px}.site-header{align-items:flex-start;flex-direction:column}.site-header nav{gap:4px 20px}.site-header .wordmark{white-space:normal}}
+/* Give reading the full measure before the side rail can crowd it. The same
+   outline remains available as an immediate, native disclosure. */
+@media(max-width:1100px){
+  .reading-page main{grid-template-columns:minmax(0,780px);max-width:840px;margin:48px auto;gap:30px}
+  .reading-page main>article{grid-column:1}
+  .reading-page aside{display:none}
+  .reading-page .mobile-outline{display:block;margin:-12px 0 28px;padding:4px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font:500 15px/1.6 var(--ui)}
+  .reading-page .mobile-outline summary{cursor:pointer}
+  .reading-page .mobile-outline nav{margin-top:16px}
+}
+@media(max-width:800px){.reading-page main{margin:35px auto;padding:0 22px}body{font-size:18px}h2{font-size:26px}}
+@media(max-width:800px){.figure-heading{padding:22px 18px 8px}.architecture-figure iframe{height:620px}.architecture-figure figcaption{padding:18px;font-size:14px}}
 @media(max-width:560px){.featured-project{padding:20px}.featured-project h2{font-size:28px}.project-variants{grid-template-columns:1fr;gap:24px}}
 
 /* All reading pages, the profile and lab share this self-hosted UI family. */

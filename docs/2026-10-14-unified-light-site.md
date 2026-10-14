@@ -57,6 +57,25 @@ in particular stable navigation, semantic skip links, visible focus and reduced
 visual competition. Verification receipts remain in local history separately
 from this design contract.
 
+## Reading space at intermediate widths
+
+The article outline now moves into the existing native "On this page"
+disclosure at 1100px. The centered reading area has a 780px maximum text
+measure; the desktop sidebar remains available above that breakpoint. Wide
+architecture figures still span the complete main grid. The shared header can
+wrap naturally, and only switches to a vertical layout below 700px.
+
+| Before | After | Why |
+| --- | --- | --- |
+| At about 900px, a 230px outline and wide gap compete with the article | A centered reading column with an expandable outline | The explanation gets the space it needs without losing section navigation |
+| Every header becomes vertical below 960px | A compact row when it fits, natural wrapping, vertical layout below 700px | Navigation keeps the same rhythm between profile and reading pages |
+| Editorial figure controls use a separate cream palette | White controls with the same cool paper, navy type and cobalt actions as the other presets | Optional presentation styles stay within the shared site theme |
+
+These changes follow the actual Codex in-app browser review of the public
+article and embedded lab, plus an independent source review. The earlier
+screenshots are observations of the prior version; updated rendering and
+publication checks are recorded separately.
+
 ## Figure interfaces use the same typography
 
 All eight Archify viewer interfaces now load the site's pinned, same-origin
