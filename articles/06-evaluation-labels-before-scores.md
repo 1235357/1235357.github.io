@@ -3,7 +3,7 @@ title: Labels before scores
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-12
+updated: 2026-10-14
 source_type: implementation-and-course-review
 tags: [rag, evaluation, evidence]
 ---
@@ -464,6 +464,48 @@ and [sanitized development receipt](https://github.com/1235357/nvidia-financial-
 preserve the scope and identities. This source-only path runs no encoder or
 generator and remains separate from the default HTTP service and browser
 notebook; its candidates still need independent financial review.
+
+## Keep a retrieval run separate from its review
+
+A ranking and a relevance decision happen at different times. If editing a
+label also changes the saved passages, a later score no longer describes the
+original run. The installed `nvidia-rag-evaluate` command now gives those two
+operations separate artifacts. It freezes the supplied question, corpus and
+configuration, sends only the exact question and Top K to the retriever, and
+retains every returned candidate before applying the evidence threshold.
+Expected answers and page labels never enter that backend call.
+
+| Step | What is retained | What it establishes |
+| --- | --- | --- |
+| Freeze the run | Exact inputs, package bodies and explicit scope/settings | Which named inputs and implementation were used |
+| Execute retrieval | Complete candidate text, source identity, order and score | What the selected retriever actually returned |
+| Review a copy | A separate grade and source-check slot for every candidate | Which passages have a supplied judgment, including those still unknown |
+| Import the review | Original run hashes and the complete candidate denominator | The judgments belong to that unchanged result |
+
+In the generated-PDF installation check, two questions produced four candidates.
+All four initially remained unjudged. Supplying one synthetic relevant grade
+and one synthetic irrelevant grade left two unknown: judgment coverage became
+2/4. That is **review coverage, not 50% financial accuracy**. The importer also
+refused a copy with an altered candidate rank. These fixtures test installation
+and result binding; they are not human-reviewed financial labels or a BGE run.
+
+The [versioned command guide](https://github.com/1235357/nvidia-financial-rag/blob/48daf59ca92f829a2301fd10f6e066c8c861e5b1/docs/retrieval-evaluation-runner.md)
+provides the JSONL schema, lexical and cached-local BGE commands, separate review
+import, failure records and compatibility limits. The
+[local installation record](https://github.com/1235357/nvidia-financial-rag/blob/48daf59ca92f829a2301fd10f6e066c8c861e5b1/docs/acceptance/retrieval-evaluation-local-20261014.json)
+binds its 1,330 passing checkout tests and exact installed wheel/module identities.
+Its hashes establish consistency of the named bodies, not authenticity of every
+runtime dependency or the truth of a review. The new command does not revise
+the earlier failed financial-readiness findings.
+
+An acceptance-candidate registration must also pass duplicate-ID checks within
+each question file, plus exact query and financial-target overlap checks against
+a separately frozen reference. That
+still misses paraphrases and shared source exposure. A registration field cannot
+make a question independently held out. The remaining work is to obtain actual
+independent financial judgments, run the frozen model comparison and evaluate
+answer quality separately. The browser notebook remains a separate reader-device
+workflow; it does not silently call this Python command.
 
 ## Reproduce this reasoning
 
