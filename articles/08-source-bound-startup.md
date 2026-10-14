@@ -130,6 +130,23 @@ For the three-month question, all five returned candidates passed the threshold,
 
 </details>
 
+## Ask for a field with its unit
+
+An integrating application may already know the exact field it needs. The Python API now offers `POST /v1/statement-fields` for that case. It accepts a section-qualified row path, a native period and an explicit unit contract, then selects from the same source snapshot. It does not turn those fields into a natural-language question or route them through cosine ranking.
+
+Consider the two rows printed as **Basic** in the earlier table. An earnings-per-share request uses `per_share/basic`, unit kind `per_share`, scale `"1"` and printed currency `"$"`. A weighted-share-count request uses `count/basic`, unit kind `count`, scale `"1000000"` and null currency. The date and annual or month period must also match. Mixing these contracts withholds the candidate; choosing a unit is part of selecting the evidence.
+
+The response preserves the complete original cell and its row, column, date, section, source spans and rectangles. It records the typed request and source-index hashes without inventing a question parse, generated answer or similarity score. The [versioned field-interface guide](https://github.com/1235357/nvidia-financial-rag/blob/771bbe2f11e20103def1e99ca2d4c9628dac75d0/docs/statement-fields-api.md) gives the request example and refusal rules.
+
+<details>
+<summary>What the installed checks establish</summary>
+
+<p>A fresh installed wheel reproduced all 531 retained cells from ten original reports through actual loopback HTTP, with four additional negative requests withholding cells. This makes the 60 per-share and 60 count cells accessible through an explicit typed interface; the literal selector already supported the 411 monetary cells. Independent generated PDFs separately exercised unit, source, authentication and operational-failure contracts.</p>
+
+<p>These are installed-interface and source-derived development checks. They do not repair the dense retrieval result above, establish independent financial gold or demonstrate browser integration. The <a href="https://github.com/1235357/nvidia-financial-rag/blob/771bbe2f11e20103def1e99ca2d4c9628dac75d0/docs/acceptance/typed-statement-fields-20261014.json">dated local acceptance record</a> keeps those boundaries explicit.</p>
+
+</details>
+
 ## Connect the design to the course work
 
 CS310's introduction to web services describes addresses, request/response messages, headers, bodies and status codes. Those ideas matter when a consuming application distinguishes a missing statement feature from a completed selection. In this project, a running service provides a terminal HTTP result; a failed startup is an operator error before the client can connect. The relevant lecture is `cs310-intro-web-services.pdf`, physical pages 4, 6, 9 and 17.
