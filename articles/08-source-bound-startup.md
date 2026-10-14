@@ -95,6 +95,20 @@ The same three exposed questions then ran with the original PDFs, chunks, cached
 
 The first post-change attempt timed out before observing model or HTTP work. The preserved retry changed only repeated path construction in the passive observer and kept the same 180-second limit. It completed one model construction, three encodes and 16 HTTP responses, then closed its owned processes and listener. These are development integration observations. Correct report scope still leaves the six-month retrieval gap visible, and neither a cosine score nor an empty response supplies a reviewed financial answer. The [source-bound routing guide](https://github.com/1235357/nvidia-financial-rag/blob/2e49c25308c71499c417904c7fbd9d7a4735557f/docs/source-bound-period-routing.md) keeps the implementation boundary and acceptance details.
 
+## Keep the row and its column together
+
+A report can be correct while its passage representation loses the relationship a question needs. Plain PDF text can put four values after one row label without preserving which date and duration own each value. A source-field passage now keeps that row, column, date, duration, comparison role and unit together, with the original text spans and page rectangles attached.
+
+The unit is part of the evidence. Two rows both named **Basic** can describe different quantities:
+
+| Source section and row | Retained meaning | Scale |
+| --- | --- | --- |
+| Monetary statement · Net income | A monetary amount with the printed currency symbol | Source millions |
+| Net income per share · Basic | An amount per share | One per-share unit |
+| Weighted average shares · Basic | A share count without currency | Source millions of shares |
+
+The new builder produced 531 passages from ten original reports and retained six extraction omissions. A fresh reader rebuilt the original source index and reproduced the complete artifact; an independently installed wheel produced identical files. Printed `$` is retained without inferring an ISO currency code. This completes source representation and replay, while new field-vector ranking and financial answer evaluation remain open. The [source-field guide and dated evidence](https://github.com/1235357/nvidia-financial-rag/blob/7039b98daea7fd25c3f3d0f2e87284211605637a/docs/source-field-passages.md) describe that boundary. The original raw passages and vectors remain available for comparison.
+
 ## Connect the design to the course work
 
 CS310's introduction to web services describes addresses, request/response messages, headers, bodies and status codes. Those ideas matter when a consuming application distinguishes a missing statement feature from a completed selection. In this project, a running service provides a terminal HTTP result; a failed startup is an operator error before the client can connect. The relevant lecture is `cs310-intro-web-services.pdf`, physical pages 4, 6, 9 and 17.
