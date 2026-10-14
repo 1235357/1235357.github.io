@@ -20,7 +20,8 @@ FILE_BLOCK_BYTES = 1024 * 1024
 PUBLIC_SITE_MAX_BYTES = 1_000_000_000
 
 
-def render_page(title, content, *, section='SERIES', outline='', public_release=False, has_portfolio=False):
+def render_page(title, content, *, section='SERIES', outline='', public_release=False, has_portfolio=False,
+                stylesheet_href='style.css'):
     desktop_outline = f'<nav aria-label="Article sections">{outline}</nav>' if outline else ''
     if outline:
         mobile_outline = ('<details class="mobile-outline"><summary>On this page</summary>'
@@ -46,7 +47,8 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
     )
     return f'''<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{escape(title)} — Zhentong Ye</title><link rel="stylesheet" href="style.css">
+<meta name="color-scheme" content="light">
+<title>{escape(title)} — Zhentong Ye</title><link rel="stylesheet" href="{escape(stylesheet_href, quote=True)}">
 <header><a href="index.html">ZHENTONG YE / ENGINEERING NOTES</a>
 <span>{publication_label}</span></header>
 <main><aside><p>FIELD NOTES / {escape(section)}</p><p>Evidence, interfaces,<br>and engineering decisions.</p>
@@ -178,6 +180,9 @@ def render_site(root, output, *, public_release=False):
         if figure.is_file() and (figure.suffix in {'.drawio', '.puml', '.svg', '.png'}
                                  or archify_output or archify_notice):
             shutil.copyfile(figure, figure_output / figure.name)
+    style_text = guard_path(root / 'style.css', root).read_text(encoding='utf-8')
+    style_version = hashlib.sha256(style_text.encode('utf-8')).hexdigest()[:16]
+    stylesheet_href = f'style.css?v={style_version}'
     links = []
     for source in sorted(guard_path(root / 'articles', root).glob('*.md')):
         guard_path(source, root)
@@ -196,7 +201,8 @@ def render_site(root, output, *, public_release=False):
         name = source.stem + '.html'
         (output / name).write_text(render_page(title, html, section=source.stem.split('-', 1)[0],
                                               outline=renderer.toc, public_release=public_release,
-                                              has_portfolio=has_portfolio), encoding='utf-8')
+                                              has_portfolio=has_portfolio,
+                                              stylesheet_href=stylesheet_href), encoding='utf-8')
         links.append(f'<li><a href="{escape(name)}">{escape(title)}</a></li>')
     featured = ''
     if (output / '07-operational-receipts.html').is_file():
@@ -219,18 +225,18 @@ def render_site(root, output, *, public_release=False):
     intro = '<h1>Building systems.<br>Checking evidence.</h1><p>A technical learning series on financial retrieval, software boundaries and evaluation. Drafts describe verified implementation and unresolved limitations separately.</p>' + featured + '<h2>Read the series</h2><ol>' + ''.join(links) + '</ol>'
     if has_portfolio:
         profile = json.loads(guard_path(profile_path, root).read_text(encoding='utf-8'))
-        style_text = guard_path(root / 'style.css', root).read_text(encoding='utf-8')
-        style_version = hashlib.sha256(style_text.encode('utf-8')).hexdigest()[:16]
         demo_script = guard_path(root / 'portfolio-demo.mjs', root)
         script_version = hashlib.sha256(demo_script.read_text(encoding='utf-8').encode('utf-8')).hexdigest()[:16]
         (output / 'index.html').write_text(render_home(profile, public_release=public_release,
-            stylesheet_href=f'style.css?v={style_version}',
+            stylesheet_href=stylesheet_href,
             demo_script_href=f'portfolio-demo.mjs?v={script_version}'), encoding='utf-8')
         shutil.copyfile(demo_script, output / 'portfolio-demo.mjs')
         (output / 'journal.html').write_text(render_page('Engineering notes', intro,
-            public_release=public_release, has_portfolio=True), encoding='utf-8')
+            public_release=public_release, has_portfolio=True,
+            stylesheet_href=stylesheet_href), encoding='utf-8')
     else:
-        (output / 'index.html').write_text(render_page('Engineering notes', intro, public_release=public_release), encoding='utf-8')
+        (output / 'index.html').write_text(render_page('Engineering notes', intro, public_release=public_release,
+            stylesheet_href=stylesheet_href), encoding='utf-8')
     (output / 'style.css').write_text(guard_path(root / 'style.css', root).read_text(encoding='utf-8'), encoding='utf-8')
     return len(links)
 

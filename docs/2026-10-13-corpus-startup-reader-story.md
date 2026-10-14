@@ -1,5 +1,7 @@
 # A separate chapter for installed startup
 
+> Historical design record: the October 14 requirement supersedes the dark-journal and optional dark-figure policies below. The current site uses one light theme throughout; see [the current theme contract](2026-10-14-unified-light-site.md).
+
 The startup explanation has its own chapter so a reader can follow one
 question: how does an installed service decide what it may serve before
 opening a listener? The homepage retains its existing selected-work hierarchy.

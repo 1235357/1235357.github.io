@@ -2,8 +2,8 @@
 
 The homepage serves a reader deciding whether to explore Tony's work. The lab
 serves a reader working with a PDF. Both use the same light surfaces, Manrope,
-cobalt actions and readable body text; the detailed engineering journal retains
-its dark reading theme.
+cobalt actions and readable body text. The engineering journal and every article
+now use that same light theme, including code, tables, navigation and figures.
 
 ## Information before interaction
 
@@ -50,7 +50,7 @@ templates. It cannot enable an action or bypass a runtime gate.
 - [Archify](https://github.com/tt-a1i/archify) is used for the existing explorable
   architecture, lifecycle and sequence figures. Their specifications and
   delivery receipts remain alongside the figures. The default figure theme is
-  light even when the surrounding journal is dark.
+  light throughout the site, including standalone figure pages and exports.
 
 Filesystem and automated contract checks establish their named source scope.
 Actual Codex browser review separately checks rendering, navigation and exports.

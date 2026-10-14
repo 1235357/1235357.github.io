@@ -1,5 +1,7 @@
 # A fluid document workspace with a retained-session fullscreen view
 
+> Historical design record: the October 14 requirement supersedes the dark-journal and optional dark-figure policies below. The current site uses one light theme throughout; see [the current theme contract](2026-10-14-unified-light-site.md).
+
 The profile's embedded RAG workspace now fills the available application width. The previous 2,080-pixel outer cap and 1,800-pixel inner cap are removed. Fixed gutters and a bounded controls column give the document, answer and notebook records the remaining space. Profile prose retains its reading measure; widening an application does not require stretching every sentence.
 
 | Before | After | Why |

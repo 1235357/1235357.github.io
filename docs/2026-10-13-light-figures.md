@@ -1,5 +1,7 @@
 # Shared light figures
 
+> Historical design record: the October 14 requirement supersedes the dark-journal and optional dark-figure policies below. The current site uses one light theme throughout; see [the current theme contract](2026-10-14-unified-light-site.md).
+
 Every interactive figure now opens in the same light palette as the profile and RAG workspace. Article embeds and full-size links explicitly select `theme=light`. The detailed journal keeps its dark reading surface; its illustrations remain light and readable inside that surface. A reader can still choose a dark figure through the toolbar or an explicit `theme=dark` link.
 
 This applies to all seven Archify figures: `two-lifecycles`, `browser-native`, `browser-operation`, `owned-generation`, `reader-owned-rag`, `table-cell-selection`, and `structured-income-selection`. The standalone evidence SVG and the two editable draw.io/PlantUML pairs also use the shared light colors and dark text. Every node identity, label, relationship direction and source meaning is preserved. The three oldest interactive figures also receive a measured typography and layout revision described below.

@@ -289,6 +289,28 @@ class FreshBuildTest(unittest.TestCase):
         self.root_patch.start()
         self.addCleanup(self.root_patch.stop)
 
+    def test_every_reading_page_versions_shared_css_when_its_body_changes(self):
+        (self.root / 'portfolio.json').write_bytes(Path(__file__).with_name('portfolio.json').read_bytes())
+        (self.root / 'portfolio-demo.mjs').write_text('export {};', encoding='utf-8')
+        styles = self.root / 'style.css'
+        observed = []
+        for ordinal, body in enumerate((b':root{color-scheme:light;}\n',
+                                       b':root{color-scheme:light;}\r\n',
+                                       b':root{color-scheme:light;--paper:#f7f8fa;}\n')):
+            styles.write_bytes(body)
+            output = self.root / f'theme-{ordinal}'
+            output.mkdir()
+            build.render_site(self.root, output)
+            expected = 'style.css?v=' + hashlib.sha256(body.replace(b'\r\n', b'\n')).hexdigest()[:16]
+            for name in ('index.html', 'journal.html', '01-test.html'):
+                page = (output / name).read_text(encoding='utf-8')
+                self.assertIn(f'href="{expected}"', page, name)
+                if name != 'index.html':
+                    self.assertIn('<meta name="color-scheme" content="light">', page)
+            observed.append(expected)
+        self.assertEqual(observed[0], observed[1])
+        self.assertNotEqual(observed[0], observed[2])
+
     def test_homepage_script_url_changes_with_content_and_is_stable_across_line_endings(self):
         # A returning browser must not reuse an older UI script for new markup.
         (self.root / 'portfolio.json').write_bytes(Path(__file__).with_name('portfolio.json').read_bytes())

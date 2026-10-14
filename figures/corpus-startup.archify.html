@@ -7,28 +7,14 @@
   <meta name="archify-reader-contract" content="declared-wide-v1">
   <title>Before the corpus API listens Diagram</title>
   <script>
-    // Resolve the light default before first paint so readers do not
-    // see a dark flash. Explicit URL and saved toolbar choices take priority.
+    // Site-wide light policy: old URL, storage and OS theme choices cannot
+    // override the shared portfolio theme. Presentation parameters still work.
     (function () {
+      document.documentElement.setAttribute('data-theme', 'light');
       try {
-        var theme = null;
-        try {
-          var param = new URLSearchParams(window.location.search).get('theme');
-          if (param === 'light' || param === 'dark') theme = param;
-          if (new URLSearchParams(window.location.search).get('embed') === '1') {
-            document.documentElement.setAttribute('data-embed', 'true');
-          }
-          if (new URLSearchParams(window.location.search).get('present') === '1') {
-            document.documentElement.setAttribute('data-present', 'true');
-          }
-        } catch (_) {}
-        if (!theme) {
-          try { theme = localStorage.getItem('site-figure-light-v1-structured-income-selection'); } catch (_) {}
-        }
-        if (theme !== 'light' && theme !== 'dark') {
-          theme = 'light';
-        }
-        document.documentElement.setAttribute('data-theme', theme);
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('embed') === '1') document.documentElement.setAttribute('data-embed', 'true');
+        if (params.get('present') === '1') document.documentElement.setAttribute('data-present', 'true');
       } catch (_) {}
     })();
   </script>
@@ -4868,6 +4854,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       svg [data-node-id], svg [data-edge-from], svg [data-detail], svg [data-detail-anchor], svg [data-legend-hit], svg { transition: none !important; }
     }
   </style>
+  <meta name="color-scheme" content="light">
+  <style id="site-light-policy">
+    :root { color-scheme: light; }
+    .toolbar #btn-theme { display: none !important; }
+  </style>
 </head>
 <body>
   <!-- Toolbar: theme, live visual style, trace motion, presentation stage, and export.
@@ -4875,12 +4866,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
        Keyboard: T toggles theme, S cycles style, F toggles the stage, E opens export. -->
   <div class="toolbar" role="toolbar" aria-label="Diagram actions">
     <div class="toolbar-group">
-    <button id="btn-theme" type="button"
+    <button id="btn-theme" type="button" hidden disabled tabindex="-1" aria-hidden="true"
             title="Toggle theme (T)"
             aria-label="Toggle color theme"
             aria-pressed="false">
       <span id="theme-icon" class="toolbar-icon" aria-hidden="true"></span>
-      <span id="theme-label">Dark</span>
+      <span id="theme-label">Light</span>
     </button>
     <div class="preset-wrap">
       <button id="btn-preset" type="button"
@@ -4961,9 +4952,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </div>
         <div class="export-menu-section" role="group" aria-label="Vector and motion">
           <span class="export-menu-heading" aria-hidden="true">Vector &amp; motion</span>
-          <button data-format="svg" type="button" role="menuitem" tabindex="-1"><span class="export-item-copy"><strong>SVG · Auto</strong><small class="hint">Matches host theme</small></span></button>
-          <button data-format="svg-light" type="button" role="menuitem" tabindex="-1"><span class="export-item-copy"><strong>SVG · Light</strong><small class="hint">Always light</small></span></button>
-          <button data-format="svg-dark" type="button" role="menuitem" tabindex="-1"><span class="export-item-copy"><strong>SVG · Dark</strong><small class="hint">Always dark</small></span></button>
+          <button data-format="svg" type="button" role="menuitem" tabindex="-1"><span class="export-item-copy"><strong>SVG</strong><small class="hint">Always light</small></span></button>
           <button data-format="webm" type="button" role="menuitem" tabindex="-1"><span class="export-item-copy"><strong>WebM</strong><small class="hint">6s motion</small></span></button>
         </div>
       </div>
@@ -5196,7 +5185,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           </button>
         </div>
         <div class="diagram-guide-shortcuts" aria-label="Additional keyboard shortcuts">
-          <span><kbd>E</kbd> Export</span><span><kbd>T</kbd> Theme</span><span><kbd>S</kbd> Style</span><span><kbd>0</kbd> Reset</span><span><kbd>+</kbd> Zoom in</span><span><kbd>-</kbd> Zoom out</span><span><kbd>Esc</kbd> Close</span>
+          <span><kbd>E</kbd> Export</span><span><kbd>S</kbd> Style</span><span><kbd>0</kbd> Reset</span><span><kbd>+</kbd> Zoom in</span><span><kbd>-</kbd> Zoom out</span><span><kbd>Esc</kbd> Close</span>
         </div>
         <p class="diagram-guide-feedback" id="diagram-guide-feedback" aria-live="polite"></p>
       </div>
@@ -5553,63 +5542,25 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
        ============================================================ */
 
     Archify.theme = (function () {
-      var STORAGE_KEY = 'site-figure-light-v1-structured-income-selection';
       var html = document.documentElement;
       var btn = document.getElementById('btn-theme');
       var label = document.getElementById('theme-label');
 
-      // localStorage can throw (blocked cookies, sandboxed iframes); the whole
-      // script element dies on an uncaught error, so guard every access.
-      function readStored() {
-        try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return null; }
-      }
-      function writeStored(value) {
-        try { localStorage.setItem(STORAGE_KEY, value); } catch (_) {}
-      }
-      function urlOverride() {
-        // URL param wins (useful for deterministic screenshots / share links)
-        try {
-          var param = new URLSearchParams(window.location.search).get('theme');
-          if (param === 'light' || param === 'dark') return param;
-        } catch (_) {}
-        return null;
+      function apply() {
+        html.setAttribute('data-theme', 'light');
+        if (label) label.textContent = viewerText('viewer.theme.light');
+        if (btn) {
+          btn.hidden = true;
+          btn.disabled = true;
+          btn.setAttribute('tabindex', '-1');
+          btn.setAttribute('aria-hidden', 'true');
+          btn.setAttribute('aria-pressed', 'true');
+        }
       }
 
-      function resolveInitial() {
-        var fromUrl = urlOverride();
-        if (fromUrl) return fromUrl;
-        var saved = readStored();
-        if (saved === 'light' || saved === 'dark') return saved;
-        return 'light';
-      }
-
-      function apply(theme) {
-        html.setAttribute('data-theme', theme);
-        label.textContent = viewerText(theme === 'dark' ? 'viewer.theme.dark' : 'viewer.theme.light');
-        btn.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
-      }
-
-      function toggle() {
-        var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        apply(next);
-        writeStored(next);
-      }
-
-      apply(resolveInitial());
-      btn.addEventListener('click', toggle);
-
-      // Follow live OS theme changes while the user has no explicit preference.
-      try {
-        var media = window.matchMedia('(prefers-color-scheme: light)');
-        var onChange = function (e) {
-          var saved = readStored();
-          if (urlOverride() || saved === 'light' || saved === 'dark') return;
-          apply('light');
-        };
-        if (media.addEventListener) media.addEventListener('change', onChange);
-        else if (media.addListener) media.addListener(onChange);
-      } catch (_) {}
-
+      // Retain the existing keyboard/API seam without exposing a dark state.
+      function toggle() { apply(); }
+      apply();
       return { toggle: toggle };
     })();
 
@@ -5993,11 +5944,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         // the raster path. Defaults to 1 (natural size) for SVG download.
         scale = scale || 1;
         opts = opts || {};
-        var requestedTheme = opts.theme || (opts.autoTheme === true ? 'auto' : null);
-        if (requestedTheme && requestedTheme !== 'auto' && requestedTheme !== 'light' && requestedTheme !== 'dark') {
-          throw new Error('Unsupported SVG theme: ' + requestedTheme);
-        }
-        var autoTheme = requestedTheme === 'auto';
+        // All portable outputs retain the site's shared light palette,
+        // including old callers requesting autoTheme or theme: 'dark'.
+        var requestedTheme = 'light';
+        var autoTheme = false;
         var svg = document.querySelector('.diagram-container svg');
         var clone = svg.cloneNode(true);
 
@@ -6932,9 +6882,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           return Promise.reject(exportError('viewer.export.unsupported'));
         }
         var base = diagramFilename();
-        var svgTheme = format === 'svg' ? 'auto' :
-          format === 'svg-light' ? 'light' :
-          format === 'svg-dark' ? 'dark' : null;
+        var svgTheme = (format === 'svg' || format === 'svg-light' || format === 'svg-dark') ? 'light' : null;
         close(true);
         clearExportReceipt();
         if (format === 'webm') toast(viewerText('viewer.export.recording'));

@@ -636,7 +636,9 @@ token disclosure. A native DOM hit test landed inside the answer panel at the
 disclosure's center. The bounded stylesheet correction lets the answer scroll
 with its question row. In the local native browser, a parser-item disclosure then
 opened and its center hit the source panel; the answer ended above the notebook.
-The question/answer columns, dark theme and computation data remain unchanged.
+At that historical checkpoint, the question/answer columns, dark theme and
+computation data remained unchanged. The current site uses the unified light
+theme across the profile, lab, journal and figures.
 The [published stylesheet read-back](https://github.com/1235357/1235357.github.io/blob/main/docs/acceptance-2026-10-11/public-css-readback.json)
 received the exact 17,952-byte CI body and observed computed `position: static`.
 This confirms delivery and that CSS property. A later current-session public

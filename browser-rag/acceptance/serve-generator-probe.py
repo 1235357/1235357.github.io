@@ -44,7 +44,7 @@ SOURCE_MODULES = frozenset(('generator-contract.mjs', 'generator-native-core.mjs
 PRIVATE_ENTRY_ROUTE = '/browser-rag/pdf-entry.mjs'
 PRIVATE_ENTRY_FILE = 'pdf-private-entry.mjs'
 STATIC_QUERY_ROUTES = MappingProxyType({
-    '/figures/owned-generation.archify.html?theme=dark': '/figures/owned-generation.archify.html',
+    '/figures/owned-generation.archify.html?theme=light': '/figures/owned-generation.archify.html',
 })
 SHARED_INSPECTOR_FILES = frozenset(('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs',
     'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',

@@ -1,5 +1,7 @@
 # Complete generation details and a compact embedded workbench
 
+> Historical design record: the October 14 requirement supersedes the dark-journal and optional dark-figure policies below. The current site uses one light theme throughout; see [the current theme contract](2026-10-14-unified-light-site.md).
+
 Long model records should remain inspectable without placing the entire record
 in the page at once. The production generation view now uses the shared complete
 text viewer for its original input, prompt, token IDs, execution receipt and

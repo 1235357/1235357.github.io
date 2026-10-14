@@ -370,9 +370,9 @@ class HandlerTest(ProbeFixture):
         self.assertEqual(headers['Content-Type'], 'application/javascript')
         self.assertEqual(body, data)
 
-    def test_owned_generation_figure_exact_dark_query_and_json_get_head_use_public_dist(self):
+    def test_owned_generation_figure_exact_light_query_and_json_get_head_use_public_dist(self):
         for target,relative in (('/figures/owned-generation.archify.html','figures/owned-generation.archify.html'),
-                                ('/figures/owned-generation.archify.html?theme=dark','figures/owned-generation.archify.html'),
+                                ('/figures/owned-generation.archify.html?theme=light','figures/owned-generation.archify.html'),
                                 ('/figures/owned-generation.archify.json','figures/owned-generation.archify.json')):
             data=(ROOT / 'dist' / relative).read_bytes()
             for method in ('GET','HEAD'):
@@ -383,7 +383,7 @@ class HandlerTest(ProbeFixture):
                     self.assertEqual(headers['Content-Length'],str(len(data)))
                     self.assertEqual(headers['Content-Type'],'application/json' if relative.endswith('.json') else 'text/html; charset=utf-8')
                     self.assertEqual(body,data if method=='GET' else b'')
-        for target in ('/figures/owned-generation.archify.html?theme=light',
+        for target in ('/figures/owned-generation.archify.html?theme=dark',
                        '/figures/owned-generation.archify.html?theme=dark&private=1',
                        '/figures/owned-generation.archify.html?theme=dark#fragment',
                        '/figures/owned-generation.archify.json?theme=dark',

@@ -1,5 +1,7 @@
 # Profile information hierarchy — October 13, 2026
 
+> Historical design record: the October 14 requirement supersedes the dark-journal and optional dark-figure policies below. The current site uses one light theme throughout; see [the current theme contract](2026-10-14-unified-light-site.md).
+
 The profile should help a first-time visitor identify the person, choose a project and reach its evidence without reading every technical detail first. The latest request also requires the personal profile and RAG workspace to share their light theme.
 
 The reference profile, [Yingda Yu's personal site](https://yingda-yu.github.io/Dean-Yu-050325.github.io/), was inspected in Codex's built-in browser by the coordinating agent. Its portrait, one identity statement, two primary actions and selected work informed the order of information here. This applies a presentation pattern; the reference author's biography and credentials are not used as source facts for this profile.

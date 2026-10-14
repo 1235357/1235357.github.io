@@ -1,5 +1,7 @@
 # A wider workbench with a separate reading rail
 
+> Historical design record: the October 14 requirement supersedes the dark-journal and optional dark-figure policies below. The current site uses one light theme throughout; see [the current theme contract](2026-10-14-unified-light-site.md).
+
 The embedded RAG application previously shared the profile's 1440 px container.
 Once the profile's 80 px side gutters applied, its frame stopped growing at
 approximately 1278 px of usable iframe width, even on 1920 and 2560 px screens.

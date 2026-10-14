@@ -1,5 +1,7 @@
 # Source-cell figure: artifact evidence and reading policy
 
+> Historical design record: the October 14 requirement supersedes the dark-journal and optional dark-figure policies below. The current site uses one light theme throughout; see [the current theme contract](2026-10-14-unified-light-site.md).
+
 This note records the new local figure `figures/table-cell-selection.archify.html`. It illustrates the implemented Python cell/source and explicit-field development experiments, using their actual immutable records and source-replayed receipts. It is a logical data/selection sequence within one Python process. It does not depict a browser adapter or separate running services.
 
 ## Current delivered pair

@@ -1,10 +1,10 @@
 # One light theme for the personal profile and RAG workbench
 
-The current design uses the same warm paper (`#f7f4ed`), navy ink (`#172536`) and cobalt action (`#234ccf`) palette across the personal profile, its embedded RAG workbench and the standalone RAG page. The previous light-home publication retained a dark lab and therefore did not meet this whole-experience requirement. Historical acceptance records below describe that earlier version.
+The current design uses cool paper (`#f7f8fa`), navy ink (`#172033`), cobalt actions (`#234ccf`) and self-hosted Manrope across the personal profile, embedded/standalone RAG workbench, journal, every article and every figure. The October 14 requirement explicitly replaces the former dark-journal exception. Historical acceptance records below describe their original versions.
 
 A [later retained-tab observation](acceptance-2026-10-11/public-light-home-embedded-runtime.json) accepted a two-page excerpt and five chunks in the public iframe. Selecting the current demo preserved them. Two explicit encoder attempts timed out; source/chunks remained available. This does not rewrite earlier failures, and the complete embedded query/generation chain remains open.
 
-The personal homepage introduces Zhentong Ye as a Northwestern MSCS student, then makes the latest project available in a complete demo section at the bottom. Warm ivory, navy text and cobalt links, a large serif name, a tilted portrait frame and numbered project rows form the visual hierarchy. Six CV-selected experiences, education and technology details remain available. The RAG lab now shares that light design; the engineering journal retains its separately requested dark reading layout.
+The personal homepage introduces Zhentong Ye as a Northwestern MSCS student, then makes the latest project available in a complete demo section at the bottom. Cool white surfaces, navy text, cobalt links and Manrope form the shared visual hierarchy. Six CV-selected experiences, education and technology details remain available. The journal keeps a long-form reading layout within the same light design system.
 
 ## Complete RAG interface refactor
 
