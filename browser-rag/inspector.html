@@ -62,6 +62,7 @@
         <details class="preparation-disclosure"><summary>Prepare models ahead of time</summary><div id="asset-preparation" hidden></div></details>
       </div>
     </section>
+    <section class="session-status status-block" role="status" aria-live="polite"><div class="status-heading"><p class="eyebrow">SESSION STATUS</p><h3 id="status-title">Waiting for a PDF</h3></div><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></section>
     <section class="controls panel" aria-labelledby="question-title">
       <div class="query-controls">
         <p class="eyebrow">02 / YOUR QUESTION</p><h2 id="question-title">Your question</h2>
@@ -83,7 +84,6 @@
     <section class="generation panel" aria-labelledby="generation-title">
       <p class="eyebrow">03 / DRAFT &amp; SOURCES</p><h2 id="generation-title">A draft you can trace</h2>
       <p id="generation-meta" class="hint" role="status" aria-live="polite">Generation remains disabled in the ordinary entry. No generation adapter is configured.</p>
-      <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">SESSION STATUS</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></div>
         <div class="buttons"><button id="assemble-context" disabled>Assemble context</button><button id="generate-answer" disabled>Generate answer</button></div>
         <p id="generation-guidance" class="hint">Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled in this entry. Sourced candidates are not a verified answer.</p>
       <nav class="evidence-links" aria-label="Draft evidence inspection"><a href="#notebook-context">Assembled evidence</a></nav>

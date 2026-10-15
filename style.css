@@ -7,6 +7,8 @@ figcaption{font-size:.85em;line-height:1.5;margin-top:12px}
 table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse;font-size:.9em}
 th,td{min-width:140px;padding:12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
 th{background:var(--soft);font-weight:750}
+.reading-page :is(th,td){overflow-wrap:normal}
+.reading-page :is(th,td) code{white-space:nowrap}
 :is(a,summary,button,input,textarea,select):focus-visible{outline:3px solid var(--accent);outline-offset:4px}
 :is(a,summary,button){touch-action:manipulation}
 .skip-link{position:fixed;top:12px;left:16px;z-index:20;padding:12px 18px;background:var(--ink);color:var(--paper);transform:translateY(-180%);font:650 15px/1.6 var(--ui)}
