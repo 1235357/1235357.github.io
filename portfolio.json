@@ -91,7 +91,8 @@
         "The SpF final report records ROUGE-1 recall 0.7512 and CIDEr 2.5701 on Kvasir-VQA. These are reported team experiment results, rather than a new reproduction or clinical validation.",
         "Worked with faculty and teammates; a teammate published the code and checkpoint. This is a research prototype, with no clinical deployment claim."
       ],
-      "stack": ["PyTorch", "Hugging Face", "LLaVA-13B", "LoRA / PEFT", "VQA evaluation"], "links": []
+      "stack": ["PyTorch", "Hugging Face", "LLaVA-13B", "LoRA / PEFT", "VQA evaluation"],
+      "links": [{"label": "Team training code", "href": "https://github.com/Lareina2441/LLaVA-GI"}, {"label": "Team model checkpoint", "href": "https://huggingface.co/Lareina2441/LLaVA-GI"}]
     },
     {
       "id": "osef", "category": "RESEARCH / VIDEO EVIDENCE", "title": "OSEF: One-Step Evidence Fusion",
