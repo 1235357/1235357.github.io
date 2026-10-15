@@ -7,9 +7,22 @@ tags: [rag, software-design, api]
 
 # Contracts before services
 
-An enterprise consumer does not integrate a screenshot. It integrates behavior:
-what input is accepted, what the response means, and what happens when a dependency
-fails. This chapter examines the current implementation, not a promised production
+An application asks the financial RAG API a question. It receives HTTP 200,
+`can_answer=true`, and an empty `answer`. Has the model answered, has retrieval
+failed, or did the caller misunderstand the interface?
+
+The current evidence-only branch can produce exactly that combination. Its flag
+reports the evidence gate, while this branch performs no answer generation.
+Understanding that distinction is part of integrating the API, just as much as
+knowing its URL or request format.
+
+**The learning goal:** follow one request across validation, retrieval, evidence
+policy and response mapping. Given a normal response, a refused request or a
+dependency failure, identify which component owns the outcome and what a caller
+may safely conclude. Then apply the same ownership question to a late browser
+Worker reply.
+
+This chapter examines implementation contracts, not a promised production
 deployment. Source authority: `src/nvidia_rag/service.py` and `api.py` inspected on
 2026-10-04, with an installation/contract audit and pristine API-only dependency
 repair on 2026-10-07. The current repair is distinguished from dated historical
@@ -31,6 +44,14 @@ the evidence policy and builds context. A consumer can inject another retriever
 without moving model loading into the API layer. That is dependency injection;
 it is not proof that an alternative retriever has equivalent relevance quality.
 
+For a concrete **synthetic example**, inject a retriever that returns one
+passage about FY2024 with score `0.91` for a FY2025 revenue question. With a
+`0.78` evidence threshold, that candidate passes the similarity policy. The
+service can build a citation-bearing context, but it has not changed the
+passage's year or generated an answer. A retriever supplies candidates; the
+application policy decides which pass its gate; financial source review asks
+whether they support this question. Those are different responsibilities.
+
 The inspection UI has a stricter requirement: `inspect()` looks for a retriever's
 dense-inspection method and raises `TypeError` when absent. Implementing the basic
 protocol therefore does **not** guarantee notebook-trace compatibility. This is
@@ -51,6 +72,24 @@ POST /v1/query
 The request schema forbids extra fields, limits question length to 500 characters
 and rejects whitespace-only input. The service also validates normalized input;
 the HTTP boundary and reusable library boundary serve different callers.
+
+The [FastAPI request-body guide](https://fastapi.tiangolo.com/tutorial/body/#results)
+explains how a declared Pydantic model supplies JSON parsing, type conversion
+and input validation. Those framework responsibilities are separate from this
+project's evidence policy and query-exception mapping.
+
+For example, an authorized caller can submit
+`{"question":"What was NVIDIA's annual revenue in FY2025?"}`. The HTTP adapter
+validates the request shape and calls the injected query service. That service
+strips the question, obtains the candidate above, applies its threshold and
+returns `GroundedContext`. The adapter then maps that object to JSON.
+
+The trace describes responsibilities before the service call, not an
+authentication-before-body-read guarantee for ordinary `/v1/query`. In a
+controlled in-process check of this framework combination, malformed JSON
+without a bearer header returned 422 before any query-service call. A valid
+JSON request without credentials returned 401. The separately bounded statement
+routes have their own body-reading contract; do not borrow it for this route.
 
 The bearer token must have at least 32 characters. Length is a basic configuration
 check, not a demonstration of entropy, secure storage, rotation or authorization
@@ -75,6 +114,13 @@ A consumer must not display “verified answer” from this flag. A future schem
 should make mode/status explicit, but this chapter does not claim that change
 has already been implemented or silently change the existing contract.
 
+In the synthetic wrong-year example, the selected response fields are
+`can_answer=true`, `evidence_passed=true`, `answer=""` and one evidence item.
+This is a projection of the response, not its complete schema. The flags mean
+that the configured evidence gate passed. The empty answer means this branch
+did not synthesize one. Neither the HTTP status, the score nor the flags certify
+that the FY2024 passage answers the FY2025 question.
+
 ## Failure is part of the interface
 
 Missing or invalid bearer credentials produce HTTP 401. Schema-invalid payloads
@@ -89,6 +135,23 @@ maps to HTTP 504 / `generation_timeout`; generation unavailability maps to HTTP
 while retaining the response's gated evidence. A normal evidence-only result or
 application refusal can still return HTTP 200. Status, error code and evidence
 therefore need to be read together; refusal and operational failure are distinct.
+
+Compare the same well-formed request under four injected outcomes. These are
+controlled fixtures, not four financial-answer evaluations:
+
+| Service outcome | HTTP and machine result | Evidence in the response | Meaning for the caller |
+| --- | --- | --- | --- |
+| Evidence-only context with the synthetic `0.91` candidate | 200, `can_answer=true`, empty answer | One candidate | Retrieval policy passed; no generated answer exists |
+| Evidence-only context with no eligible candidates | 200, `can_answer=false`, empty answer | Empty | The evidence gate completed without accepted evidence |
+| `service.query()` raises, even a `ValueError` from an internal retriever | 503, `query_service_unavailable` | Empty | Query execution failed; this is not request-schema validation |
+| Returned `GeneratedResponse` reports a generation timeout | 504, `generation_timeout`, `can_answer=false` | Already gated evidence retained | Synthesis failed after its evidence boundary |
+
+The exception's Python class alone does not choose the HTTP response. Where it
+occurs matters: a whitespace-only HTTP payload is rejected as 422 before the
+service runs, while a `ValueError` escaping valid query execution reaches the
+operational 503 branch. The controlled check also verifies that private fixture
+exception text is absent from the client response and that its request ID agrees
+with the response header. It opens no network listener and runs no model.
 The [versioned response mapping](https://github.com/1235357/nvidia-financial-rag/blob/e74d7adeb3209a763ba7e71d0c232d5de4c351b2/src/nvidia_rag/api.py)
 keeps these branches inspectable in code.
 
@@ -118,20 +181,30 @@ service. Fail on the known configuration error before doing expensive work.
 This is a composition-root concern: the launcher chooses and wires dependencies,
 while the reusable query service should not read deployment credentials itself.
 
-Two regressions execute the launcher with an absent corpus and missing/short
+The regressions deliberately make both configuration and later dependencies
+invalid. The expected winner is the token error: model/server constructors and
+optional imports must remain untouched. This checks failure ordering, not a
+successful model-backed startup. Later installed startup behavior is explained
+in [the startup chapter](08-source-bound-startup.html).
+
+<details>
+<summary>Dated launcher-order and optional-import regressions</summary>
+
+<p>Two regressions execute the launcher with an absent corpus and missing/short
 tokens. Stubbed model and server constructors must remain uncalled, and the
 observed exception must be the token validation error rather than missing-file
 failure. These tests establish the order of these startup operations. They do
 not establish that real optional imports work, a model fits device memory, valid
-credentials cause a successful launch, or the 32-character rule measures entropy.
-
-The staging launcher subsequently moved its optional model/server imports behind
+credentials cause a successful launch, or the 32-character rule measures entropy.</p>
+<p>The staging launcher subsequently moved its optional model/server imports behind
 the token check as well. Two additional regressions intercept imports and make
-`sentence_transformers` and `uvicorn` deliberately unavailable. Missing/short
+<code>sentence_transformers</code> and <code>uvicorn</code> deliberately unavailable. Missing/short
 tokens still produce the configuration error with zero attempted optional
 runtime imports. All 37 exported tests passed after that change. The earlier
 constructor stubs alone would not have caught this missing-dependency boundary.
-Imports of the core API remain required; this is not a dependency-free launcher.
+Imports of the core API remain required; this is not a dependency-free launcher.</p>
+
+</details>
 
 ### An optional extra must close its transitive imports
 
@@ -149,32 +222,62 @@ consumer chooses package[api]
     → HTTPX must be declared or deliberately isolated from this import path
 ```
 
-The next experiment tested the actual advertised consumer path. Two pristine
-virtual environments outside the checkout installed only each candidate's `[api]`
+The clean-install experiment made that missing dependency visible: the old
+wheel installed, but importing the API failed because HTTPX was absent. Declaring
+HTTPX in the existing `api` extra repaired that import path. A second pristine
+environment then passed installed import and synthetic adapter checks. This
+isolates a packaging defect; it does not demonstrate model-backed installation,
+financial quality or an external deployment.
+
+<details>
+<summary>October 7 pristine API-only RED/GREEN installation</summary>
+
+<p>The next experiment tested the actual advertised consumer path. Two pristine
+virtual environments outside the checkout installed only each candidate's <code>[api]</code>
 extra. Neither installed the dev, model, generation or Gradio extras. Both ran
-`acceptance/api_install_contract.py` with Python `-I -B` from a non-checkout working
-directory. The script checks the imported API is in `site-packages` and rejects
-environments containing Gradio, Torch, Transformers or sentence-transformers.
-
-| Step | Observed result | What it establishes |
-|---|---|---|
-| RED: install historical wheel with only `[api]` | Installation succeeded; actual API import failed with `ModuleNotFoundError: No module named 'httpx'`. | A clean environment exposes the undeclared transitive import. |
-| Minimal repair | Add `httpx>=0.27,<1` to the existing `api` extra, then rebuild a separate wheel. | Dependency declaration changes; no model or runtime refactor is claimed. |
-| GREEN: install rebuilt wheel in the second fresh environment | Actual installed import and synthetic in-process HTTP acceptance passed; `pip check` passed. | This API-only Windows/Python installation and adapter contract are usable. |
-
-The green environment used Python 3.13.5, HTTPX 0.28.1, FastAPI 0.142.4 and Uvicorn
+<code>acceptance/api_install_contract.py</code> with Python <code>-I -B</code> from a non-checkout working
+directory. The script checks the imported API is in <code>site-packages</code> and rejects
+environments containing Gradio, Torch, Transformers or sentence-transformers.</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Observed result</th>
+<th>What it establishes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RED: install historical wheel with only <code>[api]</code></td>
+<td>Installation succeeded; actual API import failed with <code>ModuleNotFoundError: No module named 'httpx'</code>.</td>
+<td>A clean environment exposes the undeclared transitive import.</td>
+</tr>
+<tr>
+<td>Minimal repair</td>
+<td>Add <code>httpx&gt;=0.27,&lt;1</code> to the existing <code>api</code> extra, then rebuild a separate wheel.</td>
+<td>Dependency declaration changes; no model or runtime refactor is claimed.</td>
+</tr>
+<tr>
+<td>GREEN: install rebuilt wheel in the second fresh environment</td>
+<td>Actual installed import and synthetic in-process HTTP acceptance passed; <code>pip check</code> passed.</td>
+<td>This API-only Windows/Python installation and adapter contract are usable.</td>
+</tr>
+</tbody>
+</table>
+<p>The green environment used Python 3.13.5, HTTPX 0.28.1, FastAPI 0.142.4 and Uvicorn
 0.54.0. The new wheel is 72,858 bytes, SHA-256
-`b5a554e7d0e9b8107c01fa4b1bdaa96d90ea3dd4c3a2dffdf4afdc75106534ba`.
+<code>b5a554e7d0e9b8107c01fa4b1bdaa96d90ea3dd4c3a2dffdf4afdc75106534ba</code>.
 That October 7 wheel was a local candidate, not a released package. The same
 script verifies 200/401/422 routes, synthetic evidence with an empty answer,
 refusal and request-ID mapping. It uses a generated ephemeral token, never
-printed or persisted.
-
-The checkout suite was rerun: 45 cases passed with one Starlette warning. The
+printed or persisted.</p>
+<p>The checkout suite was rerun: 45 cases passed with one Starlette warning. The
 pristine acceptance also retained PyMuPDF and Starlette deprecation warnings.
 This is not model acquisition, live socket serving, financial quality, Linux or
 load acceptance. The broad ranges are not a dependency lock. The API still
-imports the generation response type; this repair does not claim lazy imports.
+imports the generation response type; this repair does not claim lazy imports.</p>
+
+</details>
 
 The [Python Packaging guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies)
 explains how named extras declare additional dependencies. The lesson is stronger
@@ -215,6 +318,22 @@ when one process is the correct topology. Multiple diagrams do not establish
 microservices, and an API adapter alone does not make integration seamless.
 
 ## Personal reproduction checklist
+
+**Predict before opening the feedback.** A caller has just received a usable
+evidence-only response. Its next request has valid JSON, a valid bearer token and
+a nonblank question. This time the retriever raises `ValueError` with an internal
+diagnostic message. Should the caller receive 422, a completed evidence refusal,
+or an operational failure? Can the API return evidence from the preceding request
+or echo the dependency's message to explain what happened?
+
+<details>
+<summary>Check which boundary handles the ValueError</summary>
+
+<p>The request has already passed its HTTP input contract. The exception escapes the injected <code>service.query()</code> call, so the current handler returns HTTP 503 with <code>query_service_unavailable</code>, <code>can_answer=false</code>, an empty answer, empty citations and empty evidence. It logs a fixed failure label with the current request ID, without echoing the dependency's diagnostic text. The previous request does not supply evidence to this new response.</p>
+
+<p>If you predicted 422 from the exception's class, identify the owner and location of validation. If you retained the earlier evidence, separate two requests and their correlation IDs. This is authored practice checked with a synthetic service, not a native-model observation, an independent financial test or evidence that a reader has mastered the contract.</p>
+
+</details>
 
 ### Browser work has a commit boundary too
 
@@ -324,13 +443,18 @@ detached values. A successful message delivery is not permission to display an
 arbitrary object. Likewise, copying a consistent token frame cannot prove that
 the real paired tokenizer encoded the displayed text, or that the decoded answer
 matches those generated IDs. Actual native execution needs separate evidence.
-At the October 11 receipt-boundary checkpoint, the complete contract was
+<details>
+<summary>October 11 copier and transport review checkpoint</summary>
+
+<p>At the October 11 receipt-boundary checkpoint, the complete contract was
 implemented and locally reviewed. Its tests cover canonical shape, shared-node
 snapshots and mutation isolation; they do not establish native financial
 execution. The transport's separate code-review gate was accepted locally after
 independent specification and quality reviews that day. Later session integration
 and public native generation require their own evidence; receipt-copying tests
-cannot establish them.
+cannot establish them.</p>
+
+</details>
 
 There is also a subtler identity issue. The original provenance input has eight
 fields, but its assembled prompt context deliberately omits some values, such as
@@ -368,25 +492,36 @@ whether our directly exported copier and handler are consistent when called by
 another JavaScript component. It is useful to keep the test's scope as precise
 as the implementation claim.
 
-Callback permission has a similar boundary. Reading a byte-detail getter or
+Callback code can reenter the application too. The handler rechecks its
+permission after reading permitted callback fields, preserves a prior callback
+failure, and refuses an extra stage after cleanup. Otherwise a final
+valid-looking receipt could hide an earlier failure. The detailed synthetic
+boundary cases below explain why these checks are distinct from Worker
+message delivery or financial output validation.
+
+<details>
+<summary>Callback reentry, terminal-slot budget and cleanup-stage checks</summary>
+
+<p>Callback permission has a similar boundary. Reading a byte-detail getter or
 calling a subscriber can reenter application code. A sequence-budget check made
 only before that read can become stale before the byte guard changes state.
 The handler therefore reserves callback execution, captures its permitted fields,
 and rechecks permission and the terminal-slot budget before advancing byte
 observations. A callback failure remains latched even when a caller catches its
 exception during full-receipt copying. Rechecking that latch before success
-prevents a superficially valid final object from erasing the earlier failure.
-
-The eight-stage lifecycle also has an end. After `cleanup`, an undefined or
+prevents a superficially valid final object from erasing the earlier failure.</p>
+<p>The eight-stage lifecycle also has an end. After <code>cleanup</code>, an undefined or
 repeated ninth stage is rejected immediately, rather than added to progress and
 left waiting for a timeout. Neither this ordering nor a valid output JSON object
 establishes a correct financial answer. The
-[Anyscale generation guide](https://docs.anyscale.com/rag/quality-improvement/generation-strategies),
+<a href="https://docs.anyscale.com/rag/quality-improvement/generation-strategies">Anyscale generation guide</a>,
 read in Codex IAB on October 11, separates context omissions, hallucination,
 numerical reasoning and output-format failures. The session boundary must
 likewise preserve a complete raw native result when format inspection refuses it,
 while showing no accepted draft. The later public integration has its own
-execution evidence; claim support still needs the original report.
+execution evidence; claim support still needs the original report.</p>
+
+</details>
 
 For a CS381 explanation, predict when one attempt loses its permission to commit,
 not just which function runs next. For a CS310 explanation, distinguish that
@@ -395,28 +530,29 @@ named command-reentry, receipt-getter and callback-budget regressions and explai
 their outcomes in your own words. The tests are development evidence; your own
 reproduction and explanation are the learning evidence.
 
-**October 7 execution receipt:** the three controller increments were implemented
+<details>
+<summary>October 7 controller implementation and reproduction commands</summary>
+
+<p><strong>October 7 execution receipt:</strong> the three controller increments were implemented
 with independent specification and quality reviews. The first increment retained
 6 tests; replacement/cancellation expanded it to 15. Before the final validation
 implementation, the expanded suite reported 18 passing and 9 failing tests;
 afterwards, all 27 passed. The site's separate Python build suite passed 14 tests.
 Those counts describe deterministic controller/build tests, not 27 PDFs or
-financial questions, actual worker cancellation, model accuracy, or your mastery.
-
-Run from the staged site repository:
-
-```text
-node --test browser-rag/tests/protocol.test.mjs
+financial questions, actual worker cancellation, model accuracy, or your mastery.</p>
+<p>Run from the staged site repository:</p>
+<pre><code class="language-text">node --test browser-rag/tests/protocol.test.mjs
 python -m unittest discover -q
-```
-
-Then find the tests named `malformed progress is rejected without consuming a
-higher sequence`, `document replacement advances epoch before B starts`, and
-`worker replacement rejects old incarnation`. Predict their snapshots before
+</code></pre>
+<p>Then find the tests named <code>malformed progress is rejected without consuming a
+higher sequence</code>, <code>document replacement advances epoch before B starts</code>, and
+<code>worker replacement rejects old incarnation</code>. Predict their snapshots before
 running them. Your English explanation can start: “Cancellation revokes the old
 operation's right to commit. It does not prove that its computation stopped.”
 Explain the five identity fields without reading the code. Only your own
-prediction, reproduction and explanation turn this scaffold into interview evidence.
+prediction, reproduction and explanation turn this scaffold into interview evidence.</p>
+
+</details>
 
 1. Explain what changes when swapping a retriever, and what should stay unchanged.
 2. Predict the response for valid evidence-only input, generated refusal and an
@@ -456,23 +592,29 @@ is a separate learning step.
 
 ## Scoped regression evidence
 
-On 2026-10-04 the checkout's existing virtual environment ran:
+The October 4 checkout check passed 38 synthetic API/consumer cases. It
+explicitly covered an empty answer with `can_answer=true`; that ambiguity was
+tested, not silently corrected. The retained command and scope below distinguish
+checkout tests from clean installation, real sockets, load and financial quality.
 
-```text
-python -m pytest tests/test_api.py tests/test_api_checkout_integration.py tests/test_consumer_example.py -q
-```
+<details>
+<summary>October 4 checkout regression scope</summary>
 
-All 38 collected cases completed successfully (19 API, 3 checkout integration,
-16 consumer cases). One `websockets.legacy` deprecation warning remains. Coverage
+<p>On 2026-10-04 the checkout's existing virtual environment ran:</p>
+<pre><code class="language-text">python -m pytest tests/test_api.py tests/test_api_checkout_integration.py tests/test_consumer_example.py -q
+</code></pre>
+<p>All 38 collected cases completed successfully (19 API, 3 checkout integration,
+16 consumer cases). One <code>websockets.legacy</code> deprecation warning remains. Coverage
 includes blank/oversized/extra-field rejection, bearer requirements, request IDs,
 empty-evidence versus dependency-failure responses, swapped-citation withholding,
-corpus attribution integrity and consumer transport restrictions.
-
-These tests use synthetic inputs and HTTP test serialization. Checkout-launcher
+corpus attribution integrity and consumer transport restrictions.</p>
+<p>These tests use synthetic inputs and HTTP test serialization. Checkout-launcher
 checks and consumer subprocess checks are not clean-install package acceptance,
 an actual network deployment, load tests, or proof of financial correctness.
 The current evidence-only mapping remains covered, not corrected: the source-task
-test explicitly expects an empty answer even when `can_answer` is true.
+test explicitly expects an empty answer even when <code>can_answer</code> is true.</p>
+
+</details>
 
 ## Course originals: layers are not deployment tiers
 
@@ -513,7 +655,10 @@ and `03 cs310-multi-tier.pdf` (13 pages). Text extraction covered all pages;
 embedded diagrams were not visually inspected in this pass. This is an original
 project application of their concepts, not a course assignment or endorsement.
 
-An earlier independent Windows run passed 35 exported regressions: 17
+<details>
+<summary>Earlier exported regressions and later startup boundaries</summary>
+
+<p>An earlier independent Windows run passed 35 exported regressions: 17
 conversation, 16 HTTP consumer, and two source-launcher preflight cases. The
 subsequent suite grew to 45 cases by adding two optional-import preflight checks
 and eight index-integrity contract checks. These are bounded regression results,
@@ -523,9 +668,11 @@ The real-loopback sections below distinguish synthetic-service HTTP acceptance
 from acceptance with the cached CUDA model and existing index. The latter
 application-factory path passed. At that checkpoint, the root launcher with valid
 configuration, fuller course-original coverage and production controls remained
-unverified. The later [installed-startup chapter](08-source-bound-startup.html)
+unverified. The later <a href="08-source-bound-startup.html">installed-startup chapter</a>
 records a different entry point and later checks. Neither dated result establishes
-enterprise readiness or independent financial quality.
+enterprise readiness or independent financial quality.</p>
+
+</details>
 
 ## A real socket closes a different boundary than TestClient
 
@@ -592,26 +739,36 @@ personally reproduce and explain them; reading this chapter is not mastery.
 
 ### Replace the fixture without changing the transport contract
 
-The same script now accepts `--artifact-dir <reviewed-artifact-directory>`.
+The October 4 variant injected a cached CUDA/index service into the same
+application factory and passed its bounded real-loopback checks. It did not
+enable generation or establish source-tree launcher startup, HTTPS, concurrent
+capacity or independent financial quality. Compare the preconditions as well
+as the returned response: a replaceable interface can preserve transport
+behavior while requiring a different dependency to initialize.
+
+<details>
+<summary>October 4 model-backed application-factory loopback check</summary>
+
+<p>The same script now accepts <code>--artifact-dir &lt;reviewed-artifact-directory&gt;</code>.
 This opt-in path validates the annual index, loads the pinned cached BGE model
 on CUDA, and injects the real evidence service into the same application factory.
 It passed the health, 401, 422, authenticated-query, request-ID and cleanup checks
 on October 4. The real question returned top chunk
-`nvidia-fy2025-annual:p18:50cdb6ce95041a87`, matching the source-reviewed trace
-in [chapter three](03-ranking-is-not-confidence.html).
-
-This closes a bounded model-backed application-factory HTTP path, not the
+<code>nvidia-fy2025-annual:p18:50cdb6ce95041a87</code>, matching the source-reviewed trace
+in <a href="03-ranking-is-not-confidence.html">chapter three</a>.</p>
+<p>This closes a bounded model-backed application-factory HTTP path, not the
 source-tree launcher's complete startup path. The script does not attach source
 provenance metadata, enable generation, terminate HTTPS, exercise simultaneous
 requests or verify Linux deployment. Its exact top-chunk assertion intentionally
 pins one exposed diagnostic example; it is not an independent answer-quality
-criterion. The original classroom service and data were not modified.
-
-The learning question is now concrete: which parts of HTTP behavior stayed the
+criterion. The original classroom service and data were not modified.</p>
+<p>The learning question is now concrete: which parts of HTTP behavior stayed the
 same when the injected synthetic retriever became a real CUDA/index service?
 Which new preconditions appeared before the listener could start? Trace package
 installation, artifact integrity, model loading, service construction and network
-request separately; one successful response is not evidence for every boundary.
+request separately; one successful response is not evidence for every boundary.</p>
+
+</details>
 
 ## Production requirements are a separate acceptance layer
 

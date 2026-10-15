@@ -78,6 +78,46 @@ between source candidates and financial acceptance remain visible in the main
 explanation. The existing shared light styling applies to both collapsed and
 expanded content; no new layout, runtime or diagram behavior is introduced.
 
+## Foundations: reusable documents and owned outcomes
+
+Chapter 01 now follows a change from one annual-revenue question to another.
+Its table aligns document preparation, service initialization and per-question
+work with their inputs and invalidation conditions. A declared synthetic
+two-dimensional row swap explains why a valid vector shape cannot establish
+the correct text/vector association. The FY2023 follow-up practice asks for a
+prediction before feedback; a recording encoder checks that compatible cached
+passage vectors require no construction-time encoding and two questions each
+produce one instructed query-encoding call. These are controlled bookkeeping
+checks, not model or financial performance observations.
+
+Chapter 02 starts with a concrete evidence-only HTTP response: 200,
+`can_answer=true`, and an empty answer. It follows a declared synthetic
+wrong-year candidate across retrieval, the evidence gate and response mapping,
+then contrasts an empty evidence result, a query exception and a generation
+timeout. Its practice changes the failure location: a valid request reaches a
+retriever that raises `ValueError`. The contract-based feedback distinguishes
+that operational 503 response from a request-schema 422 error.
+
+The local controlled API check also observed malformed JSON without a bearer
+header returning 422 with no query call. The ordinary query route's explanatory
+trace therefore does not promise authentication before JSON-body consumption.
+The separately bounded statement routes retain their own body-reading contract.
+No API production code, authentication policy, model adapter or diagram was
+changed by this editorial correction.
+
+Dated installation, controller, representation and replay records remain
+available through named disclosures. Existing Markdown inside the first
+chapter's old disclosures is converted to actual HTML so tables, code and links
+render when opened. Original H2/H3 targets and iframe tags are retained outside
+closed records. Current limitations and historical failures stay visible;
+neither published exercises nor the agent's checks establish learner mastery.
+
+The narrow-screen browser check also found that a wrapped Journal title had
+two separate inline hit regions: its bounding-box center landed on the list
+item between lines. The title link now uses an inline block with the same
+font and width constraint, giving the wrapped text one continuous target.
+This repair is checked by native hit testing and actual article navigation.
+
 ## Checks remain distinct
 
 Content review checks that current claims match the named implementation and

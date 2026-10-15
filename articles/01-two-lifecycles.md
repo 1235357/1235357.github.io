@@ -15,16 +15,24 @@ tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
 
 **Question.** What was NVIDIA's annual revenue in FY2025?
 
-**Current answer status — Python baseline.** Generation is **OFF**. This path
-returns candidate evidence, not a generated revenue answer. The retained passage
-still needs a primary-PDF check of fiscal period, metric, column, amount and unit.
-Displaying a retrieval score is not answering the question.
+Suppose the reviewed reports have already been split into passages and encoded.
+After asking this question, a reader changes it to FY2024. Must the system parse
+all the reports and encode every passage again? Or can it reuse that work while
+computing something new for the question?
 
-**Current browser entry — October 14.** The public lab runs on the reader's
-device and offers explicit Qwen generation after retrieval and context assembly.
-Its output is an unverified draft or a refusal. The ordinary development build
-does not inject a generator. These are separate execution profiles; the Python
-baseline's OFF setting does not describe the public browser lab.
+**The learning goal:** trace this change through a reusable document
+representation, service initialization and one query. Decide which artifacts
+remain compatible, which computation must repeat, and why a retrieved passage
+still needs a fiscal-period and source check.
+
+**Current answer status — checked October 14.** The examples use two
+implementations with distinct runtimes. Their generation settings stay explicit:
+
+| Entry, checked October 14 | Where the work runs | What its outcome means |
+| --- | --- | --- |
+| Python evidence-only baseline | Developer's Python service and cached BGE encoder | Generation is **OFF**; this path returns candidate evidence, not a generated revenue answer |
+| Public browser lab | Reader's device, with explicit MiniLM and Qwen actions | A generated result is an unverified draft or refusal |
+| Ordinary browser development entry | Reader's device, without an injected generator | Generation stays **OFF** in this profile |
 
 **Diagnostic status — 2026-10-04.** A separate cached Qwen2.5-0.5B-Instruct CPU
 generation attempt omitted its document/page citation. Its citation-format gate
@@ -35,8 +43,8 @@ With the question and output status visible, inspect how that outcome is built.
 The interactive Archify figure below describes the inspected current path, with
 editable [JSON](figures/two-lifecycles.archify.json), [draw.io](figures/two-lifecycles.drawio)
 and [PlantUML](figures/two-lifecycles.puml) sources. The companion external renderers
-have not been accepted. A second figure separates the approved browser-native
-design from implemented capability.
+have not been accepted. A second figure preserves the October 9 target topology;
+the embedded lab and linked execution chapter describe the later implementation.
 
 ## The problem is not simply calling a language model
 
@@ -71,6 +79,23 @@ and divides text into chunks. Encoding maps each chunk to a fixed-dimensional
 vector. The vector is not the original document: extraction can lose table
 relationships and chunk boundaries can separate facts. Consequently the index
 must retain a route back to the original PDF, rather than discard provenance.
+
+For our annual-revenue question, imagine that a passage contains the desired
+row while another contains a prior year's discussion. Ingestion prepares both
+before it knows the next question. It creates a representation that later
+questions can search, not one permanently correct answer.
+
+| Lifetime | Inputs and work | When it must be reconsidered |
+| --- | --- | --- |
+| Document preparation | Extract the PDF, create ordered chunks, encode their text and retain source mappings | Source bytes, extraction/chunking policy or passage representation change |
+| Service initialization | Validate the prepared artifact, construct the encoder/retriever and inject application policy | Starting a service instance or changing its configured dependencies |
+| Each question | Resolve supported follow-ups, encode this question, rank compatible passages and build gated context | The question or query settings change, even if document artifacts remain reusable |
+
+Here **offline** means reusable preparation outside an individual request. It
+does not promise that the application works without a network connection or
+that model assets are already present. **Online** means work performed for a
+request. Initialization is a third boundary: reusing passage vectors can avoid
+passage encoding while still requiring the service to construct a model object.
 
 The baseline uses 384-dimensional BGE vectors and exact cosine ranking.
 Given query vector q and passage vector p, similarity is
@@ -111,10 +136,19 @@ identities, model revision and encoding convention to the vector artifact. This
 is a design requirement; this paragraph does not claim every check is enforced
 by every loader. Audit the actual manifest and loader before changing artifacts.
 
+Use a **synthetic two-dimensional example** to see the failure. Let chunk A's
+vector be `[1,0]`, chunk B's be `[0,1]`, and the query vector be `[1,0]`. Both
+passage vectors have unit norm. If text records are swapped but vector rows are
+left alone, row 0 still scores 1 while now naming B. Matching dimensions and
+valid vector values do not detect the broken text/vector association. The
+ordered chunk identity is part of the artifact contract, not decorative metadata.
+These vectors illustrate bookkeeping; they are not model outputs or a relevance
+evaluation.
+
 For exact ranking with N passage vectors of dimension d, a single matrix-vector
 comparison performs work proportional to N × d. Storing float32 vectors alone
 costs about 4 × N × d bytes, excluding records and model weights. For the displayed
-2,399 × 384 baseline, that is 3,684,864 bytes of vector values, not the process's
+October 4 2,399 × 384 baseline, that is 3,684,864 bytes of vector values, not the process's
 total RAM or GPU memory. An ANN index trades exact search for its own quality,
 memory and tuning costs; the current default is not an ANN implementation.
 
@@ -146,36 +180,84 @@ repair a question that was sent to retrieval with the wrong meaning.
 
 ### A five-case rehearsal: explain before executing
 
-Use the previous resolved question `What was NVIDIA's annual revenue in FY2025?`
+Assume a running evidence-only service with a reviewed corpus containing FY2023
+and compatible precomputed passage vectors. The demo caller retains the resolved
+FY2025 annual-revenue question. **Predict before opening the feedback:** the next
+input is `How about FY2023?`. Write the resolved question, the encoder input and
+which work must repeat. Would reusing the passage matrix also authorize reusing
+the previous query vector or context?
+
+<details>
+<summary>Check the FY2023 follow-up and reused artifacts</summary>
+
+<p>The bounded resolver returns <code>What was NVIDIA's annual revenue in FY2023?</code>. The BGE query encoder receives <code>Represent this sentence for searching relevant passages: What was NVIDIA's annual revenue in FY2023?</code>. This is a rule-based resolution and embedding instruction, not a language-model rewrite.</p>
+
+<p>The running service can reuse its compatible passage matrix. It must encode the new question, rank candidates and build context for that question; the previous query vector and evidence do not become FY2023 results. No report parsing or passage encoding is required solely because this question changed. The demo caller supplies the prior resolved question; the stateless HTTP route does not acquire conversation memory. Financial source review is still required.</p>
+
+<p>A recording encoder and explicit synthetic vectors checked the call boundary: construction with precomputed vectors made no encoder call, and the two queries each made one instructed query call. This is authored practice and a controlled contract check, not new model inference, measured latency or a learner's acceptance result.</p>
+
+</details>
+
+<details>
+<summary>Five bounded resolver cases and the October 4 regression record</summary>
+
+<p>Use the previous resolved question <code>What was NVIDIA's annual revenue in FY2025?</code>
 unless the row specifies otherwise. The following outcomes are derived from
-the inspected `resolve_demo_query` rules, not from language-model reasoning.
-
-| Current input | Resolution | Reason |
-| --- | --- | --- |
-| `And FY2024?` | Annual revenue question for FY2024 | Explicit supported year plus exact revenue antecedent |
-| `The previous year?` | Clarification error | Relative-year inference is deliberately unsupported |
-| `What about FY2027?` | Clarification error | Target is outside the default FY2022–FY2026 range |
-| `What was NVIDIA's net income in FY2024?` | Unchanged standalone question | The resolver does not replace an explicitly supplied metric |
-| `And FY2024?`, with empty previous question | Clarification error | No supported antecedent from which to preserve the metric |
-
-The antecedent and supported follow-up expressions use case-insensitive
-`fullmatch`: punctuation and the complete sentence pattern matter. This is
+the inspected <code>resolve_demo_query</code> rules, not from language-model reasoning.</p>
+<table>
+<thead>
+<tr>
+<th>Current input</th>
+<th>Resolution</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>And FY2024?</code></td>
+<td>Annual revenue question for FY2024</td>
+<td>Explicit supported year plus exact revenue antecedent</td>
+</tr>
+<tr>
+<td><code>The previous year?</code></td>
+<td>Clarification error</td>
+<td>Relative-year inference is deliberately unsupported</td>
+</tr>
+<tr>
+<td><code>What about FY2027?</code></td>
+<td>Clarification error</td>
+<td>Target is outside the default FY2022–FY2026 range</td>
+</tr>
+<tr>
+<td><code>What was NVIDIA's net income in FY2024?</code></td>
+<td>Unchanged standalone question</td>
+<td>The resolver does not replace an explicitly supplied metric</td>
+</tr>
+<tr>
+<td><code>And FY2024?</code>, with empty previous question</td>
+<td>Clarification error</td>
+<td>No supported antecedent from which to preserve the metric</td>
+</tr>
+</tbody>
+</table>
+<p>The antecedent and supported follow-up expressions use case-insensitive
+<code>fullmatch</code>: punctuation and the complete sentence pattern matter. This is
 intentionally narrow, but unfamiliar references can still pass through unchanged;
 the function is not a general ambiguity detector. The caller must supply the
-previous *resolved question*, not a retrieved passage or generated answer.
-
-`runtime.py` defines the query instruction as
-`Represent this sentence for searching relevant passages: `.
+previous <em>resolved question</em>, not a retrieved passage or generated answer.</p>
+<p><code>runtime.py</code> defines the query instruction as
+<code>Represent this sentence for searching relevant passages:</code>.
 That prefix describes the embedding task. It neither supplies financial evidence
 nor demonstrates that a generative model rewrote the user's intent. For a
 supported follow-up, explain the transformation as original input → resolved
-standalone question → instructed encoder input, keeping all three inspectable.
-
-Local regression command: `python -m pytest tests/test_conversation.py -q`.
+standalone question → instructed encoder input, keeping all three inspectable.</p>
+<p>Local regression command: <code>python -m pytest tests/test_conversation.py -q</code>.
 The October 4 run passed 17 parameterized cases. Those cases cover the resolver's
 bounded contract, not retrieval quality, conversation completeness or an answer's
 financial truth. Your exercise is to predict all five rows, run the resolver, and
-explain one rejected and one unchanged input in English without reading the table.
+explain one rejected and one unchanged input in English without reading the table.</p>
+
+</details>
 
 The service follows this sequence, directly visible in `service.py`:
 
@@ -276,26 +358,33 @@ different model revision and an unnormalized matrix. Use disposable synthetic
 copies for deliberate corruption, never the classroom artifact. Explain which
 properties a hash can verify and which financial properties require source review.
 
-The disposable failure experiment is implemented in
-`tests/test_index_integrity_contract.py`; it does not need an embedding model.
-Run it against the installed package with:
+The corruption cases separate three questions: does the declared artifact match
+the expected representation, do the bytes match its hashes, and are its vector
+values numerically valid? Updating a hash can make a corrupt matrix
+self-consistent without giving it unit-norm, finite rows. The dated disposable
+tests below inspect those boundaries without opening the annual-report artifact.
 
-```powershell
-.\.venv-acceptance\Scripts\python.exe -I -m pytest -o pythonpath= tests/test_index_integrity_contract.py -q
-```
+<details>
+<summary>October 4 synthetic artifact-corruption cases</summary>
 
-Eight cases passed on October 4: a valid matrix, wrong model name, wrong revision,
+<p>The disposable failure experiment is implemented in
+<code>tests/test_index_integrity_contract.py</code>; it does not need an embedding model.
+Run it against the installed package with:</p>
+<pre><code class="language-powershell">.\.venv-acceptance\Scripts\python.exe -I -m pytest -o pythonpath= tests/test_index_integrity_contract.py -q
+</code></pre>
+<p>Eight cases passed on October 4: a valid matrix, wrong model name, wrong revision,
 reordered chunks, changed vector bytes, and three invalid matrices whose fixture
 hashes were deliberately updated. Those last cases separately reject non-unit,
 zero and non-finite rows. They demonstrate why byte integrity and numerical
 validity are different contracts. All files are temporary synthetic fixtures;
-the test never opens or corrupts the annual-report artifact.
-
-Learning checkpoint: before reading the expected exception, explain whether each
+the test never opens or corrupts the annual-report artifact.</p>
+<p>Learning checkpoint: before reading the expected exception, explain whether each
 case should fail at identity, byte integrity or numeric validation. In particular,
 updating a hash can make bytes self-consistent without making the represented
 data meaningful. These eight examples are not exhaustive corruption coverage
-and do not establish trusted provenance or financial correctness.
+and do not establish trusted provenance or financial correctness.</p>
+
+</details>
 
 ## Reproduce before putting the project on a résumé
 
@@ -367,7 +456,9 @@ answer. The later encoder, query, context and generation retain their own gates.
 <figcaption>Each pipeline action commits its own accepted artifact; context is not an answer. A native generation result is separately inspected as an unverified draft or refusal. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a> · <a href="07-operational-receipts.html">Current execution contracts ↗</a>. This iframe inherits its host's build profile: public generation/lookup are configured, ordinary development generation remains OFF. File selection and model downloads are explicit; no selected-PDF upload endpoint or NVIDIA sample mode is implemented. Native public execution and financial correctness need their own acceptance evidence.</figcaption>
 </figure>
 
-<details><summary>What was actually checked in Codex IAB on October 7?</summary>
+<details>
+<summary>What was actually checked in Codex IAB on October 7?</summary>
+
 <p>An original two-page toy PDF, not a financial report, was selected through
 the real chooser in both the standalone lab and this article's iframe. The
 native parser reported physical pages 1/2, labels i/1, the expected strings and
@@ -383,9 +474,12 @@ and one on its second. The real browser displayed 100/100/40 cards with complete
 navigation, prepared one item's JSON only when opened, and removed it when
 closed. Switching physical page reset the window. This checks behavior, not
 browser-memory or latency performance.</p>
+
 </details>
 
-<details><summary>What changed in the actual browser on October 8?</summary>
+<details>
+<summary>What changed in the actual browser on October 8?</summary>
+
 <p>The standalone lab ran the same selected-file parser and a new native ES-module
 computation worker. The two-page selectable fixture produced 2 chunks, 96 output
 UTF-16 units and 2 mapping fragments. The pagination fixture produced 21 chunks,
@@ -402,6 +496,7 @@ physical abort and preserves accepted source records for a later chunk retry.
 During synchronous abort dispatch, new mutating calls are refused or suppressed
 at that atomic boundary; ordinary calls after it returns can retry. Independent
 regressions cover this reentrancy separately from the real browser checks.</p>
+
 </details>
 
 Start with a small selectable-text PDF. Physical page 1 is the first stored page;
@@ -460,7 +555,20 @@ because both encoders output 384-dimensional vectors.
 
 ### A real representation receipt, not a retrieval benchmark
 
-On October 9, the standalone lab's actual file chooser selected the original
+The October 9 browser fixture provides a concrete small representation: two
+chunks became two 384-dimensional rows and 24 token IDs. It contains no financial
+facts. Unit norm permits cosine comparison; it does not verify a fiscal year.
+Selecting a retained vector did not run the encoder again.
+
+A separate initialization cancellation committed no partial vectors and retained
+source/chunks for retry. Two earlier whole-tab crashes remain unexplained; these
+successful checks did not establish their cause or repair it. The exact token
+counts, values, timings and cache observations remain available below.
+
+<details>
+<summary>October 9 representation, cache and cancellation observations</summary>
+
+<p>On October 9, the standalone lab's actual file chooser selected the original
 two-page, 1,002-byte test PDF. Native parsing and chunking produced two chunks;
 an explicit MiniLM FP32/WebGPU action produced two finite 384-dimensional rows
 and 24 actual token IDs in total. Chunk 1 has 11 IDs including CLS/SEP, chunk 2
@@ -470,33 +578,51 @@ This is real browser model output, but the fixture contains no financial facts.
 The rebuilt article's iframe was separately exercised through its actual chooser,
 native parsing, explicit chunking and WebGPU encoding; it produced the same
 two-row/24-token/384-dimension receipt. This is an application embedded in the
-blog, not merely a diagram or a secretly Python-backed answer.
-
-| Observed attempt | Verified asset-body bytes | Fetched / cached body bytes | Total attempt time |
-| --- | --- | --- | --- |
-| First observed successful run | 113,629,084 | 113,629,084 / 0 | 2,331.1 ms |
-| Fresh-worker cache retry | 113,629,084 | 0 / 113,629,084 | 1,039.7 ms |
-
-These two observations belong to this device and fixture, not a percentile,
+blog, not merely a diagram or a secretly Python-backed answer.</p>
+<table>
+<thead>
+<tr>
+<th>Observed attempt</th>
+<th>Verified asset-body bytes</th>
+<th>Fetched / cached body bytes</th>
+<th>Total attempt time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First observed successful run</td>
+<td>113,629,084</td>
+<td>113,629,084 / 0</td>
+<td>2,331.1 ms</td>
+</tr>
+<tr>
+<td>Fresh-worker cache retry</td>
+<td>113,629,084</td>
+<td>0 / 113,629,084</td>
+<td>1,039.7 ms</td>
+</tr>
+</tbody>
+</table>
+<p>These two observations belong to this device and fixture, not a percentile,
 throughput or isolated-GPU benchmark. Time includes verification, initialization,
 encoding and disposal. The WebGPU provider does not prove every operator executes
 on the GPU; mean pooling and L2 normalization run in JavaScript on the CPU.
-Body-byte receipts are not complete network/privacy audits.
-
-A further native attempt was cancelled during initialization: no partial vectors
+Body-byte receipts are not complete network/privacy audits.</p>
+<p>A further native attempt was cancelled during initialization: no partial vectors
 were committed, source/chunks remained, and a retry used another worker. Replacing
 the file with the original empty PDF cleared dependent results and returned
-`EMPTY_DOCUMENT`. Clear/reselect restored the parsing path. Two earlier IAB
+<code>EMPTY_DOCUMENT</code>. Clear/reselect restored the parsing path. Two earlier IAB
 whole-tab crashes were not explained by these checks; successful recovery is
-not evidence that their underlying cause has been fixed.
-
-Your exercise: inspect one token list and predict why 45 UTF-16 units do not imply
+not evidence that their underlying cause has been fixed.</p>
+<p>Your exercise: inspect one token list and predict why 45 UTF-16 units do not imply
 45 model tokens. Open its complete vector, count 384 finite values and explain
 why unit norm permits a similarity calculation but cannot verify a fiscal year.
 Then cancel an encoding attempt and distinguish retained chunks from absent
 vectors. The separately tested query path below uses that same frozen
 representation; passage encoding alone was not retrieval and retrieval alone
-is not generation.
+is not generation.</p>
+
+</details>
 
 ### From your exact question to its candidate page
 
@@ -513,13 +639,24 @@ were not encoded again.
 | `TEST SOURCE PAGE TWO - no financial fact or answer.` | 2 / `1` | 0.358194 | This fixture's highest-ranked source window |
 | `TEST SOURCE PAGE ONE - original fixture only.` | 1 / `i` | 0.199773 | The other retained window, not a second answer |
 
-Inspecting candidate 1 selected chunk 2 and physical page 2, with its original
-UTF-16 source range `[0, 51)`. Inspection reads accepted artifacts: it does not
+This is the second lifecycle in action: a fresh question produces its own
+query representation while the accepted passage vectors remain reusable.
+Inspecting a candidate reads that retained result; it does not create another
+query. The following timing samples include initialization and cleanup, and
+remain device/fixture observations rather than performance benchmarks.
+
+<details>
+<summary>October 9 query inspection and individual timing observations</summary>
+
+<p>Inspecting candidate 1 selected chunk 2 and physical page 2, with its original
+UTF-16 source range <code>[0, 51)</code>. Inspection reads accepted artifacts: it does not
 encode another question. The standalone query attempt took 1,236.3 ms; the
 article-iframe attempt took 1,041.3 ms. Each verified 113,629,084 asset-body bytes,
 all from the verified cache in these runs. These are whole-attempt observations
 including loading, initialization, inference and cleanup, not isolated GPU time,
-a cold-start comparison, all-network measurement or a financial benchmark.
+a cold-start comparison, all-network measurement or a financial benchmark.</p>
+
+</details>
 
 The regression exercise is intentionally more useful than a green screenshot:
 
@@ -548,33 +685,30 @@ the original financial source is a further task, even when execution succeeds.
 <details>
 <summary>Recovery lesson: a filename is not an accepted document</summary>
 
-A browser can restore a file control while the new application session contains
+<p>A browser can restore a file control while the new application session contains
 no source. Choosing the same path can then leave no changed selection for the
 parser to observe. The control's filename and the session's accepted source are
-different state; neither should stand in for the other.
-
-The October 9 repair releases the file control after `pagehide` has revoked
-session state. A guarded `pageshow` also releases it when there is neither an
-accepted document nor an active operation. That `pageshow` handler preserves
+different state; neither should stand in for the other.</p>
+<p>The October 9 repair releases the file control after <code>pagehide</code> has revoked
+session state. A guarded <code>pageshow</code> also releases it when there is neither an
+accepted document nor an active operation. That <code>pageshow</code> handler preserves
 accepted artifacts and active parsing. Leaving the page intentionally invalidates
 the session; neither handler starts work automatically or erases the literal
-question control. [MDN documents `pageshow`](https://developer.mozilla.org/en-US/docs/Web/API/Window/pageshow_event)
+question control. <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/pageshow_event">MDN documents <code>pageshow</code></a>
 for initial load and history restoration, including bfcache; it does not establish
-IAB's actual file-restoration ordering.
-
-Three controlled regressions failed before the production change and passed
+IAB's actual file-restoration ordering.</p>
+<p>Three controlled regressions failed before the production change and passed
 after it. Independent specification and quality reviews passed. The rebuilt
 article iframe also completed native PDF/chunk work and real GPU encoding/query
 ranking; normal index navigation and Back returned an empty idle selection,
 and explicit same-file choice started parsing again. This does not prove that
-history used bfcache or identify the earlier whole-tab crash cause.
-
-Your exercise: run a query, navigate to the series index, return and inspect the
+history used bfcache or identify the earlier whole-tab crash cause.</p>
+<p>Your exercise: run a query, navigate to the series index, return and inspect the
 current state before clicking anything. If the source is absent, explicitly
 choose the PDF again. Explain: “A restored file input is not proof that the
 current session has an accepted source. Recovery should restore a valid action
 boundary, not silently execute the user's document.” Keep your own observation;
-this agent-run regression is scaffolding, not your personal mastery evidence.
+this agent-run regression is scaffolding, not your personal mastery evidence.</p>
 
 </details>
 
@@ -601,29 +735,44 @@ successful earlier operation is not permission for an old result to commit into
 a new session. In CS461 terms, actual embedding tokens and vectors are not
 generated answer tokens.
 
-<details><summary>Actual financial-source context check in Codex IAB on October 11</summary>
+<details>
+<summary>Actual financial-source context check in Codex IAB on October 11</summary>
 
-This was a local development trace, not a complete corpus or independent gold
+<p>This was a local development trace, not a complete corpus or independent gold
 evaluation. The selected 74,085-byte PDF contained original physical pages 3–4
 of the locally stored NVIDIA FY2025 Q2 report. It had its own SHA-256
-`8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428`;
+<code>8e668f014d42e1ece74a67e1431dea6542b48c60ed8bcd7a0e187e6b954e7428</code>;
 selected physical pages 1/2 carried PDF labels "3"/"4". The original report was
-unchanged, and neither it nor the excerpt was added to the public sample build.
-
-Both the standalone application and this article's actual iframe used the native
+unchanged, and neither it nor the excerpt was added to the public sample build.</p>
+<p>Both the standalone application and this article's actual iframe used the native
 chooser, PDF.js worker, computation worker and MiniLM WebGPU FP32 encoding. Each
 produced five chunks, 644 passage token IDs and 384-dimensional vectors. The exact
-question was `"  What was revenue for the three months ended July 28, 2024?\n"`:
+question was <code>"  What was revenue for the three months ended July 28, 2024?\n"</code>:
 two leading spaces and a trailing newline remained in the context. Its encoder
 used 16 token IDs. Requested top K 3 yielded citations E1, E4 and E2 at ranks
-1, 2 and 3; citation identity did not change into rank identity.
-
-| Warm-cache observation | Passage attempt | Query attempt |
-| --- | ---: | ---: |
-| Standalone | 1,785.5 ms | 862.9 ms |
-| Article iframe | 1,530.4 ms | 1,060.3 ms |
-
-Each attempt verified 113,629,084 asset-body bytes, all from the owned asset cache
+1, 2 and 3; citation identity did not change into rank identity.</p>
+<table>
+<thead>
+<tr>
+<th>Warm-cache observation</th>
+<th style="text-align: right;">Passage attempt</th>
+<th style="text-align: right;">Query attempt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standalone</td>
+<td style="text-align: right;">1,785.5 ms</td>
+<td style="text-align: right;">862.9 ms</td>
+</tr>
+<tr>
+<td>Article iframe</td>
+<td style="text-align: right;">1,530.4 ms</td>
+<td style="text-align: right;">1,060.3 ms</td>
+</tr>
+</tbody>
+</table>
+<p>Each attempt verified 113,629,084 asset-body bytes, all from the owned asset cache
 with zero fetched asset-body bytes. These are individual attempt observations,
 not isolated GPU time, a p95 benchmark, a total-network-zero claim, or generation
 latency. The opened E1 quote matched the retained candidate's complete 512 UTF-16
@@ -631,15 +780,14 @@ units. E4 inspection selected physical page 2 / label "4" and chunk 4 without
 changing the query receipt. Editing the standalone question then removed all
 context cards and disabled Assemble while retaining accepted source/passages.
 Generate remained disabled, and the iframe console had no observed warning or
-error entry in this check.
-
-Any generated financial claim still requires a claim-specific check
+error entry in this check.</p>
+<p>Any generated financial claim still requires a claim-specific check
 against the original table's quarter and six-month columns. Mechanical source
 identity, full quote retention and GPU execution do not supply that judgment.
 At this October 11 checkpoint, the selected-context prompt, Qwen generation and
 decoded-answer inspection were unfinished. The later public implementation and
-[dated native run](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved)
-have separate evidence; they do not supply independent financial-quality labels.
+<a href="07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved">dated native run</a>
+have separate evidence; they do not supply independent financial-quality labels.</p>
 
 </details>
 
