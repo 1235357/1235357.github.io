@@ -71,7 +71,7 @@ class ProbeFixture(unittest.TestCase):
         for name in SOURCE_MODULES:
             self.write(self.browser / name, b'authored module')
         self.write(self.browser / 'pdf-private-entry.mjs', b'authored private entry')
-        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs',
+        for name in ('inspector.html', 'inspector.css', 'lab-presentation.js', 'pdf-entry.mjs', 'pdf-app.mjs', 'pdf-session.mjs',
                      'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',
                      'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs',
                      'embedding.worker.mjs', 'retrieval.mjs', 'retrieval-inspection.mjs', 'retrieval-inspection-view.mjs',
@@ -275,6 +275,25 @@ class IntegrityTest(ProbeFixture):
 
 
 class RoutingTest(ProbeFixture):
+    def test_current_presentation_and_css_versions_match_build_normalization(self):
+        for name in ('lab-presentation.js', 'inspector.css'):
+            path=self.dist/'browser-rag'/name
+            versions=[]
+            for body in (b'first\nbody\n',b'first\r\nbody\r\n',b'changed\nbody\n'):
+                path.write_bytes(body)
+                version=hashlib.sha256(body.replace(b'\r\n',b'\n')).hexdigest()[:16]
+                versions.append(version)
+                self.assertEqual(probe.resolve_request(self.root,f'/browser-rag/{name}?v={version}'),path)
+            self.assertEqual(versions[0],versions[1])
+            self.assertNotEqual(versions[1],versions[2])
+            with self.assertRaises(ValueError):
+                probe.resolve_request(self.root,f'/browser-rag/{name}?v={versions[0]}')
+
+    def test_missing_shared_presentation_refuses_private_startup(self):
+        (self.dist/'browser-rag/lab-presentation.js').unlink()
+        with patch.object(probe,'verify_file',return_value=None),self.assertRaisesRegex(ValueError,'lab-presentation'):
+            probe.verify_startup(self.root)
+
     def test_root_and_static_file_resolve_only_into_dist(self):
         self.assertEqual(probe.resolve_request(self.root, '/'), self.dist / 'index.html')
         path = self.write(self.dist / 'browser-rag' / 'vendor' / 'transformers' / 'runtime.wasm', b'wasm')
@@ -349,6 +368,30 @@ class MemoryConnection:
 
 
 class HandlerTest(ProbeFixture):
+    def test_versioned_presentation_and_css_get_head_preserve_exact_body(self):
+        for name,kind in (('lab-presentation.js','application/javascript'),('inspector.css','text/css')):
+            data=b'/* owned local presentation */\r\n'
+            self.write(self.dist/'browser-rag'/name,data)
+            version=hashlib.sha256(data.replace(b'\r\n',b'\n')).hexdigest()[:16]
+            target=f'/browser-rag/{name}?v={version}'
+            for method in ('GET','HEAD'):
+                status,headers,body=self.request(method,target)
+                self.assertEqual(status,200)
+                self.assertEqual(headers['Content-Type'],kind)
+                self.assertEqual(headers['Content-Length'],str(len(data)))
+                self.assertEqual(headers['Cache-Control'],'no-store')
+                self.assertEqual(body,data if method=='GET' else b'')
+            for changed in (f'/browser-rag/{name}?v={version}&extra=1',
+                            f'/browser-rag/{name}?v={version}&v={version}',
+                            f'/browser-rag/{name}?v={version}#fragment',
+                            f'/browser-rag/{name}?v={version.upper()}',
+                            f'/browser-rag/{name}?v=0000000000000000',
+                            f'/browser-rag/{name}?theme=light',
+                            f'/browser-rag/{name}?v=%61{version[1:]}',
+                            f'/browser-rag/./{name}?v={version}'):
+                self.assertEqual(self.request('GET',changed)[0],404,changed)
+        self.assertEqual(self.request('GET',f'/browser-rag/pdf-entry.mjs?v={version}')[0],404)
+
     def request(self, method, target, client='127.0.0.1', repository_root=None):
         connection = MemoryConnection(f'{method} {target} HTTP/1.0\r\nHost: localhost\r\n\r\n'.encode('ascii'))
         server = types.SimpleNamespace(repository_root=repository_root or self.root, server_name='localhost', server_port=8766)

@@ -62,7 +62,7 @@ class ReleaseBoundaryTest(unittest.TestCase):
                     path.unlink()
 
     def test_refuses_incomplete_or_disabled_public_entry(self):
-        for name in ("financial-generation.worker.mjs", "bounded-text-view.mjs"):
+        for name in ("financial-generation.worker.mjs", "bounded-text-view.mjs", "lab-presentation.js"):
             required = self.dist / "browser-rag" / name
             required.unlink()
             with self.assertRaisesRegex(ValueError, "complete public entry"):

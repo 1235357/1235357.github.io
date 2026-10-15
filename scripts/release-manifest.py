@@ -35,6 +35,7 @@ PINNED_ASSETS = {
 REQUIRED = tuple(sorted(set((
     "index.html", "07-operational-receipts.html",
     "browser-rag/pdf-public-entry.mjs",
+    "browser-rag/lab-presentation.js",
     "browser-rag/financial-generation.worker.mjs",
     "browser-rag/financial-lookup-view.mjs",
     "browser-rag/bounded-text-view.mjs",

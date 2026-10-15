@@ -177,8 +177,8 @@ class BrowserAssetsTest(unittest.TestCase):
         fixtures.FreshBuildTest.setUp(self)
         self.browser = self.root / 'browser-rag'
         self.browser.mkdir()
-        for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'notebook-navigation.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs', 'complete-record-disclosure.mjs'):
-            if name.endswith('.mjs'):
+        for name in ('inspector.html', 'inspector.css', 'lab-presentation.js', 'pdf-entry.mjs', 'notebook-navigation.mjs', 'pdf-app.mjs', 'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs', 'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs', 'complete-record-disclosure.mjs'):
+            if name.endswith(('.mjs', '.js')):
                 (self.browser / name).write_bytes((REPOSITORY_BROWSER / name).read_bytes())
             else:
                 (self.browser / name).write_text('<!-- fixture -->' if name.endswith('.html') else 'fixture', encoding='utf-8')
@@ -218,6 +218,25 @@ class BrowserAssetsTest(unittest.TestCase):
         self.assertFalse((output / 'secret.env').exists())
         self.assertFalse((output / 'vendor' / 'standard_fonts' / 'private.txt').exists())
         self.assertFalse((output / 'node_modules').exists())
+
+    def test_shared_presentation_is_delivered_and_versioned_across_line_endings_and_changes(self):
+        markup = '<script src="lab-presentation.js"></script><link rel="stylesheet" href="inspector.css"><script type="module" src="pdf-entry.mjs"></script>'
+        (self.browser / 'inspector.html').write_text(markup, encoding='utf-8')
+        script = self.browser / 'lab-presentation.js'
+        observed = []
+        for body in (b'/* first presentation */\n', b'/* first presentation */\r\n', b'/* changed presentation */\n'):
+            script.write_bytes(body)
+            build.build()
+            output = self.root / 'dist' / 'browser-rag'
+            expected = 'lab-presentation.js?v=' + hashlib.sha256(body.replace(b'\r\n', b'\n')).hexdigest()[:16]
+            page = (output / 'inspector.html').read_text(encoding='utf-8')
+            self.assertIn(f'src="{expected}"', page)
+            self.assertLess(page.index(expected), page.index('rel="stylesheet"'))
+            self.assertIn('src="pdf-entry.mjs"', page)
+            self.assertEqual((output / script.name).read_bytes(), body)
+            observed.append(expected)
+        self.assertEqual(observed[0], observed[1])
+        self.assertNotEqual(observed[1], observed[2])
 
     def test_pdf_only_build_closes_the_real_static_module_graph_without_model_assets(self):
         # Real paired PDF.js module bodies also remain data-only build inputs.

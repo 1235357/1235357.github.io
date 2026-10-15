@@ -304,7 +304,7 @@ def copy_browser_assets(root, output, *, public_release=False):
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, destination)
 
-    for name in ('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'notebook-navigation.mjs', 'pdf-app.mjs', 'pdf-session.mjs',
+    for name in ('inspector.html', 'inspector.css', 'lab-presentation.js', 'pdf-entry.mjs', 'notebook-navigation.mjs', 'pdf-app.mjs', 'pdf-session.mjs',
                  'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs',
                  'compute-source.mjs', 'compute.worker.mjs', 'embedding-contract.mjs',
                  'embedding-runtime.mjs', 'embedding-source.mjs', 'embedding.worker.mjs',
@@ -313,17 +313,26 @@ def copy_browser_assets(root, output, *, public_release=False):
                  'context-contract.mjs', 'context-view.mjs', 'generation-view.mjs', 'bounded-text-view.mjs', 'complete-record-disclosure.mjs',
                  'pdf-assets.json'):
         copy(browser / name, target / name)
-    # A newly deployed entry selects its matching CSS instead of stale lab UI.
+    # A newly deployed entry selects its matching presentation and CSS bodies.
     inspector_entry = target / 'inspector.html'
     inspector_markup = inspector_entry.read_text(encoding='utf-8')
+    presentation_reference = 'src="lab-presentation.js"'
+    if public_release and inspector_markup.count(presentation_reference) != 1:
+        raise ValueError('Public inspector presentation reference differs from template')
+    if inspector_markup.count(presentation_reference) == 1:
+        presentation_body = (target / 'lab-presentation.js').read_bytes().replace(b'\r\n', b'\n')
+        presentation_version = hashlib.sha256(presentation_body).hexdigest()[:16]
+        inspector_markup = inspector_markup.replace(presentation_reference,
+            f'src="lab-presentation.js?v={presentation_version}"')
     css_reference = 'href="inspector.css"'
     if public_release and inspector_markup.count(css_reference) != 1:
         raise ValueError('Public inspector stylesheet reference differs from template')
     if inspector_markup.count(css_reference) == 1:
         css_body = (target / 'inspector.css').read_bytes().replace(b'\r\n', b'\n')
         css_version = hashlib.sha256(css_body).hexdigest()[:16]
-        inspector_entry.write_text(inspector_markup.replace(css_reference,
-            f'href="inspector.css?v={css_version}"'), encoding='utf-8')
+        inspector_markup = inspector_markup.replace(css_reference,
+            f'href="inspector.css?v={css_version}"')
+    inspector_entry.write_text(inspector_markup, encoding='utf-8')
     for name, expected_hash in registry['moduleHashes'].items():
         source = guard_path(package / name, root)
         copy_verified_asset(source, target / 'vendor' / name, source.stat().st_size,

@@ -46,7 +46,7 @@ PRIVATE_ENTRY_FILE = 'pdf-private-entry.mjs'
 STATIC_QUERY_ROUTES = MappingProxyType({
     '/figures/owned-generation.archify.html?theme=light': '/figures/owned-generation.archify.html',
 })
-SHARED_INSPECTOR_FILES = frozenset(('inspector.html', 'inspector.css', 'pdf-entry.mjs', 'pdf-app.mjs',
+SHARED_INSPECTOR_FILES = frozenset(('inspector.html', 'inspector.css', 'lab-presentation.js', 'pdf-entry.mjs', 'pdf-app.mjs',
     'pdf-session.mjs', 'pdf-source.mjs', 'protocol.mjs', 'runtime-failure-contract.mjs', 'item-window.mjs', 'chunking.mjs', 'compute-source.mjs',
     'compute.worker.mjs', 'embedding-contract.mjs', 'embedding-runtime.mjs', 'embedding-source.mjs',
     'embedding.worker.mjs', 'retrieval.mjs', 'query-source.mjs', 'query.worker.mjs', 'worker-console.mjs',
@@ -215,8 +215,22 @@ def resolve_request(repository_root, target):
     """Resolve an exact origin path; URL aliases and directory indexes fail."""
     root = Path(repository_root).absolute()
     if isinstance(target, str):
-        # One authored same-site figure parameter, never a general query alias.
+        # Only the authored figure alias and the two content-versioned UI assets.
         target = STATIC_QUERY_ROUTES.get(target, target)
+        if '?' in target:
+            route, query = target.split('?', 1)
+            if route not in ('/browser-rag/lab-presentation.js', '/browser-rag/inspector.css'):
+                raise ValueError('invalid versioned asset route')
+            if re.fullmatch(r'v=[0-9a-f]{16}', query) is None:
+                raise ValueError('invalid asset version')
+            dist = root / 'dist'
+            asset = guard_path(dist / route[1:], dist)
+            if not asset.is_file():
+                raise FileNotFoundError('versioned asset is missing or not a regular file')
+            version = hashlib.sha256(asset.read_bytes().replace(b'\r\n', b'\n')).hexdigest()[:16]
+            if query != 'v=' + version:
+                raise ValueError('asset version differs from current build')
+            target = route
     if (not isinstance(target, str) or not target.startswith('/')
             or target.startswith('//') or any(char in target for char in '%?#\\:')
             or any(ord(char) < 32 or ord(char) == 127 for char in target)):

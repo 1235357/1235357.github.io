@@ -74,6 +74,12 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         markup=(out/'inspector.html').read_text(encoding='utf-8');self.assertIn('src="pdf-public-entry.mjs"',markup);self.assertNotIn('src="pdf-entry.mjs"',markup)
         css=(out/'inspector.css').read_bytes().replace(b'\r\n',b'\n')
         self.assertIn(f'href="inspector.css?v={hashlib.sha256(css).hexdigest()[:16]}"',markup)
+        presentation=(out/'lab-presentation.js').read_bytes()
+        self.assertEqual(presentation,(self.browser/'lab-presentation.js').read_bytes())
+        presentation_version=hashlib.sha256(presentation.replace(b'\r\n',b'\n')).hexdigest()[:16]
+        presentation_reference=f'src="lab-presentation.js?v={presentation_version}"'
+        self.assertIn(presentation_reference,markup)
+        self.assertLess(markup.index(presentation_reference),markup.index('rel="stylesheet"'))
         graph=existing.static_mjs_graph(out,'pdf-public-entry.mjs');self.assertIn('financial-lookup-view.mjs',graph);self.assertIn('financial-generation-source.mjs',graph)
         self.assertIn('./notebook-navigation.mjs', graph['pdf-public-entry.mjs'])
         self.assertEqual(graph['notebook-navigation.mjs'], set())
@@ -105,6 +111,7 @@ class PublicBrowserAssetsTest(unittest.TestCase):
     def test_default_build_stays_off_and_excludes_public_production_graph_and_qwen(self):
         build.build();out=self.root/'dist/browser-rag'
         self.assertIn('src="pdf-entry.mjs"',(out/'inspector.html').read_text(encoding='utf-8'))
+        self.assertEqual((out/'lab-presentation.js').read_bytes(),(self.browser/'lab-presentation.js').read_bytes())
         self.assertEqual((out/'runtime-failure-contract.mjs').read_bytes(),(self.browser/'runtime-failure-contract.mjs').read_bytes())
         self.assertEqual((out/'bounded-text-view.mjs').read_bytes(),(self.browser/'bounded-text-view.mjs').read_bytes())
         graph=existing.static_mjs_graph(out,'pdf-entry.mjs')
@@ -114,6 +121,21 @@ class PublicBrowserAssetsTest(unittest.TestCase):
         for name in release.PUBLIC_MODULES:self.assertFalse((out/name).exists(),name)
         self.assertFalse((out/'models'/release.QWEN_REVISION).exists());self.assertFalse((out/'acceptance').exists())
         self.assertIn('Local draft · not published',(self.root/'dist/index.html').read_text(encoding='utf-8'))
+
+    def test_missing_presentation_script_or_reference_refuses_without_replacing_a_previous_build(self):
+        self.public()
+        script=self.browser/'lab-presentation.js'
+        body=script.read_bytes()
+        script.unlink()
+        self.refuses()
+        script.write_bytes(body)
+        markup_path=self.browser/'inspector.html'
+        markup=markup_path.read_text(encoding='utf-8')
+        for changed in (markup.replace('<script src="lab-presentation.js"></script>',''),
+                        markup.replace('<script src="lab-presentation.js"></script>','<script src="lab-presentation.js"></script>'*2)):
+            markup_path.write_text(changed,encoding='utf-8')
+            self.refuses()
+        markup_path.write_text(markup,encoding='utf-8')
 
     def test_generated_model_notices_do_not_navigate_the_live_workspace(self):
         self.public()
