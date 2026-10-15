@@ -19,7 +19,7 @@ class Elements(HTMLParser):
 
 class MethodologyTest(unittest.TestCase):
     def setUp(self):
-        self.profile = json.loads(Path(__file__).with_name('portfolio.json').read_text())
+        self.profile = json.loads(Path(__file__).with_name('portfolio.json').read_text(encoding='utf-8'))
         self.html = render_home(self.profile)
         self.dom = Elements(self.html)
 
