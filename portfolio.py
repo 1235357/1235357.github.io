@@ -41,6 +41,27 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
                         for item in profile['education'])
     skills = ''.join(f'<article><h3>{text(item["title"])}</h3><p>{text(item["text"])}</p></article>'
                      for item in profile['skills'])
+    methodology = profile.get('methodology')
+    methodology_html = ''
+    methodology_navigation = ''
+    if methodology:
+        methodology_navigation = '<a href="#methodology">How I work</a>'
+        layers = ''.join(f'''<article class="methodology-card"><p class="eyebrow">{text(item['label'])}</p>
+<h3>{text(item['title'])}</h3><p>{text(item['text'])}</p>
+<p class="methodology-practice">{text(item['practice'])}</p>
+<div class="methodology-links">{links(item['links'])}</div></article>'''
+                         for item in methodology['layers'])
+        steps = ''.join(f'<li><h3>{text(item["title"])}</h3><p>{text(item["text"])}</p></li>'
+                        for item in methodology['steps'])
+        repository = methodology.get('repository')
+        repository_link = (f'<div class="methodology-links">{links([repository])}</div>'
+                           if repository else '')
+        methodology_html = f'''<section id="methodology" class="portfolio-section methodology-section" aria-labelledby="methodology-title">
+<div class="section-heading"><p class="eyebrow">HOW I WORK</p><h2 id="methodology-title">{text(methodology['title'])}</h2>
+<p>{text(methodology['intro'])}</p></div>
+<div class="methodology-grid">{layers}</div>
+<h3 class="methodology-cycle-title">My working cycle</h3><ol class="methodology-cycle">{steps}</ol>
+<p class="methodology-boundary">{text(methodology['boundary'])}</p>{repository_link}</section>'''
     label = 'PERSONAL PORTFOLIO' if public_release else 'LOCAL REVIEW'
     license_link = ' · <a href="SITE-LICENSE.txt">Site license</a>' if public_release else ''
     portrait = profile['portrait']
@@ -59,7 +80,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <link rel="stylesheet" href="{text(stylesheet_href)}"></head><body class="portfolio-page">
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="site-header portfolio-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ {label}</span></a>
-<nav aria-label="Main navigation"><a href="#projects">Work</a><a href="#background">Background</a><a href="journal.html">Journal</a><a href="{text(portrait['profile'])}">LinkedIn ↗</a></nav></header>
+<nav aria-label="Main navigation"><a href="#projects">Work</a>{methodology_navigation}<a href="#background">Background</a><a href="journal.html">Journal</a><a href="{text(portrait['profile'])}">LinkedIn ↗</a></nav></header>
 <main class="portfolio-main" id="main-content">
 <section class="personal-hero" aria-labelledby="personal-title">
 <div><p class="eyebrow">NORTHWESTERN MSCS / {text(profile['location']).upper()}</p>
@@ -70,6 +91,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <img src="{text(portrait['src'])}" width="800" height="800" alt="Zhentong Ye" referrerpolicy="no-referrer" decoding="async"></a>
 <figcaption><span>Zhentong / Evanston</span><a href="{text(portrait['profile'])}">LinkedIn ↗</a></figcaption></figure></section>
 <section id="projects" class="portfolio-section selected-work" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Retrieval systems, multimodal research and applied AI.</p></div><div class="project-list selected-project-list">{selected_cards}</div>{more_projects}</section>
+{methodology_html}
 <section id="background" class="portfolio-section background-section" aria-labelledby="background-title"><div class="section-heading"><p class="eyebrow">BACKGROUND</p><h2 id="background-title">Education &amp; practice</h2></div><div class="education-grid">{education}</div>
 <details class="background-more"><summary>Engineering toolkit <span>Models, interfaces &amp; evaluation</span></summary><div class="skills-grid">{skills}</div>
 <p class="course-bridge">My RAG journal connects this work to language-model computation, agent workflows, scalable service boundaries and software design. Course connections describe what I am studying and applying as I build.</p></details></section>

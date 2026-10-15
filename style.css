@@ -223,3 +223,22 @@ html:has(>body.portfolio-page){color-scheme:light}
   .portfolio-page .personal-hero{animation:none}
   .portfolio-page :is(.primary-link,.demo-tabs button){transition:none;transform:none}
 }
+
+/* Learning and engineering methodology: additive, same portfolio design tokens. */
+.portfolio-page .methodology-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.portfolio-page .methodology-card{min-width:0;padding:28px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.portfolio-page .methodology-card .eyebrow{font-size:12px;margin:0 0 16px}
+.portfolio-page .methodology-card h3{font-size:26px;line-height:1.35;margin:0 0 18px}
+.portfolio-page .methodology-card p:not(.eyebrow){font-size:16px;line-height:1.85;color:var(--muted)}
+.portfolio-page .methodology-card .methodology-practice{border-top:1px solid var(--line);padding-top:18px}
+.portfolio-page .methodology-links{display:flex;flex-wrap:wrap;gap:4px 22px;font:650 15px/1.8 var(--ui)}
+.portfolio-page .methodology-links a{display:inline-flex;align-items:center;min-height:46px;overflow-wrap:anywhere}
+.portfolio-page .methodology-cycle-title{font-size:22px;line-height:1.4;margin:32px 0 20px}
+.portfolio-page .methodology-cycle{counter-reset:methodology;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;padding:0;list-style:none}
+.portfolio-page .methodology-cycle li{counter-increment:methodology;min-width:0;border-top:2px solid var(--line);padding-top:18px}
+.portfolio-page .methodology-cycle li::before{content:"0" counter(methodology);font:750 13px/1.7 var(--ui);color:var(--accent)}
+.portfolio-page .methodology-cycle h3{font-size:18px;line-height:1.5;margin:12px 0}
+.portfolio-page .methodology-cycle p,.portfolio-page .methodology-boundary{font-size:15px;line-height:1.85;color:var(--muted)}
+.portfolio-page .methodology-boundary{max-width:90ch;margin:24px 0 0}
+@media(max-width:960px){.portfolio-page .methodology-cycle{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.portfolio-page .methodology-grid,.portfolio-page .methodology-cycle{grid-template-columns:1fr}.portfolio-page .methodology-card{padding:24px}}

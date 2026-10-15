@@ -6,6 +6,60 @@
   "intro": "I build AI systems that make evidence and model behavior easier to inspect.",
   "availability": "Seeking Summer 2027 internships in applied AI and software engineering",
   "selected_projects": ["nvidia-rag", "osef", "llava-gi"],
+  "methodology": {
+    "title": "How I learn, then build",
+    "intro": "I combine 学习观 with the Elephant–Goldfish Model (EGM) as a working methodology: make understanding testable, make intent explicit, and keep implementation accountable to both.",
+    "layers": [
+      {
+        "label": "LEARNING / 学习观",
+        "title": "Build a model I can use",
+        "text": "From 于建国’s 学习观, I take a practical question: can I use what I learned in a situation I have not seen before? I connect an explanation to concrete examples, diagnose where my understanding breaks, and revisit it with new cases.",
+        "practice": "In my practice: describe the capability, separate recall from understanding, and test transfer with examples outside the learning material.",
+        "links": [
+          {
+            "label": "学习观 · author’s website",
+            "href": "https://www.modevol.com/p/xxg"
+          }
+        ]
+      },
+      {
+        "label": "ENGINEERING / EGM",
+        "title": "Make the design survive a fresh reader",
+        "text": "I adopt the Elephant–Goldfish Model described by Dave Rensin and presented by Brian Suchy at Northwestern. A context-rich design conversation captures intent and trade-offs; a fresh review without the prior conversation tests whether the written design stands on its own.",
+        "practice": "In my practice: resolve missing assumptions in the specification, implement within its boundaries, then check the result against explicit acceptance criteria.",
+        "links": [
+          {
+            "label": "Dave Rensin · original article",
+            "href": "https://research.google/pubs/elephants-goldfish-and-the-new-golden-age-of-software-engineering/"
+          },
+          {
+            "label": "Brian Suchy · Northwestern talk",
+            "href": "https://planitpurple.northwestern.edu/event/647083"
+          }
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "title": "Understand the task",
+        "text": "Name the capability, constraints and evidence needed. Check what I can already explain and apply."
+      },
+      {
+        "title": "Write the design",
+        "text": "Record decisions, interfaces, failure cases and acceptance criteria in a document a new reader can use."
+      },
+      {
+        "title": "Challenge assumptions",
+        "text": "Ask a fresh reviewer to find ambiguity and counterexamples. Revise the design before implementation."
+      },
+      {
+        "title": "Build and verify",
+        "text": "Implement a bounded change. Test behavior, retain failures and use new cases to revisit my understanding."
+      }
+    ],
+    "boundary": "This is my synthesis for learning and engineering, grounded in these authors’ work. A passing software test and my ability to explain or apply a concept are separate things to verify.",
+    "repository": {"label": "Explore my EGM practice & agent skill", "href": "https://github.com/1235357/egm-agent-skill"}
+  },
   "education": [
     {"school": "Northwestern University", "degree": "M.S. in Computer Science", "period": "September 2026–June 2028 (expected)", "detail": "Current study: Large Language Models, Agent AI, Scalable Software Architectures, and Software Design Principles and Practices."},
     {"school": "Wenzhou-Kean University", "degree": "B.A. in Mathematical Sciences · Data Analytics Option · Computer Science minor", "period": "September 2022–June 2026", "detail": "GPA 3.822/4.00 · Magna Cum Laude. Completed coursework includes Applied Machine Learning, Algorithms and Operating Systems."}
