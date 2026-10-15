@@ -10,10 +10,25 @@ source_type: implementation-and-course-review
 
 # Generation is not verification
 
-The classroom Python baseline is evidence-only: generation is disabled. The
-default browser development entry also omits the generator. The explicit public
-browser build now enables reader-initiated Qwen generation; its later
-[public native run](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved)
+An earlier local Qwen2.5-0.5B-Instruct run produced text but omitted its required
+document/page citation. The interface refused the output. The fact that a model
+ran did not make its text releasable; adding the highest-ranked page afterward
+would not establish that the model used that page.
+
+**The learning goal:** trace one response through its exact evidence, full
+rendered prompt, token budget, termination and citation checks. Given a new
+output, explain which boundary can reject it and which financial-support
+question remains unanswered even when every implemented check passes.
+
+**Execution profiles, checked October 14:**
+
+| Entry | Generation behavior | How to interpret a result |
+| --- | --- | --- |
+| Classroom Python baseline | Evidence-only; generation is disabled | Retrieved passages are candidates |
+| Default browser development entry | Generator omitted | A context record is not a generated answer |
+| Explicit public browser build | Reader-initiated Qwen generation | Accepted output remains an unverified draft or abstention |
+
+The later [public native run](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved)
 returned a source-linked draft labelled **UNVERIFIED**. That observation does not
 establish financial answer accuracy. The earlier Python Qwen run remains a
 rejected-output diagnostic, and the private browser runs described below use a
@@ -28,7 +43,9 @@ checkpoint separate from that baseline.
 The [Anyscale generation guide](https://docs.anyscale.com/rag/quality-improvement/generation-strategies)
 was read on October 4. It discusses context ordering and compression, source
 metadata, citations, verification, numerical tools and output-format constraints.
-For our project these are possible interventions, not existing capabilities.
+For our project these are strategies to assess against the implementation and
+its evidence. The guide does not establish that every intervention is present
+or effective here.
 In particular, tool execution still requires correct source data, intent, units,
 code and permissions. Structured output constrains form, not factual support.
 We should not adopt absolute reliability language as a project guarantee.
@@ -44,6 +61,21 @@ These instructions express desired behavior; they do not enforce it by themselve
 A source passage can contain malicious or irrelevant instructions, and a model
 can ignore the requested citation format. Keeping source data distinct from
 instructions is necessary, but no complete prompt-injection defense is proved.
+
+Keep the checked object visible as the response advances:
+
+| Boundary | Concrete object to inspect | What that check establishes |
+| --- | --- | --- |
+| Evidence | Exact selected quotes, source identities and question | Which material the generator was given; its financial support still needs review |
+| Prompt and budget | Full rendered system/user messages, role markers and paired-tokenizer IDs | Whether the complete input plus reserved output fits the configured limit |
+| Termination | Actual generated token IDs, including the final stop | Whether the required termination condition was observed |
+| Citation | A permitted document/page reference or browser evidence ID | Which supplied source the output names |
+| Claim support | Requested period, metric, amount and unit against the original source | A separate source-review judgment; no preceding receipt establishes it automatically |
+
+For the retained missing-citation failure, generation reached the output stage,
+but the citation boundary refused release. A different output can name an
+authorized page yet use its wrong fiscal column. Those failures require
+different checks; a more forceful prompt instruction cannot substitute for either.
 
 ### Course connection: token prediction and evidence enforcement are separate
 
@@ -96,6 +128,15 @@ The diagnostic `raw_answer` field is explicitly distinct from the released
 `answer`. If the latter is empty because validation rejected the output, displaying
 raw text as a successful answer would undo that boundary. Demonstration and API
 consumers must preserve the same distinction.
+
+These prose-citation and numeric vetoes belong to the **Python** generation
+path. The **browser** uses a different output contract: normal EOS, one supported
+JSON object with `answer`, `citations` and `insufficient_evidence`, and citation
+IDs belonging to the selected provenance context. Its inspection establishes
+shape and citation identity, while `financialCorrectness` and `claimSupport`
+remain `unestablished`. It does not import the Python numeric/metric vetoes or
+decide whether a cited quote supports the answer. The public UI keeps a native
+raw receipt separate from the resulting unverified draft or refusal.
 
 ## Token budgets have two boundaries
 
@@ -184,15 +225,32 @@ token IDs only if input length plus reserved output fits the configured window.
 UTF-16 offsets locate JavaScript text; they are not token counts. An over-budget
 prompt fails instead of hiding a shorter quotation behind a successful status.
 
-A local Node diagnostic used the actual downloaded, SHA-256-checked Qwen
-tokenizer pair and the installed SDK with two **synthetic** source paragraphs
-and synthetic retrieval vectors. Its 1,745-UTF-16 prompt encoded to **489 input
-tokens**. Reserving **128 output tokens** accepted a **617-token** window and
-refused a **616-token** window. The two quotes and raw question survived exactly,
+For the browser's current default software policy, reserve 128 output tokens
+inside a 2,048-token window. The limit applies to the **whole rendered input**:
+
+| Declared input-token count | Input plus output reserve | Pure budget outcome |
+| --- | --- | --- |
+| 1,920 | 1,920 + 128 = 2,048 | Fits the configured window |
+| 1,921 | 1,921 + 128 = 2,049 | Refuse before generation |
+
+These are authored token-count cases, not measurements of a new prompt. The
+reserve is a maximum allowance, not a prediction that the model will emit all
+128 tokens. Fitting the window cannot verify the evidence or the future answer.
+
+<details>
+<summary>Historical tokenizer diagnostic: exact quotes and the 617-token boundary</summary>
+
+<p>A local Node diagnostic used the actual downloaded, SHA-256-checked Qwen
+tokenizer pair and the installed SDK with two <strong>synthetic</strong> source paragraphs
+and synthetic retrieval vectors. Its 1,745-UTF-16 prompt encoded to <strong>489 input
+tokens</strong>. Reserving <strong>128 output tokens</strong> accepted a <strong>617-token</strong> window and
+refused a <strong>616-token</strong> window. The two quotes and raw question survived exactly,
 including Unicode, whitespace and marker spellings; the tokenizer saw only the
 intended three role starts and two role ends. This is a concrete tokenizer and
 budget observation, not an NVIDIA evaluation or a generated answer. The result
-is still named `prompt-prepared-not-generated`, with `generationMode: not-run`.
+is still named <code>prompt-prepared-not-generated</code>, with <code>generationMode: not-run</code>.</p>
+
+</details>
 
 For your own learning check, first explain why source ordinal and retrieval rank
 are different, then follow one complete quote into the JSON and back. Predict
@@ -213,14 +271,19 @@ tokenizer, configuration and runtime. A completed download establishes that
 bytes arrived; it does not establish that those bytes match the pinned model,
 that the runtime can load them, or that a generated answer is supported.
 
-The local static builder now hashes binary files in 1-MiB reads and verifies the
+<details>
+<summary>Historical build diagnostic: Q4 weight size and local allocation measurement</summary>
+
+<p>The local static builder now hashes binary files in 1-MiB reads and verifies the
 same blocks it writes into a private stage. Its manifest retains byte counts
 and digests instead of full file bodies. This matters when preparing a
 786,156,820-byte Q4 weight: reading the whole weight merely to compare two
 builds would make build memory scale with asset size. A local fingerprint-only
 diagnostic took 0.551 seconds and recorded 2,106,388 bytes of peak Python-traced
 allocations. Those measurements describe that operation on this machine, not
-the browser's RAM or GPU allocation and not model-initialization acceptance.
+the browser's RAM or GPU allocation and not model-initialization acceptance.</p>
+
+</details>
 
 Verification and copying must operate on the same bytes. Checking one file
 read and then copying a second read leaves room for the source to change
@@ -362,35 +425,37 @@ length limit, not EOS. It did not reach the requested mention of a small test,
 so this observation demonstrates local runtime integration, not complete
 instruction fulfillment, a financial answer or a quality score.
 
-The cold preparation read and verified 815,725,938 asset-body bytes. The next
+<details>
+<summary>October 11 greeting runs: byte receipts, timings, cleanup and policy repair</summary>
+
+<p>The cold preparation read and verified 815,725,938 asset-body bytes. The next
 accepted run read that same amount from native CacheStorage and recorded zero
 asset-preparation network bytes. Each SDK then separately consumed five verified
 model files totaling 793,197,262 bytes. Runtime JavaScript and WebAssembly were
 also requested by the page; their transport is outside those preparation and
-SDK-body receipts. Calling the warm run "zero network traffic" would be wrong.
-
-The observed whole diagnostic durations were about 30.77 seconds cold and
+SDK-body receipts. Calling the warm run "zero network traffic" would be wrong.</p>
+<p>The observed whole diagnostic durations were about 30.77 seconds cold and
 25.71 seconds warm. Those durations include asset checking, SDK/tokenizer/model
 initialization, generation and cleanup. They are two runs on this computer,
 not a p95 latency, time-to-first-token measurement, throughput benchmark or
 cross-device reproducibility result. Inspect the stage entries before deciding
 which operation to optimize; cache reuse does not keep a model resident when
-every explicit Run deliberately owns a new Worker.
-
-After each accepted run, the receipt confirmed two input tensors and one result
+every explicit Run deliberately owns a new Worker.</p>
+<p>After each accepted run, the receipt confirmed two input tensors and one result
 tensor disposed, awaited model disposal, cache closure and one owned device
-destroyed. A separate Cancel action instead showed `ABORTED` and
-`worker-terminated; native disposal unconfirmed`, with no accepted output.
+destroyed. A separate Cancel action instead showed <code>ABORTED</code> and
+<code>worker-terminated; native disposal unconfirmed</code>, with no accepted output.
 Returning to the page allowed a new explicit run. The mounted-module regression
 also covers BFCache restoration, but the actual navigation returned a Ready
-page, so that navigation is not proof that BFCache was used.
-
-This is a useful CS381 contract exercise. An independent review found that a
+page, so that navigation is not proof that BFCache was used.</p>
+<p>This is a useful CS381 contract exercise. An independent review found that a
 valid but different 80/16 preflight could previously cross the result boundary
 and be silently replaced with 40/8 in the displayed receipt. The adapter now
 compares the entire incoming preflight with its fixed canonical policy before
 accepting the output inspection. Explain why an internally consistent result
-is still wrong when it belongs to a different approved operation.
+is still wrong when it belongs to a different approved operation.</p>
+
+</details>
 
 For your CS310 learning check, explain why verifying a cache entry differs from
 loading the model, and why a cached model file differs from a resident model
@@ -427,6 +492,32 @@ from factual support and answer completeness. Do not repair a missing citation
 by attaching the top-ranked page automatically: that manufactures attribution.
 Numerical aggregation should remain out of scope until inputs and calculations
 have an explicit verifiable contract.
+
+**Predict before opening the feedback.** In an authored browser-contract case,
+the question asks for FY2025 net income. The selected quote identified as `E1`
+says only, `A fictional FY2024 note: Net income was $7 million.` The complete
+prompt fits its declared budget and the supplied output sequence ends at normal
+EOS. Its decoded text is:
+
+```json
+{"answer":"FY2025 net income was $9 million.","citations":["E1"],"insufficient_evidence":false}
+```
+
+Under the browser's shape/citation inspection, does that become a refusal or
+an unverified draft? Would changing only `E1` to `E999` produce the same result?
+Which requested fields are unsupported by the quote, even if the first output
+passes? Keep this separate from the Python validator's different vetoes.
+
+<details>
+<summary>Check the authorized citation and the unsupported claim</summary>
+
+<p>With the stated EOS and otherwise valid provenance, the browser's pure inspection accepts the three-key JSON and selected citation <code>E1</code>. It returns a draft with <code>financialCorrectness="unestablished"</code> and <code>claimSupport="unestablished"</code>. The FY2025 period and $9 million amount are unsupported by this fictional FY2024, $7 million quote. Citation membership cannot detect that gap.</p>
+
+<p>Changing the citation to <code>E999</code> instead produces <code>INVALID_FINANCIAL_OUTPUT_CITATION</code>, because that ID is absent from the selected evidence units. Keeping the first JSON but replacing EOS with a length stop produces <code>INVALID_FINANCIAL_OUTPUT_TERMINATION</code>. A complete-looking sentence and citation do not bypass either boundary. The actual native path must also establish invocation, ownership and decoded-text correspondence; these authored records do not.</p>
+
+<p>The production pure inspection and budget functions were exercised with declared synthetic source records, vectors and token IDs for these cases. No PDF parser, tokenizer, SDK model, asset download or inference ran. This is a checked example of what the contract accepts, not a financially accepted answer or a reader's learning result. After reading the feedback, choose a different period/unit conflict and record your own prediction before checking it.</p>
+
+</details>
 
 For interviews, be ready to explain one rejected output and one validator gap.
 That is stronger engineering evidence than saying "RAG eliminates hallucinations."

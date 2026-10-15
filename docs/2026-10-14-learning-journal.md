@@ -118,6 +118,88 @@ item between lines. The title link now uses an inline block with the same
 font and width constraint, giving the wrapped text one continuous target.
 This repair is checked by native hit testing and actual article navigation.
 
+## Ranking and source preservation: distinguish the quantities
+
+Chapter 03 now starts with its retained October 4 cosine rather than a new
+inference claim. Aligned tables connect raw vectors, norms and component
+products; a second table separates candidate scope, ordering, Top K and the
+Python evidence gate. The new D/E/F practice changes the query direction and
+keeps feedback closed. A recording Python encoder checks the E-only document
+scope and the 0.78 gate, while the pure browser ranker checks the same authored
+two-coordinate arithmetic padded to 384 dimensions. Python's document-scope
+option is not attributed to the browser ranker. No model produced these vectors.
+
+The October 4 Top Five remains a dated observation with all five pages and
+scores, now aligned in a table. Model/asset history and detailed notebook display
+behavior are available through named disclosures. A lazy embedded instance of
+the existing browser lab lets a reader carry the notebook explanation into an
+actual session; no synthetic vectors or sample results populate the empty lab.
+The shared build profile and explicit model actions remain unchanged.
+
+Chapter 04 starts with a declared fictional Net income table and wrong-date,
+wrong-row and per-share alternatives. Its new source-mapping practice uses
+Revenue and a leading-space amount, with a changed window configuration. Running
+the pure chunker confirms two windows, 14 UTF-16 output units and five fragments;
+the repeated presentation newline has no original source span. This is not PDF
+extraction, an encoder run or financial review.
+
+The current typed Python source selector and configured browser Net income
+lookup are explicitly distinguished from the existing SVG's proposed reviewed
+values and calculation path. Source candidates remain financially unadjudicated;
+neither exact matching nor a printed dollar glyph supplies an independently
+verified value or ISO-currency conversion. Historical details render as real HTML.
+The SVG bytes and editable diagram sources are retained, with a clarified caption;
+no new diagram renderer or generated export is claimed by this content increment.
+
+## Generation: follow the object that each boundary checks
+
+Chapter 05 starts with the retained missing-citation refusal and separates the
+Python baseline, browser development entry and explicit public build. Its aligned
+table follows evidence, the complete rendered prompt, termination, citation
+identity and independent claim support. The new authored practice changes both
+period and amount while retaining an authorized citation. The actual pure browser
+inspection accepts that structured output as an unverified draft; an unknown
+citation and a non-EOS length stop are separately refused. The pure budget check
+also distinguishes 1,920 from 1,921 declared input tokens with a 128-token reserve
+inside the configured 2,048-token window. These checks use authored records,
+vectors and token IDs; no PDF parser, tokenizer, model or inference executes.
+
+Historical tokenizer, local build-allocation and greeting-run measurements remain
+available in named closed HTML disclosures. Current limitations and the original
+failed output remain in the main explanation. All original heading targets stay
+outside the closed records. A syntactically accepted citation does not establish
+the requested financial period, metric, amount or unit.
+
+## Evaluation: name the unit before reporting a metric
+
+Chapter 06 starts from the retained missing-report retrieval failure, then uses
+one fictional income table to distinguish a page-location hit, a useful passage,
+complete evidence and a supported financial answer. Its new X/B/D/E practice
+separates unique labeled-page credit from labeled-page chunk occupancy and actual
+chunk judgments. Current pure evaluation functions confirm page Recall@4 of 1,
+reciprocal rank 1/2, unique relevant-page slot precision 1/2, labeled-page chunk
+occupancy 3/4 and judgment coverage 3/4. The unknown chunk stays unknown. The
+unchanged illustrative gate retains X/B/D without rewriting the original ranking.
+No independent financial gold, held-out result, encoder or generator is added.
+
+The five-field rubric maps period, row, column, amount and unit to a concrete
+target and failure. Dated registration, source replay, quarterly/annual parser
+and installation records remain reachable through named closed disclosures.
+Every original heading and the existing light Archify figure stays outside
+closed content; the current lack of independent human-gold and held-out results
+remains visible before those histories.
+
+## Light diagram exports: inspect the actual downloaded files
+
+The eight published Archify viewers were opened through Codex IAB with their old
+`theme=dark` query retained. Each reported the shared light background and Manrope
+body font. Each viewer's actual Export menu downloaded both PNG and SVG: sixteen
+files in total. All eight PNGs were visually inspected, and file checks confirm
+light backgrounds, light SVG theme attributes and embedded font data. This checks
+these communication exports and their visible labels, not the represented
+system's runtime behavior, financial quality or mobile diagram usability. The
+existing diagram source and generated HTML were not changed in this increment.
+
 ## Checks remain distinct
 
 Content review checks that current claims match the named implementation and

@@ -4,11 +4,21 @@ tags: [rag, retrieval, engineering]
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-13
+updated: 2026-10-14
 source_type: implementation-and-course-review
 ---
 
 # Ranking is not confidence
+
+For the question `What was NVIDIA annual revenue in FY2025?`, one retained
+October 4 run ranked a passage on physical PDF page 18 first, with cosine
+`0.807257`. It passed the Python baseline's `0.78` evidence gate. Does that
+mean an 80.7257% chance of a correct financial answer? What still needs checking?
+
+**The learning goal:** calculate a score, trace which passages are eligible,
+separate Top K from an evidence threshold, and follow a selected passage back
+to its period, metric and unit in the source. Then predict how changing the
+candidate scope or score representation changes what a caller may conclude.
 
 The retrieval stage answers a narrow question: which stored passages are most
 similar to this query under a particular representation and candidate scope?
@@ -34,6 +44,37 @@ A hand-calculation makes the operation concrete. For q=(3,4), A=(6,8), and
 B=(4,-3), normalized q=(0.6,0.8), A=(0.6,0.8), B=(0.8,-0.6). Their scores are
 1 and 0. A wins the ranking, but that says nothing about A containing the right
 fiscal year or revenue column. These are synthetic vectors, not model outputs.
+
+| Quantity | Query q | Passage A | Passage B |
+| --- | --- | --- | --- |
+| Raw vector | `(3,4)` | `(6,8)` | `(4,-3)` |
+| L2 norm | `5` | `10` | `5` |
+| Normalized vector | `(0.6,0.8)` | `(0.6,0.8)` | `(0.8,-0.6)` |
+| Cosine with q | — | `0.36 + 0.64 = 1` | `0.48 - 0.48 = 0` |
+
+Normalization removes vector length from this comparison. It does not inspect
+the financial words represented by A. If A describes FY2024 while the question
+asks about FY2025, a score of 1 still cannot turn its date into the requested
+date. The arithmetic and the claim-support question have different inputs.
+
+**Predict before opening the feedback.** Keep the FY2025 question, but use
+a new synthetic query `q=(-0.8,0.6)` and passage vectors `D=(-1,0)`,
+`E=(0,1)` and `F=(1,0)`. D's declared text is about FY2023; E's has a FY2025
+heading. For the Python scope example, D, E and F belong to three separate
+synthetic documents. Calculate their cosines and the result at K=2. What changes if the
+Python inspector's trusted document scope allows only E? Separately, should the browser remove E using the Python
+baseline's `0.78` threshold?
+
+<details>
+<summary>Check the changed query, scope and threshold</summary>
+
+<p>All four vectors have unit norm. D scores <code>0.8</code>, E <code>0.6</code> and F <code>-0.8</code>, so Top K 2 returns D then E. D's leading score does not change its declared FY2023 text. In the Python inspector, with only E eligible, the comparison returns E at <code>0.6</code>; the missing candidates do not become zero-score results. This document-scope option is not an implemented browser-ranker control.</p>
+
+<p>The browser ranker does not inherit the Python BGE <code>0.78</code> threshold. E can remain a browser candidate, while its heading alone still does not verify the requested revenue amount or unit. Applying the Python numeric gate to the unscoped synthetic scores would retain D alone; that result illustrates why the gate cannot validate a fiscal year.</p>
+
+<p>A recording Python encoder and the pure browser ranker checked this authored arithmetic with explicit synthetic vectors. The browser fixture pads the shown two coordinates with 382 zeros to satisfy its 384-dimensional contract. No MiniLM or BGE model produced these vectors, and no financial answer or learner acceptance was evaluated.</p>
+
+</details>
 
 The implementation rejects nonfinite vectors, zero vectors, overflowing norms,
 and mismatched query/document dimensions. Those checks prevent invalid arithmetic.
@@ -70,6 +111,20 @@ However, a report may contain comparative columns for several fiscal years.
 Selecting the FY2025 report alone does not prove a retrieved amount belongs to
 FY2025. The row, column, date and unit still require source verification.
 
+For the opening question, follow four decisions in order:
+
+| Decision | What it controls | What it cannot establish |
+| --- | --- | --- |
+| Candidate scope | Which stored passages are allowed into this comparison | The correct comparative-year column inside a report |
+| Cosine ranking | The order induced by this encoder's vectors | Whether the leading passage supports the financial claim |
+| Top K | How many ranked candidates are returned | An accuracy probability or a minimum score |
+| Python evidence threshold | Which returned candidates pass the configured score gate | Correct period, metric, amount or unit |
+
+The browser MiniLM path has its own representation and no inherited Python
+`0.78` gate. A number displayed in the same interface is not automatically
+measured on the same scale. Generation and financial source review come after
+these retrieval decisions; neither is supplied by this table.
+
 The task-source wrapper also scopes before ranking, using separately validated
 source declarations. It does not infer licenses, classify arbitrary questions or
 verify claims. This distinction matters when earnings-call or analyst materials
@@ -87,7 +142,7 @@ not an implemented optimization.
 Notice another measurement trap: the constructor converts vectors with
 `np.asarray(raw_matrix, dtype=float)` and then normalizes them. On the usual
 NumPy configuration this means float64, even if the stored artifact uses
-float32. For 2,399 vectors of dimension 384, raw float32 storage is 3,684,864
+float32. For the dated October 4 example of 2,399 vectors of dimension 384, raw float32 storage is 3,684,864
 bytes; a float64 matrix alone is 7,369,728 bytes. Neither number is process RAM.
 Temporary matrices, model weights, Python objects and other allocations are
 additional. Measure dtype and peak memory before claiming a memory improvement.
@@ -191,11 +246,20 @@ cached BGE encoder on `cuda:0` and the integrity-checked annual-report matrix.
 `acceptance/real_retrieval.py` accepts an external reviewed artifact directory;
 it neither copies nor modifies the classroom index and disables model downloads.
 
-For the exact question `What was NVIDIA annual revenue in FY2025?`, the five
-candidate PDF pages were 18, 170, 162, 144 and 149 of `nvidia-fy2025-annual`,
-scoring 0.807257, 0.797554, 0.788096, 0.784264 and 0.765803. The similarity gate
-passed, but the fifth candidate was below 0.78. Top-k retrieval and threshold
-selection are consequently visible as separate operations in a real trace.
+For the exact question `What was NVIDIA annual revenue in FY2025?`, the
+retained candidates in `nvidia-fy2025-annual` were:
+
+| Rank | Physical PDF page | Displayed cosine | At least the Python `0.78` threshold? |
+| --- | --- | --- | --- |
+| 1 | 18 | 0.807257 | Yes |
+| 2 | 170 | 0.797554 | Yes |
+| 3 | 162 | 0.788096 | Yes |
+| 4 | 144 | 0.784264 | Yes |
+| 5 | 149 | 0.765803 | No |
+
+The similarity gate passed, but the fifth candidate was below 0.78. A Top K
+budget returned five candidates; threshold selection asked a different question
+about those candidates. Neither column records financial correctness.
 
 Preserve the exact question string with the trace. The October 7 classroom query
 `What was NVIDIA's annual revenue in FY2025?` is a different observation from the
@@ -260,15 +324,23 @@ model tokens are different measurements.
 
 For the pilot, both passage and query encoding must bind to the same repository
 revision, tokenizer, pooling, normalization, dtype and token-length policy. The
-fixed revision is `751bff37182d3f1213fa05d7196b954e230abad9`.
-`embedding-contract.mjs` freezes this identity, 384 dimensions, attention-mask
+identity prevents mixing incompatible representations; it does not establish
+how faithfully an encoder represents a particular financial passage.
+
+<details>
+<summary>Pinned browser model and October 9 asset observations</summary>
+
+<p>The fixed revision is <code>751bff37182d3f1213fa05d7196b954e230abad9</code>.
+<code>embedding-contract.mjs</code> freezes this identity, 384 dimensions, attention-mask
 mean pooling and L2 normalization. The fp32 weight file was downloaded into an
 ignored local cache: 90,387,606 bytes, with its upstream SHA-256 independently
 matched. All five model files total 91,100,408 bytes. Downloaded bytes are not
 process RAM or GPU memory. The separately recorded passage trial used the complete
 113,629,084-byte model-plus-runtime asset set, not only the weight file. Its attempt
 receipt includes loading, initialization, encoding and cleanup; it is not isolated
-GPU time or a general performance benchmark.
+GPU time or a general performance benchmark.</p>
+
+</details>
 
 The pinned Transformers.js 3.8.1 high-level feature-extraction implementation
 sets `truncation:true`. Our shared lower-level encoder instead tokenizes explicitly
@@ -349,19 +421,38 @@ encoder again, add a worker receipt, change the accepted ranking, or populate a
 missing result with sample data. A failed consistency check withholds the view
 while leaving the underlying session artifacts intact.
 
+<details>
+<summary>Read the complete notebook record and its display windows</summary>
+
+<p>
 Row windows keep large comparisons readable. Complete JSON downloads retain all
 rows and the unrounded numerical values; the chart's concise labels are a display
 choice. Negative values extend left of zero, positive values extend right, and
 selection is also named in text. Each dimension is a learned model coordinate;
 this view does not assign it a word, topic or financial meaning. It explains how
-a passage was ranked, not whether its amount, period or citation is correct.
+a passage was ranked, not whether its amount, period or citation is correct.</p>
 
-For a synthetic rehearsal, use q=(0.6,0.8), A=(1,0), B=(0,1), and C=(-1,0).
-The component sums are 0.6, 0.8 and -0.6, and all norms are one. With K=2, B and
-A are selected; C remains visible below the boundary. This is a hand-worked
+</details>
+
+For a synthetic worked example, use q=(0.6,0.8), A=(1,0), B=(0,1), and C=(-1,0).
+All norms are one, so the component sums also give the cosines:
+
+| Passage | First component product | Second component product | Cosine | Top K 2 |
+| --- | --- | --- | --- | --- |
+| A | 0.6 | 0 | 0.6 | Selected, rank 2 |
+| B | 0 | 0.8 | 0.8 | Selected, rank 1 |
+| C | -0.6 | 0 | -0.6 | Outside the selected prefix |
+
+B and A are selected; C remains visible below the boundary. This is a hand-worked
 example, not an observed model result. In the actual notebook, compare the
 component record with your downloaded query and passage vectors, then follow
 the selected chunk back to its PDF page before treating it as evidence.
+
+<figure class="architecture-figure" id="browser-ranking-lab" aria-label="Browser lab for the similarity walkthrough">
+<div class="figure-heading"><span class="figure-status">TRY IT / COMPUTATION NOTEBOOK</span><h3>Inspect one passage, coordinate by coordinate.</h3><p>Choose your own PDF and explicitly build, embed and query its passages. Then open Notebook → Inspect how similarity selects passages to compare the complete ranking and one passage's component products.</p></div>
+<iframe src="browser-rag/inspector.html" title="Browser RAG lab — inspect actual query and passage similarity" loading="lazy"></iframe>
+<figcaption>The lab uses the reader's device and the host's build profile. Model preparation starts through your actions; no worked-example vectors are inserted into an empty session. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a> · <a href="07-operational-receipts.html">Follow the execution walkthrough ↗</a>. A retrieved passage or generated draft still needs checking against the original source.</figcaption>
+</figure>
 
 ### The generator has a different token budget
 

@@ -6,12 +6,35 @@ category: technical-blog
 domain: rag
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-09
+updated: 2026-10-14
 source_type: implementation-and-test-review
 metadata_version: 1
 ---
 
 # Preserve evidence before embedding
+
+**Question.** What is Net income for the year ended January 31, 2025?
+
+Start with an **authored, fictional teaching table**, not an NVIDIA report or
+an accepted parser fixture. Its heading prints `$` and
+`(In millions, except per share data)`:
+
+| Printed row | Year ended January 31, 2025 | Year ended January 31, 2024 |
+| --- | --- | --- |
+| Net income | 240 | 180 |
+| Basic earnings per share | 0.80 | 0.60 |
+
+The requested Net income candidate is `240` in millions. `180` has the right
+row but the wrong date; `0.80` has a different metric and a per-share unit.
+Retaining the number alone loses the information needed to distinguish them.
+The printed dollar symbol also does not, by itself, establish an ISO currency
+such as USD.
+
+**The learning goal:** given a source page and a chunk, trace the exact text back
+to its source, distinguish a physical page from its printed label, and identify
+which row, period or unit relationship still needs checking. Then explain why
+an exact source-cell match and an independently reviewed financial value are
+different outcomes.
 
 A revenue value without its fiscal column and unit is not a financial fact.
 This chapter traces what the current ingestion code preserves, what it loses,
@@ -48,15 +71,26 @@ another page. Also, this tokenizer's budget is not necessarily the embedding
 model's tokenizer budget. Inspect the actual encoder input and truncation before
 calling every 400-token chunk fully represented.
 
+In the teaching table, a chunk containing only `Net income 240 180` would retain
+the amounts while losing their date headers. Making its vector more precise
+cannot recreate the missing relationship. A page locator lets a reviewer return
+to the table; it does not turn this incomplete chunk into a reviewed value.
+
 ## The browser variant uses a different, explicit chunking contract
 
 The independent browser variant must not silently reuse those Python token
 offsets. Its pure `browser-rag/chunking.mjs` module consumes the accepted
-PDF.js source artifact and returns **chunked; not embedded** records. On October 8
-it was connected to the [selected-file inspector](01-two-lifecycles.html#browser-source-lab)
-through an owned native ES-module computation worker. The explicit Build button
-starts this separate operation after parsing; it does not create vectors.
-Node tests and actual Codex-IAB fixture execution remain different evidence.
+PDF.js source artifact and returns **chunked; not embedded** records. The
+explicit Build button starts a separate operation after parsing; it does not
+create vectors. Its offsets count UTF-16 code units in text, whereas the Python
+window budget counts tokens from its configured tokenizer.
+
+<details>
+<summary>October 8 browser integration checkpoint</summary>
+
+<p>On October 8 the browser chunker was connected to the <a href="01-two-lifecycles.html#browser-source-lab">selected-file inspector</a> through an owned native ES-module computation worker. Node tests and actual Codex-IAB fixture execution remain different evidence.</p>
+
+</details>
 
 The initial policy is deliberately mechanical: retain parser item order,
 join nonempty item strings with an authored newline, and form bounded windows
@@ -145,31 +179,31 @@ receipt, never the full source or chunk list. These CS381 responsibility and
 CS310 asynchronous-owner boundaries are concrete project practice, not a claim
 of deploying distributed services.
 
-<details><summary>Reproduce the mapping, then explain it without the table</summary>
+<details>
+<summary>Reproduce the mapping, then explain it without the table</summary>
 
-Run from the locally staged site repository:
+<p>Run from the locally staged site repository:</p>
 
-```powershell
-& 'C:\Program Files\nodejs\node.exe' --test browser-rag/tests/chunking.test.mjs
-```
+<pre><code class="language-powershell">&amp; 'C:\Program Files\nodejs\node.exe' --test browser-rag/tests/chunking.test.mjs
+</code></pre>
 
-The suite contains ordinary record fixtures plus two original PDFs parsed by
-the pinned legacy PDF.js **Node fake-worker** path. The latter is a real parser
+<p>The suite contains ordinary record fixtures plus two original PDFs parsed by
+the pinned legacy PDF.js <strong>Node fake-worker</strong> path. The latter is a real parser
 integration test, not a real browser worker or an embedding-quality test.
 The tests check exact fragments, coverage, page identity, Unicode boundaries,
 detachment, budgets and typed failures. Do not convert a count of passing tests
-into recall, financial correctness, browser performance or personal mastery.
+into recall, financial correctness, browser performance or personal mastery.</p>
 
-Your exercise: sketch the two windows above; label the three offset systems;
+<p>Your exercise: sketch the two windows above; label the three offset systems;
 explain why the newline cannot be quoted as source evidence; then predict what
 changes with zero overlap. Preserve your prediction and test observation.
 Try an intentionally wrong source-span quote only in a disposable synthetic
-record, and explain why it must be rejected before an encoder sees the text.
+record, and explain why it must be rejected before an encoder sees the text.</p>
 
-English rehearsal: “I preserve source-relative spans while building page-local
+<p>English rehearsal: “I preserve source-relative spans while building page-local
 windows. Authored separators are labelled separately. The windows are bounded
 in UTF-16, not model tokens, so tokenization and truncation require another
-contract. This stage creates attributable candidates, not verified answers.”
+contract. This stage creates attributable candidates, not verified answers.”</p>
 
 </details>
 
@@ -181,15 +215,18 @@ testable independently before tuning end-to-end retrieval.
 
 ### The encoder is a separate accepted artifact
 
-The October 9 passage-encoding receipt marks **embedded; not retrieved** as
-its own accepted stage. The later explicit query advances to sourced candidates,
-not an answer. MiniLM FP32/WebGPU returns ordered token-ID lists and normalized
-384-dimensional rows tied to the exact chunk IDs, file SHA-256 and frozen
-representation contract. The two-page toy PDF yielded two rows and 24 total
-encoded IDs. That passage receipt alone does not demonstrate ranking, financial
-relevance or generation; the later question run has its own artifact and receipt.
-The [first/cache-run receipt](01-two-lifecycles.html#a-real-representation-receipt-not-a-retrieval-benchmark)
-records the actual bounded observation rather than inferring it from passing tests.
+Passage encoding accepts its own artifact: ordered token-ID lists and normalized
+384-dimensional rows, tied to the exact chunk IDs, file SHA-256 and frozen
+representation contract. That state is **embedded; not retrieved**. An explicit
+question must still be encoded and ranked; even sourced candidates do not
+establish the correct financial row or authorize an answer.
+
+<details>
+<summary>October 9 toy-PDF passage-encoding receipt</summary>
+
+<p>The October 9 passage-encoding receipt marks <strong>embedded; not retrieved</strong> as its own accepted stage. The later explicit query advances to sourced candidates, not an answer. MiniLM FP32/WebGPU returns ordered token-ID lists and normalized 384-dimensional rows tied to the exact chunk IDs, file SHA-256 and frozen representation contract. The two-page toy PDF yielded two rows and 24 total encoded IDs. That passage receipt alone does not demonstrate ranking, financial relevance or generation; the later question run has its own artifact and receipt. The <a href="01-two-lifecycles.html#a-real-representation-receipt-not-a-retrieval-benchmark">first/cache-run receipt</a> records the actual bounded observation rather than inferring it from passing tests.</p>
+
+</details>
 
 Cancellation retains accepted source/chunks but prevents partial vector commits;
 replacing the selected document invalidates all dependent artifacts before old
@@ -228,6 +265,10 @@ table candidates are appended. This is not replacement of the entire corpus
 with validated rows. A later retrieval filter must distinguish candidates and
 human verification must still return to the source PDF.
 
+This older experimental corpus mode is distinct from the later source-bound
+income selectors described below. Neither a rectangle with valid coordinates
+nor a unique mechanical match is an independent financial review.
+
 The code explicitly prevents experimental extraction and declared third-party
 sources from overwriting the protected default output path. That is a useful
 baseline guard, not a general sandbox or a license grant. Expansion remains a
@@ -255,8 +296,8 @@ create a separately identified artifact, not silently overwrite the baseline.
 ## Native structured data is not a recovered PDF table
 
 <figure>
-<img src="figures/04-evidence-to-calculation.svg" alt="Implemented document retrieval produces candidates; proposed source review must accept rows before exact lookup or calculation." style="display:block;width:100%;min-width:640px;height:auto">
-<figcaption>Solid arrows show the implemented document path; dashed arrows show a proposed review-and-calculation boundary, not a deployed feature.</figcaption>
+<img src="figures/04-evidence-to-calculation.svg" alt="Document retrieval produces candidates. A separate proposed source-review path accepts explicit rows before reviewed-value lookup or calculation." style="display:block;width:100%;min-width:640px;height:auto">
+<figcaption>Solid arrows show the document-retrieval path. Dashed arrows describe a proposed independently reviewed values layer and calculation boundary. The implemented mechanical source-cell selectors below return candidates; they do not complete this diagram's review-and-calculation path. This is a conceptual design, not a deployed verified-values service.</figcaption>
 </figure>
 
 Editable sources: [draw.io diagram](figures/04-evidence-to-calculation.drawio)
@@ -277,9 +318,40 @@ Before structured queries can be trusted, each accepted row needs its original
 source locator, period, metric, unit, value and reviewer status. Unresolved
 candidates must not silently enter an accepted-values table.
 
-Consider two distinct operations:
+**Implemented selection, checked October 14.** Exact lookup is no longer only
+a proposal in the source code. The implemented mechanisms have a narrower
+outcome than the reviewed-values layer in the figure:
 
-| User question | Suitable proposed operation | Remaining verification |
+| Implemented entry | Explicit input and selection | What a match establishes |
+| --- | --- | --- |
+| Python `POST /v1/statement-fields` | Section-qualified row path, native period/date and unit contract, with optional report/column constraints, over an operator-configured income snapshot | One matching native cell, returned as `source_candidate`; `financial_correctness="unestablished"` and no cosine score |
+| Configured public browser lab's Source-cell lookup | Accepted PDF.js source plus explicit statement, Net income metric, supported period, exact date/unit heading and dollar glyph | One cell bound by the supported annual or quarterly geometry profile; `financialCorrectness="unadjudicated"` and `normalizedCurrency=null` |
+
+These selectors do not ask an encoder to infer the requested field. The Python
+route does not turn its fields into a natural-language question; the browser
+lookup needs no chunks, encoder or generator. The browser's supported Net income
+profiles are not a general parser for every row in the opening teaching table.
+Both preserve source identity while withholding missing, ambiguous or unsupported
+matches. Neither converts the dollar glyph into an established USD denomination
+or performs the proposed growth calculation. An absent Python statement index
+returns an authenticated unavailable response, rather than falling back to
+similarity ranking. The source implementation is not hosted-service acceptance.
+
+For example, the Python field `per_share/basic` and `count/basic` can both
+originate from rows printed as **Basic**. The first requests a per-share amount
+at scale `"1"` with printed currency `"$"`; the second requests a share count at
+scale `"1000000"` with `currency_literal=null`. Row identity and units must agree;
+asking for another scale is not permission to convert it. Matching these fields
+selects retained source data; it does not independently adjudicate the value.
+The [installed-startup chapter](08-source-bound-startup.html#ask-for-a-field-with-its-unit)
+follows this typed request at the HTTP boundary.
+The versioned [typed selector](https://github.com/1235357/nvidia-financial-rag/blob/e74d7adeb3209a763ba7e71d0c232d5de4c351b2/src/nvidia_rag/statement_fields.py)
+and [HTTP adapter](https://github.com/1235357/nvidia-financial-rag/blob/e74d7adeb3209a763ba7e71d0c232d5de4c351b2/src/nvidia_rag/statement_fields_api.py)
+keep the native-field matching and unavailable outcomes inspectable.
+
+Keep three distinct tasks in view:
+
+| User question | Operation at the required acceptance level | Remaining verification |
 | --- | --- | --- |
 | Find the discussion of revenue growth | Retrieve relevant narrative passages | Does the passage address this period and metric? |
 | Look up annual revenue for a specified fiscal year | Exact selection from source-checked rows | Is the accepted row correctly extracted and current? |
@@ -302,10 +374,36 @@ execute arbitrary generated Python against the developer's machine.
 
 ## Your learning task
 
+**Predict before opening the feedback.** A new synthetic page has item 0,
+`Revenue`, followed by item 1, ` 240` with one leading space. Set the browser
+window maximum to 9 UTF-16 units and overlap to 2. Write the joined text, each
+window's offsets and total output length. In the second window, which part has
+an original source span? Does its exact `240` authorize a dated, unit-qualified
+financial answer?
+
+<details>
+<summary>Check the new window and the missing financial relationships</summary>
+
+<p>The joined page is <code>Revenue\n\u0020240</code>, length 12. Here <code>\n</code> denotes one authored newline and <code>\u0020</code> one original space, rather than literal escape letters.</p>
+<table>
+<thead><tr><th>Joined-page window</th><th>Exact text, escaped</th><th>Source and presentation mapping</th></tr></thead>
+<tbody>
+<tr><td><code>[0, 9)</code></td><td><code>Revenue\n\u0020</code></td><td>Item 0 <code>[0, 7)</code> maps to chunk <code>[0, 7)</code>; authored newline maps to chunk <code>[7, 8)</code>; item 1 <code>[0, 1)</code> maps to chunk <code>[8, 9)</code>.</td></tr>
+<tr><td><code>[7, 12)</code></td><td><code>\n\u0020240</code></td><td>Authored newline maps to chunk <code>[0, 1)</code>; item 1 <code>[0, 4)</code> maps to chunk <code>[1, 5)</code>.</td></tr>
+</tbody>
+</table>
+<p>The total output is 14 UTF-16 units: 9 + 5. The overlap repeats both the authored newline and the original space. The newline has no original source-span ID in either window. Exact item-relative spans identify the source text, but these two items contain no dated column or unit heading. They therefore cannot establish which fiscal value <code>240</code> represents.</p>
+<p>The pure chunking module was run against this authored source record to check these windows and fragments. No PDF parser, encoder or generator ran for this example. Once feedback has been read, this case is a worked example; a reader's own prediction on a different page and configuration is still needed to assess understanding.</p>
+
+</details>
+
 Choose one original report page. Sketch the row/column structure yourself,
 then compare plain extraction, one chunk and any experimental cell representation.
 Explain what metadata was preserved and what still requires human interpretation.
 Do not start with a similarity score: the error may exist before embedding.
+Retain your prediction and observed result separately. If they differ, identify
+whether the mistake concerned source location, window construction, fiscal
+identity or acceptance of a value, then try another page before claiming mastery.
 
 Continue with [ranking semantics](03-ranking-is-not-confidence.html) and
 [evaluation design](06-evaluation-labels-before-scores.html).

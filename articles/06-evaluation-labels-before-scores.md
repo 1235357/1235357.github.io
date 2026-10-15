@@ -12,6 +12,53 @@ tags: [rag, evaluation, evidence]
 
 ## Separate the questions an evaluation asks
 
+A question asks for a report that does not exist in the selected corpus. The
+retriever still finds a passage with cosine **0.780718**, above the **0.78**
+evidence gate. Should this count as a correct answer? In the actual October 12
+development trace later in this chapter, it did not even establish the requested
+report's existence. A score, a retrieved page and a financial answer are different
+objects. Evaluation starts by saying which one we intend to judge.
+
+By the end of this chapter, you should be able to take a saved ranking, name the
+unit each metric counts, calculate its numerator and denominator, and identify
+the source check still needed before accepting an answer. You will work a small
+example, make a new prediction before opening feedback, then use those distinctions
+to read the project's actual failure records. Reading the explanation is preparation;
+your own prediction and a later different case provide the learning feedback.
+
+**Current evidence boundary:** this chapter establishes no independent human-gold
+financial set and no independently held-out financial result. Both counts remain
+**zero**. The arithmetic below is newly authored teaching material, separate from
+the dated development runs.
+
+Start with this fictional income statement on physical page 7 of a teaching
+report. Its heading says **Amounts in millions; currency printed as $**. These are
+invented values, not NVIDIA results:
+
+| Metric | Year ended January 31, 2025 | Year ended January 31, 2024 |
+| --- | ---: | ---: |
+| Revenue | 300 | 260 |
+| Net income | 80 | 60 |
+
+Ask: **“What was net income for the year ended January 31, 2025, in the report's
+printed units?”** Suppose a ranking returns the following three chunks. The scores
+are assigned for this illustration; no encoder produced them.
+
+| Candidate and score | Exact content available in that candidate | Location hit? | Useful toward this requested fact? | Sufficient on its own? |
+| --- | --- | --- | --- | --- |
+| A · 0.94 | `Revenue 300 260` | Yes, page 7 | No: it is the wrong metric | No |
+| B · 0.88 | `Net income 80 60` | Yes, page 7 | Yes: it supplies the requested row | No: the dated columns and unit heading are missing |
+| C · 0.74 | The complete heading, dated columns and both rows above | Yes, page 7 | Yes | Yes for this fictional source-cell lookup |
+
+Here “useful” is an explicit partial-support relevance policy, rather than a claim
+that every relevant chunk must answer the entire question. A page-location metric
+credits all three; a chunk reviewer distinguishes A from B; a sufficiency review
+distinguishes B from C. With an illustrative **0.78** gate, A and B survive while
+C is removed. The gate still has evidence, but the retained text lacks the
+relationship needed to select 80 over 60. Inspect the actual selected context
+before blaming generation. Even C establishes a printed dollar glyph, not an ISO
+currency such as USD without further source evidence.
+
 [Anyscale's evaluation guide](https://docs.anyscale.com/rag/evaluation), read
 2026-10-04 and rechecked in the in-app browser on 2026-10-11, recommends assessing retrieval and generation separately. Retrieval
 metrics require labeled relevant items; generation correctness needs verified
@@ -22,16 +69,19 @@ recommendations, not evidence that this project already implements all metrics.
 
 ## The local labels are not an independent acceptance set
 
-The October 11 registration audit covered all 15 JSONL files in the local Python
-project's `evaluation` directory. No row registered
-`evaluation_usage.purpose: acceptance_candidate`. All ten rows of
-`annual_multiyear_heldout.jsonl` register `purpose: development`,
-`development_exposed: true` and a null freeze date. Its filename and question IDs
+<details class="chapter-note">
+<summary>October 11 registration audit: exposed questions and the historical heldout filename</summary>
+<p>The October 11 registration audit covered all 15 JSONL files in the local Python
+project's <code>evaluation</code> directory. No row registered
+<code>evaluation_usage.purpose: acceptance_candidate</code>. All ten rows of
+<code>annual_multiyear_heldout.jsonl</code> register <code>purpose: development</code>,
+<code>development_exposed: true</code> and a null freeze date. Its filename and question IDs
 retain the historical word “heldout”; that does not make them independent now.
 Other files contain development or unregistered rows. A prospective filename,
 PDF hash or assistant source-review note does not certify independent human
 annotation, student reproduction or current remote-byte equality. This was a
-registration audit, not a new verification of every financial label.
+registration audit, not a new verification of every financial label.</p>
+</details>
 
 These questions remain useful for regression: a change should not casually lose
 previously understood behavior. They cannot be reused as unseen acceptance evidence
@@ -58,6 +108,14 @@ Proposed evaluation layers:
 | Financial answer | Period, metric, column, amount, unit | Answer matches reviewed financial target |
 | Claim grounding | Answer claims mapped to evidence | Each reviewed claim has supporting context |
 | Refusal | Answerability + reason | Appropriate withholding rather than invention |
+
+Read these layers against the same example: A locates page 7; B preserves the
+metric row; C preserves the row-to-date-to-unit relationship; a proposed answer
+of **60** still chooses the wrong date column. An answer of **80 million in the
+printed $ unit**, tied to C, matches this invented table; calling it **80 USD**
+would both change the scale and assert a currency that its heading has not
+established. This is why a complete source candidate and a reviewed answer need
+separate records.
 
 This is an evaluation design, not a newly completed annotation campaign. Before
 reporting Recall@k, establish the relevant-item denominator. A few positive pages
@@ -88,11 +146,63 @@ may be incorrectly treated as a false positive. For overlapping chunks, establis
 whether relevance is attached to each chunk or to deduplicated evidence spans
 before counting; do not change that policy after seeing the scores.
 
+Now try a different ranking. In this new synthetic exercise, the labeled relevant
+locations are **(teaching-report, page 9)** and **(teaching-report, page 11)**.
+The four candidate IDs are distinct, and every result belongs to that same report.
+The page labels identify locations only; a separate supplied chunk review gives
+the following grades:
+
+| Rank | Candidate | Physical page | Assigned score | Supplied chunk judgment |
+| ---: | --- | ---: | ---: | --- |
+| 1 | X | 4 | 0.95 | Unknown: no grade supplied |
+| 2 | B | 9 | 0.90 | Relevant, grade 1 |
+| 3 | D | 9 | 0.85 | Irrelevant, grade 0; a different row on the same page |
+| 4 | E | 11 | 0.75 | Relevant, grade 1 |
+
+Before opening the feedback, write down the page-hit result, page Recall@4,
+reciprocal rank, and review coverage. Under the rule “a repeated page consumes a
+slot but earns no new location credit,” how many unique relevant pages earn
+credit out of four slots? What happens to the selected candidate IDs at a 0.78
+gate? Can you report chunk Precision@4 or financial accuracy from this record?
+
+<details class="chapter-note">
+<summary>Check your prediction: pages, chunk judgments and the gate</summary>
+<p>The page-hit result is <strong>true</strong>: B is the first labeled location hit at rank 2. Page Recall@4 is <strong>2/2 = 1</strong>, because pages 9 and 11 both occur. Reciprocal rank is <strong>1/2</strong>. Unique relevant-page slot precision is <strong>2/4 = 1/2</strong>; D consumes rank 3 without adding another unique relevant page. Under the implementation's separate <code>gold_page_chunk_precision_at_k</code> diagnostic, B, D and E all occupy labeled pages, giving <strong>3/4</strong>. That number does not make D a relevant passage.</p>
+<p>Three of four distinct chunks have explicit grades, so judgment coverage is <strong>3/4</strong>: two relevant, one irrelevant, one unknown. Unknown X must not silently become an irrelevant label. A fully judged chunk Precision@4 is therefore not established here. No exhaustive relevant-chunk set was supplied, so chunk Recall@4 is also not established. For the page-ranking average-precision rule used here, only first occurrences earn credit at their original ranks: <strong>((1/2) + (2/4)) / 2 = 1/2</strong>.</p>
+<p>The gate keeps <strong>X, B and D</strong>; E is below 0.78. Keep the original four candidates in the retrieval record rather than deleting E before evaluating the ranking. A retained labeled page, or a positive supplied chunk grade, does not establish a generated claim's financial correctness. This exercise generated no answer and provides no independent financial review.</p>
+</details>
+
+The [inspected Python implementation](https://github.com/1235357/nvidia-financial-rag/blob/e74d7adeb3209a763ba7e71d0c232d5de4c351b2/src/nvidia_rag/evaluation.py)
+computes location-based metrics in <code>evaluate_retriever</code>
+from the supplied document/page labels. Its historical <code>recall_at_k</code>
+summary key counts whether any labeled page was hit; the explicit
+<code>page_recall_at_k</code> counts the fraction of labeled locations recovered.
+They coincide for a one-page label and can differ for multi-page labels. The
+separate <code>summarize_judgment_coverage</code> function counts supplied chunk
+grades, leaving absent grades unknown. None of those functions turns a page
+label into a passage-support or financial verdict.
+
 Retrieval relevance still does not establish financial correctness. A passage
 about revenue can be relevant to the topic yet insufficient for the requested
 year. A separate sufficiency label must preserve the period, metric and unit.
 
 ## A financial rubric that a reviewer can actually use
+
+For the fictional table, record the target as a relationship, before comparing an
+answer with it:
+
+| Check | Concrete target in the teaching source | A failure this catches |
+| --- | --- | --- |
+| Period | Year ended January 31, 2025 | Selecting a quarterly or prior-year fact |
+| Metric row | Net income | Copying revenue 300 |
+| Date column | January 31, 2025 column | Copying comparison value 60 |
+| Amount | 80 | Returning a different signed value |
+| Unit | Millions, printed $; ISO currency not established | Reporting 80 unscaled USD |
+
+The check is repeatable because each verdict can point to a row, header or cell.
+It also identifies what to repair: a missing date header is a source/context
+problem; a wrong column despite a complete table is a selection or synthesis
+problem. A citation ID alone settles neither one.
 
 For an annual-net-income question, check five fields in the original source:
 financial period, metric row, date column, amount and unit. Then ask whether the
@@ -284,20 +394,22 @@ The example shows why a similarity threshold cannot establish that a requested
 report exists. Raising or lowering it would need its own evaluation; the
 diagnostic retained the original setting.
 
-Before that run, eighteen cases were frozen: twelve previously exposed positive
+<details class="chapter-note">
+<summary>October 12 replay record: input freeze, source ranges and 175 dot-product checks</summary>
+<p>Before that run, eighteen cases were frozen: twelve previously exposed positive
 source-cell candidates, four refusal candidates and two clarification candidates.
 The source replay verified the original PDF hashes, selected row/date/duration
 and column/value boxes, and mapped their essential roles into the corpus's
 unsorted text coordinates. A number appearing on the right page could not pass
 that check by itself. Sorted review offsets were never reused against differently
-ordered corpus text.
-
-The producer executed 35 case/scope requests and saved both the returned float32
+ordered corpus text.</p>
+<p>The producer executed 35 case/scope requests and saved both the returned float32
 query vectors and the actual normalized float64 vectors consumed by retrieval.
 A separate tool, with no model, retriever, service or PDF imports, reconstructed
 all scoped scores, candidates, evidence, citations and context digests. All 35
 rows and 175 scalar Top-5 dot-product checks matched. That establishes a
-reproducible calculation, including a reproducible wrong-report retrieval.
+reproducible calculation, including a reproducible wrong-report retrieval.</p>
+</details>
 
 | Observed scope | Positive cases with complete fields in Top-5 | Positive cases with complete fields after the gate | Provisional negative candidates accepted |
 | --- | ---: | ---: | ---: |
@@ -365,18 +477,20 @@ not turn a literal field match into a cosine score.
 <figcaption>Figure 8 · Quarterly checkpoint <code>224d02d</code>: logical responsibilities inside the opt-in Python source-selection path. Source locations are pinned to that reviewed implementation; the illustration is not a financial verdict, a deployment topology or a browser execution trace. <a href="figures/structured-income-selection.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/structured-income-selection.archify.json">Editable JSON</a>.</figcaption>
 </figure>
 
-The actual local build registered all ten reports. Four quarterly statements
-provided **204 cells**: 156 monetary values, 24 earnings-per-share values and
+<details class="chapter-note">
+<summary>Quarterly checkpoint: 204 source cells and 8,531 mechanical checks</summary>
+<p>The actual local build registered all ten reports. Four quarterly statements
+provided <strong>204 cells</strong>: 156 monetary values, 24 earnings-per-share values and
 24 weighted-average-share values. The six annual reports retained their hashes
-and report identities but recorded `ANNUAL_LAYOUT_NOT_IMPLEMENTED`. This distinction
+and report identities but recorded <code>ANNUAL_LAYOUT_NOT_IMPLEMENTED</code>. This distinction
 matters: an available report with an unfinished parser is a development gap,
-while the absent FY2035 report is missing source data.
-
-An independent program reopened the four PDFs and performed **8,531 checks** of
+while the absent FY2035 report is missing source data.</p>
+<p>An independent program reopened the four PDFs and performed <strong>8,531 checks</strong> of
 the cell payload, including amounts, periods, row sections, source spans and
 rectangles. Exact decimal construction preserves EPS decimals and negative
 parentheses. An ambiguous row or column is withheld, and a printed dash is not
-invented as a zero.
+invented as a zero.</p>
+</details>
 
 The selector then consumed all 35 original query/scope inputs from the frozen
 development set. Only after every selection finished did the comparison tool
@@ -439,26 +553,27 @@ A twelve-month request cannot silently match an annual cell, and combining
 annual and month-duration instructions requires clarification. The parser
 does not calculate a period-start date or week count for each cell.
 
-Date representation also follows the PDF. FY2021–FY2023 use separate month/day
-and year groups, bound as `date` and `date_year` with their own native slices
+<details class="chapter-note">
+<summary>Annual checkpoint: date bindings, 531 cells and exposed development requests</summary>
+<p>Date representation also follows the PDF. FY2021–FY2023 use separate month/day
+and year groups, bound as <code>date</code> and <code>date_year</code> with their own native slices
 and rectangles. FY2024–FY2026 use a complete date group. Both layouts produce
 an ISO end date without inventing a contiguous quotation. Three descending
 columns retain one current and two prior-comparison roles; column numbers
-distinguish the comparisons without changing the source report's identity.
-
-The ten-report build now contains **531 cells: 204 preserved quarterly cells
-and 327 annual cells**. Six printed placeholders receive explicit column
+distinguish the comparisons without changing the source report's identity.</p>
+<p>The ten-report build now contains <strong>531 cells: 204 preserved quarterly cells
+and 327 annual cells</strong>. Six printed placeholders receive explicit column
 omissions; neighboring supported values survive. A dash still never becomes
 zero. This annual policy preserves the quarterly parser's existing whole-row
-withholding when a value is unsupported.
-
-The original **35 question/scope rows** retain 24 source candidates, five
+withholding when a value is unsupported.</p>
+<p>The original <strong>35 question/scope rows</strong> retain 24 source candidates, five
 refusals, four clarifications and two unsupported outcomes. A separate freeze
 derives eighteen questions from inspected annual dates, uses global and
-explicit report scopes, and adds six controls. Its **42 requests** return
+explicit report scopes, and adds six controls. Its <strong>42 requests</strong> return
 36 candidates, two refusals, three clarifications and one unsupported result.
 These are exposed, source-derived development questions, with held-out and
-human-gold counts both zero.
+human-gold counts both zero.</p>
+</details>
 
 The local checkout passed **661 tests**. Separately,
 [workflow 38284747999](https://github.com/1235357/nvidia-financial-rag/actions/runs/38284747999)
@@ -496,14 +611,17 @@ and one synthetic irrelevant grade left two unknown: judgment coverage became
 refused a copy with an altered candidate rank. These fixtures test installation
 and result binding; they are not human-reviewed financial labels or a BGE run.
 
-The [versioned command guide](https://github.com/1235357/nvidia-financial-rag/blob/48daf59ca92f829a2301fd10f6e066c8c861e5b1/docs/retrieval-evaluation-runner.md)
+<details class="chapter-note">
+<summary>October 14 installation record: command schema, module identities and 1,330 tests</summary>
+<p>The <a href="https://github.com/1235357/nvidia-financial-rag/blob/48daf59ca92f829a2301fd10f6e066c8c861e5b1/docs/retrieval-evaluation-runner.md">versioned command guide</a>
 provides the JSONL schema, lexical and cached-local BGE commands, separate review
 import, failure records and compatibility limits. The
-[local installation record](https://github.com/1235357/nvidia-financial-rag/blob/48daf59ca92f829a2301fd10f6e066c8c861e5b1/docs/acceptance/retrieval-evaluation-local-20261014.json)
+<a href="https://github.com/1235357/nvidia-financial-rag/blob/48daf59ca92f829a2301fd10f6e066c8c861e5b1/docs/acceptance/retrieval-evaluation-local-20261014.json">local installation record</a>
 binds its 1,330 passing checkout tests and exact installed wheel/module identities.
 Its hashes establish consistency of the named bodies, not authenticity of every
 runtime dependency or the truth of a review. The new command does not revise
-the earlier failed financial-readiness findings.
+the earlier failed financial-readiness findings.</p>
+</details>
 
 An acceptance-candidate registration must also pass duplicate-ID checks within
 each question file, plus exact query and financial-target overlap checks against
