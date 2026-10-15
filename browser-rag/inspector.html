@@ -30,7 +30,7 @@
   </details>
   <div class="workspace" id="lab-workspace" tabindex="-1">
     <section class="document panel" aria-labelledby="input-title">
-      <div class="document-heading"><div><p class="eyebrow">01 / YOUR DOCUMENT</p><h2 id="input-title">Start with a PDF</h2></div><p class="hint">On your device, from source to passages.</p></div>
+      <div class="document-heading"><div><p class="eyebrow">01 / YOUR DOCUMENT</p><h2 id="input-title">Start with a PDF</h2></div><p class="hint">First, build chunks and compare a passage with its source page.</p></div>
       <div class="document-grid">
         <div class="document-upload">
           <label class="file-label" for="pdf-file">Choose a local PDF <span>32 MiB maximum</span></label>
@@ -54,6 +54,7 @@
       </details>
         </div>
       </div>
+      <nav class="evidence-links" aria-label="Document inspection"><a href="#notebook-source">Source pages</a><a href="#notebook-chunks">Passages</a></nav>
       <div class="document-options">
       <details class="document-contract"><summary>Privacy &amp; browser requirements</summary>
       <p class="hint">Parsed on this device in a native worker. This app does not upload selected PDF bytes or request remote answers. Runtime assets come from this site. Native model actions require a supported non-fallback WebGPU device; source-cell lookup needs only parsing.</p>
@@ -67,6 +68,7 @@
         <label for="question-input">Question text</label>
         <textarea id="question-input" rows="3" maxlength="4096" placeholder="Ask about the selected PDF" aria-describedby="question-guidance"></textarea>
         <p id="question-guidance" class="hint">Choose a PDF to begin.</p>
+        <nav class="evidence-links" aria-label="Question inspection"><a href="#notebook-retrieval">Retrieved sources</a></nav>
         <div class="buttons"><button id="run-query" disabled>Run question</button><button id="clear-query">Clear question</button></div>
         <details class="question-contract"><summary>Question limits &amp; retrieval settings</summary>
         <label for="query-top-k">Passages to retrieve</label>
@@ -84,6 +86,7 @@
       <div class="status-block" role="status" aria-live="polite"><p class="eyebrow">SESSION STATUS</p><h3 id="status-title">Waiting for a PDF</h3><p id="status-detail">No source is stored. No embedding index or answer exists.</p><progress id="operation-progress" aria-label="Current operation progress" hidden></progress></div>
         <div class="buttons"><button id="assemble-context" disabled>Assemble context</button><button id="generate-answer" disabled>Generate answer</button></div>
         <p id="generation-guidance" class="hint">Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled in this entry. Sourced candidates are not a verified answer.</p>
+      <nav class="evidence-links" aria-label="Draft evidence inspection"><a href="#notebook-context">Assembled evidence</a></nav>
       <div id="generation-detail"><p class="empty">No native generation receipt committed.</p></div>
       <details class="source-lookup-disclosure"><summary>Inspect a financial source cell</summary>
         <p class="hint">Compare an exact Net income cell with the source independently of the draft.</p>
