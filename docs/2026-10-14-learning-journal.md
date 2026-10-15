@@ -53,6 +53,31 @@ Historic links and section anchors must continue to resolve.
 | 07 · Execution | Follow an actual browser action through artifact acceptance, failure and cleanup | Reader-device workflow, complete notebook records, preserved timeout and unverified draft |
 | 08 · Startup | Predict whether configuration starts a listener and what a request can select | Optional versus invalid configuration, immutable source snapshot, typed unit contract and failed ranking |
 
+## Reconstructing the execution chapter
+
+Chapter 07 now follows one retained public browser case from its two-page source
+through five chunks, passage/query vectors, E4/E1/E2 ranking, complete context
+and an explicitly unverified Qwen draft. Each transformation is paired with a
+specific question the reader can investigate in the notebook. This mapping uses
+the existing public archive and its consistency audit; the editorial revision
+does not execute a model or turn the exposed case into independent quality gold.
+
+The adjacent cases explain different dependencies: cancelling generation can
+retain the accepted query/context for an explicit retry, whereas editing the
+question or Top K invalidates dependent query and generation artifacts. The
+practice combines cancellation, retry and a later question edit; feedback stays
+closed until requested. The current session implementation, UI input handlers
+and controlled cancellation/invalidation tests supply its contract-based answer.
+No learner response or new native GPU cancellation result is claimed.
+
+Long prompt-version, transport and replay histories remain reachable through
+named native disclosures. All fourteen original H2 targets and all four original
+iframe tags are retained outside those closed records. The wrong six-month
+answers, format refusals, incomplete archives, public timeouts and distinction
+between source candidates and financial acceptance remain visible in the main
+explanation. The existing shared light styling applies to both collapsed and
+expanded content; no new layout, runtime or diagram behavior is introduced.
+
 ## Checks remain distinct
 
 Content review checks that current claims match the named implementation and
