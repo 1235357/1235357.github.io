@@ -4,19 +4,24 @@ tags: [rag, generation, evidence]
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-11
+updated: 2026-10-14
 source_type: implementation-and-course-review
 ---
 
 # Generation is not verification
 
-The classroom baseline is evidence-only: generation is disabled. Generator code
-paths exist, but this chapter does not demonstrate an accepted generated-answer
-MVP. The earlier Python Qwen run is a rejected-output diagnostic, not a successful
-financial answer. The later private browser runs below generate a fixed greeting,
-not a financial answer. Running a generator does not itself verify a retrieved passage.
-This chapter reviews the inspected prompt, validator and local model adapter in
-`src/nvidia_rag/generation.py`. Other helper branches still need separate review.
+The classroom Python baseline is evidence-only: generation is disabled. The
+default browser development entry also omits the generator. The explicit public
+browser build now enables reader-initiated Qwen generation; its later
+[public native run](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved)
+returned a source-linked draft labelled **UNVERIFIED**. That observation does not
+establish financial answer accuracy. The earlier Python Qwen run remains a
+rejected-output diagnostic, and the private browser runs described below use a
+fixed greeting rather than a financial question. Running a generator does not
+itself verify a retrieved passage.
+The Python sections follow the prompt, validator and local model adapter in
+`src/nvidia_rag/generation.py`; the browser sections keep each later integration
+checkpoint separate from that baseline.
 
 ## The official guidance is not an acceptance certificate
 
@@ -110,9 +115,11 @@ it certainly does not prove correctness.
 ## Browser lesson: a context record is not yet a prompt
 
 The browser-native implementation is independent of the Python service above.
-Its next boundary is `assembleProvenanceContext` in
+Its context boundary is `assembleProvenanceContext` in
 `browser-rag/context-contract.mjs`: a pure source module independently reviewed
-on October 10, not an enabled or preview-packaged generator. The result is explicitly named
+on October 10. At that checkpoint the generator was not enabled or packaged in
+the browser preview; the public build subsequently integrated it. The context
+function itself still runs no generator. Its result is explicitly named
 `context-not-generated`. It retains the question exactly as typed and associates
 ranked candidates with complete source-linked evidence units. There is no model
 download, prompt rendering or inference in this function.
@@ -149,9 +156,11 @@ exercise or mastered it.
 
 ### From evidence units to an exact prompt
 
-The locally implemented `prepareGenerationPrompt` makes that next boundary
-explicit. Its independent specification and code-quality reviews have passed
-for local prompt preparation; the module is not enabled or packaged in the browser demo.
+`prepareGenerationPrompt` makes the next boundary explicit. Its initial
+independent specification and code-quality reviews covered local prompt
+preparation, before browser-demo packaging. The current public entry composes
+the generation worker, whose runtime calls this same prompt boundary. The
+default development entry still omits that generator.
 It revalidates the original provenance input, then creates a model-facing JSON
 record containing the unchanged question and every selected whole quote, with
 its citation, rank, document, page and text-window identity. The full inspection
@@ -190,9 +199,12 @@ are different, then follow one complete quote into the JSON and back. Predict
 which extra text contributes tokens before running the tokenizer. Finally,
 explain why a correct budget receipt cannot prove that the future model's answer
 is financially supported. Reading these results is not evidence that you have
-performed that exercise. Execution of this provenance-bearing financial prompt,
-its output/source validation, citation release and independent financial
-evaluation remain open; the small greeting runs below do not satisfy those gates.
+performed that exercise. This tokenizer diagnostic did not execute a financial
+prompt. Later browser integration executed a provenance-bearing prompt and
+inspected its output structure and citation identities, as recorded in the
+[execution-contract chapter](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved).
+Independent financial evaluation and claim-level source support remain open;
+the small greeting runs below do not satisfy those gates.
 
 ### Verifying a model file is not loading a model
 
@@ -300,8 +312,9 @@ when the SDK reads them. Source inspection and an actual SDK probe found that
 Transformers.js swallows a rejected custom-cache match and can then fetch the
 local URL. Its closed adapter must deny unexpected files without allowing that
 fallback. The adapter's independent Node/SDK reviews did not establish native
-Qwen inference. The later small browser runs are recorded below; generation remains disabled in
-the current financial browser UI.
+Qwen inference. The small browser runs at the next checkpoint are recorded below.
+The public financial UI later enabled explicit generation; the default
+development entry continues to omit it.
 
 ### A cache write and an SDK read are separate obligations
 
@@ -382,11 +395,12 @@ is still wrong when it belongs to a different approved operation.
 For your CS310 learning check, explain why verifying a cache entry differs from
 loading the model, and why a cached model file differs from a resident model
 session. For the LLM connection, decode the eight returned IDs and explain what
-the length stop leaves unfinished. The next integration still needs the exact
-selected-PDF context, a deliberately larger token budget, source-linked output
-validation and separately evaluated financial predictions. The current
-financial inspector's Generate button remains disabled; this greeting does not
-replace that missing end-to-end behavior.
+the length stop leaves unfinished. At this greeting checkpoint, integration with
+the exact selected-PDF context, a larger token budget and output inspection was
+still pending, and the financial inspector's Generate button was disabled. The
+later public native financial run is a separate observation; this greeting does
+not supply financial workflow or answer-quality evidence. Independently reviewed
+financial predictions remain a separate evaluation gate.
 
 ## Explain the observed failure without exaggeration
 
@@ -403,8 +417,12 @@ otherwise a stricter refusal policy can look artificially better.
 
 ## A safe next experiment, not a new feature promise
 
-Compare prompt variants using the same evidence and model settings. Freeze
-review criteria before inspecting outputs. Record format compliance separately
+At the greeting checkpoint, the next proposed experiment was to compare prompt
+variants using the same evidence and model settings. The later
+[financial diagnostics](07-operational-receipts.html#the-next-experiment-follows-the-failure)
+preserve those bounded comparisons, including rejected outputs and wrong
+six-month values. Future comparisons still need frozen review criteria before
+outputs are inspected. Record format compliance separately
 from factual support and answer completeness. Do not repair a missing citation
 by attaching the top-ranked page automatically: that manufactures attribution.
 Numerical aggregation should remain out of scope until inputs and calculations

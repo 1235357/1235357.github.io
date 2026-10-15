@@ -5,7 +5,7 @@ category: technical-article
 domain: financial-rag
 status: draft
 created: 2026-10-07
-updated: 2026-10-11
+updated: 2026-10-14
 source_type: implementation-and-primary-documentation
 metadata_version: 1
 tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
@@ -19,6 +19,12 @@ tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
 returns candidate evidence, not a generated revenue answer. The retained passage
 still needs a primary-PDF check of fiscal period, metric, column, amount and unit.
 Displaying a retrieval score is not answering the question.
+
+**Current browser entry — October 14.** The public lab runs on the reader's
+device and offers explicit Qwen generation after retrieval and context assembly.
+Its output is an unverified draft or a refusal. The ordinary development build
+does not inject a generator. These are separate execution profiles; the Python
+baseline's OFF setting does not describe the public browser lab.
 
 **Diagnostic status — 2026-10-04.** A separate cached Qwen2.5-0.5B-Instruct CPU
 generation attempt omitted its document/page citation. Its citation-format gate
@@ -38,20 +44,25 @@ A financial question has at least four identities: the company, fiscal period,
 metric and reporting unit. A passage about revenue can be linguistically similar
 to a question and still contain the wrong year's revenue. The first design goal
 of this project is therefore inspectable evidence retrieval, not an unrestricted
-chatbot. Default generation is disabled. This article explains the current local
-implementation, not a production deployment or a claim of personal mastery.
+chatbot. Generation is disabled in the Python evidence-only baseline discussed
+first. This article distinguishes that implementation from the reader-device
+lab and its dated observations; it makes no production or personal-mastery claim.
 
-**Current execution boundary:** the browser is a client. The classroom demo runs
-Python and its cached query encoder on the developer's Windows host; it is not
-an in-browser deployment on a reader's own computer. The browser-native variant
-has its own implemented retrieval slice and separate acceptance requirements.
-The source inspector embedded below now parses selected bytes and explicitly
-builds source-linked chunks in a native computation worker. An explicit next
-action now runs a pinned MiniLM encoder with WebGPU. It is not the classroom
-retrieval demo: it now encodes an explicit question and ranks retained MiniLM
-passages in a fresh browser worker. After ranking, an explicit action assembles
-the complete selected provenance context. Actual financial generation remains
-disabled; the complete RAG product still requires its remaining acceptance gates.
+**Execution boundaries — checked October 14:** the classroom demonstration uses
+a browser client with Python and its cached query encoder on the developer's
+Windows host. The separate lab embedded below instead parses a reader-selected
+PDF, builds source-linked chunks in a native worker, and explicitly encodes
+passages and a question with pinned MiniLM/WebGPU before ranking. It does not
+call the Python API for an answer. An explicit action assembles the complete
+selected provenance context.
+
+The public build injects the Qwen generation adapter; Generate becomes available
+after accepted retrieval and context assembly while no operation is active. The
+ordinary development entry does not inject that adapter, so generation stays OFF
+there. Implementation and a dated native execution receipt do not establish
+financial correctness, broad-device support or a performance benchmark. The
+[public-run lesson](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved)
+records that separate execution evidence.
 
 ## Offline work creates a reusable representation
 
@@ -444,7 +455,7 @@ fragments, Unicode windows and output budgets. Click Build, compare one fragment
 with its original item, and explain why an inserted newline has no source span.
 The explicit encoder now exposes actual tokenizer IDs and accepted representations.
 The query now uses the same frozen representation to rank accepted passages.
-Neither its scores nor future generation can borrow a Python threshold merely
+Neither its scores nor generation can borrow a Python threshold merely
 because both encoders output 384-dimensional vectors.
 
 ### A real representation receipt, not a retrieval benchmark
@@ -530,8 +541,9 @@ query artifact, but it reuses accepted passage vectors. Cancellation revokes the
 right to commit; source replacement invalidates every dependent artifact.” Then
 reproduce those outcomes yourself. Assistant-run checks are not your mastery
 evidence. After a successful query, explicitly assemble and inspect its complete
-context; actual financial generation still needs a separate implementation and
-acceptance gate.
+context. The public entry then offers explicit Qwen generation; the ordinary
+development entry remains evidence-only. Inspecting a generated draft against
+the original financial source is a further task, even when execution succeeds.
 
 <details>
 <summary>Recovery lesson: a filename is not an accepted document</summary>
@@ -621,11 +633,13 @@ context cards and disabled Assemble while retaining accepted source/passages.
 Generate remained disabled, and the iframe console had no observed warning or
 error entry in this check.
 
-Any future generated financial claim still requires a claim-specific check
+Any generated financial claim still requires a claim-specific check
 against the original table's quarter and six-month columns. Mechanical source
 identity, full quote retention and GPU execution do not supply that judgment.
-The real selected-context prompt, Qwen generation,
-decoded-answer inspection and independent quality evaluation remain unfinished.
+At this October 11 checkpoint, the selected-context prompt, Qwen generation and
+decoded-answer inspection were unfinished. The later public implementation and
+[dated native run](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved)
+have separate evidence; they do not supply independent financial-quality labels.
 
 </details>
 

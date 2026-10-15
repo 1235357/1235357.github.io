@@ -1,7 +1,7 @@
 ---
 title: Contracts before services
 status: draft
-updated: 2026-10-11
+updated: 2026-10-14
 tags: [rag, software-design, api]
 ---
 
@@ -13,7 +13,9 @@ fails. This chapter examines the current implementation, not a promised producti
 deployment. Source authority: `src/nvidia_rag/service.py` and `api.py` inspected on
 2026-10-04, with an installation/contract audit and pristine API-only dependency
 repair on 2026-10-07. The current repair is distinguished from dated historical
-receipts below. Neither is a runtime benchmark or financial-answer evaluation.
+receipts below. The October 14 correction also checks the current API failure
+mapping and public/development browser entries. Earlier execution receipts keep
+their dates and scope. None is a financial-answer evaluation or load benchmark.
 
 ## The smallest reusable responsibility
 
@@ -76,15 +78,25 @@ has already been implemented or silently change the existing contract.
 ## Failure is part of the interface
 
 Missing or invalid bearer credentials produce HTTP 401. Schema-invalid payloads
-are rejected before the service runs. Exceptions during `service.query()` produce
-HTTP 503 with an empty answer, empty citations and empty evidence; the handler
-does not expose the exception text to the client. Successful execution may still
-produce a refusal: a refusal is not identical to dependency unavailability.
+are rejected before the service runs. In the API mapping checked on October 14,
+an exception escaping `service.query()` produces HTTP 503 with
+`error_code="query_service_unavailable"`, an empty answer, empty citations and
+empty evidence. The handler does not expose the exception text to the client.
 
-The broad exception mapping trades diagnostic precision for a bounded public
-error. The logger records request ID rather than the raw question or exception;
-this limits exposure but also limits debugging detail. Errors later in response
-mapping are outside that specific `try` block, so it is not a universal error shield.
+A returned `GeneratedResponse` has a different failure path. A generation timeout
+maps to HTTP 504 / `generation_timeout`; generation unavailability maps to HTTP
+503 / `generation_unavailable`. Both withhold the answer and set `can_answer=false`
+while retaining the response's gated evidence. A normal evidence-only result or
+application refusal can still return HTTP 200. Status, error code and evidence
+therefore need to be read together; refusal and operational failure are distinct.
+The [versioned response mapping](https://github.com/1235357/nvidia-financial-rag/blob/e74d7adeb3209a763ba7e71d0c232d5de4c351b2/src/nvidia_rag/api.py)
+keeps these branches inspectable in code.
+
+The exception handler and operational-failure branches log fixed failure labels
+with the request ID, rather than raw questions or upstream error bodies. This
+limits exposure but also limits debugging detail. Errors later in response
+mapping remain outside the `service.query()` exception handler, so it is not a
+universal error shield.
 
 `/healthz` reports process-level availability without authentication. `/readyz`
 requires bearer authentication but returns a constant readiness value; it does
@@ -153,9 +165,10 @@ environments containing Gradio, Torch, Transformers or sentence-transformers.
 The green environment used Python 3.13.5, HTTPX 0.28.1, FastAPI 0.142.4 and Uvicorn
 0.54.0. The new wheel is 72,858 bytes, SHA-256
 `b5a554e7d0e9b8107c01fa4b1bdaa96d90ea3dd4c3a2dffdf4afdc75106534ba`.
-It remains a local candidate, not a released package. The same script verifies
-200/401/422 routes, synthetic evidence with an empty answer, refusal and request-ID
-mapping. It uses a generated ephemeral token, never printed or persisted.
+That October 7 wheel was a local candidate, not a released package. The same
+script verifies 200/401/422 routes, synthetic evidence with an empty answer,
+refusal and request-ID mapping. It uses a generated ephemeral token, never
+printed or persisted.
 
 The checkout suite was rerun: 45 cases passed with one Starlette warning. The
 pristine acceptance also retained PyMuPDF and Starlette deprecation warnings.
@@ -247,8 +260,13 @@ ranking before its atomic commit. Source replacement invalidates its dependents;
 editing or cancelling a question clears only query-owned data and retains passage
 vectors. The explicit context action now binds an immutable evidence snapshot to
 that accepted query; clearing or replacing the query also revokes its context.
-Actual financial generation remains disabled and needs its own ownership and
-answer-validation boundary.
+The public browser entry injects the Qwen generation adapter; generation is an
+explicit action after retrieval and context assembly. The ordinary development
+entry leaves generation disabled. Generation has its own ownership and
+output-inspection boundary, and
+an inspected draft still needs financial source review. The
+[later public-run lesson](07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved)
+records execution separately from these controller tests.
 
 Worker replacement has a second trap. Reusing `runtime-a` after briefly switching
 to `runtime-b` could recreate an old `runtime-a/op-1/epoch-0` identity. Therefore
@@ -306,12 +324,13 @@ detached values. A successful message delivery is not permission to display an
 arbitrary object. Likewise, copying a consistent token frame cannot prove that
 the real paired tokenizer encoded the displayed text, or that the decoded answer
 matches those generated IDs. Actual native execution needs separate evidence.
-The complete financial receipt boundary is now implemented and locally reviewed.
-Its tests cover canonical shape, shared-node snapshots and mutation isolation;
-they do not establish native financial execution. The new transport has its own
-separate code-review gate, accepted locally after independent specification and
-quality reviews on October 11. Session and visible financial generation are not
-established by transport or receipt-copying tests.
+At the October 11 receipt-boundary checkpoint, the complete contract was
+implemented and locally reviewed. Its tests cover canonical shape, shared-node
+snapshots and mutation isolation; they do not establish native financial
+execution. The transport's separate code-review gate was accepted locally after
+independent specification and quality reviews that day. Later session integration
+and public native generation require their own evidence; receipt-copying tests
+cannot establish them.
 
 There is also a subtler identity issue. The original provenance input has eight
 fields, but its assembled prompt context deliberately omits some values, such as
@@ -328,8 +347,8 @@ contract validates and owns the received values; the session decides whether
 the attempt may still commit. Predict what happens if a valid-looking reply
 arrives after the user selects another PDF. Then explain why both a correct
 schema and a correct source snapshot are insufficient without the current
-operation identity. This is a design exercise, not an assertion that financial
-generation has already been enabled.
+operation identity. This exercise tests the commit rule; the public entry's
+generation capability is established separately from this synthetic scenario.
 
 ### A fresh Worker still needs one-command permission
 
@@ -364,9 +383,10 @@ left waiting for a timeout. Neither this ordering nor a valid output JSON object
 establishes a correct financial answer. The
 [Anyscale generation guide](https://docs.anyscale.com/rag/quality-improvement/generation-strategies),
 read in Codex IAB on October 11, separates context omissions, hallucination,
-numerical reasoning and output-format failures. Our next session integration must
+numerical reasoning and output-format failures. The session boundary must
 likewise preserve a complete raw native result when format inspection refuses it,
-while showing no accepted draft. Claim support still needs the original report.
+while showing no accepted draft. The later public integration has its own
+execution evidence; claim support still needs the original report.
 
 For a CS381 explanation, predict when one attempt loses its permission to commit,
 not just which function runs next. For a CS310 explanation, distinguish that
@@ -501,9 +521,11 @@ not independent answer-quality samples. A Starlette HTTPX deprecation warning
 remains. The original checkout's 38-case result above covers a different scope.
 The real-loopback sections below distinguish synthetic-service HTTP acceptance
 from acceptance with the cached CUDA model and existing index. The latter
-application-factory path passed; the root launcher with valid configuration,
-fuller course-original coverage and production controls remain unverified.
-This article remains a draft and is not a publication or enterprise-readiness claim.
+application-factory path passed. At that checkpoint, the root launcher with valid
+configuration, fuller course-original coverage and production controls remained
+unverified. The later [installed-startup chapter](08-source-bound-startup.html)
+records a different entry point and later checks. Neither dated result establishes
+enterprise readiness or independent financial quality.
 
 ## A real socket closes a different boundary than TestClient
 

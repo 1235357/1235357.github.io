@@ -397,12 +397,17 @@ The limits are visible in the interface. A dollar glyph establishes a printed
 symbol, not USD; an explicit ISO-currency request needs further source evidence.
 General wording, arithmetic, multiple metrics, FX and scale conversion remain
 unsupported. Although the index preserves EPS and share counts, this first
-natural-query grammar selects monetary rows only. A future section-qualified
-adapter must make “Basic” earnings per share distinct from “Basic” share count.
+natural-query grammar selects monetary rows only. At this quarterly checkpoint,
+a section-qualified adapter was still needed to distinguish “Basic” earnings
+per share from “Basic” share count. The later
+[typed-field interface](08-source-bound-startup.html#ask-for-a-field-with-its-unit)
+now makes that distinction explicit without converting fields into a question.
 
-This is an opt-in Python development path. The published browser notebook and
-default HTTP service have not yet been connected to it. That integration needs
-its own visible state transitions, source review and runtime checks. The local
+At this checkpoint it was an opt-in Python development path, not yet connected
+to the HTTP service or published browser notebook. The later
+[installed service](08-source-bound-startup.html#build-once-then-select-from-the-snapshot)
+and HTTP field routes have their own implementation and integration evidence.
+The browser comparator remains a separate reader-device implementation. The local
 checkout at quarterly checkpoint `224d02d` passed **646 tests**; actual model encoding, generation and independent
 human gold were all zero in this source-index experiment. Financial readiness
 remains unestablished.
@@ -462,8 +467,10 @@ synthetic API checks do not establish financial correctness. The
 [fixed annual guide](https://github.com/1235357/nvidia-financial-rag/blob/00dc45211f4703e49a53a6e9635d195ff69a0b0a/docs/annual-income-selection.md)
 and [sanitized development receipt](https://github.com/1235357/nvidia-financial-rag/blob/00dc45211f4703e49a53a6e9635d195ff69a0b0a/docs/acceptance/annual-income-development-20261012.json)
 preserve the scope and identities. This source-only path runs no encoder or
-generator and remains separate from the default HTTP service and browser
-notebook; its candidates still need independent financial review.
+generator. At the annual checkpoint it was separate from the HTTP service and
+browser notebook; later service startup is described in the
+[integration chapter](08-source-bound-startup.html). Its candidates still need
+independent financial review.
 
 ## Keep a retrieval run separate from its review
 

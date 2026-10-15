@@ -192,6 +192,16 @@ def render_site(root, output, *, public_release=False):
     style_version = hashlib.sha256(style_text.encode('utf-8')).hexdigest()[:16]
     stylesheet_href = f'style.css?v={style_version}'
     links = []
+    reader_questions = {
+        '01-two-lifecycles': 'What can be prepared once, and what must happen for each question?',
+        '02-contracts-before-services': 'Who owns a request, its result and its failure?',
+        '03-ranking-is-not-confidence': 'Why can a high-scoring passage still miss the requested fact?',
+        '04-preserve-evidence-before-embedding': 'How do text, page positions and table columns survive ingestion?',
+        '05-generation-is-not-verification': 'What reaches the model, and what does a citation actually prove?',
+        '06-evaluation-labels-before-scores': 'Which judgments are needed before a quality score means anything?',
+        '07-operational-receipts': 'How does the reader-owned lab keep each computation inspectable?',
+        '08-source-bound-startup': 'How does an installed package become a service with explicit source boundaries?',
+    }
     for source in sorted(guard_path(root / 'articles', root).glob('*.md')):
         guard_path(source, root)
         raw = source.read_text(encoding='utf-8')
@@ -211,7 +221,9 @@ def render_site(root, output, *, public_release=False):
                                               outline=renderer.toc, public_release=public_release,
                                               has_portfolio=has_portfolio,
                                               stylesheet_href=stylesheet_href), encoding='utf-8')
-        links.append(f'<li><a href="{escape(name)}">{escape(title)}</a></li>')
+        question = reader_questions.get(source.stem)
+        description = f'<p class="series-summary">{escape(question)}</p>' if question else ''
+        links.append(f'<li><a href="{escape(name)}">{escape(title)}</a>{description}</li>')
     featured = ''
     if (output / '07-operational-receipts.html').is_file():
         featured = '''<section class="featured-project" aria-label="Financial RAG project">
@@ -230,7 +242,13 @@ def render_site(root, output, *, public_release=False):
                 'Native generation and explicit Net income source-cell lookup are available through reader actions.')
             featured = featured.replace('Local implementation and acceptance evidence. Financial accuracy, scale measurements and public release remain separate gates.',
                 'Reader-device browser lab and exposed development evidence. Native drafts and source-cell candidates remain unadjudicated; no held-out accuracy or broad-device performance claim.')
-    intro = '<h1>Building systems.<br>Checking evidence.</h1><p>A technical learning series on financial retrieval, software boundaries and evaluation. Drafts describe verified implementation and unresolved limitations separately.</p>' + featured + '<h2>Read the series</h2><ol>' + ''.join(links) + '</ol>'
+    intro = ('<h1>Building systems.<br>Checking evidence.</h1>'
+        '<p>Follow a financial PDF from source pages to retrieval, an answer draft and a service interface. '
+        'Each chapter explains an engineering decision through concrete examples, code and retained development evidence.</p>'
+        + featured + '<h2>Choose a question to explore</h2>'
+        '<p>New to RAG? Start with the two lifecycles, then follow source preservation, ranking and generation. '
+        'For the working interface, open the computation lab. For an existing Python application, start with service startup.</p>'
+        '<ol class="series-list">' + ''.join(links) + '</ol>')
     if has_portfolio:
         profile = json.loads(guard_path(profile_path, root).read_text(encoding='utf-8'))
         demo_script = guard_path(root / 'portfolio-demo.mjs', root)
