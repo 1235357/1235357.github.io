@@ -770,7 +770,7 @@ class ProfileHierarchyTest(unittest.TestCase):
         for item in self.profile['education']:
             self.assertIn(item['period'], self.output)
             self.assertIn(item['school'], self.output)
-        self.assertIn('March 2028 (expected)', self.output)
+        self.assertIn('June 2028 (expected)', self.output)
 
 
 if __name__ == '__main__':
