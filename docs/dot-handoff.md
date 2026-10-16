@@ -1,6 +1,45 @@
 # Dot handoff — current work and dated checkpoints
 
-## Latest audited delivery — October 13
+## Current audited functional checkpoints — October 16
+
+Use a fresh checkout of `main` and record the commit actually pulled. The
+latest verified site functionality is
+`e84ff98e0afabfabe6d8c282727802ef50bb7087`, accepted by
+[workflow 38831823604](https://github.com/1235357/1235357.github.io/actions/runs/38831823604)
+with successful build, Windows contracts and Pages deployment. Its downloaded
+release manifest records 330 files, 921,476,308 bytes and 18 pinned assets.
+Thirteen selected local public-build bodies match that official manifest;
+this does not claim every public response was independently hashed.
+
+The profile, embedded and standalone lab, journal, all eight articles, figure
+viewers and exports use the same light design language. Current changes include
+compact embedded presentation, direct notebook evidence links, a shared session
+status before the question/draft cards, and intact technical tokens in locally
+scrolling tables. All eight figures also use immediate keyboard menu opening
+and a 160ms pointer transition, including pointer use after keyboard navigation.
+Actual Codex in-app browser checks verified the published input policy, Manrope
+and light background even through an old `theme=dark` figure URL. The diagrams'
+specifications and literal SVG bodies are unchanged; older Archify receipts
+remain historical evidence. See the [current design contract](2026-10-14-unified-light-site.md).
+
+The companion API functional checkpoint is
+`e74d7adeb3209a763ba7e71d0c232d5de4c351b2`;
+[workflow 38630595333](https://github.com/1235357/nvidia-financial-rag/actions/runs/38630595333)
+passed Linux packaging, Windows packaging and container checks. Its installed
+evaluation command keeps saved retrieval results separate from later relevance
+judgments. A new local native-run controller is still under review: synthetic
+closure tests exposed a Windows pipe-cleanup failure, so no new native baseline
+or final experiment protocol has been accepted. Preserve the earlier failed
+field-BGE record. Human-gold and independently held-out financial counts remain
+zero; generation quality, hosted API/load/TLS, physical-device acceptance and
+an observed Dot pull/reproduction remain open.
+
+The profile's six experience records were rechecked against the current formal
+October 14 CV and October 11 cover letter using native Microsoft Word. That
+source check adds no new individual contribution, employment, deployment or
+research-result claim. Private application materials are not published here.
+
+## Dated delivery checkpoint — October 13
 
 The later information-design checkpoint is `fbdce92f7b23474cfa4e96d6f5ac0388eb58f21b`, with [official run 38464819332](https://github.com/1235357/1235357.github.io/actions/runs/38464819332) terminal-success run and three job conclusions. Its manifest binds 326 files, 920,367,440 bytes and 18 pinned assets; 41 selected served bodies match. Job step listings remained stale, so this record does not claim every returned step row completed. Actual IAB checks covered 320, 390, 1280 and 1920 requested CSS widths, retained a parsed two-page/five-chunk session and verified the enlarged structured-income figure and its real light exports. See [the information-design record](information-design.md).
 
