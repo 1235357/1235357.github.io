@@ -103,3 +103,26 @@ Manrope font in a data URI and the complete license in readable SVG metadata.
 Its original labels, geometry and light colors are unchanged. Focused checks
 decode and hash the actual embedded bytes and reject external image/font
 dependencies; this increment does not add a browser rendering claim.
+
+## Figure keyboard interactions stay immediate
+
+The site's keyboard interaction rule now also covers all eight figure viewers.
+A small capture listener distinguishes `keydown` from `pointerdown` before the
+existing menu handlers run. Their Preset and Export menus disable the opening
+animation for keyboard input. Pointer opening retains the existing 160ms
+transition even after keyboard use, and the reduced-motion preference
+continues to remove the opening animation for either input method. Menu focus,
+keyboard navigation, the shared light palette and export font gates retain their
+existing behavior.
+
+| Before | After | Why |
+| --- | --- | --- |
+| Keyboard and pointer opening both used the figure menu's translate/scale animation | A small identical site input policy keeps keyboard-opened menus immediate | Figure controls follow the same keyboard response as the profile and lab |
+
+This is a site interaction-policy adaptation of the current viewer HTML. The
+diagram specifications, literal SVG bodies, source references and historical
+Archify delivery/audit sidecars are unchanged. Those sidecars remain historical
+evidence; they do not validate the current adapted HTML. Current constrained
+source checks, existing figure contracts and actual Codex in-app browser input
+observations are separate evidence. No new stock Archify browser gate or model
+execution is claimed.

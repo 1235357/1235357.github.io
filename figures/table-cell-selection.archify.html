@@ -4884,6 +4884,20 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       font-family: Manrope, 'Segoe UI', sans-serif;
     }
   </style>
+  <style id="site-figure-keyboard-policy">
+    /* Track actual input so pointer use after keyboard focus retains its motion. */
+    html[data-site-input="keyboard"] .toolbar :is(.preset-menu, .export-menu).open {
+      animation: none;
+    }
+  </style>
+  <script id="site-figure-input-policy">
+    document.addEventListener('keydown', function () {
+      document.documentElement.setAttribute('data-site-input', 'keyboard');
+    }, true);
+    document.addEventListener('pointerdown', function () {
+      document.documentElement.setAttribute('data-site-input', 'pointer');
+    }, true);
+  </script>
 </head>
 <body>
   <!-- Toolbar: theme, live visual style, trace motion, presentation stage, and export.
