@@ -3,7 +3,7 @@ title: Labels before scores
 category: technical-blog
 status: local-draft
 created: 2026-10-04
-updated: 2026-10-14
+updated: 2026-10-17
 source_type: implementation-and-course-review
 tags: [rag, evaluation, evidence]
 ---
@@ -632,6 +632,82 @@ independent financial judgments, run the frozen model comparison and evaluate
 answer quality separately. The browser notebook remains a separate reader-device
 workflow; it does not silently call this Python command.
 
+## A model can run while its evaluation attempt fails
+
+On October 16, a child process in **native01** wrote rankings for three
+previously exposed development queries. Its records show one model construction
+and three query encodes. The controller—the process that starts the attempt and
+checks its records—still recorded **failed-native-attempt**. It rejected the
+process identity before reaching its completed-artifact and final-completion
+checks.
+
+| Question | Recorded native01 evidence | Permissible conclusion |
+| --- | --- | --- |
+| Did computation leave records? | One model construction, three query encodes and fifteen candidate slots | The child retained useful computation evidence |
+| Did the owning attempt pass? | Process-identity rejection; forced termination also conflicts with graceful completion | The attempt remains failed; later parent checks were not reached |
+| Were financial answers verified? | All fifteen candidate judgments are null; generation, independent human gold and held-out counts are zero | Financial correctness remains unestablished |
+
+Keep these judgments separate when deciding what to repair. A launcher-aware
+ownership check addresses the first rejection. A bounded opportunity for natural
+shutdown addresses a different lifecycle question. Neither supplies relevance
+labels or verifies a financial answer. The consumed attempt remains unchanged;
+its diagnosis does not authorize an automatic retry.
+
+<details class="chapter-note">
+<summary>October 16 diagnosis: the recorded process chain and its limits</summary>
+<p>The <a href="https://github.com/1235357/nvidia-financial-rag/blob/d41512f6e5c54558b19b6e56e3627a4cf33e4193/docs/acceptance/native-attempt01-failure-20261016.json">sanitized failure record</a>
+retains these observations and the identities of the local source records.
+It publishes no PDF text, model files or private runtime paths.</p>
+<p>The frozen rule expected the directly launched process to write the child
+records. The recorded writer was instead a child of that process. Local launcher
+metadata supports a virtual-environment launcher between the controller and the
+executing Python code. That extra step matters: a useful output file does not
+by itself establish which owned process produced it.</p>
+<p>A second problem remained. The launched root exited with code zero, but one
+process in its owned Windows Job—a group used to contain the attempt—was still
+active. Cleanup requested forced termination. It then verified zero active
+processes and drained output streams. Forced cleanup still fails the required
+natural-completion rule.</p>
+<p>The controller recorded process ID (PID) <strong>44108</strong>, the launched root
+<strong>55420</strong>, and the child writer <strong>85456</strong> with parent
+<strong>55420</strong>. The frozen rule required the writer to equal the root and
+its parent to equal the controller; both comparisons fail. Launcher metadata
+supports the intermediary explanation, but the retained records lack an
+independent per-process Job roster and image/creation identities. They do not
+identify the third process or which member remained active.</p>
+<p>The five-second cleanup interval was used for forced cleanup and output
+draining. It was not a demonstrated five-second allowance for natural shutdown.
+The outer terminal's final exit code was not independently observed. Neither gap
+changes the preserved failed receipt.</p>
+</details>
+
+Try a changed case before opening feedback. These are <strong>new synthetic
+scenarios</strong>, not later native01 results. In both, five candidate passages
+remain ungraded and no answer is generated:
+
+- **A:** A new launcher-aware protocol independently verifies the launcher,
+  executing child and their ownership. Every owned process exits naturally, and
+  the parent passes its artifact and completion checks.
+- **B:** The same identity and artifact checks pass, but a remaining owned
+  process requires forced termination. The protocol still requires graceful
+  completion.
+
+For each case, write whether the process/completion claim passes, what evidence
+supports that decision, and whether financial accuracy can be reported.
+
+<details class="chapter-note">
+<summary>Check your prediction: changing one boundary does not settle the others</summary>
+<p>A supports its stated process/artifact/completion checks. It still supplies no
+reviewed financial answer or accuracy measurement. B passes the stated identity
+and artifact checks but fails graceful completion; successful forced cleanup
+cannot change that result. Its financial accuracy is also unestablished. These
+hypothetical outcomes do not rewrite the actual failed native01 attempt.</p>
+<p>After checking your answers, explain how the verdict changes if A later produces
+a well-formed answer with recognized citations but still has no source review.
+Record your prediction before checking the earlier section on valid structure
+and verified content. Reading feedback alone does not establish mastery.</p>
+</details>
+
 ## Reproduce this reasoning
 
 1. Inspect one registered development question and its original PDF locator.
@@ -640,8 +716,9 @@ workflow; it does not silently call this Python command.
 3. Check all five financial fields, then explain one plausible wrong-column answer.
 4. Design an unseen question and state how it will stay outside tuning.
 
-The registration audit, browser output contract and actual Python diagnostic
-answer different questions. The October 12 trace adds a measured failure
-breakdown and independently reproducible arithmetic, while financial accuracy,
-calibrated judge performance, latency/load benchmarks and human acceptance remain
-open. Use the exact preserved observations to decide what to improve next.
+The registration audit, browser output contract and actual Python diagnostics
+answer different questions. The October 12 trace exposes a retrieval failure;
+native01 adds recorded child computation with a failed owning attempt. Financial
+accuracy, calibrated judge performance, latency/load benchmarks and human
+acceptance remain open. Use each preserved observation to decide which
+responsibility to improve next.
