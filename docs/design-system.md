@@ -42,6 +42,9 @@ Keep the hierarchy suited to each task:
 Body type currently uses 18px on the profile, 17px in the lab and 19px in desktop
 articles (18px on narrow reading pages). Inputs stay at least 16px. These scales
 share a family and clear contrast without making every page equally dense.
+Figure notes use 16px prose and 18px headings on screen, including side panels.
+Long explanations retain the reading scale when their placement changes; compact
+toolbar labels and technical SVG labels keep their separate roles.
 The workbench uses the available page width; prose retains a readable 780px
 measure. Wide figures span the reading grid. Tables scroll locally on narrow
 screens. Essential next actions, current state and download implications remain

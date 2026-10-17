@@ -4900,6 +4900,13 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       }
     }
   </style>
+  <style id="site-figure-notes-type">
+    /* Explanatory notes stay readable in both rows and side panels. */
+    @media screen {
+      html[data-preset] .cards > .card h3 { font-size: 1.125rem; line-height: 1.4; }
+      html[data-preset] .cards > .card ul { font-size: 1rem; line-height: 1.65; }
+    }
+  </style>
   <style id="site-figure-keyboard-policy">
     /* Track actual input so pointer use after keyboard focus retains its motion. */
     html[data-site-input="keyboard"] .toolbar :is(.preset-menu, .export-menu).open {
