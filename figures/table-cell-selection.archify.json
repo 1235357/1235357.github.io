@@ -197,8 +197,8 @@
       "items": [
         "Extractor SHA ead976a3076536be…; comparison code SHA a218402e3b677a7a…. Cells SHA 3f6c35f8d7fcbf0b…; comparison SHA 38576f1d7529ffee…. Full paths, hashes, receipt identities and claim ranges are preserved in this figure's source-audit.json.",
         "The Python staging repository has no HEAD or origin; its scripts are untracked. Native Archify repository-source verification is unsupported. No committed Git evidence is claimed.",
-        "Archify deliver and the unmodified strict checker bind this JSON/HTML pair. Browser measurement and visual inspection are separate; the external browser gate is not run under the Codex IAB-only requirement.",
-        "The viewer reuses the task-local readable sequence policy: 16px messages/roles, 14px phases and width-first vertical scrolling. This figure defaults to light on its plain URL, while explicit theme selection remains available."
+        "The original Archify delivery and strict-check receipts bind the creation-stage JSON/HTML pair. Later site adaptations have separate source and visual checks; the external browser gate is not run under the Codex IAB-only requirement.",
+        "The viewer uses 16px messages and roles, 14px phases and width-first vertical scrolling. The viewer and its exports keep the portfolio's shared light palette, including when an older link requests a dark theme."
       ]
     }
   ]
