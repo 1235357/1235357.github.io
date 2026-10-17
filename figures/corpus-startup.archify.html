@@ -4872,6 +4872,22 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       font-family: Manrope, 'Segoe UI', sans-serif;
     }
   </style>
+  <style id="site-figure-notes">
+    /* Each notes row shares the available width; side rails keep their stack. */
+    @media screen {
+      :where(html[data-reader-rail="bottom"], html:not([data-reader-rail])) .cards {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      :where(html[data-reader-rail="bottom"], html:not([data-reader-rail])) .cards > .card {
+        flex: 1 1 20rem;
+        min-width: 0;
+      }
+      :where(html[data-reader-rail="bottom"], html:not([data-reader-rail])) .cards > .card ul {
+        max-inline-size: 80ch;
+      }
+    }
+  </style>
   <style id="site-figure-keyboard-policy">
     /* Track actual input so pointer use after keyboard focus retains its motion. */
     html[data-site-input="keyboard"] .toolbar :is(.preset-menu, .export-menu).open {
