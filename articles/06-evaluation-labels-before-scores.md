@@ -681,6 +681,33 @@ The outer terminal's final exit code was not independently observed. Neither gap
 changes the preserved failed receipt.</p>
 </details>
 
+<details class="chapter-note">
+<summary>October 18 follow-up: test shutdown without running a model</summary>
+<p>Three later inert cases test the ownership repair with small Python processes.
+They run no model or PDF. A launcher starts an executing child inside an owned
+Windows Job; the child either starts no helper, waits for a short helper, or
+leaves a deliberately lingering helper.</p>
+<table>
+<caption>Observed inert shutdown outcomes, October 18. Final containment does not imply graceful completion.</caption>
+<thead><tr><th scope="col">Case</th><th scope="col">Observed shutdown</th><th scope="col">Accepted scope</th></tr></thead>
+<tbody>
+<tr><th scope="row">No helper</th><td>Launcher and child exit zero; the Job reaches zero naturally; inner output streams reach EOF; outer controller exits zero.</td><td>Strict inert regression.</td></tr>
+<tr><th scope="row">Short helper</th><td>The child waits for its helper within a two-second bound. The helper's retained process record shows exit zero; the Job drains naturally and the outer controller exits zero.</td><td>Controlled positive lifecycle.</td></tr>
+<tr><th scope="row">Lingering helper</th><td>Launcher and child exit zero, but the helper remains during natural drain. Five seconds of grace expire; exact owned-Job cleanup reaches zero and inner EOF. The outer controller exits 71.</td><td>Expected negative, contained. The generic lifecycle still fails.</td></tr>
+</tbody>
+</table>
+<p>The third case makes the distinction concrete: <strong>a final active-process
+count of zero cannot erase the forced-cleanup failure</strong>. Its helper has a
+retained exit of 71; one auxiliary process's individual final exit remains
+unknown. Partial process observations and final Job accounting answer different
+questions.</p>
+<p>The <a href="https://github.com/1235357/nvidia-financial-rag/blob/81417c785839a70513d06b53b2e527de8afc9d05/docs/acceptance/controlled-inert-lifecycle-20261018.json">sanitized observation summary</a>
+retains the source-record hashes and these limits. These separate cases preserve
+the original failed native01 result. Pipe-security readback, foreign-client
+rejection and further cancellation checks remain open. No financial accuracy
+claim follows from an inert shutdown result.</p>
+</details>
+
 Try a changed case before opening feedback. These are <strong>new synthetic
 scenarios</strong>, not later native01 results. In both, five candidate passages
 remain ungraded and no answer is generated:
