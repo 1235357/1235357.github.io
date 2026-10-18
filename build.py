@@ -242,13 +242,29 @@ def render_site(root, output, *, public_release=False):
                 'Native generation and explicit Net income source-cell lookup are available through reader actions.')
             featured = featured.replace('Local implementation and acceptance evidence. Financial accuracy, scale measurements and public release remain separate gates.',
                 'Reader-device browser lab and exposed development evidence. Native drafts and source-cell candidates remain unadjudicated; no held-out accuracy or broad-device performance claim.')
+    reading_path = ''
+    if all((output / name).is_file() for name in (
+        '01-two-lifecycles.html', '04-preserve-evidence-before-embedding.html',
+        '03-ranking-is-not-confidence.html', '05-generation-is-not-verification.html',
+        '06-evaluation-labels-before-scores.html', '08-source-bound-startup.html',
+        'browser-rag/inspector.html',
+    )):
+        reading_path = (
+        '<p>New to retrieval-augmented generation (RAG)? Follow this reading path: '
+        '<a href="01-two-lifecycles.html">two lifecycles</a> → '
+        '<a href="04-preserve-evidence-before-embedding.html">preserve source evidence</a> → '
+        '<a href="03-ranking-is-not-confidence.html">rank passages</a> → '
+        '<a href="05-generation-is-not-verification.html">generate a draft</a> → '
+        '<a href="06-evaluation-labels-before-scores.html">evaluate the result</a>.</p>'
+        '<p>To try the workflow, <a href="browser-rag/inspector.html">open the browser lab</a>. '
+        'To integrate an existing Python application, start with '
+        '<a href="08-source-bound-startup.html">service startup</a>. '
+        'The chapters below are also available by question.</p>')
     intro = ('<h1>Building systems.<br>Checking evidence.</h1>'
         '<p>Follow a financial PDF from source pages to retrieval, an answer draft and a service interface. '
         'Each chapter explains an engineering decision through concrete examples, code and retained development evidence.</p>'
-        + featured + '<h2>Choose a question to explore</h2>'
-        '<p>New to RAG? Start with the two lifecycles, then follow source preservation, ranking and generation. '
-        'For the working interface, open the computation lab. For an existing Python application, start with service startup.</p>'
-        '<ol class="series-list">' + ''.join(links) + '</ol>')
+        + featured + '<h2>Choose a question to explore</h2>' + reading_path
+        + '<ol class="series-list">' + ''.join(links) + '</ol>')
     if has_portfolio:
         profile = json.loads(guard_path(profile_path, root).read_text(encoding='utf-8'))
         demo_script = guard_path(root / 'portfolio-demo.mjs', root)

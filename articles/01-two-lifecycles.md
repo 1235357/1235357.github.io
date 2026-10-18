@@ -15,6 +15,10 @@ tags: [nu-mscs, type/article, domain/financial-rag, architecture, learning]
 
 **Question.** What was NVIDIA's annual revenue in FY2025?
 
+In **retrieval-augmented generation (RAG)**, a system retrieves source passages
+before drafting an answer. This chapter asks which work can be reused when the
+question changes.
+
 Suppose the reviewed reports have already been split into passages and encoded.
 After asking this question, a reader changes it to FY2024. Must the system parse
 all the reports and encode every passage again? Or can it reuse that work while
@@ -397,7 +401,10 @@ and do not establish trusted provenance or financial correctness.</p>
 
 Completion means your prediction, execution, source check and explanation agree;
 an assistant-run demonstration is scaffolding, not your personal implementation
-evidence. The next article examines how API contracts preserve this distinction.
+evidence. Continue with [preserving source evidence](04-preserve-evidence-before-embedding.html)
+to see which row, date and unit relationships must survive chunking. For the
+service interface, [API contracts](02-contracts-before-services.html) explain who
+owns a request and its result.
 
 ## Historical browser topology — October 9
 
