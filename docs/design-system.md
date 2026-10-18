@@ -66,6 +66,9 @@ An Archify visual preset may change diagram presentation. Its page theme and
 interface family remain consistent with the portfolio. Legacy dark URL,
 storage and operating-system preferences must leave the figure light; exports
 also remain light. Upstream dormant dark CSS is not a reachable site option.
+Preset-menu thumbnails use the same light panel, divider and accent roles as
+their actual canvases. Lines, grids and layout distinguish styles; a preview
+must not suggest a dark or unrelated color theme that selection cannot produce.
 
 ## Implementation and acceptance
 

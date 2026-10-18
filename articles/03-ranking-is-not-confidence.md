@@ -488,4 +488,6 @@ candidates reached the model.
 Only a personally reproduced explanation and source check supports a mastery
 claim. Passing a software test or watching the demo is not a substitute.
 
-Next: [evaluation labels before scores](06-evaluation-labels-before-scores.html).
+Continue with [generating a draft](05-generation-is-not-verification.html) to
+see how selected passages become model context. Then examine
+[evaluation labels before scores](06-evaluation-labels-before-scores.html).

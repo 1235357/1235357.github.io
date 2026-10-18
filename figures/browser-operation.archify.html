@@ -3337,7 +3337,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       overflow: hidden;
       border: 0;
       border-radius: 0.4375rem;
-      background: #0f172a;
+      background: var(--panel);
       box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.28), 0 1px 2px rgba(15, 23, 42, 0.12);
       transition: box-shadow 0.14s ease, transform 0.14s ease;
     }
@@ -3368,16 +3368,16 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       box-shadow: 0 2px 4px rgba(17, 24, 39, 0.12);
     }
     .preset-option-swatch.signal-flow {
-      border-color: #29415f;
-      background: linear-gradient(135deg, #07101e 10%, #10243c 100%);
+      border-color: var(--panel-border);
+      background: linear-gradient(135deg, var(--panel) 10%, var(--bg) 100%);
     }
     .preset-option-swatch.signal-flow::before {
       top: 50%;
       right: 0.2rem;
       left: 0.2rem;
       height: 1px;
-      background: linear-gradient(90deg, #67e8f9, #c4b5fd);
-      box-shadow: 0 0 8px #67e8f9;
+      background: var(--arrow-emphasis);
+      box-shadow: none;
     }
     .preset-option-swatch.signal-flow::after {
       top: calc(50% - 0.13rem);
@@ -3385,16 +3385,16 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       width: 0.26rem;
       height: 0.26rem;
       border-radius: 50%;
-      background: #67e8f9;
-      box-shadow: 0 0 7px #67e8f9;
+      background: var(--arrow-emphasis);
+      box-shadow: none;
     }
     .preset-option-swatch.blueprint {
-      border-color: #34799a;
+      border-color: var(--panel-border);
       border-radius: 0.08rem;
-      background-color: #0a2031;
+      background-color: var(--panel);
       background-image:
-        linear-gradient(rgba(102, 217, 239, 0.18) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(102, 217, 239, 0.18) 1px, transparent 1px);
+        linear-gradient(var(--panel-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--panel-border) 1px, transparent 1px);
       background-size: 0.42rem 0.42rem;
     }
     .preset-option-swatch.blueprint::before {
@@ -3402,19 +3402,19 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       right: 0.38rem;
       bottom: 0.34rem;
       left: 0.38rem;
-      border: 1px solid #66d9ef;
+      border: 1px solid var(--arrow-emphasis);
     }
     .preset-option-swatch.editorial {
-      border-color: #b8aa94;
+      border-color: var(--panel-border);
       border-radius: 0.08rem;
-      background: repeating-linear-gradient(0deg, #f2eee5 0 0.34rem, #d8d0c2 0.36rem, #f2eee5 0.38rem);
+      background: repeating-linear-gradient(0deg, var(--panel) 0 0.34rem, var(--panel-border) 0.36rem, var(--panel) 0.38rem);
     }
     .preset-option-swatch.editorial::before {
       top: 0;
       bottom: 0;
       left: 0.42rem;
       width: 1px;
-      background: #c9502d;
+      background: var(--arrow-emphasis);
       opacity: 0.72;
     }
     .preset-option-swatch.editorial::after {
@@ -3422,7 +3422,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       right: 0.45rem;
       width: 0.38rem;
       height: 0.38rem;
-      background: #c9502d;
+      background: var(--arrow-emphasis);
       transform: rotate(45deg);
     }
     .preset-option-copy { min-width: 0; }

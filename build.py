@@ -263,8 +263,8 @@ def render_site(root, output, *, public_release=False):
     intro = ('<h1>Building systems.<br>Checking evidence.</h1>'
         '<p>Follow a financial PDF from source pages to retrieval, an answer draft and a service interface. '
         'Each chapter explains an engineering decision through concrete examples, code and retained development evidence.</p>'
-        + featured + '<h2>Choose a question to explore</h2>' + reading_path
-        + '<ol class="series-list">' + ''.join(links) + '</ol>')
+        + '<h2>Choose a question to explore</h2>' + reading_path
+        + '<ol class="series-list">' + ''.join(links) + '</ol>' + featured)
     if has_portfolio:
         profile = json.loads(guard_path(profile_path, root).read_text(encoding='utf-8'))
         demo_script = guard_path(root / 'portfolio-demo.mjs', root)
