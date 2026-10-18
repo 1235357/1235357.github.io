@@ -1,6 +1,6 @@
 # Zhentong Ye — personal portfolio and engineering journal
 
-A personal GitHub Pages site introducing a Northwestern MSCS student, selected engineering projects and research, and a continuing technical journal. The homepage reflects the six experiences in the current formal CV (October 14) and cover letter (October 11); anonymous client work retains its design/prototype stage. The financial-RAG browser lab lets a reader choose a local PDF and inspect the source and computation behind a draft. The companion Python API is a different runtime and integration surface.
+A personal GitHub Pages site introducing a Northwestern MSCS student, selected engineering projects and research, and a continuing technical journal. The homepage's six experiences were checked on October 18, 2026 against the formal CV dated October 16 and cover letter dated October 18. Artisk retains its unpaid, collaborative, AI-assisted attribution; anonymous client work retains its design/prototype stage. The financial-RAG browser lab lets a reader choose a local PDF and inspect the source and computation behind a draft. The companion Python API is a different runtime and integration surface.
 
 Open the [personal profile](https://1235357.github.io/), [RAG workspace](https://1235357.github.io/browser-rag/inspector.html) or [engineering journal](https://1235357.github.io/journal.html). The profile, articles, embedded and standalone workspace, and diagram viewers use one light theme with Manrope typography.
 

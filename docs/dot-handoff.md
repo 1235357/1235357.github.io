@@ -34,10 +34,12 @@ field-BGE record. Human-gold and independently held-out financial counts remain
 zero; generation quality, hosted API/load/TLS, physical-device acceptance and
 an observed Dot pull/reproduction remain open.
 
-The profile's six experience records were rechecked against the current formal
-October 14 CV and October 11 cover letter using native Microsoft Word. That
-source check adds no new individual contribution, employment, deployment or
-research-result claim. Private application materials are not published here.
+The profile's six experience records were checked on October 18, 2026 against
+the formal October 16 CV and October 18 cover letter using native Microsoft
+Word in read-only mode. Artisk explicitly retains its unpaid, collaborative,
+AI-assisted attribution. That source check adds no new individual contribution,
+employment, deployment or research-result claim. Private application materials
+are not published here.
 
 ## Dated delivery checkpoint — October 13
 

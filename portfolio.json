@@ -110,9 +110,9 @@
     },
     {
       "id": "artisk", "category": "AGENTS / PRODUCT INTERFACE", "title": "Artisk AI-Agent Product Project",
-      "role": "Project experience · Artisk Inc.", "period": "June–August 2026", "phase": "Implemented interface and grounding contract",
+      "role": "Unpaid, collaborative, AI-assisted project · Artisk Inc.", "period": "June–August 2026", "phase": "Implemented interface and grounding contract",
       "summary": "A four-view React agent interface with shared context, explicit tool handoffs and source-grounding checks.",
-      "description": "Built a tool-using agent interface with four expert views, shared context and explicit prompt/tool handoffs in React and TypeScript.",
+      "description": "Contributed to a React/TypeScript tool-using agent interface with four expert views, shared context and explicit prompt/tool handoffs.",
       "details": [
         "Implemented the four-view product interface and shared context so expert workflows could pass information through explicit handoffs.",
         "Modeled a knowledge graph spanning 68 concepts, with 180 nodes, 571 edges and 21 relation types; linked sources through graph expansion and alias matching.",
