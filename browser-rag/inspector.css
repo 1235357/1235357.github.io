@@ -34,7 +34,7 @@ h1 { font-size: clamp(36px, 4.2vw, 48px); line-height: 1.15; letter-spacing: -.0
 h2 { font-size: 28px; line-height: 1.3; letter-spacing: -.025em; margin: 0 0 18px; }
 h3 { font-size: 23px; line-height: 1.4; letter-spacing: -.015em; margin: 12px 0; }
 .eyebrow { color: var(--accent); font: 700 14px/1.7 var(--ui); letter-spacing: .06em; margin: 0 0 14px; }
-.hint { color: var(--muted); font-size: 15px; line-height: 1.8; }
+.hint { color: var(--muted); font-size: 16px; line-height: 1.8; }
 .identity { color: var(--warm); font: 500 14px/1.75 var(--mono); overflow-wrap: anywhere; }
 .empty { padding: 26px 0; color: var(--muted); font: 600 20px/1.5 var(--ui); overflow-wrap: anywhere; }
 .empty span { display: block; margin-top: 12px; font: 14px/1.8 var(--ui); }
@@ -105,7 +105,7 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
 .controls { grid-area: question; }
 .controls > .query-controls { border: 0; margin: 0; padding: 0; }
 .controls > .query-controls > .eyebrow { margin: 0 0 14px; }
-.source-lookup-disclosure > .hint { font-size: 15px; }
+.source-lookup-disclosure > .hint { font-size: 16px; }
 .source-lookup-disclosure:not(:has(#source-cell-lookup:not([hidden]))), .preparation-disclosure:not(:has(#asset-preparation:not([hidden]))) { display: none; }
 .preparation-disclosure .asset-preparation, .source-lookup-disclosure .source-cell-lookup { border: 0; margin-top: 16px; padding-top: 0; }
 .generation { grid-area: answer; min-width: 0; }
@@ -120,7 +120,7 @@ input, textarea, select { font-size: 16px; }
 input[type=file] { display: block; width: 100%; padding: 16px 12px; border: 1px dashed var(--control-line); border-radius: 8px; background: var(--bg); color: var(--muted); font: 500 16px/1.6 var(--ui); }
 button, input::file-selector-button, select { min-height: 44px; border: 1px solid var(--control-line); border-radius: 8px; background: var(--surface); color: var(--text); padding: 10px 14px; font: 650 16px/1.6 var(--ui); }
 button { cursor: pointer; flex: 1 1 140px; overflow-wrap: anywhere; }
-input::file-selector-button { font-size: 14px; margin-right: 12px; cursor: pointer; }
+input::file-selector-button { font-size: 16px; margin-right: 12px; cursor: pointer; }
 select { display: block; margin-top: 7px; max-width: 220px; font-size: 16px; }
 button:disabled, select:disabled, input:disabled, textarea:disabled { cursor: default; color: #687381; background: #eef1f6; border-color: #c5cacd; }
 .buttons, .item-navigation-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
@@ -135,19 +135,20 @@ button:disabled, select:disabled, input:disabled, textarea:disabled { cursor: de
 .query-controls textarea:disabled, .query-controls input:disabled, .lookup-fields input:disabled, .lookup-fields select:disabled { color: #687381; background: #eef1f6; border-color: #c5cacd; }
 .encoder-contract { margin: 14px 0 16px; }
 .model-contract { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 14px 0; }
-.model-contract p { font-size: 14px; }
+/* Expanded explanations keep a reading scale; compact stage labels stay separate. */
+.model-contract p:not(.eyebrow) { font-size: 16px; }
 .model-contract .eyebrow { margin-top: 0; }
-.model-contract .hint { font-size: 14px; }
-.model-contract span, .model-contract code { color: var(--warm); font: 500 14px/1.8 var(--mono); overflow-wrap: anywhere; }
+.model-contract .hint { font-size: 16px; }
+.model-contract span, .model-contract code { color: var(--warm); font: 500 16px/1.8 var(--mono); overflow-wrap: anywhere; }
 .model-contract details { margin-top: 10px; padding-bottom: 0; }
 #generation-contract { border: 0; background: transparent; padding: 0; }
 #generation-contract > details { margin-top: 0; }
 .asset-preparation, .geometry-capture, .source-cell-lookup, .query-controls, .source-inspection, .context-inspection, .chunk-inspection, .embedding-inspection { border-top: 1px solid var(--line); margin-top: 28px; padding-top: 24px; scroll-margin-top: 24px; }
-.asset-preparation > p:not(.hint), .geometry-capture > p:not(.hint) { font-size: 14px; }
+.asset-preparation > p:not(.hint), .geometry-capture > p:not(.hint) { font-size: 16px; }
 .asset-preparation select { max-width: 100%; width: 100%; }
 .asset-preparation .buttons button:enabled { background: var(--tint); color: var(--accent); border-color: var(--accent); }
 .asset-preparation > button { width: 100%; }
-#asset-preparation-status { overflow-wrap: anywhere; color: var(--muted); font: 500 14px/1.8 var(--mono); }
+#asset-preparation-status { overflow-wrap: anywhere; color: var(--muted); font: 500 16px/1.8 var(--mono); }
 
 /* Every result state stays on paper, including refusals and diagnostics. */
 .status-block { border-left: 3px solid var(--accent); padding: 0 0 0 18px; margin: 26px 0; }
@@ -184,7 +185,7 @@ details { border-top: 1px solid var(--line); padding: 0 0 14px; margin-top: 14px
 summary { min-height: 46px; padding: 12px 0; cursor: pointer; color: var(--text); font: 650 16px/1.7 var(--ui); overflow-wrap: anywhere; }
 details[open] > summary { color: var(--accent); }
 summary::marker { color: currentColor; }
-details p { font-size: 15px; color: var(--muted); }
+details p { font-size: 16px; color: var(--muted); }
 pre { max-width: 100%; max-height: 360px; margin: 14px 0; padding: 16px; overflow: auto; overscroll-behavior: contain; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--code); border: 1px solid #d1d8e4; color: var(--text); font: 500 14px/1.75 var(--mono); tab-size: 2; }
 /* Complete evidence uses consecutive text pages and an exact full download. */
 .bounded-text-view { min-width: 0; margin: 18px 0; }

@@ -42,6 +42,10 @@ Keep the hierarchy suited to each task:
 Body type currently uses 18px on the profile, 17px in the lab and 19px in desktop
 articles (18px on narrow reading pages). Inputs stay at least 16px. These scales
 share a family and clear contrast without making every page equally dense.
+Lab instructions, expanded model/download explanations and their inline byte
+counts use at least 16px, including the native file-selection button. Stage
+numbers, short metadata and labels retain their compact scale. Opening a
+disclosure must not make the explanation smaller than the surrounding help.
 Figure notes use 16px prose and 18px headings on screen, including side panels.
 Long explanations retain the reading scale when their placement changes; compact
 toolbar labels and technical SVG labels keep their separate roles.
@@ -86,3 +90,19 @@ Apply the learning and writing skills to the article structure: connect each
 explanation to a concrete case, keep claims supported, and offer practice before
 revealing its feedback. A working example and a reader's understanding require
 separate verification.
+
+## Reading an expanded lab explanation
+
+The October 18 browser review found that opening the encoder contract reduced
+its paragraphs from the lab's reading scale to 14px. Those explanations now use
+16px with 28–28.8px line height. They remain behind the existing disclosures.
+
+| Before | After | Why |
+| --- | --- | --- |
+| Model and download explanations use 14px | Explanations and inline byte counts use 16px | Readers can inspect a download decision at the same scale as other help |
+| General help and disclosure paragraphs use 15px | Both use 16px | Opening detail preserves a readable hierarchy |
+| The native file-selection button uses 14px | The button uses 16px | The initial document action matches the other form controls |
+
+This typography correction preserves the shared light colors, layouts, native
+disclosures and runtime behavior. Current browser measurements and downloaded
+figure checks are recorded separately from the source contract.
