@@ -92,7 +92,8 @@
         "Worked with faculty and teammates; a teammate published the code and checkpoint. This is a research prototype, with no clinical deployment claim."
       ],
       "stack": ["PyTorch", "Hugging Face", "LLaVA-13B", "LoRA / PEFT", "VQA evaluation"],
-      "links": [{"label": "Team training code", "href": "https://github.com/Lareina2441/LLaVA-GI"}, {"label": "Team model checkpoint", "href": "https://huggingface.co/Lareina2441/LLaVA-GI"}]
+      "links": [{"label": "Team training code", "href": "https://github.com/Lareina2441/LLaVA-GI"}, {"label": "Team model checkpoint", "href": "https://huggingface.co/Lareina2441/LLaVA-GI"}, {"label": "See how images and questions become an answer", "href": "figures/llava-gi.archify.html?theme=light"}],
+      "featured_links": [{"label": "Team training code", "href": "https://github.com/Lareina2441/LLaVA-GI"}, {"label": "Team model checkpoint", "href": "https://huggingface.co/Lareina2441/LLaVA-GI"}]
     },
     {
       "id": "osef", "category": "RESEARCH / VIDEO EVIDENCE", "title": "OSEF: One-Step Evidence Fusion",

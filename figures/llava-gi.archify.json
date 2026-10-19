@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "LLaVA-GI: image and question to answer",
+    "locale": "en",
+    "subtitle": "Public team implementation and released configuration",
+    "output": "figures/llava-gi.archify.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Lareina2441/LLaVA-GI.git",
+      "provider": "github",
+      "revision": "a856fa5ee904fe345d1cbfdd9a33fa4b96b27e4a"
+    },
+    "legend": {
+      "entries": {
+        "backend": { "label": "Model computation" },
+        "frontend": { "label": "Embedding preparation" },
+        "external": { "label": "Inference inputs / output" }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "gi-image", "type": "external", "icon": "none",
+      "label": "GI image", "sublabel": "RGB conversion + square padding",
+      "pos": [40, 60], "size": [320, 96],
+      "sources": [
+        { "path": "model_vqa.py", "line": 58, "end_line": 59 },
+        { "path": "llava/mm_utils.py", "line": 166, "end_line": 182 }
+      ]
+    },
+    {
+      "id": "clip-encoder", "type": "backend", "icon": "none",
+      "label": "CLIP vision encoder", "sublabel": "ViT-L/14 · 336 px · patch features",
+      "tag": "Frozen vision parameters",
+      "pos": [460, 60], "size": [340, 96],
+      "sources": [
+        { "path": "README.md", "line": 199, "end_line": 201 },
+        { "path": "llava/model/multimodal_encoder/clip_encoder.py", "line": 24, "end_line": 57 }
+      ]
+    },
+    {
+      "id": "mlp-projector", "type": "backend", "icon": "none",
+      "label": "MLP projector", "sublabel": "Linear → GELU → Linear",
+      "tag": "1024 → 5120 → 5120",
+      "pos": [980, 60], "size": [320, 96],
+      "sources": [
+        { "path": "README.md", "line": 195, "end_line": 201 },
+        { "path": "llava/model/multimodal_projector/builder.py", "line": 33, "end_line": 46 },
+        { "path": "llava/model/llava_arch.py", "line": 140, "end_line": 143 }
+      ]
+    },
+    {
+      "id": "question", "type": "external", "icon": "none",
+      "label": "Question + prompt", "sublabel": "Prompt template + tokenization",
+      "tag": "Includes an image marker",
+      "pos": [460, 350], "size": [340, 96],
+      "sources": [
+        { "path": "model_vqa.py", "line": 42, "end_line": 56 },
+        { "path": "llava/mm_utils.py", "line": 185, "end_line": 204 }
+      ]
+    },
+    {
+      "id": "combined-sequence", "type": "frontend", "icon": "none",
+      "label": "Combined input sequence", "sublabel": "Image + text embeddings",
+      "tag": "Image marker replaced by features",
+      "pos": [980, 350], "size": [320, 96],
+      "sources": [
+        { "path": "llava/model/llava_arch.py", "line": 243, "end_line": 277 }
+      ]
+    },
+    {
+      "id": "llama-decoder", "type": "backend", "icon": "none",
+      "label": "LLaMA causal decoder", "sublabel": "LLaVA-1.5-13B language model",
+      "pos": [980, 640], "size": [320, 96],
+      "sources": [
+        { "path": "llava/model/language_model/llava_llama.py", "line": 35, "end_line": 50 },
+        { "path": "llava/model/language_model/llava_llama.py", "line": 105, "end_line": 143 },
+        { "path": "README.md", "line": 195 }
+      ]
+    },
+    {
+      "id": "generated-answer", "type": "external", "icon": "none",
+      "label": "Generated answer", "sublabel": "Decode tokens to text",
+      "pos": [460, 640], "size": [340, 96],
+      "sources": [
+        { "path": "model_vqa.py", "line": 61, "end_line": 83 }
+      ]
+    }
+  ],
+  "connections": [
+    { "id": "prepare-image", "from": "gi-image", "to": "clip-encoder", "label": "Pixels" },
+    { "id": "project-features", "from": "clip-encoder", "to": "mlp-projector", "label": "Patch features", "variant": "emphasis" },
+    { "id": "insert-image-embeddings", "from": "mlp-projector", "to": "combined-sequence", "label": "Image embeddings", "variant": "emphasis" },
+    { "id": "embed-question", "from": "question", "to": "combined-sequence", "label": "Text embeddings" },
+    { "id": "condition-decoder", "from": "combined-sequence", "to": "llama-decoder", "label": "Combined sequence", "variant": "emphasis" },
+    { "id": "decode-answer", "from": "llama-decoder", "to": "generated-answer", "label": "Generate", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "slate", "title": "Documented adaptation",
+      "items": [
+        "Kvasir-VQA image/question/answer records become saved images and conversation JSON. The README specifies LoRA on LLaVA-1.5-13B; code targets language-model linear layers, keeps CLIP frozen and enables the projector.",
+        "The repository saves adapters and non-LoRA trainables. The README describes a merged checkpoint; exact training-to-release lineage and the training image-marker contract remain unverified."
+      ]
+    },
+    {
+      "dot": "slate", "title": "Offline comparison context",
+      "items": [
+        "Comparison code pairs generated text with reference answers, then computes token-overlap ROUGE-1 and CIDEr. References are evaluation targets, outside the inference input.",
+        "Stored comparison paths name other models. This figure establishes code/configuration structure, with no new run, reproduced score or clinical-validation claim."
+      ]
+    }
+  ]
+}

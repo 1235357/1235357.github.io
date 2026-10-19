@@ -7,7 +7,7 @@ const figures = new URL('../../figures/', import.meta.url);
 const names = fs.readdirSync(figures).filter(name => name.endsWith('.archify.html')).sort();
 
 test('all figure interfaces share the portfolio font across visual presets', () => {
-  assert.equal(names.length, 9);
+  assert.equal(names.length, 10);
   for (const name of names) {
     const html = fs.readFileSync(new URL(name, figures), 'utf8');
     const policy = html.match(/<style id="site-figure-typography">([\s\S]*?)<\/style>/)?.[1];
