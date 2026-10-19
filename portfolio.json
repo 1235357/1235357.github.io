@@ -100,13 +100,14 @@
       "summary": "Research on retrieving video evidence and planning action sequences from a start–goal query, with controlled benchmark comparisons.",
       "description": "Study how a planner can retrieve the right video evidence and predict an action sequence from an answer-redacted start–goal query.",
       "details": [
-        "Investigated a query-conditioned cell-and-span evidence lattice that passes soft evidence to the planner before selecting a single video window.",
+        "Investigated a query-conditioned evidence lattice that keeps all candidate cells available to the planner; a separate branch reports the selected video and time window.",
         "Compared nine planner families with frozen retrieval, hard negatives and leakage checks, measuring evidence selection and procedure planning separately.",
         "The preprint reports a 2.9–10.7 percentage-point FULL-SR gain on four matched same-task COIN/CrossTask settings. FULL-SR requires the correct video and complete action plan together.",
         "In its hard same-task COIN-T3 intervention, masking 48 high-attention cells lowered PLAN-SR from 65.74% to 24.89%; masking 48 random cells left 65.60%, with retrieval unchanged. These are reported study results; read the paper for the setting and limitations."
       ],
       "stack": ["Multimodal retrieval", "Procedure planning", "Benchmark design", "Ablation studies"],
-      "links": [{"label": "Read the arXiv preprint", "href": "https://arxiv.org/abs/2607.29401"}]
+      "links": [{"label": "Read the arXiv preprint", "href": "https://arxiv.org/abs/2607.29401"}, {"label": "See how evidence reaches the planner", "href": "figures/osef-inference.archify.html?theme=light"}],
+      "featured_links": [{"label": "Read the arXiv preprint", "href": "https://arxiv.org/abs/2607.29401"}]
     },
     {
       "id": "artisk", "category": "AGENTS / PRODUCT INTERFACE", "title": "Artisk AI-Agent Product Project",

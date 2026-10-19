@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "OSEF: preserve evidence before planning",
+    "locale": "en",
+    "output": "figures/osef-inference.archify.html",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "backend": {
+          "label": "Model computation"
+        },
+        "external": {
+          "label": "Inference inputs / outputs"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "legal-inputs",
+      "type": "external",
+      "icon": "none",
+      "label": "Legal inputs",
+      "sublabel": "Start-goal query + video features",
+      "tag": "Redacted query; frozen features",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        340,
+        96
+      ]
+    },
+    {
+      "id": "evidence-lattice",
+      "type": "backend",
+      "icon": "none",
+      "label": "Evidence lattice",
+      "sublabel": "Score every candidate cell",
+      "tag": "Query conditioned",
+      "pos": [
+        40,
+        290
+      ],
+      "size": [
+        340,
+        96
+      ]
+    },
+    {
+      "id": "full-lattice-adapter",
+      "type": "backend",
+      "icon": "none",
+      "label": "Token-global E2P",
+      "sublabel": "Query + all cell tokens",
+      "tag": "No hard crop",
+      "pos": [
+        680,
+        290
+      ],
+      "size": [
+        300,
+        96
+      ]
+    },
+    {
+      "id": "reported-evidence",
+      "type": "external",
+      "icon": "none",
+      "label": "Report video + window",
+      "sublabel": "Argmax of interval scores",
+      "tag": "Separate output",
+      "pos": [
+        40,
+        520
+      ],
+      "size": [
+        340,
+        96
+      ]
+    },
+    {
+      "id": "goal-planner",
+      "type": "backend",
+      "icon": "none",
+      "label": "Goal-conditioned planner",
+      "sublabel": "Step-indexed state pairs",
+      "pos": [
+        680,
+        520
+      ],
+      "size": [
+        300,
+        96
+      ]
+    },
+    {
+      "id": "ordered-plan",
+      "type": "external",
+      "icon": "none",
+      "label": "Ordered actions",
+      "sublabel": "T closed-set steps",
+      "pos": [
+        680,
+        750
+      ],
+      "size": [
+        300,
+        96
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "condition-cells",
+      "from": "legal-inputs",
+      "to": "evidence-lattice",
+      "label": "Score cells"
+    },
+    {
+      "id": "preserve-complete-lattice",
+      "from": "evidence-lattice",
+      "to": "full-lattice-adapter",
+      "label": "All cells + scores",
+      "variant": "emphasis"
+    },
+    {
+      "id": "report-argmax-only",
+      "from": "evidence-lattice",
+      "to": "reported-evidence",
+      "label": "Report only"
+    },
+    {
+      "id": "adapt-state-pairs",
+      "from": "full-lattice-adapter",
+      "to": "goal-planner",
+      "label": "State pairs",
+      "variant": "emphasis"
+    },
+    {
+      "id": "decode-ordered-plan",
+      "from": "goal-planner",
+      "to": "ordered-plan",
+      "label": "Decode in order",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Keep all cells",
+      "items": [
+        "Planning bypasses hard selection: all candidate cells remain available. Method, section 5.",
+        "FULL-SR requires the correct video and complete ordered plan; window localization is separate. Contract, section 4."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Preprint explanation",
+      "items": [
+        "Ye et al. (2026), OSEF; reported method, no new training run.",
+        "Frozen features and templated queries; same-task binding and span localization remain limitations. Sections 6.6 and 7."
+      ]
+    }
+  ]
+}
