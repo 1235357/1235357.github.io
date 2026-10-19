@@ -47,6 +47,8 @@ counts use at least 16px, including the native file-selection button. Stage
 numbers, short metadata and labels retain their compact scale. Opening a
 disclosure must not make the explanation smaller than the surrounding help.
 Figure notes use 16px prose and 18px headings on screen, including side panels.
+Article figure captions also use 16px on desktop and narrow reading pages;
+their source explanations remain readable alongside the viewer's own notes.
 Long explanations retain the reading scale when their placement changes; compact
 toolbar labels and technical SVG labels keep their separate roles.
 The workbench uses the available page width; prose retains a readable 780px
@@ -105,6 +107,7 @@ its paragraphs from the lab's reading scale to 14px. Those explanations now use
 | Model and download explanations use 14px | Explanations and inline byte counts use 16px | Readers can inspect a download decision at the same scale as other help |
 | General help and disclosure paragraphs use 15px | Both use 16px | Opening detail preserves a readable hierarchy |
 | The native file-selection button uses 14px | The button uses 16px | The initial document action matches the other form controls |
+| Article figure captions use 15px, falling to 14px on narrow pages | Captions keep 16px at both widths | Long source explanations retain the shared figure reading scale |
 
 This typography correction preserves the shared light colors, layouts, native
 disclosures and runtime behavior. Current browser measurements and downloaded

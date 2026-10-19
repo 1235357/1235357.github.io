@@ -32,7 +32,7 @@ main>.architecture-figure{grid-column:1/-1;margin:0;overflow:hidden;border:1px s
 .figure-heading h3{font-size:clamp(25px,3vw,36px);line-height:1.2;margin:12px 0}
 .figure-heading p{font-size:17px;line-height:1.7;color:var(--muted);margin:12px 0}
 .architecture-figure iframe{display:block;width:100%;height:850px;border:0;background:var(--paper);color-scheme:light}
-.architecture-figure figcaption{padding:20px 30px;margin:0;border-top:1px solid var(--line);font-size:15px;color:var(--muted)}
+.architecture-figure figcaption{padding:20px 30px;margin:0;border-top:1px solid var(--line);font-size:16px;color:var(--muted)}
 aside{font:500 14px/1.8 var(--ui);color:var(--muted);border-top:3px solid var(--accent);padding-top:20px}
 aside{position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow-y:auto}
 main:has(>.architecture-figure)>aside{position:static}
@@ -72,7 +72,7 @@ body:not(.portfolio-page) article details[open]>summary{color:var(--accent)}
   .reading-page .mobile-outline nav{margin-top:16px}
 }
 @media(max-width:800px){.reading-page main{margin:35px auto;padding:0 22px}body{font-size:18px}h2{font-size:26px}}
-@media(max-width:800px){.figure-heading{padding:22px 18px 8px}.architecture-figure iframe{height:620px}.architecture-figure figcaption{padding:18px;font-size:14px}}
+@media(max-width:800px){.figure-heading{padding:22px 18px 8px}.architecture-figure iframe{height:620px}.architecture-figure figcaption{padding:18px}}
 @media(max-width:560px){.featured-project{padding:20px}.featured-project h2{font-size:28px}.project-variants{grid-template-columns:1fr;gap:24px}}
 
 /* All reading pages, the profile and lab share this self-hosted UI family. */
