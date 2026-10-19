@@ -1,6 +1,34 @@
 # Dot handoff — current work and dated checkpoints
 
-## Current audited functional checkpoints — October 16
+## Current checked visual checkpoint — October 19
+
+The latest checked visual release is
+`9c74a0f28068e4e0aa61bfd798b267169008a8bc`, with successful build,
+Windows contracts and deployment in
+[workflow 39286523915](https://github.com/1235357/1235357.github.io/actions/runs/39286523915).
+Its downloaded official manifest contains 334 files, 923,018,048 bytes and 18
+pinned assets. The LLaVA figure HTML/JSON and profile index match the selected
+public response bodies; the local Windows index requires explicit CRLF-to-LF
+normalization. This comparison covers those three bodies.
+
+The site now has ten light Archify viewers. OSEF and LLaVA diagrams are secondary
+resources inside the existing project disclosures, preserving the primary paper,
+team-code and checkpoint links. The profile, RAG workspace, journal, articles and
+figures follow the [shared design contract](design-system.md): light surfaces,
+Manrope interface type, readable explanations and details available on request.
+The new LLaVA viewer and its PNG export were inspected in the Codex in-app
+browser. Its source-backed mechanism diagram adds no reproduced model score,
+individual training or clinical-validation claim.
+
+Keep this visual publication separate from runtime acceptance. The local native
+validation harness remains under source review; its W5 outer alias interface is
+incomplete and no new native/model result follows from this release. Independent
+financial gold, held-out generation, hosted API/load, physical-device acceptance
+and an observed Dot pull/reproduction remain open. Use a fresh checkout and
+record the commit actually pulled; this document does not establish that Dot has
+received or reproduced it.
+
+## Dated functional checkpoints — October 16
 
 Use a fresh checkout of `main` and record the commit actually pulled. The
 latest verified site functionality is
