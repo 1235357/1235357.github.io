@@ -45,3 +45,41 @@ Focused and complete checks, actual browser review and public deployment are
 separate gates. This note describes the repair's intent; the release receipt and
 IAB observations determine which of those checks have actually passed. A 390px
 viewport check is not a physical-phone or user-aesthetic acceptance result.
+
+## One project title before the controls
+
+The later screenshot review found another concrete duplication: the profile
+section title, a single-project toolbar label, and the embedded lab's brand,
+navigation and idle status all preceded the PDF controls. The earlier compact
+hero rule did not remove that second page header. Shared light colors and
+readable type did not by themselves make this hierarchy clear.
+
+| Before | After | Why |
+| --- | --- | --- |
+| Three stacked project identities and a separate toolbar row | One project heading with a short introduction and adjacent Expand / Open actions | A single demo does not need a selector naming itself |
+| Embedded brand, full-page navigation and idle header status | A compact RAG stages / Notebook row; the contextual session status stays in the workspace | The host supplies identity while the frame supplies the task |
+| Large stacked margins and an unnecessary section minimum height | Explicit content alignment and compact gaps, with natural tool wrapping on narrow screens | File selection appears sooner without shrinking readable controls |
+| An outer footer repeats download and draft instructions | Existing instructions remain beside embedding, generation and the lab footer | The information appears where it informs the reader's action |
+
+The same embedded rule applies to the profile and the existing lab frames in
+articles 01, 03 and 07. Standalone lab identity, navigation and introduction stay
+visible. Required status nodes remain in the document for the existing runtime;
+only the redundant embedded header is hidden. Notebook uses the same native
+fragment navigation and the existing fullscreen code retains the same iframe.
+No PDF, model, source-selection, worker or artifact-acceptance behavior changes.
+
+Current local IAB review at a 908px viewport measured the file selector about
+365px below the demo section top, compared with the observed earlier 659px.
+At 390px, RAG stages and Notebook fit in one 44px row and neither parent nor child
+has horizontal overflow. Actual Notebook navigation opens and focuses its
+summary. An authored textarea value survived Expand and explicit Exit, checking
+document continuity without selecting a PDF or starting computation. The
+standalone page retains its header and introduction. Screenshots and release
+checks are saved separately; local rendering is not public deployment evidence.
+
+A bounded source review also checked every article heading and the eleven
+article iframe wrappers. The desktop/mobile outlines are alternate responsive
+navigation, and project-card versus later lab titles identify separate contexts.
+Full Archify viewers retain useful inspection controls; they are not switched
+en masse to diagram-only mode merely to remove a title. Existing figures and
+their source/export bodies are unchanged by this focused correction.

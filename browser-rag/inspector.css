@@ -39,7 +39,7 @@ h3 { font-size: 23px; line-height: 1.4; letter-spacing: -.015em; margin: 12px 0;
 .empty { padding: 26px 0; color: var(--muted); font: 600 20px/1.5 var(--ui); overflow-wrap: anywhere; }
 .empty span { display: block; margin-top: 12px; font: 14px/1.8 var(--ui); }
 
-/* The header belongs to the personal site, including inside an iframe. */
+/* The standalone header supplies identity; an embed already has its host title. */
 header, footer { margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 18px 30px; padding: 12px var(--gutter); font: 600 15px/1.7 var(--ui); border-bottom: 1px solid var(--line); }
 header { flex-wrap: wrap; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
 .brand { display: inline-flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; min-height: 44px; }
@@ -69,6 +69,7 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
 .pipeline-disclosure { margin: 0 0 24px; padding-bottom: 0; border: 0; }
 .pipeline-disclosure > summary { padding-top: 0; }
 .pipeline-disclosure .pipeline { margin: 12px 0 0; }
+.notebook-shortcut { display: none; }
 .pipeline ol { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); padding: 0; margin: 0; list-style: none; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .pipeline-step { display: grid; grid-template-columns: auto minmax(0,1fr); grid-template-areas: 'number title' '. state'; gap: 6px 10px; align-content: start; min-width: 0; border-top: 3px solid transparent; padding: 12px 14px; background: var(--surface); }
 .pipeline-number { grid-area: number; color: var(--accent); font: 700 14px/1.75 var(--ui); font-variant-numeric: tabular-nums; }
@@ -357,7 +358,12 @@ pre { max-width: 100%; max-height: 360px; margin: 14px 0; padding: 16px; overflo
    the complete stage rail and every working control without a second hero. */
 .embedded-lab { --gutter: 24px; }
 .embedded-lab :is(header, main, footer) { max-width: none; }
-.embedded-lab main { padding-top: 24px; }
+.embedded-lab header { display: none; }
+.embedded-lab main { padding-top: 12px; }
+.embedded-lab .workspace-tools { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 0 24px; margin-bottom: 12px; }
+.embedded-lab .pipeline-disclosure { flex: 1 1 160px; min-width: 0; margin: 0; }
+.embedded-lab .pipeline-disclosure > summary { min-height: 44px; padding: 8px 0; font-size: 15px; }
+.embedded-lab .notebook-shortcut { display: inline-flex; align-items: center; min-height: 44px; font: 650 15px/1.7 var(--ui); }
 .embedded-lab .lead { margin: 0; }
 .embedded-lab .lead-copy { display: block; }
 .embedded-lab .lead :is(.eyebrow, p, .lead-actions) { display: none; }

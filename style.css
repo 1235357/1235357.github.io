@@ -153,27 +153,23 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page .education-grid .secondary,.portfolio-page .course-bridge{color:var(--muted)}
 .portfolio-page .course-bridge{max-width:850px;margin:32px 0 0;font-size:17px}
 .portfolio-page .portfolio-main>.demo-stage{grid-column:full}
-.portfolio-page .demo-stage{--workbench-gutter:24px;display:grid;grid-template-columns:minmax(0,1fr);margin:64px 0 0;padding:32px var(--workbench-gutter) 48px;min-height:100svh;background:var(--paper);border-top:1px solid var(--line);scroll-margin-top:0}
-.portfolio-page .demo-stage-head{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:end;gap:32px;margin-bottom:28px}
-.portfolio-page .demo-stage-head>div{max-width:820px}
-.portfolio-page .demo-stage-head h2{font-size:clamp(28px,2.6vw,36px);line-height:1.2;margin:10px 0 0}
-.portfolio-page .demo-stage-head .eyebrow{margin-bottom:12px}
-.portfolio-page .demo-stage-head p:not(.eyebrow){font-size:17px;line-height:1.8;color:var(--muted);max-width:58ch;margin:14px 0 0}
+.portfolio-page .demo-stage{--workbench-gutter:24px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:start;align-items:end;gap:20px 24px;margin:48px 0 0;padding:24px var(--workbench-gutter) 40px;background:var(--paper);border-top:1px solid var(--line);scroll-margin-top:0}
+.portfolio-page .demo-stage-head{min-width:0}
+.portfolio-page .demo-stage-head h2{font-size:clamp(26px,2.6vw,34px);line-height:1.2;margin:0}
+.portfolio-page .demo-stage-head p{font-size:17px;line-height:1.7;color:var(--muted);max-width:58ch;margin:10px 0 0}
 .portfolio-page .demo-fullscreen-link{flex-shrink:0;display:inline-flex;align-items:center;min-height:44px;font:650 15px/1.7 var(--ui);color:var(--accent)}
-.portfolio-page .demo-tabs{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:28px 0 18px}
+.portfolio-page .demo-tabs{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px 16px;align-items:center;max-width:440px;min-width:0;margin:0}
 .portfolio-page .demo-tabs button{font:650 16px/1.75 var(--ui);min-height:48px;padding:11px 18px;color:var(--ink);background:var(--panel);border:1px solid #a7b3c7;border-radius:8px;cursor:pointer}
 .portfolio-page .demo-tabs button:is([aria-selected='true'],[aria-pressed='true'],.is-active){background:var(--accent);border-color:var(--accent);color:#fff}
-.portfolio-page .demo-product-label{font:750 18px/1.6 var(--ui);color:var(--ink);margin-right:auto}
 .portfolio-page .demo-expand-button{min-height:48px;padding:10px 18px;border:1px solid var(--accent);border-radius:8px;background:var(--panel);color:var(--accent);font:650 16px/1.7 var(--ui);cursor:pointer}
 .portfolio-page .demo-expand-status{width:100%;margin:0;color:var(--muted);font:500 15px/1.7 var(--ui)}
 .portfolio-page .demo-expand-status:empty{display:none}
 .portfolio-page .demo-stage:fullscreen{display:flex;flex-direction:column;width:100%;height:100%;min-height:0;margin:0;padding:12px 24px;background:var(--paper);border:0}
-.portfolio-page .demo-stage:fullscreen :is(.demo-stage-head,.demo-stage-note){display:none}
+.portfolio-page .demo-stage:fullscreen .demo-stage-head{display:none}
 .portfolio-page .demo-stage:fullscreen .demo-tabs{flex:0 0 auto;margin:0 0 12px}
 .portfolio-page .demo-stage:fullscreen .demo-frame-shell{flex:1 1 0;min-height:0;height:auto}
-.portfolio-page .demo-frame-shell{width:100%;height:clamp(720px,86svh,1200px);min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--paper);box-shadow:0 8px 25px #17203308;overflow:hidden}
+.portfolio-page .demo-frame-shell{grid-column:1/-1;width:100%;height:clamp(720px,86svh,1200px);min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--paper);box-shadow:0 8px 25px #17203308;overflow:hidden}
 .portfolio-page .demo-frame-shell iframe{display:block;width:100%;height:100%;min-width:0;border:0;background:var(--paper)}
-.portfolio-page .demo-stage-note{font:500 15px/1.85 var(--ui);color:var(--muted);max-width:920px;margin:20px 0 0}
 .portfolio-page .portfolio-footer{display:flex;flex-wrap:wrap;gap:8px;max-width:1600px;margin:auto;padding:28px var(--portfolio-gutter);color:var(--muted);font:500 14px/1.7 var(--ui)}
 .portfolio-page .portfolio-footer>span{margin-left:auto}
 @media(max-width:960px){
@@ -183,8 +179,6 @@ html:has(>body.portfolio-page){color-scheme:light}
   .portfolio-page .portfolio-project{padding:26px}
   .portfolio-page .project-copy h3{min-height:0}
   .portfolio-page .skills-grid{gap:28px}
-  .portfolio-page .demo-stage-head{display:block}
-  .portfolio-page .demo-fullscreen-link{margin-top:16px}
 }
 @media(max-width:700px){
   .portfolio-page{--portfolio-gutter:22px}
@@ -198,7 +192,8 @@ html:has(>body.portfolio-page){color-scheme:light}
   .portfolio-page .project-copy h3{font-size:25px}
   .portfolio-page :is(.more-projects,.background-more)>summary span{display:block;margin:4px 0 0}
   .portfolio-page .skills-grid,.portfolio-page .education-grid{grid-template-columns:1fr;gap:32px}
-  .portfolio-page .demo-stage{padding:40px 16px 36px}
+  .portfolio-page .demo-stage{grid-template-columns:minmax(0,1fr);gap:16px;padding:24px 16px 32px}
+  .portfolio-page .demo-tabs{justify-content:flex-start;max-width:none}
   .portfolio-page .demo-stage-head h2{font-size:28px}
   .portfolio-page .demo-stage-head p:not(.eyebrow){font-size:17px}
   .portfolio-page .demo-frame-shell{height:clamp(660px,85svh,900px)}

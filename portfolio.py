@@ -71,7 +71,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
         f'aria-controls="project-demo">{text(item["title"])}</button>'
         for number, item in enumerate(demos))
     if len(demos) == 1:
-        demo_choices = f'<span class="demo-product-label">{text(demos[0]["title"])}</span>'
+        demo_choices = ''
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light"><meta name="theme-color" content="#f7f8fa">
@@ -95,8 +95,8 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <section id="background" class="portfolio-section background-section" aria-labelledby="background-title"><div class="section-heading"><p class="eyebrow">BACKGROUND</p><h2 id="background-title">Education &amp; practice</h2></div><div class="education-grid">{education}</div>
 <details class="background-more"><summary>Engineering toolkit <span>Models, interfaces &amp; evaluation</span></summary><div class="skills-grid">{skills}</div>
 <p class="course-bridge">My RAG journal connects this work to language-model computation, agent workflows, scalable service boundaries and software design. Course connections describe what I am studying and applying as I build.</p></details></section>
-<section class="demo-stage" id="demo" aria-labelledby="demo-title"><div class="demo-stage-head"><div><p class="eyebrow">TRY THE PROJECT</p><h2 id="demo-title">Financial RAG workspace</h2></div><p>Your PDF, processed on your device. Open the notebook to inspect each step.</p></div>
+<section class="demo-stage" id="demo" aria-labelledby="demo-title"><div class="demo-stage-head"><h2 id="demo-title">{text(demos[0]['title'])}</h2><p>Ask your PDF a question. Follow the evidence on your device.</p></div>
 <div class="demo-tabs" role="group" aria-label="Project workspace">{demo_choices}<button class="demo-expand-button" type="button" aria-controls="project-demo" aria-expanded="false" hidden>Expand workspace</button><a class="demo-fullscreen-link" href="{text(demos[0]['src'])}" target="_blank" rel="noopener">Open in a full page ↗</a><p class="demo-expand-status" role="status" aria-live="polite"></p></div>
 <div class="demo-frame-shell"><iframe id="project-demo" title="{text(demos[0]['title'])} browser lab" src="{text(demos[0]['src'])}" loading="lazy" allow="webgpu; fullscreen"></iframe></div>
-<p class="demo-stage-note">Start with your own PDF. Model downloads begin only when you choose a preparation action inside the lab; generated answers remain drafts to check against the source.</p></section>
+</section>
 </main><footer class="portfolio-footer">© 2026 Zhentong Ye · <a href="https://github.com/1235357/1235357.github.io">Website source</a> · <a href="{text(portrait['profile'])}">LinkedIn</a>{license_link}<span>Learning in public. Building with evidence.</span></footer><script type="module" src="{text(demo_script_href)}"></script></body></html>'''
