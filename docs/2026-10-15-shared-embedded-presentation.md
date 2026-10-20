@@ -95,9 +95,14 @@ viewer title, occupying space without adding a distinct explanation.
 | Before | After | Why |
 | --- | --- | --- |
 | Two adjacent titles express the same startup boundary | The viewer names the diagram once; the outer paragraph explains the accepted and optional paths | Readers reach the diagram sooner while retaining the explanation |
+| The Journal index sidebar links back to the current Journal index | Omit this self-link on the series page; keep the return link on each article | The sidebar should offer a useful destination rather than repeat the header navigation |
 
 Only that authored outer h3 is removed. The figure's accessible label, source
 status, explanatory paragraph, caption, full-size link, editable JSON and viewer
 controls remain. The other seven wrappers distinguish interpretation from diagram
 identity and are retained. No diagram specification, generated viewer or export
 is regenerated for this wording correction.
+
+The Journal reading path and full chapter list have different uses: the former
+recommends an order, while the latter makes every chapter available by question.
+Both remain, as do the article links back to the series index.

@@ -37,6 +37,7 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
     )
     publication_label = 'Documentation · browser lab' if public_release else 'Local draft · not published'
     series_url = 'journal.html' if has_portfolio else 'index.html'
+    series_link = f'<a href="{series_url}">Series index ↗</a>' if section != 'SERIES' else ''
     reading_navigation = (
         '<nav aria-label="Main navigation"><a href="index.html#projects">Work</a>'
         f'<a href="{series_url}">Journal</a><a href="index.html#demo">RAG lab</a></nav>'
@@ -60,7 +61,7 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
 <header class="site-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ ENGINEERING NOTES</span></a>
 {reading_navigation}</header>
 <main id="main-content" tabindex="-1"><aside><p>FIELD NOTES / {escape(section)}</p><p>Evidence, interfaces,<br>and engineering decisions.</p>
-<a href="{series_url}">Series index ↗</a>{desktop_outline}</aside>{article_layout}</main>
+{series_link}{desktop_outline}</aside>{article_layout}</main>
 <footer>{publication_label} · {footer_html}</footer></body></html>'''
 
 
