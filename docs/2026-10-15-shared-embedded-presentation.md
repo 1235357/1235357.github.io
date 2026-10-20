@@ -83,3 +83,21 @@ navigation, and project-card versus later lab titles identify separate contexts.
 Full Archify viewers retain useful inspection controls; they are not switched
 en masse to diagram-only mode merely to remove a title. Existing figures and
 their source/export bodies are unchanged by this focused correction.
+
+## Remove one same-meaning figure title
+
+The follow-up review paired the eight article Archify wrappers with their actual
+viewer titles. In article 08, the outer heading "Prepare the application before
+opening its listener" repeated the inner "Before the corpus API listens" title.
+Actual public IAB inspection showed the two-line outer title directly above the
+viewer title, occupying space without adding a distinct explanation.
+
+| Before | After | Why |
+| --- | --- | --- |
+| Two adjacent titles express the same startup boundary | The viewer names the diagram once; the outer paragraph explains the accepted and optional paths | Readers reach the diagram sooner while retaining the explanation |
+
+Only that authored outer h3 is removed. The figure's accessible label, source
+status, explanatory paragraph, caption, full-size link, editable JSON and viewer
+controls remain. The other seven wrappers distinguish interpretation from diagram
+identity and are retained. No diagram specification, generated viewer or export
+is regenerated for this wording correction.
