@@ -4,7 +4,7 @@ tags: [rag, api, packaging, software-design, provenance]
 category: technical-blog
 status: development-notes
 created: 2026-10-13
-updated: 2026-10-14
+updated: 2026-10-21
 source_type: implementation-and-official-documentation-review
 ---
 
@@ -156,6 +156,15 @@ Keeping a row and column together preserves evidence relationships; it does not 
 <p>The native attempt completed its model encodes and queries, then failed its final module-origin audit on Torch's virtual <code>torch.ops</code> namespace. That attempt remains failed. A separate no-model process verified the retained arithmetic and replayed the original PDF bindings for all fifteen Top5 candidates; it cannot reconstruct the failed process's missing final origin inventory.</p>
 
 <p>The <a href="https://github.com/1235357/nvidia-financial-rag/blob/e7cae56ac3700d80522f02975814bf592cd6d9ee/docs/source-field-bge-diagnostic.md">versioned diagnostic and exact values</a> preserve both outcomes. These three questions are development probes, with no independent human-gold or held-out set. The result supplies no financial accuracy or generation-quality claim.</p>
+
+</details>
+
+<details>
+<summary>Later lexical comparison: keeping three/six was still insufficient</summary>
+
+<p>A separate installed TF-IDF comparison on October 21 kept the same ten reports, 3,240 raw chunks, three exposed development questions, Top K 5 and threshold 0.01. Both configurations missed all three supplied primary pages, although every score gate returned evidence. Removing English stop words made the three-month and six-month query vectors identical. Retaining those words separated the vectors and added duration-term overlap with a table of contents. That page ranked first for both queries; the requested Net income table still stayed outside Top5.</p>
+
+<p>The selected-text diagnostic also found that <code>FY2025</code> was absent from the fitted vocabulary, while <code>July</code>/<code>Jul</code> and <code>month</code>/<code>Months</code> remained distinct tokens. These observations locate representation mismatches in these cases; they do not prove a better retrieval policy. The <a href="https://github.com/1235357/nvidia-financial-rag/blob/36a85cb6b33bee8f959613836cb9b82740ec3eff/docs/lexical-control-comparison.md">dated comparison and evidence excerpt</a> retain the settings, candidates and arithmetic. This used raw chunks and no encoder or generation; it is separate from the BGE field diagnostic above. The primary pages are nonexhaustive assistant-reviewed DEV labels, with no human gold or held-out accuracy claim.</p>
 
 </details>
 
