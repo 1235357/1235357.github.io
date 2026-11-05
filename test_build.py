@@ -742,6 +742,20 @@ class ProfileHierarchyTest(unittest.TestCase):
             self.assertFalse(any(ancestor['attrs'].get('class') == 'contribution-record'
                                  for ancestor in phase['ancestors']))
 
+    def test_projects_heading_links_to_the_pinned_diagnostics_release(self):
+        release = 'https://github.com/1235357/agent-continue/releases/tag/v2.2.0'
+        matches = [element for element in self.dom.elements
+                   if element['tag'] == 'a' and element['attrs'].get('href') == release]
+        self.assertEqual(len(matches), 1)
+        link = matches[0]
+        self.assertEqual(''.join(link['text']),
+                         'AgentContinue v2.2.0 — browser extension diagnostics ↗')
+        self.assertTrue(any(ancestor['attrs'].get('id') == 'projects'
+                            for ancestor in link['ancestors']))
+        self.assertTrue(any('section-heading' in ancestor['attrs'].get('class', '').split()
+                            for ancestor in link['ancestors']))
+        self.assertFalse(any(ancestor['tag'] == 'details' for ancestor in link['ancestors']))
+
     def test_identity_education_and_one_session_workspace_keep_their_entry_points(self):
         hero = next(element for element in self.dom.elements
                     if element['tag'] == 'section' and element['attrs'].get('class') == 'personal-hero')
