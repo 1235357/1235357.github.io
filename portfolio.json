@@ -6,6 +6,10 @@
   "intro": "I build AI systems that make evidence and model behavior easier to inspect.",
   "availability": "Seeking Summer 2027 internships in applied AI and software engineering",
   "selected_projects": ["nvidia-rag", "osef", "llava-gi"],
+  "release_highlight": {
+    "label": "AgentContinue v2.2.0 — browser extension diagnostics",
+    "href": "https://github.com/1235357/agent-continue/releases/tag/v2.2.0"
+  },
   "methodology": {
     "title": "How I learn, then build",
     "intro": "I combine 学习观 with the Elephant–Goldfish Model (EGM) as a working methodology: make understanding testable, make intent explicit, and keep implementation accountable to both.",

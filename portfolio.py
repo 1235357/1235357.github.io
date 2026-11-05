@@ -35,6 +35,8 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
     more_cards = ''.join(project_card(project, number) for number, project in enumerate(more, len(selected) + 1))
     more_projects = f'''<details class="more-projects"><summary>Explore {len(more)} more projects <span>Agents, product interfaces &amp; industry collaboration</span></summary>
 <div class="project-list more-project-list">{more_cards}</div></details>''' if more else ''
+    release_highlight = profile.get('release_highlight')
+    release_html = f'<p>Open-source release · {links([release_highlight])}</p>' if release_highlight else ''
     education = ''.join(f'''<article><p class="eyebrow">{text(item['period'])}</p>
 <h3>{text(item['school'])}</h3><p>{text(item['degree'])}</p>
 <details class="academic-record"><summary aria-label="Coursework &amp; academic details — {text(item['school'])}">Coursework &amp; academic details</summary><p class="secondary">{text(item['detail'])}</p></details></article>'''
@@ -90,7 +92,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <figure class="portrait-card"><a href="{text(portrait['profile'])}" aria-label="Visit Zhentong Ye on LinkedIn">
 <img src="{text(portrait['src'])}" width="800" height="800" alt="Zhentong Ye" referrerpolicy="no-referrer" decoding="async"></a>
 <figcaption><span>Zhentong / Evanston</span><a href="{text(portrait['profile'])}">LinkedIn ↗</a></figcaption></figure></section>
-<section id="projects" class="portfolio-section selected-work" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Retrieval systems, multimodal research and applied AI.</p></div><div class="project-list selected-project-list">{selected_cards}</div>{more_projects}</section>
+<section id="projects" class="portfolio-section selected-work" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Retrieval systems, multimodal research and applied AI.</p>{release_html}</div><div class="project-list selected-project-list">{selected_cards}</div>{more_projects}</section>
 {methodology_html}
 <section id="background" class="portfolio-section background-section" aria-labelledby="background-title"><div class="section-heading"><p class="eyebrow">BACKGROUND</p><h2 id="background-title">Education &amp; practice</h2></div><div class="education-grid">{education}</div>
 <details class="background-more"><summary>Engineering toolkit <span>Models, interfaces &amp; evaluation</span></summary><div class="skills-grid">{skills}</div>
