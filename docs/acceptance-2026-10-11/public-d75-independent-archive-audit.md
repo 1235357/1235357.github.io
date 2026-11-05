@@ -14,8 +14,10 @@ Raw native archive: 266927 bytes, SHA-256 `948073864d701edfe24145f938c208cb94d17
 
 ## Fresh pure replay command
 
+Run from the repository root. The CLI requires a new output file, so choose a different unused path for `--out` on each rerun.
+
 ```text
-node browser-rag/acceptance/replay-financial-receipts.mjs --out docs/acceptance-2026-10-11/public-d75-independent-canonical-replay.json --original-input docs/acceptance-2026-10-11/public-d75-native-raw.json docs/acceptance-2026-10-11/public-d75-original8.json docs/acceptance-2026-10-11/public-d75-native-raw.json
+node browser-rag/acceptance/replay-financial-receipts.mjs --out ./public-d75-independent-canonical-replay.local.json --original-input docs/acceptance-2026-10-11/public-d75-native-raw.json docs/acceptance-2026-10-11/public-d75-original8.json docs/acceptance-2026-10-11/public-d75-native-raw.json
 ```
 
 ## Limits
