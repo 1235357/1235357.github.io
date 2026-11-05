@@ -608,7 +608,8 @@ class NavigationTest(unittest.TestCase):
         self.assertIn('id="project-demo"', output)
         self.assertIn('src="browser-rag/inspector.html" loading="lazy"', output)
         self.assertIn('https://www.linkedin.com/in/tony-zhentong-ye/', output)
-        self.assertIn('media.licdn.com/dms/image/', output)
+        self.assertNotIn('media.licdn.com', output)
+        self.assertIn('<span class="portrait-monogram" aria-hidden="true">ZY</span>', output)
         self.assertTrue((build.ROOT / 'dist' / 'portfolio-demo.mjs').is_file())
         journal = (build.ROOT / 'dist' / 'journal.html').read_text(encoding='utf-8')
         self.assertIn('FIELD NOTES / SERIES</p>', journal)
@@ -775,12 +776,14 @@ class ProfileHierarchyTest(unittest.TestCase):
         self.assertEqual(expand['attrs']['aria-controls'], 'project-demo')
         self.assertEqual(expand['attrs']['aria-expanded'], 'false')
         self.assertIn('hidden', expand['attrs'])
-        portraits = [element for element in self.dom.elements if element['tag'] == 'img']
-        self.assertEqual(len(portraits), 1)
-        self.assertEqual(portraits[0]['attrs']['src'], self.profile['portrait']['src'])
+        monograms = [element for element in self.dom.elements
+                     if element['attrs'].get('class') == 'portrait-monogram']
+        self.assertEqual(len(monograms), 1)
+        self.assertEqual(monograms[0]['attrs']['aria-hidden'], 'true')
         self.assertTrue(any(ancestor['tag'] == 'a'
                             and ancestor['attrs'].get('href') == self.profile['portrait']['profile']
-                            for ancestor in portraits[0]['ancestors']))
+                            and ancestor['attrs'].get('aria-label') == 'Visit Zhentong Ye on LinkedIn'
+                            for ancestor in monograms[0]['ancestors']))
         for item in self.profile['education']:
             self.assertIn(item['period'], self.output)
             self.assertIn(item['school'], self.output)
