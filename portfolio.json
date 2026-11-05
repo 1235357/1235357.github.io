@@ -78,7 +78,7 @@
       ],
       "stack": ["Python", "JavaScript", "PDF.js", "Transformers.js", "WebGPU", "Dense retrieval"],
       "links": [{"label": "Open the lab in a full page", "href": "browser-rag/inspector.html"}, {"label": "Read the journal", "href": "journal.html"}, {"label": "Python API source", "href": "https://github.com/1235357/nvidia-financial-rag"}],
-      "featured_links": [{"label": "Try the RAG lab", "href": "#demo"}, {"label": "Read the journal", "href": "journal.html"}]
+      "featured_links": [{"label": "Inspect an archived run", "href": "07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved"}, {"label": "Try the RAG lab", "href": "#demo"}]
     },
     {
       "id": "llava-gi", "category": "MULTIMODAL / FINE-TUNING", "title": "Fine-Tuning LLaVA-GI",
