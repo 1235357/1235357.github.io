@@ -34,7 +34,7 @@ The official Codex skill installer downloaded all fifteen skill folders from [em
 
 Hover effects are limited to hover-capable fine pointers. Keyboard focus remains visible; keyboard press does not scale controls. Reduced-motion preference removes entrance and press movement. Native contribution disclosures and demo selection have no decorative transition. Body content remains selectable. The bottom stage uses stable small-viewport height units.
 
-The portrait uses the exact supplied LinkedIn image URL and links to the user's confirmed public profile. Its third-party URL includes an expiration parameter; later CDN availability is not guaranteed. No portrait copy is bundled. Demo changes are restricted to same-origin HTTP(S) URLs and replace the existing frame. Selecting the already active demo returns without reloading it; leaving the lab retains its existing pagehide cancellation contract.
+The profile card displays the initials ZY as site-rendered text and links to the confirmed public LinkedIn profile. This replaces the expired LinkedIn image URL observed on November 5, 2026. Demo changes are restricted to same-origin HTTP(S) URLs and replace the existing frame. Selecting the already active demo returns without reloading it. Leaving the lab retains its existing pagehide cancellation contract.
 
 ## Historical light-home verification scope
 

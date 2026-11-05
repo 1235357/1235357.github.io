@@ -105,9 +105,9 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page .hero-actions>a{display:inline-flex;align-items:center;min-height:46px}
 .portfolio-page .primary-link{display:inline-flex;align-items:center;justify-content:space-between;min-height:50px;background:var(--accent);color:#fff;padding:12px 20px;text-decoration:none;border:1px solid var(--accent);border-radius:8px;font-weight:650}
 .portfolio-page .primary-link span{margin-left:18px}
-.portfolio-page .portrait-card{position:relative;top:auto;align-self:center;justify-self:end;max-width:320px;max-height:none;overflow:visible;margin:0;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 48px #1720330d;transform:none;font:500 14px/1.7 var(--ui)}
+.portfolio-page .portrait-card{position:relative;top:auto;align-self:center;justify-self:end;width:100%;max-width:320px;max-height:none;overflow:visible;margin:0;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 48px #1720330d;transform:none;font:500 14px/1.7 var(--ui)}
 .portfolio-page .portrait-card>a{display:block;border-radius:9px;overflow:hidden}
-.portfolio-page .portrait-card img{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:1;object-fit:cover;background:#e5eaf2}
+.portfolio-page .portrait-monogram{display:grid;place-items:center;aspect-ratio:1;background:#e5eaf2;color:var(--accent);font:800 clamp(54px,8vw,104px)/1 var(--ui);letter-spacing:-.06em}
 .portfolio-page .portrait-card figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;margin:0;padding:16px 4px 4px;color:var(--muted);font:500 14px/1.7 var(--ui);overflow-wrap:anywhere}
 .portfolio-page .portrait-card figcaption p{margin:0 0 8px}
 .portfolio-page .portrait-card figcaption a{color:var(--accent);font-weight:650}
