@@ -122,7 +122,7 @@
       "details": [
         "Implemented the four-view product interface and shared context so expert workflows could pass information through explicit handoffs.",
         "Modeled a knowledge graph spanning 68 concepts, with 180 nodes, 571 edges and 21 relation types; linked sources through graph expansion and alias matching.",
-        "Blocked citations to nonexistent source text and checked the grounding contract with 41 tests. These are project contract checks, rather than a general model-accuracy measure."
+        "Wrote citation-grounding tests for cases with missing source evidence."
       ],
       "stack": ["React", "TypeScript", "Knowledge graphs", "Tool handoffs", "Citation grounding"], "links": []
     },
