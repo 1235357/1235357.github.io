@@ -61,8 +61,7 @@
         "text": "Implement a bounded change. Test behavior, retain failures and use new cases to revisit my understanding."
       }
     ],
-    "boundary": "This is my synthesis for learning and engineering, grounded in these authors’ work. A passing software test and my ability to explain or apply a concept are separate things to verify.",
-    "repository": {"label": "Explore my EGM practice & agent skill", "href": "https://github.com/1235357/egm-agent-skill"}
+    "boundary": "This is my synthesis for learning and engineering, grounded in these authors’ work. A passing software test and my ability to explain or apply a concept are separate things to verify."
   },
   "education": [
     {"school": "Northwestern University", "degree": "M.S. in Computer Science", "period": "September 2026–June 2028 (expected)", "detail": "Current study: Large Language Models, Agent AI, Scalable Software Architectures, and Software Design Principles and Practices."},
