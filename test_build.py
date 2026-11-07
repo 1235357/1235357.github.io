@@ -719,9 +719,9 @@ class ProfileHierarchyTest(unittest.TestCase):
             (folded if closed else visible).append(card['attrs']['id'])
             if closed:
                 self.assertEqual(closed[0]['attrs'].get('class'), 'more-projects')
-        self.assertEqual(visible, ['nvidia-rag', 'osef', 'llava-gi'])
-        self.assertEqual(folded, ['artisk', 'ecommerce-agents', 'lead-qualification'])
-        self.assertEqual(len(cards), 6)
+        self.assertEqual(visible, ['nvidia-rag', 'forge-docs', 'osef'])
+        self.assertEqual(folded, ['llava-gi', 'artisk', 'ecommerce-agents', 'lead-qualification'])
+        self.assertEqual(len(cards), 7)
         for element in self.dom.elements:
             if element['tag'] == 'details':
                 self.assertNotIn('open', element['attrs'])

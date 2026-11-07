@@ -2,6 +2,8 @@
 
 A personal GitHub Pages site introducing a Northwestern MSCS student, selected engineering projects and research, and a continuing technical journal. The homepage's six experiences were checked on October 18, 2026 against the formal CV dated October 16 and cover letter dated October 18. Artisk retains its unpaid, collaborative, AI-assisted attribution; anonymous client work retains its design/prototype stage. The financial-RAG browser lab lets a reader choose a local PDF and inspect the source and computation behind a draft. The companion Python API is a different runtime and integration surface.
 
+A seventh project record describes ongoing developer-documentation evaluation in Northwestern The Forge. It identifies a preliminary prototype and case-report work, and distinguishes individual contributions from team progress.
+
 Open the [personal profile](https://1235357.github.io/), [RAG workspace](https://1235357.github.io/browser-rag/inspector.html) or [engineering journal](https://1235357.github.io/journal.html). The profile, articles, embedded and standalone workspace, and diagram viewers use one light theme with Manrope typography.
 
 For a first source check, choose a short PDF you have permission to use. Find one answer-bearing sentence and its physical page before asking your question. Build its chunks without a model, then explicitly embed and retrieve if your device supports WebGPU. Compare the returned quote and page with your prediction. Downloading assets, retrieving a passage and generating an unverified draft are separate steps; the workspace starts no model automatically.

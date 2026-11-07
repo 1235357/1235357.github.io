@@ -68,7 +68,7 @@ class MethodologyTest(unittest.TestCase):
         frames = [a for t, a in self.dom.elements if t == 'iframe']
         self.assertEqual(len(frames), 1)
         self.assertEqual(frames[0]['src'], 'browser-rag/inspector.html')
-        self.assertEqual(len(self.profile['projects']), 6)
+        self.assertEqual(len(self.profile['projects']), 7)
 
 
 if __name__ == '__main__':
