@@ -5,7 +5,7 @@
   "demos": [{"id": "nvidia-rag", "title": "NVIDIA Financial RAG", "src": "browser-rag/inspector.html"}],
   "intro": "I build AI systems that make evidence and model behavior easier to inspect.",
   "availability": "Seeking Summer 2027 internships in applied AI and software engineering",
-  "selected_projects": ["nvidia-rag", "osef", "llava-gi"],
+  "selected_projects": ["nvidia-rag", "forge-docs", "osef"],
   "release_highlight": {
     "label": "AgentContinue v2.2.0 — browser extension diagnostics",
     "href": "https://github.com/1235357/agent-continue/releases/tag/v2.2.0"
@@ -83,6 +83,18 @@
       "stack": ["Python", "JavaScript", "PDF.js", "Transformers.js", "WebGPU", "Dense retrieval"],
       "links": [{"label": "Open the lab in a full page", "href": "browser-rag/inspector.html"}, {"label": "Read the journal", "href": "journal.html"}, {"label": "Python API source", "href": "https://github.com/1235357/nvidia-financial-rag"}],
       "featured_links": [{"label": "Inspect an archived run", "href": "07-operational-receipts.html#a-public-model-run-with-its-evidence-preserved"}, {"label": "Try the RAG lab", "href": "#demo"}]
+    },
+    {
+      "id": "forge-docs", "category": "HUMAN–AI / DOCUMENTATION EVALUATION", "title": "Developer Documentation & AI Evaluation",
+      "role": "Team contributor · Northwestern The Forge", "period": "Fall 2026", "phase": "Preliminary prototype · ongoing case collection",
+      "summary": "Evaluating how AI assistants use public technical documentation to answer developer questions, with case reports that distinguish source support, uncertainty and documentation gaps.",
+      "description": "Contributing to a Northwestern team project evaluating AI-assisted answers to developer questions. I helped clarify the evaluation scope, presented a preliminary prototype and am developing reports that connect each question to its source evidence.",
+      "details": [
+        "Helped distinguish unresolved questions within the documentation's scope from out-of-domain questions, while keeping previously answered cases as references.",
+        "Reported progress on question–document mapping, with preliminary examples and an early case-report format for team discussion.",
+        "Developing case reports that separate source-supported answers, conflicting evidence and potential documentation improvements, with human review of version- and device-dependent claims."
+      ],
+      "stack": ["LLM evaluation", "Source verification", "Question–document mapping", "Human review"], "links": []
     },
     {
       "id": "llava-gi", "category": "MULTIMODAL / FINE-TUNING", "title": "Fine-Tuning LLaVA-GI",
