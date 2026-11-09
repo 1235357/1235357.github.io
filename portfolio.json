@@ -112,18 +112,18 @@
     },
     {
       "id": "osef", "category": "RESEARCH / VIDEO EVIDENCE", "title": "OSEF: One-Step Evidence Fusion",
-      "role": "First author · Wenzhou-Kean University", "period": "September 2025–present", "phase": "arXiv preprint · July 2026",
-      "summary": "Research on retrieving video evidence and planning action sequences from a start–goal query, with controlled benchmark comparisons.",
-      "description": "Study how a planner can retrieve the right video evidence and predict an action sequence from an answer-redacted start–goal query.",
+      "role": "First author · Wenzhou-Kean University", "period": "September 2025–present", "phase": "Ongoing benchmark research · November 2026",
+      "summary": "Linking video retrieval, temporal localization and complete action plans through evaluation against the same annotated witness.",
+      "description": "Collaborative research on Cross-Video Scene Procedure Planning with One-Step Evidence Fusion (OSEF), a hypothesis-conditioned evidence-to-plan model.",
       "details": [
-        "Investigated a query-conditioned evidence lattice that keeps all candidate cells available to the planner; a separate branch reports the selected video and time window.",
-        "Compared nine planner families with frozen retrieval, hard negatives and leakage checks, measuring evidence selection and procedure planning separately.",
-        "The preprint reports a 2.9–10.7 percentage-point FULL-SR gain on four matched same-task COIN/CrossTask settings. FULL-SR requires the correct video and complete action plan together.",
-        "In its hard same-task COIN-T3 intervention, masking 48 high-attention cells lowered PLAN-SR from 65.74% to 24.89%; masking 48 random cells left 65.60%, with retrieval unchanged. These are reported study results; read the paper for the setting and limitations."
+        "Developing an annotation-supported benchmark that requires a predicted video, temporal interval and complete action sequence to match the same annotated witness.",
+        "Investigating a hypothesis-conditioned planner that retains query-scored candidate-cell tokens and learns from accepted complete-output mass.",
+        "Using matched interface, feature and supervision studies to examine linked success, component errors, regressions and inference cost. Current findings are mixed and do not show a uniform joint benefit.",
+        "The public arXiv preprint documents an earlier version; the latest benchmark and model analyses remain ongoing research."
       ],
-      "stack": ["Multimodal retrieval", "Procedure planning", "Benchmark design", "Ablation studies"],
-      "links": [{"label": "Read the arXiv preprint", "href": "https://arxiv.org/abs/2607.29401"}, {"label": "See how evidence reaches the planner", "href": "figures/osef-inference.archify.html?theme=light"}],
-      "featured_links": [{"label": "Read the arXiv preprint", "href": "https://arxiv.org/abs/2607.29401"}]
+      "stack": ["Multimodal retrieval", "Structured prediction", "Benchmark design", "Controlled evaluation"],
+      "links": [{"label": "July 2026 preprint (earlier version)", "href": "https://arxiv.org/abs/2607.29401"}, {"label": "View the original inference diagram", "href": "figures/osef-inference.archify.html?theme=light"}],
+      "featured_links": [{"label": "July 2026 preprint (earlier version)", "href": "https://arxiv.org/abs/2607.29401"}]
     },
     {
       "id": "artisk", "category": "AGENTS / PRODUCT INTERFACE", "title": "Artisk AI-Agent Product Project",
