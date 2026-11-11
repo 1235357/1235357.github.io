@@ -16,14 +16,11 @@
 <header>
   <a class="brand" href="../index.html" target="_top" aria-label="Tony Ye — personal profile"><span class="brand-name">NVIDIA Financial RAG</span><span class="brand-byline">by Tony Ye</span></a>
   <nav class="lab-navigation" aria-label="Project navigation"><a href="#lab-workspace">Workspace</a><a href="#computation-notebook">Notebook</a><a href="../index.html" target="_top">Profile ↗</a></nav>
-  <span id="header-stage" class="header-status">LOCAL DRAFT · CONTEXT NOT GENERATED</span>
 </header>
 <main>
   <section class="lead" aria-labelledby="lab-title">
-    <div class="lead-copy"><p class="eyebrow">A DOCUMENT WORKSPACE / ON YOUR DEVICE</p><h1 id="lab-title">Ask your document.<br>Follow the evidence.</h1>
+    <div class="lead-copy"><h1 id="lab-title">Ask your document.<br>Follow the evidence.</h1>
     <p>Choose a PDF, ask a question and inspect the sources behind a generated draft. Explore each step in the notebook as you go.</p></div>
-    <div class="lead-actions"><a class="primary-link" href="#lab-workspace">Open the workspace ↓</a><a href="#computation-notebook">Explore the notebook ↓</a></div>
-    <p class="lead-note">Your document stays on this device. You choose when to prepare a model.</p>
   </section>
   <div class="workspace-tools">
   <details class="pipeline-disclosure"><summary>RAG stages</summary>
@@ -86,6 +83,7 @@
     </section>
     <section class="generation panel" aria-labelledby="generation-title">
       <p class="eyebrow">03 / DRAFT &amp; SOURCES</p><h2 id="generation-title">A draft you can trace</h2>
+      <p id="header-stage" class="draft-status">LOCAL DRAFT · CONTEXT NOT GENERATED</p>
       <p id="generation-meta" class="hint" role="status" aria-live="polite">Generation remains disabled in the ordinary entry. No generation adapter is configured.</p>
         <div class="buttons"><button id="assemble-context" disabled>Assemble context</button><button id="generate-answer" disabled>Generate answer</button></div>
         <p id="generation-guidance" class="hint">Assemble context after an accepted retrieval to inspect every selected evidence unit. Generation remains disabled in this entry. Sourced candidates are not a verified answer.</p>
@@ -109,7 +107,7 @@
           <p>All three strings equal the captured original question. This stage performs no query rewrite.</p>
         </details>
         <div id="retrieval-calculation-view" class="retrieval-inspection-host"></div>
-        <div id="candidate-results" class="candidate-results"><p class="empty">No sourced candidates yet. Candidates are not a verified answer.</p></div>
+        <div id="candidate-results" class="candidate-results"></div>
         <details class="query-vector"><summary>Inspect accepted query encoding</summary>
           <p id="query-embedding-meta" class="hint" role="status" aria-live="polite">No query vector committed.</p>
           <div id="query-embedding-detail"></div>
@@ -119,7 +117,7 @@
         <p id="context-caption" class="eyebrow">COMPLETE PROVENANCE / NO GENERATED ANSWER</p><h2 id="context-title">Context; not generated</h2>
         <p id="context-meta" class="hint" role="status" aria-live="polite">No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.</p>
         <p class="hint">Citation IDs follow source chunk ordinals; retrieval rank is shown separately. Physical pages and PDF labels identify different things. Quotes retain the exact parser text, including whitespace.</p>
-        <div id="context-detail"><p class="empty">No provenance context committed.</p></div>
+        <div id="context-detail"></div>
       </section>
       <section id="notebook-source" tabindex="-1" class="source-inspection" aria-labelledby="source-title">
       <div class="section-heading"><div><p class="eyebrow">EXACT PARSER RECORDS</p><h2 id="source-title">Source inspection</h2></div>
@@ -135,10 +133,10 @@
       <section id="notebook-chunks" tabindex="-1" class="chunk-inspection" aria-labelledby="chunk-title">
         <div class="section-heading"><div><p class="eyebrow">EXACT INPUT · SOURCE MAPPING</p><h2 id="chunk-title">Chunk inspection</h2></div>
           <label for="chunk-select">Current chunk <select id="chunk-select" disabled><option>No chunks</option></select></label></div>
-        <p id="chunk-meta" class="hint" role="status" aria-live="polite">Build chunks after a source has been accepted.</p>
+        <p id="chunk-meta" class="hint" role="status" aria-live="polite">No chunk artifact. Build from an accepted source.</p>
         <div class="item-navigation-buttons"><button id="chunks-previous" disabled>Previous 100 chunks</button><button id="chunks-next" disabled>Next 100 chunks</button></div>
         <p class="hint">Inspect one chunk at a time. Selector windows contain at most 100 chunks. Inserted presentation newlines have no source span; they are not quotations from the PDF.</p>
-        <div id="chunk-detail"><p class="empty">No chunk artifact.<span>Source-linked windows still need embeddings, retrieval, context and generation.</span></p></div>
+        <div id="chunk-detail"></div>
         <a class="hint" href="../04-preserve-evidence-before-embedding.html#the-browser-variant-uses-a-different-explicit-chunking-contract" target="_blank" rel="noopener noreferrer" aria-label="Read the exact offset and overlap lesson (opens in a new tab)">Read the exact offset and overlap lesson ↗</a>
       </section>
       <section id="notebook-vectors" tabindex="-1" class="embedding-inspection" aria-labelledby="embedding-title">

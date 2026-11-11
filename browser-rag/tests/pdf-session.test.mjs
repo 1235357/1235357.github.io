@@ -827,7 +827,8 @@ test('app query edits and explicit clear retain accepted source passage vectors'
   byId('question-input').value='First question';byId('query-top-k').value='5';byId('run-query').fire('click');await uiFinishQuery(queries[0]);
   byId('question-input').value='Edited question';byId('question-input').fire('input');
   assert.equal(session.question(),null);assert.equal(session.retrieval(),null);assert.equal(session.queryEmbedding(),null);
-  assert.equal(byId('question-input').value,'Edited question');assert.equal(byId('candidate-results').children.length,1);
+  assert.equal(byId('question-input').value,'Edited question');assert.equal(byId('candidate-results').children.length,0);
+  assert.match(byId('candidate-meta').textContent,/No candidates committed/);
   assert.equal(byId('query-receipt').children.length,0);assert.equal(session.document(),source);
   assert.equal(session.chunks(),chunks);assert.equal(session.embeddings(),passages);
   byId('run-query').fire('click');await uiFinishQuery(queries[1]);
