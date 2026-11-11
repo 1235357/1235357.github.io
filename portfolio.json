@@ -1,7 +1,7 @@
 {
   "name": "Zhentong (Tony) Ye",
   "location": "Evanston, Illinois",
-  "portrait": {"initials": "ZY", "profile": "https://www.linkedin.com/in/tony-zhentong-ye/"},
+  "portrait": {"src": "assets/portrait/zhentong-ye.jpg", "profile": "https://www.linkedin.com/in/tony-zhentong-ye/"},
   "demos": [{"id": "nvidia-rag", "title": "NVIDIA Financial RAG", "src": "browser-rag/inspector.html"}],
   "intro": "I build AI systems that make evidence and model behavior easier to inspect.",
   "availability": "Seeking Summer 2027 internships in applied AI and software engineering",

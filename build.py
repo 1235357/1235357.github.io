@@ -281,6 +281,7 @@ def render_site(root, output, *, public_release=False):
         + '<ol class="series-list">' + ''.join(links) + '</ol>' + featured)
     if has_portfolio:
         profile = json.loads(guard_path(profile_path, root).read_text(encoding='utf-8'))
+        copy_portrait_assets(root, output)
         demo_script = guard_path(root / 'portfolio-demo.mjs', root)
         script_version = hashlib.sha256(demo_script.read_text(encoding='utf-8').encode('utf-8')).hexdigest()[:16]
         (output / 'index.html').write_text(render_home(profile, public_release=public_release,
@@ -306,6 +307,15 @@ def render_site(root, output, *, public_release=False):
         inspector.write_text(inspector_html, encoding='utf-8')
     (output / 'style.css').write_text(guard_path(root / 'style.css', root).read_text(encoding='utf-8'), encoding='utf-8')
     return len(links)
+
+
+def copy_portrait_assets(root, output):
+    """Publish only the reviewed portrait and notice, never an asset directory."""
+    from site_portrait_assets import PORTRAIT_FILES
+    for name, pin in PORTRAIT_FILES.items():
+        copy_verified_asset(root / 'assets' / 'portrait' / name,
+                            output / 'assets' / 'portrait' / name,
+                            pin['bytes'], pin['sha256'], root, f'Portrait: {name}')
 
 
 def copy_typography_assets(root, output):

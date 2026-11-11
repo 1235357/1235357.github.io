@@ -91,7 +91,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <p class="availability">{text(profile['availability'])}</p>
 <div class="hero-actions"><a class="primary-link" href="#projects">Explore my work <span>↓</span></a><a href="#demo">Try the RAG lab ↓</a></div></div>
 <figure class="portrait-card"><a href="{text(portrait['profile'])}" aria-label="Visit Zhentong Ye on LinkedIn">
-<span class="portrait-monogram" aria-hidden="true">{text(portrait['initials'])}</span></a>
+<img class="portrait-photo" src="{text(portrait['src'])}" width="2048" height="2048" alt="Portrait of Zhentong Ye" decoding="async"></a>
 <figcaption><span>Zhentong / Evanston</span><a href="{text(portrait['profile'])}">LinkedIn →</a></figcaption></figure></section>
 <section id="projects" class="portfolio-section selected-work" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Retrieval systems, multimodal research and applied AI.</p>{release_html}</div><div class="project-list selected-project-list">{selected_cards}</div>{more_projects}</section>
 {methodology_html}
