@@ -14,6 +14,7 @@ import json
 import hashlib
 import browser_release_assets as release
 from portfolio import render_home
+from rag_reading import CHAPTERS, chapter_aids, guide_teaser, render_guide
 
 ROOT = Path(__file__).resolve().parent
 FILE_BLOCK_BYTES = 1024 * 1024
@@ -21,7 +22,7 @@ PUBLIC_SITE_MAX_BYTES = 1_000_000_000
 
 
 def render_page(title, content, *, section='SERIES', outline='', public_release=False, has_portfolio=False,
-                stylesheet_href='style.css'):
+                stylesheet_href='style.css', path_prefix='', has_rag_guide=False, page_class=''):
     desktop_outline = f'<nav aria-label="Article sections">{outline}</nav>' if outline else ''
     if outline:
         mobile_outline = ('<details class="mobile-outline"><summary>On this page</summary>'
@@ -36,18 +37,20 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
         else f'<article>{part}</article>' for part in parts if part.strip()
     )
     publication_label = 'Documentation · browser lab' if public_release else 'Local draft · not published'
-    series_url = 'journal.html' if has_portfolio else 'index.html'
+    series_url = path_prefix + ('journal.html' if has_portfolio else 'index.html')
     series_link = f'<a href="{series_url}">Series index ↗</a>' if section != 'SERIES' else ''
     reading_navigation = (
-        '<nav aria-label="Main navigation"><a href="index.html#projects">Work</a>'
-        f'<a href="{series_url}">Journal</a><a href="index.html#demo">RAG lab</a></nav>'
+        f'<nav aria-label="Main navigation"><a href="{path_prefix}index.html#projects">Work</a>'
+        f'<a href="{series_url}">Journal</a>'
+        + (f'<a href="{path_prefix}browser-rag/index.html">RAG guide</a>' if has_rag_guide else '')
+        + f'<a href="{path_prefix}index.html#demo">RAG lab</a></nav>'
         if has_portfolio else
-        '<nav aria-label="Main navigation"><a href="index.html">Journal</a></nav>'
+        f'<nav aria-label="Main navigation"><a href="{path_prefix}index.html">Journal</a></nav>'
     )
     footer_html = (
         '© 2026 Zhentong Ye · '
         '<a href="https://github.com/1235357/1235357.github.io">Source</a> · '
-        '<a href="SITE-LICENSE.txt">Site license</a> · '
+        f'<a href="{path_prefix}SITE-LICENSE.txt">Site license</a> · '
         'Native drafts and source-cell candidates remain unadjudicated.'
         if public_release else
         'Implementation evidence ≠ financial accuracy ≠ personal mastery.'
@@ -57,8 +60,8 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f7f8fa">
 <title>{escape(title)} — Zhentong Ye</title><link rel="stylesheet" href="{escape(stylesheet_href, quote=True)}">
-<body class="reading-page"><a class="skip-link" href="#main-content">Skip to content</a>
-<header class="site-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ ENGINEERING NOTES</span></a>
+<body class="reading-page {escape(page_class, quote=True)}"><a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><a class="wordmark" href="{path_prefix}index.html">ZHENTONG YE <span>/ ENGINEERING NOTES</span></a>
 {reading_navigation}</header>
 <main id="main-content" tabindex="-1"><aside><p>FIELD NOTES / {escape(section)}</p><p>Evidence, interfaces,<br>and engineering decisions.</p>
 {series_link}{desktop_outline}</aside>{article_layout}</main>
@@ -193,6 +196,8 @@ def render_site(root, output, *, public_release=False):
     style_version = hashlib.sha256(style_text.encode('utf-8')).hexdigest()[:16]
     stylesheet_href = f'style.css?v={style_version}'
     links = []
+    has_rag_guide = (all((root / 'articles' / (slug + '.md')).is_file() for slug in CHAPTERS)
+                     and (output / 'browser-rag' / 'inspector.html').is_file())
     reader_questions = {
         '01-two-lifecycles': 'What can be prepared once, and what must happen for each question?',
         '02-contracts-before-services': 'Who owns a request, its result and its failure?',
@@ -215,12 +220,19 @@ def render_site(root, output, *, public_release=False):
         if title is None:
             raise ValueError(f'Missing title heading in {source.name}')
         renderer = markdown.Markdown(extensions=['fenced_code', 'tables', 'toc'],
-                                     extension_configs={'toc': {'toc_depth': '2-2'}})
+                                     extension_configs={'toc': {'toc_depth': '2-3'}})
         html = renderer.convert(raw)
+        if has_rag_guide:
+            opening, ending = chapter_aids(source.stem)
+            html = html.replace('</h1>', '</h1>' + opening, 1) + ending
+            # Tables keep all cells and can be reached and scrolled by keyboard.
+            html = html.replace('</h2>', '</h2><p class="section-return"><a href="#main-content">Back to contents</a></p>')
+            html = html.replace('<table>', '<div class="reading-table" role="region" aria-label="Scrollable data table" tabindex="0"><p class="table-hint">Table · scroll horizontally if needed</p><table>')
+            html = html.replace('</table>', '</table></div>')
         name = source.stem + '.html'
         (output / name).write_text(render_page(title, html, section=source.stem.split('-', 1)[0],
                                               outline=renderer.toc, public_release=public_release,
-                                              has_portfolio=has_portfolio,
+                                              has_portfolio=has_portfolio, has_rag_guide=has_rag_guide,
                                               stylesheet_href=stylesheet_href), encoding='utf-8')
         question = reader_questions.get(source.stem)
         description = f'<p class="series-summary">{escape(question)}</p>' if question else ''
@@ -264,6 +276,7 @@ def render_site(root, output, *, public_release=False):
     intro = ('<h1>Building systems.<br>Checking evidence.</h1>'
         '<p>Follow a financial PDF from source pages to retrieval, an answer draft and a service interface. '
         'Each chapter explains an engineering decision through concrete examples, code and retained development evidence.</p>'
+        + (guide_teaser() if has_rag_guide else '')
         + '<h2>Choose a question to explore</h2>' + reading_path
         + '<ol class="series-list">' + ''.join(links) + '</ol>' + featured)
     if has_portfolio:
@@ -275,11 +288,22 @@ def render_site(root, output, *, public_release=False):
             demo_script_href=f'portfolio-demo.mjs?v={script_version}'), encoding='utf-8')
         shutil.copyfile(demo_script, output / 'portfolio-demo.mjs')
         (output / 'journal.html').write_text(render_page('Engineering notes', intro,
-            public_release=public_release, has_portfolio=True,
+            public_release=public_release, has_portfolio=True, has_rag_guide=has_rag_guide,
             stylesheet_href=stylesheet_href), encoding='utf-8')
     else:
         (output / 'index.html').write_text(render_page('Engineering notes', intro, public_release=public_release,
             stylesheet_href=stylesheet_href), encoding='utf-8')
+    if has_rag_guide:
+        (output / 'browser-rag' / 'index.html').write_text(render_page(
+            'A field guide to retrieval-augmented generation', render_guide(public_release=public_release), section='RAG',
+            public_release=public_release, has_portfolio=has_portfolio, has_rag_guide=True,
+            stylesheet_href='../' + stylesheet_href, path_prefix='../', page_class='rag-index-page'), encoding='utf-8')
+        inspector = output / 'browser-rag' / 'inspector.html'
+        inspector_html = inspector.read_text(encoding='utf-8')
+        inspector_html = inspector_html.replace(
+            '<nav class="lab-navigation" aria-label="Project navigation">',
+            '<nav class="lab-navigation" aria-label="Project navigation"><a href="index.html" target="_top">Reading guide</a>', 1)
+        inspector.write_text(inspector_html, encoding='utf-8')
     (output / 'style.css').write_text(guard_path(root / 'style.css', root).read_text(encoding='utf-8'), encoding='utf-8')
     return len(links)
 
