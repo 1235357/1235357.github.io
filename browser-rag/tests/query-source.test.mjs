@@ -143,6 +143,7 @@ for (const path of ['query.tokenIds', 'query.vector', 'retrieval.candidates']) f
   worker.emit('message', result(value)); await assert.rejects(pending, code('WORKER_PROTOCOL_ERROR')); clean(worker);
 });
 for (const [name, mutate] of [
+  ['zero candidates from accepted nonempty passages', r => { r.returnedCount = 0; r.candidates = []; }],
   ['source', r => { r.sourceSha256 = 'b'.repeat(64); }], ['status', r => { r.status = 'answer'; }], ['topK', r => { r.requestedTopK = 1; }], ['count', r => { r.returnedCount = 1; }], ['query norm', r => { r.queryNorm += 0.1; }],
   ['representation', r => { r.representationId = 'wrong'; }], ['score', r => { r.candidates[0].score = 0.5; }], ['dot', r => { r.candidates[0].dotProduct += 0.1; }], ['norm', r => { r.candidates[0].chunkNorm += 0.1; }],
   ['ordinal', r => { r.candidates[0].ordinal++; }], ['chunk', r => { r.candidates[0].chunkId = 'PRIVATE_WRONG'; }], ['order', r => { r.candidates.reverse(); }], ['extra', r => { r.candidates[0].text = 'PRIVATE'; }],

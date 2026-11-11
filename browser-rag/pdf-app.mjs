@@ -219,8 +219,9 @@ function showQuery(){
     'No query vector committed. Run an explicit question against accepted passage vectors.'));
   candidateMeta.append(element('span',retrieval?`${retrieval.returnedCount} sourced candidates · requested top K ${retrieval.requestedTopK} · query norm ${retrieval.queryNorm.toFixed(6)}. Inspect each source before drawing a conclusion.`:
     'No candidates committed. An explicit query uses the retained passage vectors.'));
-  if(!retrieval)results.append(element('p','No sourced candidates yet. Candidates are not a verified answer.','empty'));
-  else{
+  // The metadata above owns the no-retrieval explanation. An accepted result,
+  // including its actual count, still follows the artifact branch.
+  if(retrieval){
     const {source,chunks}=owner;
     for(const [index,candidate]of retrieval.candidates.entries()){
       const chunk=chunks.chunks[candidate.ordinal],row=element('article',undefined,'candidate');
@@ -292,8 +293,7 @@ function showChunk(){
   const previous=chunkOwner,owner={source:session.document(),epoch:session.snapshot().lifecycle.documentEpoch,artifact,ordinal,chunk,entries:[],alive:true,segmentOwner:null};
   chunkOwner=owner;disposeRecordPane(previous,target);if(chunkOwner!==owner)return;target.replaceChildren();showEmbedding();if(chunkOwner!==owner)return;
   if(!artifact){
-    target.append(element('p','No chunk artifact. Build from an accepted source.','empty'));
-    byId('chunk-meta').textContent='No chunks committed.';return;
+    byId('chunk-meta').textContent='No chunk artifact. Build from an accepted source.';return;
   }
   if(!chunk)return;
   byId('chunk-meta').textContent=`Chunk ${Number(byId('chunk-select').value)+1} of ${artifact.counts.chunks} · physical page ${chunk.physicalPageNumber} · label ${chunk.pageLabel===null?'not supplied':JSON.stringify(chunk.pageLabel)} · joined-page UTF-16 [${chunk.startUtf16}, ${chunk.endUtf16})`;
@@ -475,7 +475,9 @@ function render(state){
         ||contextOwner.retrieval!==session.retrieval()||contextOwner.epoch!==state.lifecycle.documentEpoch))){
     lastContext=retainedContext;contextInspectable=canInspectContext;
     contextOwner=canInspectContext?{artifact:lastContext,source,chunks,retrieval:session.retrieval(),epoch:state.lifecycle.documentEpoch}:null;
-    if(lastContext===null||canInspectContext)contextView.render(lastContext);else contextView.revoke();
+    // The context metadata supplies the empty-state explanation. Revoke only
+    // the result view when absent or temporarily unavailable, not retained artifacts.
+    if(canInspectContext)contextView.render(lastContext);else contextView.revoke();
     if(revision!==renderRevision)return;
   }
   byId('context-title').textContent=raw?'Retained provenance context':'Context; not generated';

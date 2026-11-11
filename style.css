@@ -1,4 +1,4 @@
-:root{color-scheme:light;--paper:#f7f8fa;--ink:#172033;--accent:#234ccf;--muted:#46536b;--line:#d8dfeb;--panel:#fff;--soft:#eef2f8;--scope-ink:#6a481d;--ui:Manrope,'Segoe UI',sans-serif;--mono:'Cascadia Code',Consolas,ui-monospace,monospace;--site-gutter:clamp(22px,5vw,80px)}
+:root{color-scheme:light;--paper:#f7f8fa;--ink:#172033;--accent:#234ccf;--muted:#46536b;--line:#d8dfeb;--panel:#fff;--soft:#eef2f8;--scope-ink:#6a481d;--ui:Manrope,'Segoe UI',sans-serif;--mono:'Cascadia Code',Consolas,ui-monospace,monospace;--site-gutter:clamp(22px,4vw,48px);--site-measure:1120px}
 article{overflow-wrap:anywhere}
 figure{max-width:100%;margin:24px 0;overflow-x:auto}
 figure svg{background:var(--panel);border-radius:10px}
@@ -17,7 +17,7 @@ th{background:var(--soft);font-weight:750}
 ::selection{background:#dce5ff;color:var(--ink)}
 header{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 5vw;border-bottom:1px solid var(--line);font:650 14px/1.6 var(--ui);letter-spacing:.015em}
 header span{font-weight:500;color:var(--muted)}
-.site-header{max-width:1600px;margin:auto;padding:18px var(--site-gutter);font:600 15px/1.6 var(--ui);letter-spacing:0}
+.site-header{max-width:calc(var(--site-measure) + 2 * var(--site-gutter));margin:auto;padding:18px var(--site-gutter);font:600 15px/1.6 var(--ui);letter-spacing:0}
 .site-header .wordmark{font-weight:800;white-space:nowrap;color:var(--ink)}
 .site-header .wordmark span{font-weight:500;color:var(--muted)}
 .site-header nav{display:flex;flex-wrap:wrap;gap:4px 26px}
@@ -81,7 +81,7 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page{
   color-scheme:light;--paper:#f7f8fa;--ink:#172033;--accent:#234ccf;
   --muted:#46536b;--line:#d8dfeb;--panel:#ffffff;--scope-ink:#6a481d;
-  --portfolio-gutter:clamp(22px,5vw,80px);--ease-out:cubic-bezier(.23,1,.32,1);
+  --portfolio-gutter:var(--site-gutter);--ease-out:cubic-bezier(.23,1,.32,1);
   --ui:Manrope,'Segoe UI',sans-serif;
   background:var(--paper);color:var(--ink);font:500 18px/1.75 var(--ui);
 }
@@ -90,9 +90,9 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page :is(a,summary,button){touch-action:manipulation}
 .portfolio-page :is(.primary-link,.demo-tabs button){user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .portfolio-page :is(h1,h2,h3){font-family:var(--ui);font-weight:750;letter-spacing:-.035em}
-/* Separate the reading rail from the fluid workbench without viewport-width
-   subtraction, which would also include the browser's vertical scrollbar. */
-.portfolio-page .portfolio-main{display:grid;grid-template-columns:[full-start] minmax(var(--portfolio-gutter),1fr) [content-start] minmax(0,calc(1440px - 2 * var(--portfolio-gutter))) [content-end] minmax(var(--portfolio-gutter),1fr) [full-end];gap:0;max-width:none;margin:0;padding:0;min-width:0}
+/* One centered content rail aligns the profile, project cards and workbench.
+   Fullscreen below expands the existing frame without replacing its session. */
+.portfolio-page .portfolio-main{display:grid;grid-template-columns:[full-start] minmax(var(--portfolio-gutter),1fr) [content-start] minmax(0,var(--site-measure)) [content-end] minmax(var(--portfolio-gutter),1fr) [full-end];gap:0;max-width:none;margin:0;padding:0;min-width:0}
 .portfolio-page .portfolio-main>section{grid-column:content;min-width:0}
 .portfolio-page .eyebrow{font:700 14px/1.7 var(--ui);letter-spacing:.07em;color:var(--accent);margin:0 0 20px}
 .portfolio-page .personal-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.43fr);gap:7vw;align-items:center;padding:68px 0 64px}
@@ -152,8 +152,8 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page .academic-record summary{font-size:15px}
 .portfolio-page .education-grid .secondary,.portfolio-page .course-bridge{color:var(--muted)}
 .portfolio-page .course-bridge{max-width:850px;margin:32px 0 0;font-size:17px}
-.portfolio-page .portfolio-main>.demo-stage{grid-column:full}
-.portfolio-page .demo-stage{--workbench-gutter:24px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:start;align-items:end;gap:20px 24px;margin:48px 0 0;padding:24px var(--workbench-gutter) 40px;background:var(--paper);border-top:1px solid var(--line);scroll-margin-top:0}
+.portfolio-page .portfolio-main>.demo-stage{grid-column:content}
+.portfolio-page .demo-stage{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:start;align-items:end;gap:20px 24px;margin:48px 0 0;padding:24px 0 40px;background:var(--paper);border-top:1px solid var(--line);scroll-margin-top:0}
 .portfolio-page .demo-stage-head{min-width:0}
 .portfolio-page .demo-stage-head h2{font-size:clamp(26px,2.6vw,34px);line-height:1.2;margin:0}
 .portfolio-page .demo-stage-head p{font-size:17px;line-height:1.7;color:var(--muted);max-width:58ch;margin:10px 0 0}
@@ -170,7 +170,7 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page .demo-stage:fullscreen .demo-frame-shell{flex:1 1 0;min-height:0;height:auto}
 .portfolio-page .demo-frame-shell{grid-column:1/-1;width:100%;height:clamp(720px,86svh,1200px);min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--paper);box-shadow:0 8px 25px #17203308;overflow:hidden}
 .portfolio-page .demo-frame-shell iframe{display:block;width:100%;height:100%;min-width:0;border:0;background:var(--paper)}
-.portfolio-page .portfolio-footer{display:flex;flex-wrap:wrap;gap:8px;max-width:1600px;margin:auto;padding:28px var(--portfolio-gutter);color:var(--muted);font:500 14px/1.7 var(--ui)}
+.portfolio-page .portfolio-footer{display:flex;flex-wrap:wrap;gap:8px;max-width:calc(var(--site-measure) + 2 * var(--portfolio-gutter));margin:auto;padding:28px var(--portfolio-gutter);color:var(--muted);font:500 14px/1.7 var(--ui)}
 .portfolio-page .portfolio-footer>span{margin-left:auto}
 @media(max-width:960px){
   .portfolio-page .personal-hero{grid-template-columns:minmax(0,1fr) minmax(210px,.48fr);gap:32px;padding:60px 0 72px}
@@ -196,7 +196,7 @@ html:has(>body.portfolio-page){color-scheme:light}
   .portfolio-page .project-copy h3{font-size:25px}
   .portfolio-page :is(.more-projects,.background-more)>summary span{display:block;margin:4px 0 0}
   .portfolio-page .skills-grid,.portfolio-page .education-grid{grid-template-columns:1fr;gap:32px}
-  .portfolio-page .demo-stage{grid-template-columns:minmax(0,1fr);gap:16px;padding:24px 16px 32px}
+  .portfolio-page .demo-stage{grid-template-columns:minmax(0,1fr);gap:16px;padding:24px 0 32px}
   .portfolio-page .demo-tabs{justify-content:flex-start;max-width:none}
   .portfolio-page .demo-stage-head h2{font-size:28px}
   .portfolio-page .demo-stage-head p:not(.eyebrow){font-size:17px}

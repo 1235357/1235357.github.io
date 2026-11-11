@@ -225,6 +225,43 @@ test('import without a document has no DOM/session/mount side effects',()=>{asse
 test('unknown/invalid options and duplicate roots fail before listener registration',()=>{const d=mount();const count=[...d.root.nodes.values()].reduce((n,node)=>n+[...node.listeners.values()].flat().length,0);assert.throws(()=>app.mountPdfApp({document:d.document,root:d.root,generate}),/mount|already/i);assert.equal([...d.root.nodes.values()].reduce((n,node)=>n+[...node.listeners.values()].flat().length,0),count);for(const options of [{evil:1},{generate:true},{createGeometryView:true},{createLookupView:true},{createAssetPreparationView:true},{document:null},{root:null}]){const e=dom();assert.throws(()=>app.mountPdfApp({document:e.document,root:e.root,...options}),TypeError);assert.equal([...e.root.nodes.values()].flatMap(n=>[...n.listeners.values()].flat()).length,0);}});
 test('ordinary entry is OFF while private entry composes one shared mount',async()=>{const d=mount();await accepted(d);assert.equal(d.get('generate-answer').disabled,true);const ordinary=readFileSync(new URL('../pdf-entry.mjs',import.meta.url),'utf8'),privateEntry=readFileSync(new URL('../pdf-private-entry.mjs',import.meta.url),'utf8');assert.match(ordinary,/mountPdfApp\(\)/);assert.match(privateEntry,/mountPdfApp\(\{generate:generateFinancialInWorker,createGeometryView:createFinancialGeometryView,createLookupView:createFinancialLookupView\}\)/);assert.equal(d.get('pdf-file').value,'');assert.equal(byTag(d.get('computation-notebook'),'details').length,0);assert.equal(d.get('source-cell-lookup').hidden,true);assert.equal(d.get('source-cell-lookup').children.length,0);});
 test('private generation requires explicit context/button and updates native evidence captions',async()=>{let calls=0;const d=mount({generate:async(...args)=>{calls++;return generate(...args);}});await accepted(d);assert.equal(calls,0);assert.equal(d.get('generate-answer').disabled,false);await act(d.get('generate-answer'));await tick();assert.equal(calls,1);assert.match(d.get('status-title').textContent,/unverified/i);assert.match(d.get('generation-detail').textContent,/UNVERIFIED/);assert.match(d.get('receipt').textContent,/native generation/i);assert.match(d.get('header-stage').textContent,/UNVERIFIED/);assert.doesNotMatch(d.get('context-meta').textContent,/context not generated/);await act(d.get('assemble-context'));assert.doesNotMatch(d.get('generation-detail').textContent,/invented/);});
+test('empty notebook results have one explanation and populated evidence survives the presentation change',async()=>{
+  const d=mount();
+  const empty=()=>{
+    assert.equal(d.get('candidate-results').children.length,0);
+    assert.match(d.get('candidate-meta').textContent,/No candidates committed/);
+    assert.equal(d.get('context-detail').children.length,0);
+    assert.match(d.get('context-meta').textContent,/No provenance context committed/);
+    assert.equal(d.get('chunk-detail').children.length,0);
+    assert.equal(d.get('chunk-meta').textContent,'No chunk artifact. Build from an accepted source.');
+  };
+  empty();await accepted(d);
+  assert.ok(d.get('candidate-results').children.length>0);
+  assert.match(d.get('candidate-meta').textContent,/2 sourced candidates/);
+  assert.ok(d.get('context-detail').children.length>0);
+  assert.match(d.get('context-meta').textContent,/2 evidence units/);
+  assert.match(d.get('chunk-detail').textContent,/PRIVATE_ALPHA/);
+  assert.match(d.get('chunk-detail').textContent,/Exact source\/presentation mapping/);
+  await act(d.get('clear'));empty();
+});
+test('relocated draft status retains generating, unverified and refused output states',async()=>{
+  // Controlled SDK/DOM fixtures only; actual DOM placement and visibility are
+  // checked separately in the template and real standalone/embedded browser.
+  for(const refused of [false,true]){
+    const gate=deferred(),d=mount({generate:async(...args)=>{
+      await gate.promise;const packet=await generate(...args);
+      if(!refused)return packet;
+      const invalid=structuredClone(packet);invalid.artifact.text='not supported JSON';return invalid;
+    }});
+    assert.equal(d.get('header-stage').textContent,'BROWSER LAB · CONTEXT NOT GENERATED');
+    await accepted(d);await act(d.get('generate-answer'));
+    assert.equal(d.get('header-stage').textContent,'READER DEVICE · GENERATING');
+    gate.resolve();await tick();await tick();await tick();
+    assert.equal(d.get('header-stage').textContent,refused?'NATIVE RECEIPT · OUTPUT REFUSED':'NATIVE RECEIPT · UNVERIFIED DRAFT');
+    await act(d.get('clear'));
+    assert.equal(d.get('header-stage').textContent,'BROWSER LAB · CONTEXT NOT GENERATED');
+  }
+});
 test('clear/edit/pagehide revoke generation and release same file selection',async()=>{for(const action of ['clear','edit','pagehide']){const d=mount({generate});await accepted(d);await act(d.get('generate-answer'));await tick();assert.match(d.get('generation-detail').textContent,/invented/);d.get('pdf-file').value='restored.pdf';if(action==='edit')await act(d.get('question-input'),'input');else if(action==='pagehide')await act(d.window,'pagehide');else await act(d.get('clear'));assert.doesNotMatch(d.get('generation-detail').textContent,/invented/);if(action!=='edit')assert.equal(d.get('pdf-file').value,'');}});
 test('generation cancellation retains question/context for explicit retry and labels the operation',async()=>{const task=deferred();let options;const d=mount({generate:(input,settings,opts)=>{options=opts;return task.promise;}});await accepted(d);await act(d.get('generate-answer'));assert.match(d.get('status-title').textContent,/generating/i);await act(d.get('cancel'));assert.ok(options.signal.aborted);assert.match(d.get('status-detail').textContent,/generation/i);assert.match(d.get('context-detail').textContent,/READER question/);assert.equal(d.get('generate-answer').disabled,false);});
 test('preflight rejection is UI-only and cannot overwrite a newer action',async()=>{const d=mount({generate});await accepted(d);const hooks=registerHooks({resolve(specifier,context,next){if(specifier.includes('financial-generation-source'))throw Error('private diagnostic');return next(specifier,context);}});try{d.get('generate-answer').dispatch('click');d.get('clear').dispatch('click');await tick();assert.equal(d.get('status-title').textContent,'Waiting for a PDF');assert.doesNotMatch(d.get('status-detail').textContent,/private diagnostic/);}finally{hooks.deregister();}});
