@@ -7,8 +7,8 @@
   "availability": "Seeking Summer 2027 internships in applied AI and software engineering",
   "selected_projects": ["nvidia-rag", "forge-docs", "osef"],
   "release_highlight": {
-    "label": "AgentContinue v2.2.0 — browser extension diagnostics",
-    "href": "https://github.com/1235357/agent-continue/releases/tag/v2.2.0"
+    "label": "AgentContinue v3.0.11 · GitHub release",
+    "href": "https://github.com/1235357/agent-continue/releases/tag/v3.0.11"
   },
   "methodology": {
     "title": "How I learn, then build",
@@ -85,15 +85,17 @@
     },
     {
       "id": "forge-docs", "category": "HUMAN–AI / DOCUMENTATION EVALUATION", "title": "Developer Documentation & AI Evaluation",
-      "role": "Team contributor · Northwestern The Forge", "period": "Fall 2026", "phase": "Preliminary prototype · ongoing case collection",
-      "summary": "Evaluating how AI assistants use public technical documentation to answer developer questions, with case reports that distinguish source support, uncertainty and documentation gaps.",
+      "role": "Team contributor · Northwestern The Forge", "period": "Fall 2026", "phase": "Public case-study site · evaluation pending",
+      "summary": "Reviewing AI answers against public technical documentation, with source-linked case studies and proposals to improve the docs.",
       "description": "Contributing to a Northwestern team project evaluating AI-assisted answers to developer questions. I helped clarify the evaluation scope, presented a preliminary prototype and am developing reports that connect each question to its source evidence.",
       "details": [
         "Helped distinguish unresolved questions within the documentation's scope from out-of-domain questions, while keeping previously answered cases as references.",
         "Reported progress on question–document mapping, with preliminary examples and an early case-report format for team discussion.",
-        "Developing case reports that separate source-supported answers, conflicting evidence and potential documentation improvements, with human review of version- and device-dependent claims."
+        "Developing case reports that separate source-supported answers, conflicting evidence and potential documentation improvements, with human review of version- and device-dependent claims.",
+        "The read-only project site presents source-linked cases and documentation proposals. Model comparisons remain pending."
       ],
-      "stack": ["LLM evaluation", "Source verification", "Question–document mapping", "Human review"], "links": []
+      "stack": ["LLM evaluation", "Source verification", "Question–document mapping", "Human review"],
+      "links": [{"label": "Explore the case-study site", "href": "https://zebra-techdocs-practicum.vercel.app/"}, {"label": "Course project on GitHub", "href": "https://github.com/1235357/zebra-public-site-archive"}]
     },
     {
       "id": "llava-gi", "category": "MULTIMODAL / FINE-TUNING", "title": "Fine-Tuning LLaVA-GI",
