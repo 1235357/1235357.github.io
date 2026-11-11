@@ -37,7 +37,7 @@ def render_page(title, content, *, section='SERIES', outline='', public_release=
     )
     publication_label = 'Documentation · browser lab' if public_release else 'Local draft · not published'
     series_url = 'journal.html' if has_portfolio else 'index.html'
-    series_link = f'<a href="{series_url}">Series index ↗</a>' if section != 'SERIES' else ''
+    series_link = f'<a href="{series_url}">Series index →</a>' if section != 'SERIES' else ''
     reading_navigation = (
         '<nav aria-label="Main navigation"><a href="index.html#projects">Work</a>'
         f'<a href="{series_url}">Journal</a><a href="index.html#demo">RAG lab</a></nav>'
@@ -232,10 +232,10 @@ def render_site(root, output, *, public_release=False):
 <h2>Ask a document. Inspect the evidence.</h2>
 <p>Follow an NVIDIA document workflow from source pages to retrieval, model execution and an answer gate. Explore the browser lab and the engineering decisions behind a separately packaged Python API.</p>
 <div class="project-variants">
-<div><h3>Browser lab</h3><p>Choose your own local PDF. Inspect chunks, tokens, vectors and exact source spans. Native answer generation is enabled in the private local acceptance entry.</p><a href="browser-rag/inspector.html">Open the lab ↗</a></div>
-<div><h3>Service contract</h3><p>Authenticated Python queries preserve request IDs and distinguish semantic refusals from dependency failures. Review the status contract and its installed-package checks.</p><a href="07-operational-receipts.html#an-enterprise-caller-needs-failure-semantics">Read the API decisions ↗</a></div>
+<div><h3>Browser lab</h3><p>Choose your own local PDF. Inspect chunks, tokens, vectors and exact source spans. Native answer generation is enabled in the private local acceptance entry.</p><a href="browser-rag/inspector.html">Open the lab →</a></div>
+<div><h3>Service contract</h3><p>Authenticated Python queries preserve request IDs and distinguish semantic refusals from dependency failures. Review the status contract and its installed-package checks.</p><a href="07-operational-receipts.html#an-enterprise-caller-needs-failure-semantics">Read the API decisions →</a></div>
 </div>
-<a href="07-operational-receipts.html">Read the execution-contract chapter ↗</a>
+<a href="07-operational-receipts.html">Read the execution-contract chapter →</a>
 <p class="project-boundary">Local implementation and acceptance evidence. Financial accuracy, scale measurements and public release remain separate gates.</p>
 </section>'''
         if public_release:
