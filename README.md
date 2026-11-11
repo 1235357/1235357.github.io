@@ -2,7 +2,9 @@
 
 A personal GitHub Pages site introducing a Northwestern MSCS student, selected engineering projects and research, and a continuing technical journal. The homepage's six experiences were checked on October 18, 2026 against the formal CV dated October 16 and cover letter dated October 18. Artisk retains its unpaid, collaborative, AI-assisted attribution; anonymous client work retains its design/prototype stage. The financial-RAG browser lab lets a reader choose a local PDF and inspect the source and computation behind a draft. The companion Python API is a different runtime and integration surface.
 
-A seventh project record describes ongoing developer-documentation evaluation in Northwestern The Forge. It identifies a preliminary prototype and case-report work, and distinguishes individual contributions from team progress.
+A seventh project record describes ongoing developer-documentation evaluation in Northwestern The Forge. It links to the public, read-only case-study site, retains pending model comparisons, and distinguishes individual contributions from team progress. The homepage links to AgentContinue v3.0.11 as a GitHub release, without implying Chrome Web Store approval.
+
+The first reading path shows three selected projects and keeps four additional projects, detailed contributions and the complete learning/engineering methodology available through native disclosures. Methodology attribution and source links are preserved when expanded.
 
 Open the [personal profile](https://1235357.github.io/), [RAG workspace](https://1235357.github.io/browser-rag/inspector.html) or [engineering journal](https://1235357.github.io/journal.html). The profile, articles, embedded and standalone workspace, and diagram viewers use one light theme with Manrope typography.
 

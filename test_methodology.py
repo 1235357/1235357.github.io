@@ -30,6 +30,13 @@ class MethodologyTest(unittest.TestCase):
         self.assertIn('My working cycle', self.html)
         self.assertEqual(len(self.profile['methodology']['steps']), 4)
 
+    def test_methodology_uses_an_initially_closed_native_disclosure(self):
+        disclosures = [attrs for tag, attrs in self.dom.elements
+                       if tag == 'details' and attrs.get('class') == 'methodology-details']
+        self.assertEqual(len(disclosures), 1)
+        self.assertNotIn('open', disclosures[0])
+        self.assertIn('<summary>Explore my learning and engineering approach</summary>', self.html)
+
     def test_attribution_and_separate_validation(self):
         for phrase in ['于建国', 'Dave Rensin', 'Brian Suchy', 'Elephant–Goldfish Model',
                        'separate things to verify', 'situation I have not seen before']:

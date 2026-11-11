@@ -7,7 +7,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
         return escape(value, quote=True)
 
     def links(items):
-        return ''.join(f'<a href="{text(item["href"])}">{text(item["label"])} ↗</a>'
+        return ''.join(f'<a href="{text(item["href"])}">{text(item["label"])} →</a>'
                        for item in items)
 
     def project_card(project, number):
@@ -61,9 +61,10 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
         methodology_html = f'''<section id="methodology" class="portfolio-section methodology-section" aria-labelledby="methodology-title">
 <div class="section-heading"><p class="eyebrow">HOW I WORK</p><h2 id="methodology-title">{text(methodology['title'])}</h2>
 <p>{text(methodology['intro'])}</p></div>
+<details class="methodology-details"><summary>Explore my learning and engineering approach</summary>
 <div class="methodology-grid">{layers}</div>
 <h3 class="methodology-cycle-title">My working cycle</h3><ol class="methodology-cycle">{steps}</ol>
-<p class="methodology-boundary">{text(methodology['boundary'])}</p>{repository_link}</section>'''
+<p class="methodology-boundary">{text(methodology['boundary'])}</p>{repository_link}</details></section>'''
     label = 'PERSONAL PORTFOLIO' if public_release else 'LOCAL REVIEW'
     license_link = ' · <a href="SITE-LICENSE.txt">Site license</a>' if public_release else ''
     portrait = profile['portrait']
@@ -82,7 +83,7 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <link rel="stylesheet" href="{text(stylesheet_href)}"></head><body class="portfolio-page">
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="site-header portfolio-header"><a class="wordmark" href="index.html">ZHENTONG YE <span>/ {label}</span></a>
-<nav aria-label="Main navigation"><a href="#projects">Work</a>{methodology_navigation}<a href="#background">Background</a><a href="journal.html">Journal</a><a href="{text(portrait['profile'])}">LinkedIn ↗</a></nav></header>
+<nav aria-label="Main navigation"><a href="#projects">Work</a>{methodology_navigation}<a href="#background">Background</a><a href="journal.html">Journal</a><a href="{text(portrait['profile'])}">LinkedIn →</a></nav></header>
 <main class="portfolio-main" id="main-content">
 <section class="personal-hero" aria-labelledby="personal-title">
 <div><p class="eyebrow">NORTHWESTERN MSCS / {text(profile['location']).upper()}</p>
@@ -91,14 +92,14 @@ def render_home(profile, *, public_release=False, stylesheet_href='style.css', d
 <div class="hero-actions"><a class="primary-link" href="#projects">Explore my work <span>↓</span></a><a href="#demo">Try the RAG lab ↓</a></div></div>
 <figure class="portrait-card"><a href="{text(portrait['profile'])}" aria-label="Visit Zhentong Ye on LinkedIn">
 <span class="portrait-monogram" aria-hidden="true">{text(portrait['initials'])}</span></a>
-<figcaption><span>Zhentong / Evanston</span><a href="{text(portrait['profile'])}">LinkedIn ↗</a></figcaption></figure></section>
+<figcaption><span>Zhentong / Evanston</span><a href="{text(portrait['profile'])}">LinkedIn →</a></figcaption></figure></section>
 <section id="projects" class="portfolio-section selected-work" aria-labelledby="projects-title"><div class="section-heading"><p class="eyebrow">SELECTED WORK</p><h2 id="projects-title">Projects &amp; research</h2><p>Retrieval systems, multimodal research and applied AI.</p>{release_html}</div><div class="project-list selected-project-list">{selected_cards}</div>{more_projects}</section>
 {methodology_html}
 <section id="background" class="portfolio-section background-section" aria-labelledby="background-title"><div class="section-heading"><p class="eyebrow">BACKGROUND</p><h2 id="background-title">Education &amp; practice</h2></div><div class="education-grid">{education}</div>
 <details class="background-more"><summary>Engineering toolkit <span>Models, interfaces &amp; evaluation</span></summary><div class="skills-grid">{skills}</div>
 <p class="course-bridge">My RAG journal connects this work to language-model computation, agent workflows, scalable service boundaries and software design. Course connections describe what I am studying and applying as I build.</p></details></section>
 <section class="demo-stage" id="demo" aria-labelledby="demo-title"><div class="demo-stage-head"><h2 id="demo-title">{text(demos[0]['title'])}</h2><p>Ask your PDF a question. Follow the evidence on your device.</p></div>
-<div class="demo-tabs" role="group" aria-label="Project workspace">{demo_choices}<button class="demo-expand-button" type="button" aria-controls="project-demo" aria-expanded="false" hidden>Expand workspace</button><a class="demo-fullscreen-link" href="{text(demos[0]['src'])}" target="_blank" rel="noopener">Open in a full page ↗</a><p class="demo-expand-status" role="status" aria-live="polite"></p></div>
+<div class="demo-tabs" role="group" aria-label="Project workspace">{demo_choices}<button class="demo-expand-button" type="button" aria-controls="project-demo" aria-expanded="false" hidden>Expand workspace</button><a class="demo-fullscreen-link" href="{text(demos[0]['src'])}" target="_blank" rel="noopener">Open in a full page →</a><p class="demo-expand-status" role="status" aria-live="polite"></p></div>
 <div class="demo-frame-shell"><iframe id="project-demo" title="{text(demos[0]['title'])} browser lab" src="{text(demos[0]['src'])}" loading="lazy" allow="webgpu; fullscreen"></iframe></div>
 </section>
 </main><footer class="portfolio-footer">© 2026 Zhentong Ye · <a href="https://github.com/1235357/1235357.github.io">Website source</a> · <a href="{text(portrait['profile'])}">LinkedIn</a>{license_link}<span>Learning in public. Building with evidence.</span></footer><script type="module" src="{text(demo_script_href)}"></script></body></html>'''

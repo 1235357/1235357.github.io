@@ -743,19 +743,60 @@ class ProfileHierarchyTest(unittest.TestCase):
             self.assertFalse(any(ancestor['attrs'].get('class') == 'contribution-record'
                                  for ancestor in phase['ancestors']))
 
-    def test_projects_heading_links_to_the_pinned_diagnostics_release(self):
-        release = 'https://github.com/1235357/agent-continue/releases/tag/v2.2.0'
+    def test_projects_heading_links_to_the_pinned_github_release(self):
+        release = 'https://github.com/1235357/agent-continue/releases/tag/v3.0.11'
         matches = [element for element in self.dom.elements
                    if element['tag'] == 'a' and element['attrs'].get('href') == release]
         self.assertEqual(len(matches), 1)
         link = matches[0]
         self.assertEqual(''.join(link['text']),
-                         'AgentContinue v2.2.0 — browser extension diagnostics ↗')
+                         'AgentContinue v3.0.11 · GitHub release →')
+        self.assertNotIn('/releases/tag/v2.2.0', self.output)
         self.assertTrue(any(ancestor['attrs'].get('id') == 'projects'
                             for ancestor in link['ancestors']))
         self.assertTrue(any('section-heading' in ancestor['attrs'].get('class', '').split()
                             for ancestor in link['ancestors']))
         self.assertFalse(any(ancestor['tag'] == 'details' for ancestor in link['ancestors']))
+
+    def test_link_decoration_uses_a_glyph_in_the_bundled_font(self):
+        # Manrope includes U+2192 but not U+2197; avoid a fallback tofu mark.
+        self.assertNotIn('↗', self.output)
+        self.assertIn('GitHub release →', self.output)
+        self.assertIn('LinkedIn →', self.output)
+
+    def test_forge_public_evidence_is_visible_and_evaluation_remains_pending(self):
+        card = next(element for element in self.dom.elements
+                    if element['tag'] == 'article' and element['attrs'].get('id') == 'forge-docs')
+        links = [element for element in self.dom.elements
+                 if element['tag'] == 'a' and card in element['ancestors']]
+        self.assertEqual(len(links), 2)
+        self.assertEqual(links[0]['attrs']['href'], 'https://zebra-techdocs-practicum.vercel.app/')
+        self.assertEqual(links[1]['attrs']['href'], 'https://github.com/1235357/zebra-public-site-archive')
+        self.assertFalse(any(ancestor['tag'] == 'details' for link in links for ancestor in link['ancestors']))
+        content = ' '.join(card['text'])
+        self.assertIn('Public case-study site · evaluation pending', content)
+        self.assertIn('Model comparisons remain pending.', content)
+        self.assertIn('Team contributor · Northwestern The Forge', content)
+
+    def test_methodology_full_detail_is_opt_in_and_keeps_attribution(self):
+        disclosure = next(element for element in self.dom.elements
+                          if element['tag'] == 'details' and element['attrs'].get('class') == 'methodology-details')
+        self.assertNotIn('open', disclosure['attrs'])
+        children = [element for element in self.dom.elements
+                    if element['ancestors'] and element['ancestors'][-1] is disclosure]
+        self.assertEqual(children[0]['tag'], 'summary')
+        self.assertEqual(sum(element['tag'] == 'summary' for element in children), 1)
+        self.assertEqual(''.join(children[0]['text']), 'Explore my learning and engineering approach')
+        body = ''.join(disclosure['text'])
+        for layer in self.profile['methodology']['layers']:
+            for value in [layer['title'], layer['text'], layer['practice']]:
+                self.assertIn(value, body)
+            for resource in layer['links']:
+                self.assertTrue(any(element['tag'] == 'a' and element['attrs'].get('href') == resource['href']
+                                    and disclosure in element['ancestors'] for element in self.dom.elements))
+        self.assertIn(self.profile['methodology']['boundary'], body)
+        for step in self.profile['methodology']['steps']:
+            self.assertIn(step['text'], body)
 
     def test_identity_education_and_one_session_workspace_keep_their_entry_points(self):
         hero = next(element for element in self.dom.elements

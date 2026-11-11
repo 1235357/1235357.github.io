@@ -185,7 +185,11 @@ html:has(>body.portfolio-page){color-scheme:light}
   .portfolio-page .personal-hero{display:block;padding:44px 0 60px}
   .portfolio-page .personal-hero h1{font-size:clamp(52px,12vw,80px);letter-spacing:-.045em}
   .portfolio-page .hero-intro{font-size:18px}
-  .portfolio-page .portrait-card{display:block;width:100%;max-width:250px;margin:32px 0 0}
+  .portfolio-page .portrait-card{display:flex;align-items:center;gap:16px;width:100%;max-width:none;margin:24px 0 0;box-shadow:none}
+  .portfolio-page .portrait-card>a{flex:0 0 64px;min-height:64px}
+  .portfolio-page .portrait-monogram{width:64px;font-size:32px}
+  .portfolio-page .portrait-card figcaption{flex:1;min-width:0;padding:0;gap:0 12px}
+  .portfolio-page .portrait-card figcaption a{display:inline-flex;align-items:center;min-height:46px}
   .portfolio-page .portfolio-section{padding-top:48px}
   .portfolio-page .selected-work{padding-top:0}
   .portfolio-page .portfolio-project{padding:24px}
@@ -222,6 +226,10 @@ html:has(>body.portfolio-page){color-scheme:light}
 }
 
 /* Learning and engineering methodology: additive, same portfolio design tokens. */
+.portfolio-page .methodology-details{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0}
+.portfolio-page .methodology-details>summary{padding:14px 0;overflow-wrap:anywhere}
+.portfolio-page .methodology-details[open]>summary{color:var(--accent);margin-bottom:18px}
+.portfolio-page .methodology-details[open]{padding-bottom:24px}
 .portfolio-page .methodology-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
 .portfolio-page .methodology-card{min-width:0;padding:28px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
 .portfolio-page .methodology-card .eyebrow{font-size:12px;margin:0 0 16px}
