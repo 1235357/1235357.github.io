@@ -285,6 +285,11 @@ class FreshBuildTest(unittest.TestCase):
         (self.root / 'figures').mkdir()
         (self.root / 'articles' / '01-test.md').write_text('# Test\n\nA source.\n', encoding='utf-8')
         (self.root / 'style.css').write_text('body { color: white; }', encoding='utf-8')
+        portrait = self.root / 'assets' / 'portrait'
+        portrait.mkdir(parents=True)
+        from site_portrait_assets import PORTRAIT_FILES
+        for name in PORTRAIT_FILES:
+            (portrait / name).write_bytes((Path(__file__).parent / 'assets' / 'portrait' / name).read_bytes())
         self.root_patch = patch.object(build, 'ROOT', self.root)
         self.root_patch.start()
         self.addCleanup(self.root_patch.stop)
@@ -609,7 +614,11 @@ class NavigationTest(unittest.TestCase):
         self.assertIn('src="browser-rag/inspector.html" loading="lazy"', output)
         self.assertIn('https://www.linkedin.com/in/tony-zhentong-ye/', output)
         self.assertNotIn('media.licdn.com', output)
-        self.assertIn('<span class="portrait-monogram" aria-hidden="true">ZY</span>', output)
+        self.assertIn('class="portrait-photo" src="assets/portrait/zhentong-ye.jpg"', output)
+        self.assertNotIn('portrait-monogram', output)
+        self.assertEqual((build.ROOT / 'dist' / 'assets' / 'portrait' / 'zhentong-ye.jpg').read_bytes(),
+                         (build.ROOT / 'assets' / 'portrait' / 'zhentong-ye.jpg').read_bytes())
+        self.assertTrue((build.ROOT / 'dist' / 'assets' / 'portrait' / 'NOTICE.txt').is_file())
         self.assertTrue((build.ROOT / 'dist' / 'portfolio-demo.mjs').is_file())
         journal = (build.ROOT / 'dist' / 'journal.html').read_text(encoding='utf-8')
         self.assertIn('FIELD NOTES / SERIES</p>', journal)
@@ -817,14 +826,18 @@ class ProfileHierarchyTest(unittest.TestCase):
         self.assertEqual(expand['attrs']['aria-controls'], 'project-demo')
         self.assertEqual(expand['attrs']['aria-expanded'], 'false')
         self.assertIn('hidden', expand['attrs'])
-        monograms = [element for element in self.dom.elements
-                     if element['attrs'].get('class') == 'portrait-monogram']
-        self.assertEqual(len(monograms), 1)
-        self.assertEqual(monograms[0]['attrs']['aria-hidden'], 'true')
+        portraits = [element for element in self.dom.elements
+                     if element['tag'] == 'img' and element['attrs'].get('class') == 'portrait-photo']
+        self.assertEqual(len(portraits), 1)
+        self.assertEqual(portraits[0]['attrs']['src'], self.profile['portrait']['src'])
+        self.assertEqual(portraits[0]['attrs']['alt'], 'Portrait of Zhentong Ye')
+        self.assertEqual((portraits[0]['attrs']['width'], portraits[0]['attrs']['height']), ('2048', '2048'))
+        self.assertNotIn('aria-hidden', portraits[0]['attrs'])
+        self.assertNotIn('loading', portraits[0]['attrs'])
         self.assertTrue(any(ancestor['tag'] == 'a'
                             and ancestor['attrs'].get('href') == self.profile['portrait']['profile']
                             and ancestor['attrs'].get('aria-label') == 'Visit Zhentong Ye on LinkedIn'
-                            for ancestor in monograms[0]['ancestors']))
+                            for ancestor in portraits[0]['ancestors']))
         for item in self.profile['education']:
             self.assertIn(item['period'], self.output)
             self.assertIn(item['school'], self.output)

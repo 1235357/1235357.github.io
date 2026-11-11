@@ -107,7 +107,7 @@ html:has(>body.portfolio-page){color-scheme:light}
 .portfolio-page .primary-link span{margin-left:18px}
 .portfolio-page .portrait-card{position:relative;top:auto;align-self:center;justify-self:end;width:100%;max-width:320px;max-height:none;overflow:visible;margin:0;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 48px #1720330d;transform:none;font:500 14px/1.7 var(--ui)}
 .portfolio-page .portrait-card>a{display:block;border-radius:9px;overflow:hidden}
-.portfolio-page .portrait-monogram{display:grid;place-items:center;aspect-ratio:1;background:#e5eaf2;color:var(--accent);font:800 clamp(54px,8vw,104px)/1 var(--ui);letter-spacing:-.06em}
+.portfolio-page .portrait-photo{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;background:#fff}
 .portfolio-page .portrait-card figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;margin:0;padding:16px 4px 4px;color:var(--muted);font:500 14px/1.7 var(--ui);overflow-wrap:anywhere}
 .portfolio-page .portrait-card figcaption p{margin:0 0 8px}
 .portfolio-page .portrait-card figcaption a{color:var(--accent);font-weight:650}
@@ -186,8 +186,8 @@ html:has(>body.portfolio-page){color-scheme:light}
   .portfolio-page .personal-hero h1{font-size:clamp(52px,12vw,80px);letter-spacing:-.045em}
   .portfolio-page .hero-intro{font-size:18px}
   .portfolio-page .portrait-card{display:flex;align-items:center;gap:16px;width:100%;max-width:none;margin:24px 0 0;box-shadow:none}
-  .portfolio-page .portrait-card>a{flex:0 0 64px;min-height:64px}
-  .portfolio-page .portrait-monogram{width:64px;font-size:32px}
+  .portfolio-page .portrait-card>a{flex:0 0 80px;min-height:80px}
+  .portfolio-page .portrait-photo{width:80px}
   .portfolio-page .portrait-card figcaption{flex:1;min-width:0;padding:0;gap:0 12px}
   .portfolio-page .portrait-card figcaption a{display:inline-flex;align-items:center;min-height:46px}
   .portfolio-page .portfolio-section{padding-top:48px}
