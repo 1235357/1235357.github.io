@@ -1,4 +1,5 @@
 """Reading routes, fidelity and no-runtime regression tests."""
+import ast
 import re
 import tempfile
 import unittest
@@ -42,12 +43,22 @@ class RAGReadingTest(unittest.TestCase):
         # Only the output needed for rendering. No fixture is a runtime claim.
         def copy_stub(root, output, **kwargs):
             (output / 'browser-rag').mkdir()
-            (output / 'browser-rag' / 'inspector.html').write_text('<html><nav class="lab-navigation" aria-label="Project navigation"></nav></html>')
+            (output / 'browser-rag' / 'inspector.html').write_text('<html><nav class="lab-navigation" aria-label="Project navigation"></nav></html>', encoding='utf-8')
         with patch.object(build, 'copy_browser_assets', copy_stub):
             build.render_site(ROOT, self.output, public_release=True)
 
+    def test_fixture_text_io_explicitly_uses_utf8(self):
+        # Catch locale-dependent reads before Windows decodes UTF-8 as cp1252.
+        source = Path(__file__).read_text(encoding='utf-8')
+        for node in ast.walk(ast.parse(source)):
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                    and node.func.attr in ('read_text', 'write_text')):
+                encoding = next((x.value for x in node.keywords if x.arg == 'encoding'), None)
+                self.assertIsInstance(encoding, ast.Constant, f'Line {node.lineno}')
+                self.assertEqual(encoding.value, 'utf-8', f'Line {node.lineno}')
+
     def test_directory_route_is_built_with_no_automatic_model_or_iframe(self):
-        html = (self.output / 'browser-rag/index.html').read_text()
+        html = (self.output / 'browser-rag/index.html').read_text(encoding='utf-8')
         self.assertIn('No model runs on this page', html)
         self.assertFalse(any(tag in ('script', 'iframe') for tag, _ in parsed(html).elements))
         self.assertIn('MiniLM', html)
@@ -69,11 +80,11 @@ class RAGReadingTest(unittest.TestCase):
         default_output.mkdir()
         def copy_stub(root, output, **kwargs):
             (output / 'browser-rag').mkdir()
-            (output / 'browser-rag/inspector.html').write_text('<html></html>')
+            (output / 'browser-rag/inspector.html').write_text('<html></html>', encoding='utf-8')
         with patch.object(build, 'copy_browser_assets', copy_stub):
             build.render_site(ROOT, default_output, public_release=False)
         self.assertIn('Qwen generation is disabled in this local build',
-                      (default_output / 'browser-rag/index.html').read_text())
+                      (default_output / 'browser-rag/index.html').read_text(encoding='utf-8'))
 
     def test_exercise_does_not_reveal_the_answer_before_disclosure(self):
         html = render_guide()
@@ -85,7 +96,7 @@ class RAGReadingTest(unittest.TestCase):
 
     def test_wide_figure_chapters_have_section_returns_without_an_overlay(self):
         for slug in CHAPTERS:
-            html = (self.output / (slug + '.html')).read_text()
+            html = (self.output / (slug + '.html')).read_text(encoding='utf-8')
             h2_count = len(re.findall(r'<h2(?:[ >])', html))
             self.assertGreater(h2_count, 0)
             self.assertEqual(html.count('class="section-return"'), h2_count)
@@ -93,11 +104,11 @@ class RAGReadingTest(unittest.TestCase):
             self.assertIn('id="main-content"', html)
 
     def test_lab_has_a_way_back_to_the_reading_guide(self):
-        html = (self.output / 'browser-rag/inspector.html').read_text()
+        html = (self.output / 'browser-rag/inspector.html').read_text(encoding='utf-8')
         self.assertIn('<a href="index.html" target="_top">Reading guide</a>', html)
 
     def test_nested_header_footer_and_styles_point_to_the_root(self):
-        html = (self.output / 'browser-rag/index.html').read_text()
+        html = (self.output / 'browser-rag/index.html').read_text(encoding='utf-8')
         links = [attrs.get('href') for tag, attrs in parsed(html).elements if tag in ('a', 'link')]
         for required in ('../index.html', '../index.html#projects', '../journal.html',
                          '../SITE-LICENSE.txt', '../browser-rag/index.html', 'inspector.html'):
@@ -116,7 +127,7 @@ class RAGReadingTest(unittest.TestCase):
     def test_every_chapter_has_reachable_first_pass_and_preserved_ids_and_iframes(self):
         for slug in CHAPTERS:
             with self.subTest(slug=slug):
-                current = (self.output / (slug + '.html')).read_text()
+                current = (self.output / (slug + '.html')).read_text(encoding='utf-8')
                 before = parsed(original_html(slug))
                 after = parsed(current)
                 current_ids = {a['id'] for _, a in after.elements if 'id' in a}
@@ -136,7 +147,7 @@ class RAGReadingTest(unittest.TestCase):
     def test_guide_local_links_and_fragments_resolve_without_directory_exceptions(self):
         guide = self.output / 'browser-rag/index.html'
         refs = build.PageReferences()
-        refs.feed(guide.read_text())
+        refs.feed(guide.read_text(encoding='utf-8'))
         from urllib.parse import urlsplit
         for target in refs.targets:
             url = urlsplit(target)
@@ -149,11 +160,11 @@ class RAGReadingTest(unittest.TestCase):
             self.assertTrue(path.is_file(), target)
             if url.fragment:
                 ids = build.PageReferences()
-                ids.feed(path.read_text())
+                ids.feed(path.read_text(encoding='utf-8'))
                 self.assertIn(url.fragment, ids.ids, target)
 
     def test_tables_have_a_keyboard_scroll_region_and_original_cells(self):
-        html = (self.output / '04-preserve-evidence-before-embedding.html').read_text()
+        html = (self.output / '04-preserve-evidence-before-embedding.html').read_text(encoding='utf-8')
         regions = [a for t, a in parsed(html).elements if a.get('class') == 'reading-table']
         self.assertGreater(len(regions), 0)
         self.assertTrue(all(a.get('tabindex') == '0' and a.get('role') == 'region' for a in regions))
