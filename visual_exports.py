@@ -78,7 +78,7 @@ def write_exports(html, name, spec, output, style):
         root.insert(0, exported_style)
         svg = ET.tostring(root, encoding='unicode')
         filename=f'{name}-panel-{index}-{layout[:10]}-{hashlib.sha256(svg.encode()).hexdigest()[:10]}.svg'
-        (output/filename).write_text(svg,encoding='utf-8')
+        (output/filename).write_bytes(svg.encode('utf-8'))
         entries.append({'file':filename,'source_digest':digest,'layout_digest':layout,'svg_sha256':hashlib.sha256(svg.encode()).hexdigest(),'width':width,'height':height,'panel_height':original_height,'export_context':context,'style_digest':hashlib.sha256(style.encode()).hexdigest(),'font':'Arial/sans-serif fallback; self-contained export, no external font fetch'})
     (output/(name+'-exports.json')).write_text(json.dumps(entries,indent=2),encoding='utf-8')
     return '<p class="visual-export-links">SVG panels: '+ ' · '.join(f'<a href="figures/{x["file"]}">Panel {i}</a>' for i,x in enumerate(entries,1)) +f' · <a href="figures/{name}-exports.json">Version mapping</a></p>'
