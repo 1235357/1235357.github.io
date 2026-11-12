@@ -5054,8 +5054,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
         <!-- Lifecycle bands -->
         <text x="22" y="140" class="t-dim" font-size="16" font-weight="600" writing-mode="vertical-rl" text-anchor="middle">One active operation</text>
-        <text x="22" y="380" class="t-dim" font-size="16" font-weight="600" writing-mode="vertical-rl" text-anchor="middle">Rejected input: no mutation</text>
-        <text x="22" y="620" class="t-dim" font-size="16" font-weight="600" writing-mode="vertical-rl" text-anchor="middle">Closed operation: active = null</text>
+        <!-- Keep each complete lane label inside its band without shrinking type.
+             Explicit tspan columns also survive the portable SVG clone. -->
+        <text x="36" y="380" class="t-dim" font-size="16" font-weight="600" writing-mode="vertical-rl" text-anchor="middle" aria-label="Rejected input: no mutation"><tspan x="36" y="380">Rejected input: </tspan><tspan x="16" y="380">no mutation</tspan></text>
+        <text x="36" y="620" class="t-dim" font-size="16" font-weight="600" writing-mode="vertical-rl" text-anchor="middle" aria-label="Closed operation: active = null"><tspan x="36" y="620">Closed operation: </tspan><tspan x="16" y="620">active = null</tspan></text>
 
         <!-- Primary lifecycle rail -->
 
