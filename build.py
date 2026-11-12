@@ -14,6 +14,12 @@ import json
 import hashlib
 import browser_release_assets as release
 from portfolio import render_home
+from readable_architecture import render_reading_map, render_calculation_reading
+from visual_architecture import render_owned_graph
+from visual_flows import render_flow, calculation_spec
+from visual_exports import write_exports
+from visual_lifecycle import render_lifecycle
+from visual_sequences import render_sequence
 from rag_reading import CHAPTERS, chapter_aids, guide_teaser, render_guide
 
 ROOT = Path(__file__).resolve().parent
@@ -221,6 +227,31 @@ def render_site(root, output, *, public_release=False):
             raise ValueError(f'Missing title heading in {source.name}')
         renderer = markdown.Markdown(extensions=['fenced_code', 'tables', 'toc'],
                                      extension_configs={'toc': {'toc_depth': '2-3'}})
+        def readable_figure(match):
+            name = match.group(1)
+            specification = json.loads(guard_path(root / 'figures' / (name + '.archify.json'), root).read_text(encoding='utf-8'))
+            reading = render_reading_map(specification, name)
+            if name == 'reader-owned-rag':
+                reading = render_owned_graph(specification) + '<details class="architecture-overview"><summary>Read the accessible relationship list</summary>' + reading + '</details>'
+            if name in ('two-lifecycles','corpus-startup','structured-income-selection','browser-native'):
+                reading = render_flow(specification, name) + '<details class="architecture-overview"><summary>Read the accessible relationship list</summary>' + reading + '</details>'
+            if name == 'browser-operation':
+                reading = render_lifecycle(specification) + '<details class="architecture-overview"><summary>Read the accessible relationship list</summary>' + reading + '</details>'
+            if name in ('owned-generation','table-cell-selection'):
+                reading = render_sequence(specification, name) + '<details class="architecture-overview"><summary>Read the accessible relationship list</summary>' + reading + '</details>'
+            if name in ('reader-owned-rag','two-lifecycles','corpus-startup','browser-operation','structured-income-selection','browser-native','owned-generation','table-cell-selection'):
+                reading += write_exports(reading, name, specification, figure_output, style_text)
+            full = match.group(0).replace('?theme=light', '?theme=light&amp;embed=1')
+            return reading + '<details class="architecture-overview"><summary>Open the complete interactive diagram</summary>' + full + '</details>'
+        raw = re.sub(r'<iframe src="figures/([a-z0-9-]+)\.archify\.html\?theme=light"[^>]*></iframe>', readable_figure, raw)
+        calculation_image = re.search(r'<img src="figures/04-evidence-to-calculation.svg"[^>]*>', raw)
+        if calculation_image:
+            source_flow = guard_path(root / 'figures/04-evidence-to-calculation.puml', root).read_text(encoding='utf-8')
+            specification = calculation_spec(source_flow)
+            reading = render_flow(specification, 'evidence-calculation') + '<details class="architecture-overview"><summary>Read the accessible relationship list</summary>' + render_calculation_reading(source_flow, 'evidence-calculation') + '</details>'
+            reading += write_exports(reading, 'evidence-calculation', specification, figure_output, style_text)
+            original = calculation_image.group(0).replace('min-width:640px;', '')
+            raw = raw.replace(calculation_image.group(0), reading + '<details class="architecture-overview"><summary>Open the complete conceptual diagram</summary>' + original + '<a href="figures/04-evidence-to-calculation.svg">Open original SVG</a></details>')
         html = renderer.convert(raw)
         if has_rag_guide:
             opening, ending = chapter_aids(source.stem)

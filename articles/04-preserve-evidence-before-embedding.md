@@ -30,6 +30,11 @@ Retaining the number alone loses the information needed to distinguish them.
 The printed dollar symbol also does not, by itself, establish an ISO currency
 such as USD.
 
+<figure>
+<img src="figures/04-evidence-to-calculation.svg" alt="Document retrieval produces candidates. A separate proposed source-review path accepts explicit rows before reviewed-value lookup or calculation." style="display:block;width:100%;min-width:640px;height:auto">
+<figcaption>Solid arrows show the document-retrieval path. Dashed arrows describe a proposed independently reviewed values layer and calculation boundary. The implemented mechanical source-cell selectors below return candidates; they do not complete this diagram's review-and-calculation path. This is a conceptual design, not a deployed verified-values service.</figcaption>
+</figure>
+
 **The learning goal:** given a source page and a chunk, trace the exact text back
 to its source, distinguish a physical page from its printed label, and identify
 which row, period or unit relationship still needs checking. Then explain why
@@ -295,10 +300,7 @@ create a separately identified artifact, not silently overwrite the baseline.
 
 ## Native structured data is not a recovered PDF table
 
-<figure>
-<img src="figures/04-evidence-to-calculation.svg" alt="Document retrieval produces candidates. A separate proposed source-review path accepts explicit rows before reviewed-value lookup or calculation." style="display:block;width:100%;min-width:640px;height:auto">
-<figcaption>Solid arrows show the document-retrieval path. Dashed arrows describe a proposed independently reviewed values layer and calculation boundary. The implemented mechanical source-cell selectors below return candidates; they do not complete this diagram's review-and-calculation path. This is a conceptual design, not a deployed verified-values service.</figcaption>
-</figure>
+
 
 Editable sources: [draw.io diagram](figures/04-evidence-to-calculation.drawio)
 and [PlantUML diagram](figures/04-evidence-to-calculation.puml).

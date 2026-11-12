@@ -56,6 +56,12 @@ Python API has a separate integration path, explained in
 
 ## The reader's browser owns the work
 
+<figure class="architecture-figure" aria-label="Current reader-owned browser RAG responsibilities">
+<div class="figure-heading"><span class="figure-status">IMPLEMENTED RESPONSIBILITIES / SOURCE 7C7A2C3</span><h3>One owned source. Separate computation and answer gates.</h3><p>Follow the selected PDF through parser records, retrieval, context, Qwen and raw-output inspection. The explicit-field lookup and static preparation have separate contracts.</p></div>
+<iframe src="figures/reader-owned-rag.archify.html?theme=light" title="Archify overview of implemented reader-owned RAG responsibilities" loading="lazy"></iframe>
+<figcaption>Current source architecture, pinned to commit 7c7a2c3. Arrows summarize owned relationships, including session-mediated data flow; they do not connect workers directly or establish native financial acceptance. Editable <a href="figures/reader-owned-rag.archify.json">JSON</a> · <a href="figures/reader-owned-rag.archify.html?theme=light">Open full-size ↗</a>. The Python API is a separate integration surface and is not called by this lab.</figcaption>
+</figure>
+
 The current public entry composes responsibilities on the reader's device.
 Source records return through the session owner before chunking, representation,
 retrieval and complete context assembly. Generation and source-cell lookup follow
@@ -70,13 +76,15 @@ draft from the assembled context. The session decides whether each result can
 commit. Neither the architecture diagram nor the model knows a financial claim
 is correct merely because those stages completed.
 
-<figure class="architecture-figure" aria-label="Current reader-owned browser RAG responsibilities">
-<div class="figure-heading"><span class="figure-status">IMPLEMENTED RESPONSIBILITIES / SOURCE 7C7A2C3</span><h3>One owned source. Separate computation and answer gates.</h3><p>Follow the selected PDF through parser records, retrieval, context, Qwen and raw-output inspection. The explicit-field lookup and static preparation have separate contracts.</p></div>
-<iframe src="figures/reader-owned-rag.archify.html?theme=light" title="Archify overview of implemented reader-owned RAG responsibilities" loading="lazy"></iframe>
-<figcaption>Current source architecture, pinned to commit 7c7a2c3. Arrows summarize owned relationships, including session-mediated data flow; they do not connect workers directly or establish native financial acceptance. Editable <a href="figures/reader-owned-rag.archify.json">JSON</a> · <a href="figures/reader-owned-rag.archify.html?theme=light">Open full-size ↗</a>. The Python API is a separate integration surface and is not called by this lab.</figcaption>
-</figure>
+
 
 ## Start with the outcome, preserve the computation
+
+<figure class="architecture-figure" aria-label="Interactive reader-owned RAG computation lab">
+<div class="figure-heading"><span class="figure-status">BROWSER COMPUTATION LAB / SOURCE-OWNED SESSION</span><h3>Question → outcome → computation notebook</h3></div>
+<iframe src="browser-rag/inspector.html" title="Question, answer and expandable RAG computation notebook" loading="lazy"></iframe>
+<details class="chapter-note"><summary>How to use this lab and interpret its result</summary><p>Select a small local PDF, build chunks, explicitly encode passages, retrieve a question and inspect its context. The public build enables native generation and a separately labeled explicit-field Net income lookup after parsing. Inspect the device and download guidance before starting a model action.</p></details><figcaption>Figure 1 · The actual inspector. Model actions are explicit; a first Qwen run prepares approximately 816 MB of verified assets. A generated draft still needs source review. <a href="browser-rag/inspector.html">Open full-size ↗</a>. This iframe uses the build profile selected by its host.</figcaption>
+</figure>
 
 Use the main workspace for the next action and the notebook for the reason that
 action is available. On a new visit, **Waiting for a PDF** is an accurate outcome:
@@ -86,11 +94,7 @@ inspect the candidates; assemble context; then explicitly generate a draft.
 The six-stage overview can stay collapsed while the current action remains in
 view.
 
-<figure class="architecture-figure" aria-label="Interactive reader-owned RAG computation lab">
-<div class="figure-heading"><span class="figure-status">BROWSER COMPUTATION LAB / SOURCE-OWNED SESSION</span><h3>Question → outcome → computation notebook</h3><p>Select a small local PDF, build chunks, explicitly encode passages, retrieve a question and inspect its context. The public build enables native generation and a separately labeled explicit-field Net income lookup after parsing. Inspect the device and download guidance before starting a model action.</p></div>
-<iframe src="browser-rag/inspector.html" title="Question, answer and expandable RAG computation notebook" loading="lazy"></iframe>
-<figcaption>Figure 1 · The actual inspector. Model actions are explicit; a first Qwen run prepares approximately 816 MB of verified assets. A generated draft still needs source review. <a href="browser-rag/inspector.html">Open full-size ↗</a>. This iframe uses the build profile selected by its host.</figcaption>
-</figure>
+
 
 The six-step rail reports accepted artifacts and the current operation: parse,
 chunk, embed, retrieve, context and generate. A ready context is not an answer.

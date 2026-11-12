@@ -19,6 +19,19 @@ development trace later in this chapter, it did not even establish the requested
 report's existence. A score, a retrieved page and a financial answer are different
 objects. Evaluation starts by saying which one we intend to judge.
 
+The diagram below previews one concrete repair explored later in this chapter.
+Instead of relying on a high similarity score, the quarterly experiment keeps
+the source row, dated column and unit together. Follow the source index on the
+left and the question on the right: they meet at a selector, while the dense
+retrieval comparison stays separate. This is a source-selection experiment,
+not a verified financial answer.
+
+<figure class="architecture-figure" id="quarterly-source-selection" aria-label="Source-only quarterly income-statement index and literal query selection">
+<div class="figure-heading"><span class="figure-status">08 / SOURCE-PINNED PYTHON PATH · DEVELOPMENT CANDIDATES</span><h3>A value travels with its row and column.</h3><p>Build the source index first. Parse the original question and report scope. Select one candidate, or expose the reason it cannot be selected.</p></div>
+<iframe src="figures/structured-income-selection.archify.html?theme=light" title="Quarterly source index and literal selection architecture" loading="lazy"></iframe>
+<figcaption>Figure 8 · Quarterly checkpoint <code>224d02d</code>: logical responsibilities inside the opt-in Python source-selection path. Source locations are pinned to that reviewed implementation; the illustration is not a financial verdict, a deployment topology or a browser execution trace. <a href="figures/structured-income-selection.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/structured-income-selection.archify.json">Editable JSON</a>.</figcaption>
+</figure>
+
 By the end of this chapter, you should be able to take a saved ranking, name the
 unit each metric counts, calculate its numerator and denominator, and identify
 the source check still needed before accepting an answer. You will work a small
@@ -471,11 +484,7 @@ are a source candidate, a request for clarification, a refusal and an unsupporte
 request. The existing dense retrieval path stays separate; this experiment does
 not turn a literal field match into a cosine score.
 
-<figure class="architecture-figure" id="quarterly-source-selection" aria-label="Source-only quarterly income-statement index and literal query selection">
-<div class="figure-heading"><span class="figure-status">08 / SOURCE-PINNED PYTHON PATH · DEVELOPMENT CANDIDATES</span><h3>A value travels with its row and column.</h3><p>Build the source index first. Parse the original question and report scope. Select one candidate, or expose the reason it cannot be selected.</p></div>
-<iframe src="figures/structured-income-selection.archify.html?theme=light" title="Quarterly source index and literal selection architecture" loading="lazy"></iframe>
-<figcaption>Figure 8 · Quarterly checkpoint <code>224d02d</code>: logical responsibilities inside the opt-in Python source-selection path. Source locations are pinned to that reviewed implementation; the illustration is not a financial verdict, a deployment topology or a browser execution trace. <a href="figures/structured-income-selection.archify.html?theme=light">Open full-size ↗</a> · <a href="figures/structured-income-selection.archify.json">Editable JSON</a>.</figcaption>
-</figure>
+
 
 <details class="chapter-note">
 <summary>Quarterly checkpoint: 204 source cells and 8,531 mechanical checks</summary>
