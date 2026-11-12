@@ -6,10 +6,10 @@ from visual_flows import render_flow
 from visual_sequences import render_sequence
 class ExportTests(unittest.TestCase):
  def test_export_source_layout_and_bytes(self):
-  spec=json.loads(Path('figures/two-lifecycles.archify.json').read_text());html=render_flow(spec,'two-lifecycles')
+  spec=json.loads(Path('figures/two-lifecycles.archify.json').read_text(encoding='utf-8'));html=render_flow(spec,'two-lifecycles')
   with tempfile.TemporaryDirectory() as d:
-   root=Path(d);write_exports(html,'two-lifecycles',spec,root,Path('style.css').read_text())
-   rows=json.loads((root/'two-lifecycles-exports.json').read_text());self.assertEqual(len(rows),2)
+   root=Path(d);write_exports(html,'two-lifecycles',spec,root,Path('style.css').read_text(encoding='utf-8'))
+   rows=json.loads((root/'two-lifecycles-exports.json').read_text(encoding='utf-8'));self.assertEqual(len(rows),2)
    for row in rows:
     data=(root/row['file']).read_bytes();root_svg=ElementTree.fromstring(data)
     self.assertIn('width',root_svg.attrib);self.assertIn('height',root_svg.attrib)
@@ -21,11 +21,11 @@ class ExportTests(unittest.TestCase):
 
  def test_sequence_exports_are_valid_xml_at_natural_size(self):
   for name in ('owned-generation', 'table-cell-selection'):
-   spec=json.loads(Path('figures',name+'.archify.json').read_text())
+   spec=json.loads(Path('figures',name+'.archify.json').read_text(encoding='utf-8'))
    html=render_sequence(spec,name)
    with tempfile.TemporaryDirectory() as d:
-    output=Path(d);write_exports(html,name,spec,output,Path('style.css').read_text())
-    rows=json.loads((output/(name+'-exports.json')).read_text())
+    output=Path(d);write_exports(html,name,spec,output,Path('style.css').read_text(encoding='utf-8'))
+    rows=json.loads((output/(name+'-exports.json')).read_text(encoding='utf-8'))
     self.assertEqual(len(rows),4)
     found=[]
     for row in rows:
@@ -49,11 +49,11 @@ class ExportTests(unittest.TestCase):
    self.assertTrue(root.get('style').endswith('width:360px;height:200px;max-width:none'))
 
  def test_every_historical_panel_retains_visible_status_and_legend(self):
-  spec=json.loads(Path('figures/browser-native.archify.json').read_text())
+  spec=json.loads(Path('figures/browser-native.archify.json').read_text(encoding='utf-8'))
   with tempfile.TemporaryDirectory() as d:
    output=Path(d)
-   write_exports(render_flow(spec,'browser-native'),'browser-native',spec,output,Path('style.css').read_text())
-   rows=json.loads((output/'browser-native-exports.json').read_text())
+   write_exports(render_flow(spec,'browser-native'),'browser-native',spec,output,Path('style.css').read_text(encoding='utf-8'))
+   rows=json.loads((output/'browser-native-exports.json').read_text(encoding='utf-8'))
    self.assertEqual(len(rows),3)
    for row in rows:
     root=ElementTree.fromstring((output/row['file']).read_bytes())

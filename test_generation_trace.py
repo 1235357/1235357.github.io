@@ -53,7 +53,7 @@ class GenerationTraceTest(unittest.TestCase):
         self.assertIn('fictional FY2024/FY2025 exercise', rendered)
 
     def test_real_excerpts_match_archived_e4_with_explicit_normalization(self):
-        archive = json.loads((ROOT / 'docs/acceptance-2026-10-11/public-d75-native-raw.json').read_text())
+        archive = json.loads((ROOT / 'docs/acceptance-2026-10-11/public-d75-native-raw.json').read_text(encoding='utf-8'))
         evidence = archive['preparedPrompt']['modelInput']['evidence']
         e4 = next(e for e in evidence if e['citationId'] == 'E4')
         excerpts = re.findall(r'data-range="(\d+):(\d+)"><small>.*?</small><span>(.*?)</span>', self.figure)
@@ -72,7 +72,7 @@ class GenerationTraceTest(unittest.TestCase):
         self.assertEqual(len(archive['generatedTokenIds']), 33)
         returned = json.loads(archive['text'])
         self.assertEqual(returned, {'answer': '16,599', 'citations': ['E4'], 'insufficient_evidence': False})
-        inspection = json.loads((ROOT / 'docs/acceptance-2026-10-11/public-d75-output-inspection.json').read_text())
+        inspection = json.loads((ROOT / 'docs/acceptance-2026-10-11/public-d75-output-inspection.json').read_text(encoding='utf-8'))
         self.assertEqual(inspection['outputInspection'], 'shape-and-citation-identity-accepted')
         self.assertEqual(inspection['claimSupport'], 'unestablished')
         self.assertEqual(inspection['financialCorrectness'], 'unestablished')

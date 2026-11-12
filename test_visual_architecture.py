@@ -2,7 +2,7 @@ import json, unittest
 from pathlib import Path
 from visual_architecture import render_owned_graph
 class OwnedVisualTest(unittest.TestCase):
- def setUp(self): self.spec=json.loads(Path('figures/reader-owned-rag.archify.json').read_text())
+ def setUp(self): self.spec=json.loads(Path('figures/reader-owned-rag.archify.json').read_text(encoding='utf-8'))
  def test_exact_source_nodes_and_edges(self):
   h=render_owned_graph(self.spec)
   for n in self.spec['components']:self.assertEqual(h.count('data-node="'+n['id']+'"'),1)
