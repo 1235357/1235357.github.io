@@ -20,6 +20,43 @@ rendered prompt, token budget, termination and citation checks. Given a new
 output, explain which boundary can reject it and which financial-support
 question remains unanswered even when every implemented check passes.
 
+## Follow one draft, not five different meanings of success
+
+Follow the saved execution below. Notice where the automated checks end and source review begins.
+
+<figure class="generation-trace" aria-labelledby="generation-trace-caption">
+  <figcaption id="generation-trace-caption">Execution passed. The financial claim is still unverified.</figcaption>
+  <div class="trace-verdict" id="trace-verdict"><div><strong>Execution / format</strong><span>Passed</span><small>The output has valid structure and names E4.</small></div><b aria-label="does not equal">≠</b><div><strong>Financial support</strong><span>Not established</span><small>The amount must match the right row, period and unit.</small></div></div>
+  <p>Recorded browser run d75, not a new experiment or a screenshot.</p>
+  <div class="trace-question" id="trace-question"><strong>Question, paraphrased:</strong> In NVIDIA’s fiscal 2025 second-quarter report, what was <mark>net income</mark> for the <mark>three months ended July 28, 2024</mark>, in <mark>millions of dollars</mark>?</div>
+  <div class="trace-layout">
+    <div class="trace-execution" id="trace-flow">
+      <p class="trace-lane-label">Observed processing</p>
+      <ol>
+        <li><div class="trace-transfer" data-from="trace-question" data-to="trace-retrieval"><span>question to retrieval</span></div><div class="trace-node" id="trace-retrieval"><p class="trace-step-title"><strong>Retrieve evidence</strong></p><p>Ranked: <strong>E4, E1, E2</strong></p><a class="trace-inspect" href="#trace-e4">Inspect E4’s contents</a></div></li>
+        <li><div class="trace-transfer" data-from="trace-retrieval" data-to="trace-prompt"><span>selected quotes</span></div><div class="trace-node" id="trace-prompt"><p class="trace-step-title"><strong>Prepare the prompt</strong></p><p><strong>1,745 input IDs</strong></p><details><summary>Read the actual instruction</summary><blockquote class="trace-prompt">“Answer the requested metric, period and unit only if supported; do not infer missing fiscal years, metrics, values, units or table columns.”</blockquote><p>Exact saved system-prompt excerpt. Input IDs are numerical tokens, not a quality score.</p></details></div></li>
+        <li><div class="trace-transfer" data-from="trace-prompt" data-to="trace-generation"><span>full model input</span></div><div class="trace-node" id="trace-generation"><p class="trace-step-title"><strong>Generate a draft</strong></p><p><strong>33 output IDs</strong> · EOS observed</p><p>EOS is the normal end-of-sequence signal.</p></div></li>
+        <li><div class="trace-transfer" data-from="trace-generation" data-to="trace-inspection"><span>returned output</span></div><div class="trace-node" id="trace-inspection"><p class="trace-step-title"><strong>Inspect the output</strong></p><p>JSON shape accepted.<br>Citation E4 belongs to the input.</p><p><strong>Execution / format: passed.</strong></p></div></li>
+      </ol>
+      <div class="trace-transfer" data-from="trace-inspection" data-to="trace-draft"><span>accepted as a draft</span></div>
+      <div class="trace-result" id="trace-draft"><p><strong>UNVERIFIED draft</strong></p><div class="trace-response"><span><b>answer</b><strong>16,599</strong></span><span><b>citations</b><strong>["E4"]</strong></span><span><b>insufficient_evidence</b><strong>false</strong></span></div><p>Actual returned fields, visually rearranged; citations remains an array. The model’s “false” is a claim, not a source-review verdict.</p></div>
+    </div>
+    <aside class="trace-explanation" aria-label="E4 source relationship not yet established">
+      <p class="trace-lane-label">Expand the evidence, not the success claim</p>
+      <div class="trace-source" id="trace-e4"><p><strong>E4 · rank 1 · PDF label 4</strong></p><p>Source statement: Condensed Consolidated Statements of Comprehensive Income.</p><p>The source contains <strong>16,599</strong>, but also two durations and repeated dates. A matching number alone does not identify the correct column.</p><details class="trace-audit"><summary>Inspect the four exact source excerpts</summary><p>Parser-order excerpts. Whitespace collapsed; no table columns reconstructed.</p><div class="trace-source-line" data-range="94:108"><small>Unit · E4 [94,108)</small><span>(In millions)</span></div><div class="trace-source-line" data-range="120:158"><small>Two durations · E4 [120,158)</small><span>Three Months Ended Six Months Ended</span></div><div class="trace-source-line" data-range="158:216"><small>Dates repeat · E4 [158,216)</small><span>Jul 28, 2024 Jul 30, 2023 Jul 28, 2024 Jul 30, 2023</span></div><div class="trace-source-line" data-range="216:277"><small>Net income, then four values · E4 [216,277)</small><span>Net income $ 16,599 $ 6,188 $ 31,480 $ 8,232</span></div><p>Ranges are UTF-16 offsets within E4.</p></details></div>
+      <div class="trace-open-link"><span>Column-to-value relationship<br><strong>not established here</strong></span></div>
+      <div class="trace-review"><p><strong>Source review still needed</strong></p><p>Which July 28 column belongs to three months?<br>Does 16,599 belong to that column, Net income row and unit?</p><p><strong>Financial support: unestablished.</strong></p><p>Next action: compare those locations on the original statement. This figure does not establish that match.</p><a class="trace-return" href="#trace-flow">Back to the processing flow ↑</a></div>
+    </aside>
+  </div>
+  <p class="trace-legend"><span><i class="trace-solid-key" aria-hidden="true"></i>Solid arrows: recorded processing</span><span><i class="trace-dashed-key" aria-hidden="true"></i>Dashed link: unresolved evidence relationship, not a running verifier</span></p>
+  <p>Sources: <a href="https://github.com/1235357/1235357.github.io/blob/277970edafe4c06075a6d0ee5ddf12d124602c9d/docs/acceptance-2026-10-11/public-d75-native-raw.json">saved prompt, E4 and output</a>; <a href="https://github.com/1235357/1235357.github.io/blob/277970edafe4c06075a6d0ee5ddf12d124602c9d/docs/acceptance-2026-10-11/public-d75-independent-archive-audit.md">independent archive audit</a>.</p>
+</figure>
+
+Think of a citation as an address. An address tells you where to look; it does not tell you whether the statement you find there supports the answer. Here, E4 identifies a selected source chunk. Financial review must still check the statement, row, period, amount and unit. This is why the browser keeps `claimSupport` and `financialCorrectness` as `unestablished`.
+
+Before continuing, explain two decisions in your own words: Why can the browser display this draft? What evidence would you still need before treating its financial claim as supported? Later in this chapter, the fictional FY2024/FY2025 exercise changes the facts and asks you to predict the outcome before opening the feedback.
+
+
 **Execution profiles, checked October 14:**
 
 | Entry | Generation behavior | How to interpret a result |
