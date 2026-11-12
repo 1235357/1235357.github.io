@@ -133,7 +133,7 @@ class RAGReadingTest(unittest.TestCase):
                 current_ids = {a['id'] for _, a in after.elements if 'id' in a}
                 original_ids = {a['id'] for _, a in before.elements if 'id' in a}
                 self.assertTrue(original_ids <= current_ids)
-                self.assertEqual([a.get('src') for t, a in before.elements if t == 'iframe'],
+                self.assertEqual([(a.get('src') + '&embed=1' if re.fullmatch(r'figures/[a-z0-9-]+\.archify\.html\?theme=light', a.get('src', '')) else a.get('src')) for t, a in before.elements if t == 'iframe'],
                                  [a.get('src') for t, a in after.elements if t == 'iframe'])
                 for anchor, _ in CHAPTERS[slug][3]:
                     self.assertIn(anchor, current_ids)

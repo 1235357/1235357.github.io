@@ -567,7 +567,7 @@ class NavigationTest(unittest.TestCase):
                 self.assertFalse((build.ROOT / 'dist' / 'figures' /
                                   f'{stem}.archify.delivery.json').exists())
         article = (build.ROOT / 'dist' / '02-contracts-before-services.html').read_text(encoding='utf-8')
-        self.assertIn('src="figures/browser-operation.archify.html?theme=light"', article)
+        self.assertIn('src="figures/browser-operation.archify.html?theme=light&amp;embed=1"', article)
         self.assertIn('href="figures/browser-operation.archify.json"', article)
         self.assertIn('not repository-provenance validation or PDF/model execution', article)
 
