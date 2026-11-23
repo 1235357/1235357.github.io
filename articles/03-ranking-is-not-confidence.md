@@ -15,6 +15,12 @@ October 4 run ranked a passage on physical PDF page 18 first, with cosine
 `0.807257`. It passed the Python baseline's `0.78` evidence gate. Does that
 mean an 80.7257% chance of a correct financial answer? What still needs checking?
 
+**No. `0.807257` is a similarity score, not a probability.** Ranking tells you what to inspect first. The source decides whether the claim is supported.
+
+For a synthetic FY2025 example, a passage scored `0.80` can rank first and still be irrelevant because it describes FY2023. A passage scored `0.60` can have the right FY2025 heading and still fail to verify the amount or unit. Neither gives a verified answer.
+
+The browser lab below is a separate exercise. It uses your PDF and browser MiniLM; it does not replay the October 4 Python run or apply the Python `0.78` cutoff.
+
 <figure class="architecture-figure" id="browser-ranking-lab" aria-label="Browser lab for the similarity walkthrough">
 <div class="figure-heading"><span class="figure-status">TRY IT / COMPUTATION NOTEBOOK</span><h3>Inspect one passage, coordinate by coordinate.</h3></div>
 <iframe src="browser-rag/inspector.html" title="Browser RAG lab — inspect actual query and passage similarity" loading="lazy"></iframe>
