@@ -29,7 +29,7 @@ main>.architecture-figure{grid-column:1/-1;margin:0;overflow:hidden;border:1px s
 .figure-heading{padding:28px 30px 10px;max-width:880px}
 .figure-status{font:700 13px/1.6 var(--ui);color:var(--accent);letter-spacing:.05em}
 .figure-status.planned{color:var(--scope-ink)}
-.figure-heading h3{font-size:clamp(25px,3vw,36px);line-height:1.2;margin:12px 0}
+.figure-heading :is(h2,h3){font-size:clamp(25px,3vw,36px);line-height:1.2;margin:12px 0}
 .figure-heading p{font-size:17px;line-height:1.7;color:var(--muted);margin:12px 0}
 .architecture-figure iframe{display:block;width:100%;height:850px;border:0;background:var(--paper);color-scheme:light}
 .architecture-figure figcaption{padding:20px 30px;margin:0;border-top:1px solid var(--line);font-size:16px;color:var(--muted)}
