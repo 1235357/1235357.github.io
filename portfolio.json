@@ -71,12 +71,12 @@
     {
       "id": "nvidia-rag", "category": "RETRIEVAL / SOFTWARE ENGINEERING", "title": "NVIDIA Financial RAG",
       "role": "AI-assisted engineering project", "period": "September 2026–present", "phase": "Working browser lab · ongoing evaluation",
-      "summary": "Ask your PDF a question. Inspect the retrieved evidence, intermediate calculations and an answer draft in a browser lab.",
-      "description": "Ask a local document a question, then inspect how its pages become chunks, vectors, retrieved evidence and a model-generated draft. A separately packaged Python API explores integration with other applications.",
+      "summary": "Ask your PDF a question. Trace retrieved passages back to the source and inspect how they were ranked.",
+      "description": "The public lab lets you inspect source pages, passage rankings and the evidence prepared for a draft. It does not generate an answer in the standard entry. A separately packaged Python API explores integration with other applications.",
       "details": [
         "Developing an offline Python document index with dense retrieval and source-linked evidence over NVIDIA reports.",
-        "Building a reader-device browser workflow with visible parsing, tokenization, vector search, context assembly and native generation stages. The lab lets you choose your own local PDF.",
-        "Investigating query formulation, citations, abstention and evaluation against original report evidence. A successful model run produces a draft; financial answer quality still needs evaluation.",
+        "Building a browser workflow that makes parsing, tokenization, vector search and context assembly visible. The lab lets you choose your own local PDF.",
+        "A separate archived model run includes a generated draft. It shows that the model ran, not that the financial answer was correct.",
         "Writing the engineering decisions and debugging history as a continuing series, with editable architecture figures and reproducible acceptance records."
       ],
       "stack": ["Python", "JavaScript", "PDF.js", "Transformers.js", "WebGPU", "Dense retrieval"],
