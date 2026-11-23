@@ -15,8 +15,14 @@ October 4 run ranked a passage on physical PDF page 18 first, with cosine
 `0.807257`. It passed the Python baseline's `0.78` evidence gate. Does that
 mean an 80.7257% chance of a correct financial answer? What still needs checking?
 
+**No. `0.807257` is a similarity score, not a probability.** Ranking tells you what to inspect first. The source decides whether the claim is supported.
+
+For a synthetic FY2025 example, a passage scored `0.80` can rank first and still be irrelevant because it describes FY2023. A passage scored `0.60` can have the right FY2025 heading and still fail to verify the amount or unit. Neither gives a verified answer.
+
+The browser lab below is a separate exercise. It uses your PDF and browser MiniLM; it does not replay the October 4 Python run or apply the Python `0.78` cutoff.
+
 <figure class="architecture-figure" id="browser-ranking-lab" aria-label="Browser lab for the similarity walkthrough">
-<div class="figure-heading"><span class="figure-status">TRY IT / COMPUTATION NOTEBOOK</span><h3>Inspect one passage, coordinate by coordinate.</h3></div>
+<div class="figure-heading"><span class="figure-status">TRY IT / COMPUTATION NOTEBOOK</span><h2>Inspect one passage, coordinate by coordinate.</h2></div>
 <iframe src="browser-rag/inspector.html" title="Browser RAG lab — inspect actual query and passage similarity" loading="lazy"></iframe>
 <details class="chapter-note"><summary>How to use this lab and interpret its result</summary><p>Choose your own PDF and explicitly build, embed and query its passages. Then open Notebook → Inspect how similarity selects passages to compare the complete ranking and one passage's component products.</p></details><figcaption>The lab uses the reader's device and the host's build profile. Model preparation starts through your actions; no worked-example vectors are inserted into an empty session. <a href="browser-rag/inspector.html">Open the lab full-size ↗</a> · <a href="07-operational-receipts.html">Follow the execution walkthrough ↗</a>. A retrieved passage or generated draft still needs checking against the original source.</figcaption>
 </figure>
