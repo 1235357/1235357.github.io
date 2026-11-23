@@ -99,26 +99,6 @@
         <summary><span class="eyebrow">04 / COMPUTATION NOTEBOOK</span><span id="notebook-title">Follow the evidence, step by step</span><span class="hint">Candidates · prompt context · parser records · tokens · vectors</span></summary>
       <nav class="notebook-index" aria-label="Notebook sections"><a href="#notebook-source">Source pages</a><a href="#notebook-chunks">Passages</a><a href="#notebook-vectors">Vectors</a><a href="#notebook-retrieval">Retrieval</a><a href="#notebook-context">Prompt context</a><a href="#notebook-records">Receipts</a></nav>
 
-      <section id="notebook-retrieval" tabindex="-1" class="query-inspection" aria-labelledby="candidate-title">
-        <p class="eyebrow">QUESTION → REPRESENTATION → CANDIDATES</p><h2 id="candidate-title">Candidates; not an answer</h2>
-        <p id="candidate-meta" class="hint" role="status" aria-live="polite">No candidates committed. An explicit query uses the retained passage vectors.</p>
-        <details><summary>Inspect the exact captured question</summary>
-          <dl class="question-capture"><dt>Original question</dt><dd id="question-original"></dd><dt>Resolved question</dt><dd id="question-resolved"></dd><dt>Encoder input</dt><dd id="question-encoder"></dd></dl>
-          <p>All three strings equal the captured original question. This stage performs no query rewrite.</p>
-        </details>
-        <div id="retrieval-calculation-view" class="retrieval-inspection-host"></div>
-        <div id="candidate-results" class="candidate-results"></div>
-        <details class="query-vector"><summary>Inspect accepted query encoding</summary>
-          <p id="query-embedding-meta" class="hint" role="status" aria-live="polite">No query vector committed.</p>
-          <div id="query-embedding-detail"></div>
-        </details>
-      </section>
-      <section id="notebook-context" tabindex="-1" class="context-inspection" aria-labelledby="context-title">
-        <p id="context-caption" class="eyebrow">COMPLETE PROVENANCE / NO GENERATED ANSWER</p><h2 id="context-title">Context; not generated</h2>
-        <p id="context-meta" class="hint" role="status" aria-live="polite">No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.</p>
-        <p class="hint">Citation IDs follow source chunk ordinals; retrieval rank is shown separately. Physical pages and PDF labels identify different things. Quotes retain the exact parser text, including whitespace.</p>
-        <div id="context-detail"></div>
-      </section>
       <section id="notebook-source" tabindex="-1" class="source-inspection" aria-labelledby="source-title">
       <div class="section-heading"><div><p class="eyebrow">EXACT PARSER RECORDS</p><h2 id="source-title">Source inspection</h2></div>
       <label for="page-select">Physical page <select id="page-select" disabled><option>No document</option></select></label></div>
@@ -144,6 +124,26 @@
         <p id="embedding-meta" class="hint" role="status" aria-live="polite">No vectors committed. Embed accepted chunks to inspect actual encoder output.</p>
         <div id="embedding-detail"></div>
         <p class="hint">The chunk selector controls this view. Changing selection inspects retained token IDs and vectors; it does not run inference again.</p>
+      </section>
+      <section id="notebook-retrieval" tabindex="-1" class="query-inspection" aria-labelledby="candidate-title">
+        <p class="eyebrow">QUESTION → REPRESENTATION → CANDIDATES</p><h2 id="candidate-title">Candidates; not an answer</h2>
+        <p id="candidate-meta" class="hint" role="status" aria-live="polite">No candidates committed. An explicit query uses the retained passage vectors.</p>
+        <details><summary>Inspect the exact captured question</summary>
+          <dl class="question-capture"><dt>Original question</dt><dd id="question-original"></dd><dt>Resolved question</dt><dd id="question-resolved"></dd><dt>Encoder input</dt><dd id="question-encoder"></dd></dl>
+          <p>All three strings equal the captured original question. This stage performs no query rewrite.</p>
+        </details>
+        <div id="retrieval-calculation-view" class="retrieval-inspection-host"></div>
+        <div id="candidate-results" class="candidate-results"></div>
+        <details class="query-vector"><summary>Inspect accepted query encoding</summary>
+          <p id="query-embedding-meta" class="hint" role="status" aria-live="polite">No query vector committed.</p>
+          <div id="query-embedding-detail"></div>
+        </details>
+      </section>
+      <section id="notebook-context" tabindex="-1" class="context-inspection" aria-labelledby="context-title">
+        <p id="context-caption" class="eyebrow">COMPLETE PROVENANCE / NO GENERATED ANSWER</p><h2 id="context-title">Context; not generated</h2>
+        <p id="context-meta" class="hint" role="status" aria-live="polite">No provenance context committed. Assemble an accepted retrieval to inspect its complete evidence.</p>
+        <p class="hint">Citation IDs follow source chunk ordinals; retrieval rank is shown separately. Physical pages and PDF labels identify different things. Quotes retain the exact parser text, including whitespace.</p>
+        <div id="context-detail"></div>
       </section>
       <section id="notebook-records" tabindex="-1" class="session-records" aria-label="Session records">
       <details><summary>Accepted document &amp; stage receipt</summary><dl id="receipt" class="receipt"></dl></details>

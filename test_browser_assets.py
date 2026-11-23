@@ -69,7 +69,7 @@ class InspectorMarkupTest(unittest.TestCase):
         self.assertIn('Candidates; not an answer', markup)
         self.assertIn('Generation remains disabled', markup)
         self.assertIn('Query attempt receipt', markup)
-        self.assertLess(markup.index('id="candidate-results"'), markup.index('id="source-title"'))
+        self.assertLess(markup.index('id="source-title"'), markup.index('id="candidate-results"'))
         self.assertNotIn('https://', markup)
 
     def test_calculation_view_is_outside_the_candidate_scroll_region(self):
@@ -79,7 +79,7 @@ class InspectorMarkupTest(unittest.TestCase):
         app = (build.ROOT / 'browser-rag' / 'pdf-app.mjs').read_text(encoding='utf-8')
         self.assertNotIn('results.append(retrievalInspectionHost)', app)
 
-    def test_context_inspection_follows_candidates_before_parser_records_without_inline_code(self):
+    def test_context_inspection_follows_sources_and_candidates_without_inline_code(self):
         markup = (build.ROOT / 'browser-rag' / 'inspector.html').read_text(encoding='utf-8')
         for identifier in ('context-title', 'context-detail', 'context-meta'):
             self.assertEqual(markup.count(f'id="{identifier}"'), 1, identifier)
@@ -89,7 +89,7 @@ class InspectorMarkupTest(unittest.TestCase):
         self.assertRegex(markup, r'<p\b[^>]*id="context-meta"[^>]*role="status"[^>]*aria-live="polite"')
         self.assertRegex(markup, r'<button\b[^>]*id="assemble-context"[^>]*disabled')
         self.assertLess(markup.index('id="candidate-results"'), markup.index('id="context-title"'))
-        self.assertLess(markup.index('id="context-title"'), markup.index('id="source-title"'))
+        self.assertLess(markup.index('id="source-title"'), markup.index('id="context-title"'))
         scripts = re.findall(r'<script\b([^>]*)>(.*?)</script>', markup, flags=re.DOTALL)
         self.assertTrue(scripts, 'The inspector must keep its external module entry point.')
         for attributes, body in scripts:
