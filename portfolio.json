@@ -72,7 +72,7 @@
       "id": "nvidia-rag", "category": "RETRIEVAL / SOFTWARE ENGINEERING", "title": "NVIDIA Financial RAG",
       "role": "AI-assisted engineering project", "period": "September 2026–present", "phase": "Working browser lab · ongoing evaluation",
       "summary": "Ask your PDF a question. Trace retrieved passages back to the source and inspect how they were ranked.",
-      "description": "The public lab lets you inspect source pages, passage rankings and the evidence prepared for a draft. It does not generate an answer in the standard entry. A separately packaged Python API explores integration with other applications.",
+      "description": "Inspect source pages, passage rankings and supporting passages. On compatible WebGPU devices, the published lab can also generate a draft on request. Check the draft against your PDF. A separately packaged Python API explores integration with other applications.",
       "details": [
         "Developing an offline Python document index with dense retrieval and source-linked evidence over NVIDIA reports.",
         "Building a browser workflow that makes parsing, tokenization, vector search and context assembly visible. The lab lets you choose your own local PDF.",
