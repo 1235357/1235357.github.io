@@ -601,6 +601,18 @@ class NavigationTest(unittest.TestCase):
             output = (build.ROOT / 'dist' / (source.stem + '.html')).read_text(encoding='utf-8')
             self.assertIn('FIELD NOTES / ' + number + '</p>', output)
 
+    def test_generated_reading_links_use_supported_font_glyphs(self):
+        # Manrope bundles U+2192, not U+2197. Cover the journal and article template.
+        build.build()
+        journal = (build.ROOT / 'dist' / 'journal.html').read_text(encoding='utf-8')
+        for label in ('Open the lab', 'Read the API decisions', 'Read the execution-contract chapter'):
+            self.assertIn(label + ' →</a>', journal)
+            self.assertNotIn(label + ' ↗', journal)
+        for source in (build.ROOT / 'articles').glob('*.md'):
+            article = (build.ROOT / 'dist' / (source.stem + '.html')).read_text(encoding='utf-8')
+            self.assertIn('href="journal.html">Series index →</a>', article)
+            self.assertNotIn('Series index ↗', article)
+
     def test_personal_entry_preserves_complete_journal_and_project_access(self):
         build.build()
         output = (build.ROOT / 'dist' / 'index.html').read_text(encoding='utf-8')
