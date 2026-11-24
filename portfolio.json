@@ -114,7 +114,7 @@
     },
     {
       "id": "osef", "category": "RESEARCH / VIDEO EVIDENCE", "title": "OSEF: One-Step Evidence Fusion",
-      "role": "First author · Wenzhou-Kean University", "period": "September 2025–present", "phase": "Ongoing research",
+      "role": "First author · Wenzhou-Kean University", "period": "September 2025–present", "phase": "Research preprint",
       "summary": "Predicting an ordered procedure together with the video and time interval that support it.",
       "description": "Our task starts with text describing the initial and goal states, a set of candidate videos, and the requested number of actions. The model predicts the supporting video, the relevant time interval, and the full ordered action sequence.",
       "details": [
