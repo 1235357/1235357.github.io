@@ -114,18 +114,17 @@
     },
     {
       "id": "osef", "category": "RESEARCH / VIDEO EVIDENCE", "title": "OSEF: One-Step Evidence Fusion",
-      "role": "First author · Wenzhou-Kean University", "period": "September 2025–present", "phase": "Ongoing benchmark research · November 2026",
-      "summary": "Linking video retrieval, temporal localization and complete action plans through evaluation against the same annotated witness.",
-      "description": "Collaborative research on Cross-Video Scene Procedure Planning with One-Step Evidence Fusion (OSEF), a hypothesis-conditioned evidence-to-plan model.",
+      "role": "First author · Wenzhou-Kean University", "period": "September 2025–present", "phase": "Ongoing research",
+      "summary": "Predicting an ordered procedure together with the video and time interval that support it.",
+      "description": "Our task starts with text describing the initial and goal states, a set of candidate videos, and the requested number of actions. The model predicts the supporting video, the relevant time interval, and the full ordered action sequence.",
       "details": [
-        "Developing an annotation-supported benchmark that requires a predicted video, temporal interval and complete action sequence to match the same annotated witness.",
-        "Investigating a hypothesis-conditioned planner that retains query-scored candidate-cell tokens and learns from accepted complete-output mass.",
-        "Using matched interface, feature and supervision studies to examine linked success, component errors, regressions and inference cost. Current findings are mixed and do not show a uniform joint benefit.",
-        "The public arXiv preprint documents an earlier version; the latest benchmark and model analyses remain ongoing research."
+        "We score candidate intervals and predict an action sequence conditioned on each interval.",
+        "For each proposed interval, our decoder pools probability mass from intervals in the same video that overlap it sufficiently and support the same complete action sequence.",
+        "The strict joint metric checks whether the video and full action sequence match a single annotated example and whether the predicted interval sufficiently overlaps that example's interval."
       ],
       "stack": ["Multimodal retrieval", "Structured prediction", "Benchmark design", "Controlled evaluation"],
-      "links": [{"label": "July 2026 preprint (earlier version)", "href": "https://arxiv.org/abs/2607.29401"}, {"label": "View the original inference diagram", "href": "figures/osef-inference.archify.html?theme=light"}],
-      "featured_links": [{"label": "July 2026 preprint (earlier version)", "href": "https://arxiv.org/abs/2607.29401"}]
+      "links": [{"label": "arXiv preprint", "href": "https://arxiv.org/abs/2607.29401"}, {"label": "July 2026 preprint archive (v1)", "href": "https://arxiv.org/abs/2607.29401v1"}, {"label": "Original v1 inference diagram", "href": "figures/osef-inference.archify.html?theme=light"}],
+      "featured_links": [{"label": "arXiv preprint", "href": "https://arxiv.org/abs/2607.29401"}]
     },
     {
       "id": "artisk", "category": "AGENTS / PRODUCT INTERFACE", "title": "Artisk AI-Agent Product Project",
