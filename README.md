@@ -6,6 +6,8 @@ A seventh project record describes ongoing developer-documentation evaluation in
 
 The first reading path shows three selected projects and keeps four additional projects, detailed contributions and the complete learning/engineering methodology available through native disclosures. Methodology attribution and source links are preserved when expanded.
 
+My first-author preprint [OSEF: One-Step Evidence Fusion](https://arxiv.org/abs/2607.29401) studies how to retrieve the supporting video, localize the relevant time interval, and predict the ordered action sequence from a set of candidate videos.
+
 Open the [personal profile](https://1235357.github.io/), [RAG workspace](https://1235357.github.io/browser-rag/inspector.html) or [engineering journal](https://1235357.github.io/journal.html). The profile, articles, embedded and standalone workspace, and diagram viewers use one light theme with Manrope typography.
 
 For a first source check, choose a short PDF you have permission to use. Find one answer-bearing sentence and its physical page before asking your question. Build its chunks without a model, then explicitly embed and retrieve if your device supports WebGPU. Compare the returned quote and page with your prediction. Downloading assets, retrieving a passage and generating an unverified draft are separate steps; the workspace starts no model automatically.
